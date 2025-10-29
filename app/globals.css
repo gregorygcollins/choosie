@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import "tailwindcss";
+
+/* Ensure Pacifico font is loaded */
+.font-cursive {
+  font-family: 'Pacifico', cursive !important;
+}
+
+/* Direct color overrides for Tailwind classes */
+.bg-brand {
+  background-color: #4a5568 !important;
+}
+
+.bg-brand:hover {
+  background-color: #2d3748 !important;
+}
+
+/* Base styles */
+:root {
+  --charcoal: #4a5568;
+  --charcoal-light: #cbd5e0;
+  --charcoal-dark: #2d3748;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, var(--charcoal-light) 100%);
+}
+
+/* Enhanced button styles */
+[class*="rounded-full"] {
+  transition: all 0.2s ease !important;
+}
+
+[class*="rounded-full"]:hover {
+  transform: translateY(-1px);
+}
+
+[class*="rounded-full"]:active {
+  transform: translateY(1px);
+}
+
+/* Card styles */
+.card, [class*="bg-white"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(74, 85, 104, 0.1) !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 8px 20px rgba(74, 85, 104, 0.15) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+  }
+  
+  .card, [class*="bg-white"] {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(74, 85, 104, 0.1) !important;
+  }
+}
+

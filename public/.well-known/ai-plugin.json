@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Choosie Watchlists",
+  "name_for_model": "choosie",
+  "description_for_human": "Create, refine, and finalize group movie watchlists.",
+  "description_for_model": "API to create a watchlist, add movies (with TMDB enrichment), suggest an overlap subset, and finalize a winner. Use it to help users plan a movie night.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://narrative-by-nature.com/choosie/openapi.json"
+  },
+  "logo_url": "https://narrative-by-nature.com/choosie/icon.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "https://narrative-by-nature.com/choosie/choosie-privacy/"
+}

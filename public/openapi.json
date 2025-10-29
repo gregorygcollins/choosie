@@ -1,0 +1,248 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Choosie API",
+    "version": "0.1.0",
+    "description": "Minimal API for creating and managing watchlists for ChatGPT app integration."
+  },
+  "servers": [
+    { "url": "https://narrative-by-nature.com/choosie" }
+  ],
+  "paths": {
+    "/api/choosie/createList": {
+      "post": {
+        "summary": "Create a new watchlist",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "items": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/ItemInput" }
+                  }
+                },
+                "required": ["title"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateListResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/choosie/addMovie": {
+      "post": {
+        "summary": "Add a movie to a list (enriched with TMDB if possible)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "listId": { "type": "string" },
+                  "title": { "type": "string" },
+                  "notes": { "type": "string" }
+                },
+                "required": ["listId", "title"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Added",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AddMovieResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/choosie/getList": {
+      "post": {
+        "summary": "Fetch a watchlist by id",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "listId": { "type": "string" } },
+                "required": ["listId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetListResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/choosie/getOverlap": {
+      "post": {
+        "summary": "Return a suggested overlap subset (e.g., top 3)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "listId": { "type": "string" },
+                  "desiredCount": { "type": "integer", "default": 3 }
+                },
+                "required": ["listId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetOverlapResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/choosie/finalizeWatchlist": {
+      "post": {
+        "summary": "Set the final winner for the list",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "listId": { "type": "string" },
+                  "winnerId": { "type": "string" },
+                  "winnerTitle": { "type": "string" }
+                },
+                "oneOf": [
+                  { "required": ["listId", "winnerId"] },
+                  { "required": ["listId", "winnerTitle"] }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FinalizeResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "notes": { "type": "string" },
+          "image": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "title"]
+      },
+      "ItemInput": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "notes": { "type": "string" },
+          "image": { "type": "string" }
+        },
+        "required": ["title"]
+      },
+      "List": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Item" } },
+          "createdAt": { "type": "string" },
+          "winnerId": { "type": "string" }
+        },
+        "required": ["id", "title", "items", "createdAt"]
+      },
+      "CreateListResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "listId": { "type": "string" },
+          "url": { "type": "string" },
+          "list": { "$ref": "#/components/schemas/List" }
+        },
+        "required": ["ok", "listId", "url", "list"]
+      },
+      "AddMovieResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "item": { "$ref": "#/components/schemas/Item" },
+          "list": { "$ref": "#/components/schemas/List" }
+        },
+        "required": ["ok", "item", "list"]
+      },
+      "GetListResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "list": { "$ref": "#/components/schemas/List" }
+        },
+        "required": ["ok", "list"]
+      },
+      "GetOverlapResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "suggestions": { "type": "array", "items": { "$ref": "#/components/schemas/Item" } },
+          "count": { "type": "integer" },
+          "plan": { "type": "array", "items": { "type": "integer" } }
+        },
+        "required": ["ok", "suggestions", "count"]
+      },
+      "FinalizeResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "winnerId": { "type": "string" },
+          "list": { "$ref": "#/components/schemas/List" }
+        },
+        "required": ["ok", "winnerId", "list"]
+      }
+    }
+  }
+}

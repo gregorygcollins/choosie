@@ -1,0 +1,214 @@
+{
+  "lists": [
+    {
+      "id": "4wg6qwm9inimh57u0n7",
+      "title": "Test Night",
+      "items": [
+        {
+          "id": "qspjmizh2uo",
+          "title": "Inception",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-24T18:59:58.531Z"
+    },
+    {
+      "id": "xg9vlzqbi7mh57u0n8",
+      "title": "Movies",
+      "items": [
+        {
+          "id": "amcy4iko9gl",
+          "title": "Soul",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-24T18:59:58.532Z"
+    },
+    {
+      "id": "s468srco55nmh57u0n9",
+      "title": "Finale",
+      "items": [
+        {
+          "id": "ifzgz7mxbw",
+          "title": "Parasite",
+          "image": null
+        },
+        {
+          "id": "qp3r9nk18g8",
+          "title": "Moonlight",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-24T18:59:58.533Z",
+      "winnerId": "qp3r9nk18g8"
+    },
+    {
+      "id": "qrpsvzlnn9cmhbbqnz9",
+      "title": "Test Night",
+      "items": [
+        {
+          "id": "0sevwcsbccbh",
+          "title": "Inception",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:35:57.669Z"
+    },
+    {
+      "id": "s5aig4y7xhlmhbbqnzb",
+      "title": "Movies",
+      "items": [
+        {
+          "id": "f53m49kgvg",
+          "title": "Soul",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:35:57.671Z"
+    },
+    {
+      "id": "ha44qdj2e0hmhbbqnzc",
+      "title": "Finale",
+      "items": [
+        {
+          "id": "svywq3vl4ha",
+          "title": "Parasite",
+          "image": null
+        },
+        {
+          "id": "tj5n4iy275e",
+          "title": "Moonlight",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:35:57.672Z",
+      "winnerId": "tj5n4iy275e"
+    },
+    {
+      "id": "lqolleg2cs8mhbbqsuy",
+      "title": "Test Night",
+      "items": [
+        {
+          "id": "nqsv6r9uvu",
+          "title": "Inception",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:36:03.994Z"
+    },
+    {
+      "id": "e9cynsriuummhbbqsuz",
+      "title": "Movies",
+      "items": [
+        {
+          "id": "ga6v77ruy4d",
+          "title": "Soul",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:36:03.995Z"
+    },
+    {
+      "id": "hzq6a7956o8mhbbqsv0",
+      "title": "Finale",
+      "items": [
+        {
+          "id": "l91qewbm9v",
+          "title": "Parasite",
+          "image": null
+        },
+        {
+          "id": "n2drgbozqui",
+          "title": "Moonlight",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T01:36:03.996Z",
+      "winnerId": "n2drgbozqui"
+    },
+    {
+      "id": "k5oxc4z1zhmhcf1pz1",
+      "title": "Test Night",
+      "items": [
+        {
+          "id": "ngola9m60p",
+          "title": "Inception",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T19:56:18.493Z"
+    },
+    {
+      "id": "019thqzjllwwmhcf1pz2",
+      "title": "Movies",
+      "items": [
+        {
+          "id": "49wqx2kgflr",
+          "title": "Soul",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T19:56:18.494Z"
+    },
+    {
+      "id": "bt3tg7r7l7mmhcf1pz3",
+      "title": "Finale",
+      "items": [
+        {
+          "id": "zplfj1lv9hh",
+          "title": "Parasite",
+          "image": null
+        },
+        {
+          "id": "376y4ib1k4s",
+          "title": "Moonlight",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T19:56:18.495Z",
+      "winnerId": "376y4ib1k4s"
+    },
+    {
+      "id": "wi47nh1bzumhcgr7u3",
+      "title": "Test Night",
+      "items": [
+        {
+          "id": "0qkj7l5k0v3",
+          "title": "Inception",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T20:44:07.659Z"
+    },
+    {
+      "id": "c52dt9kjptlmhcgr7u5",
+      "title": "Movies",
+      "items": [
+        {
+          "id": "g4psvk28ho",
+          "title": "Soul",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T20:44:07.661Z"
+    },
+    {
+      "id": "avc1i9grjomhcgr7u6",
+      "title": "Finale",
+      "items": [
+        {
+          "id": "d0r49mwvd7",
+          "title": "Parasite",
+          "image": null
+        },
+        {
+          "id": "h8fkdy7r0bf",
+          "title": "Moonlight",
+          "image": null
+        }
+      ],
+      "createdAt": "2025-10-29T20:44:07.662Z",
+      "winnerId": "h8fkdy7r0bf"
+    }
+  ]
+}
