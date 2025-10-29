@@ -1,55 +1,89 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSession, signInDemo, signOut, isPremium, getBillingInfoForUser } from "../../lib/auth";
+import { useSession, signIn, signOut as nextAuthSignOut } from "next-auth/react";
 
 export default function AccountPage() {
-  const [session, setSession] = useState(getSession());
-  const [billing, setBilling] = useState(() => (session.user ? getBillingInfoForUser(session.user.id) : undefined));
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    setSession(getSession());
-  }, []);
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        const data = await res.json();
+        if (!cancelled) setUser(data.user);
+      } catch {
+        if (!cancelled) setUser(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [status]);
 
-  function handleUpgrade() {
-    // demo: create a new pro session
-    signInDemo(session.user?.name || "Pro Demo", true);
-    setSession(getSession());
-    setBilling(getBillingInfoForUser(session.user?.id || ""));
+  async function startCheckout() {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function handleSignOut() {
-    signOut();
-    setSession(getSession());
+  async function openPortal() {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-2xl p-6 rounded-xl bg-white/80 mt-6">Loading…</div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-2xl p-6 rounded-xl bg-white/80 mt-6">
+        <h2 className="text-2xl font-bold">Account</h2>
+        <div className="text-sm text-zinc-600 mt-4">Not signed in. <button onClick={() => signIn("google")} className="text-brand">Sign in</button></div>
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto max-w-2xl p-6 rounded-xl bg-white/80 mt-6">
       <h2 className="text-2xl font-bold">Account</h2>
-      {session.user ? (
-        <div className="mt-4 space-y-3">
-          <div className="text-sm">Name: <strong>{session.user.name}</strong></div>
-          <div className="text-sm">Email: <strong>{session.user.email}</strong></div>
-          <div className="text-sm">Plan: <strong>{session.user.isPro ? 'Pro' : 'Free'}</strong></div>
+      <div className="mt-4 space-y-3">
+        <div className="text-sm">Name: <strong>{user.name}</strong></div>
+        <div className="text-sm">Email: <strong>{user.email}</strong></div>
+        <div className="text-sm">Plan: <strong>{user.isPro ? 'Pro' : 'Free'}</strong></div>
 
-          <div className="mt-4">
-            {session.user.isPro ? (
-              <div className="text-sm text-green-700">Your Pro subscription is active (demo).</div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <button onClick={handleUpgrade} className="rounded-full bg-amber-300 px-3 py-2 text-black">Upgrade to Pro (demo)</button>
-                <div className="text-sm text-zinc-600">Upgrading here is a client-side demo. Wire real billing in lib/auth or server APIs.</div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-4">
-            <button onClick={handleSignOut} className="text-sm text-rose-500">Sign out</button>
-          </div>
+        <div className="mt-4 flex items-center gap-3">
+          {user.isPro ? (
+            <button disabled={busy} onClick={openPortal} className="rounded-full bg-zinc-900 text-white px-3 py-2 disabled:opacity-50">Manage subscription</button>
+          ) : (
+            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-amber-300 px-3 py-2 text-black disabled:opacity-50">Upgrade to Pro</button>
+          )}
         </div>
-      ) : (
-        <div className="text-sm text-zinc-600">Not signed in. <a href="/auth/login" className="text-brand">Sign in</a></div>
-      )}
+
+        <div className="mt-4">
+          <button onClick={() => nextAuthSignOut()} className="text-sm text-rose-500">Sign out</button>
+        </div>
+      </div>
     </div>
   );
 }
