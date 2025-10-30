@@ -102,7 +102,60 @@ When deploying to Postgres, change the Prisma datasource provider to `postgresql
 
 ---
 
-## �💛 Credits & Voice
+## 🚢 Deployment Checklist (Vercel)
+
+### Required Environment Variables
+
+Set these in your Vercel project (Settings → Environment Variables) for **Production** and **Preview**:
+
+**Authentication & App**
+- `NEXTAUTH_URL` = `https://your-vercel-domain.vercel.app` (or custom domain)
+- `NEXTAUTH_SECRET` = (generate with `openssl rand -base64 32`)
+- `GOOGLE_CLIENT_ID` = (from Google Cloud Console OAuth app)
+- `GOOGLE_CLIENT_SECRET` = (from Google Cloud Console OAuth app)
+
+**Database**
+- `DATABASE_URL` = (PostgreSQL connection string, e.g., from Vercel Postgres or Supabase)
+
+**Stripe**
+- `STRIPE_SECRET_KEY` = (from Stripe Dashboard → Developers → API keys)
+- `STRIPE_WEBHOOK_SECRET` = (from Stripe Dashboard → Developers → Webhooks; set endpoint to `https://your-domain.vercel.app/api/stripe/webhook`)
+
+**API Keys**
+- `GOOGLE_BOOKS_API_KEY` = (from Google Cloud Console)
+- `SPOONACULAR_API_KEY` = (from Spoonacular API Dashboard)
+- `SPOTIFY_CLIENT_ID` = (from Spotify Developer Dashboard)
+- `SPOTIFY_CLIENT_SECRET` = (from Spotify Developer Dashboard)
+
+### Post-Deployment Steps
+
+1. **Configure Stripe Webhook**
+   - Go to Stripe Dashboard → Developers → Webhooks
+   - Add endpoint: `https://your-vercel-domain.vercel.app/api/stripe/webhook`
+   - Select events: `checkout.session.completed`, `customer.subscription.*`
+   - Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in Vercel
+
+2. **Run Database Migrations**
+   ```bash
+   # After first deploy with DATABASE_URL set
+   npx prisma migrate deploy
+   ```
+
+3. **Verify Deployment**
+   - Visit `/api/health` to check server status
+   - Visit `/api/me` to verify auth flow
+   - Test sign-in with Google OAuth
+   - Test creating a list and narrowing flow
+
+### Local Development vs. Production
+
+- **Local**: Uses SQLite (`prisma/dev.db`) and `.env` file
+- **Production**: Uses PostgreSQL and Vercel environment variables
+- Both require same env vars (except `DATABASE_URL` format differs)
+
+---
+
+## 💛 Credits & Voice
 
 Built with **Next.js 16 + Tailwind CSS**.  
 Designed to turn small choices into shared magic.  
