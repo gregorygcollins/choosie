@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useSession, signIn, signOut as nextAuthSignOut } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -9,6 +11,9 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const checkoutStatus = searchParams.get("checkout");
+  const showSuccessBanner = useMemo(() => checkoutStatus === "success", [checkoutStatus]);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +95,12 @@ export default function AccountPage() {
         {error && (
           <div className="mt-4 p-3 rounded bg-rose-100 text-rose-700 text-sm">
             {error}
+          </div>
+        )}
+
+        {showSuccessBanner && user.isPro && (
+          <div className="mt-2 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800">
+            🎉 You’re Pro! Enjoy premium features.
           </div>
         )}
 
