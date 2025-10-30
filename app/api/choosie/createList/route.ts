@@ -3,23 +3,40 @@ import { createList } from "@/lib/db";
 import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
+import { validateOrigin, createErrorResponse } from "@/lib/security";
+import { validateRequest, createListSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const origin = getOrigin(req);
+
   try {
-    // basic rate limiting
-    const origin = req.headers.get("origin") || req.nextUrl.origin;
+    // Rate limiting
     const rl = rateLimit(req, { scope: "createList", limit: 30, windowMs: 60_000 });
     if (!rl.ok) {
       return withCORS(rl.res, origin);
     }
-  const body = await req.json();
-  const session = await auth();
-  const userId = session?.user?.id || "dev-user-temp"; // fallback for anonymous/dev
-    const title = (body?.title ?? "Untitled").toString();
-    const items = Array.isArray(body?.items) ? body.items : undefined;
-  const list = await createList(userId, title, items);
+
+    // Origin validation for CSRF protection
+    if (!validateOrigin(req)) {
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Invalid origin" }, { status: 403 }),
+        origin
+      );
+    }
+
+    const body = await req.json();
+    const validatedData = validateRequest(createListSchema, body);
+    
+    const session = await auth();
+    const userId = session?.user?.id || "dev-user-temp"; // fallback for anonymous/dev
+    
+    const list = await createList(
+      userId,
+      validatedData.title,
+      validatedData.items
+    );
   
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
     const res = NextResponse.json({
@@ -40,8 +57,7 @@ export async function POST(req: NextRequest) {
     });
     return withCORS(res, origin);
   } catch (e: any) {
-    const res = NextResponse.json({ ok: false, error: e?.message || "Unknown error" }, { status: 400 });
-    return withCORS(res, getOrigin(req));
+    return withCORS(createErrorResponse(e, 400, "Failed to create list"), origin);
   }
 }
 

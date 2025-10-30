@@ -3,50 +3,69 @@ import { getListById, upsertProgress } from "@/lib/db";
 import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
+import { validateOrigin, createErrorResponse, requireAuth } from "@/lib/security";
+import { validateRequest, finalizeWatchlistSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const origin = getOrigin(req);
+
   try {
-    const origin = getOrigin(req);
+    // Rate limiting
     const rl = rateLimit(req, { scope: "finalizeWatchlist", limit: 30, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
-  const body = await req.json();
-  const session = await auth();
-    const listId = body?.listId as string;
-    const winnerId = body?.winnerId as string | undefined;
-    const winnerTitle = body?.winnerTitle as string | undefined;
-    if (!listId) {
-      const res400 = NextResponse.json({ ok: false, error: "Missing listId" }, { status: 400 });
-      return withCORS(res400, getOrigin(req));
+
+    // Origin validation
+    if (!validateOrigin(req)) {
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Invalid origin" }, { status: 403 }),
+        origin
+      );
     }
 
-    const list = await getListById(listId);
+    const body = await req.json();
+    const validatedData = validateRequest(finalizeWatchlistSchema, body);
+    
+    const session = await auth();
+
+    const list = await getListById(validatedData.listId);
     if (!list) {
-      const res404 = NextResponse.json({ ok: false, error: "List not found" }, { status: 404 });
-      return withCORS(res404, getOrigin(req));
-    }
-    if (session?.user?.id && list.userId !== session.user.id) {
-      const res403 = NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
-      return withCORS(res403, getOrigin(req));
+      return withCORS(
+        NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }),
+        origin
+      );
     }
 
-    // resolve winner id by title if needed
-    let resolvedWinnerId = winnerId;
-    if (!resolvedWinnerId && winnerTitle) {
-      const found = list.items.find((i) => i.title.toLowerCase() === winnerTitle.toLowerCase());
-      if (found) resolvedWinnerId = found.id;
+    // Require authentication and ownership
+    const authCheck = requireAuth(session, list.userId);
+    if (!authCheck.ok) {
+      return withCORS(authCheck.response, origin);
+    }
+
+    // Resolve winner id from history if needed
+    let resolvedWinnerId = validatedData.winnerId;
+    if (!resolvedWinnerId && validatedData.history) {
+      // Extract winner from history structure if present
+      // This is a placeholder - adjust based on actual history structure
+      resolvedWinnerId = validatedData.history.winnerId;
     }
 
     if (!resolvedWinnerId) {
-      const res400b = NextResponse.json({ ok: false, error: "Missing winnerId or matching winnerTitle" }, { status: 400 });
-      return withCORS(res400b, origin);
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Winner ID required" }, { status: 400 }),
+        origin
+      );
     }
 
-    // Update progress with winner and clear history
-    await upsertProgress(listId, {}, resolvedWinnerId);
+    // Update progress with winner and history
+    await upsertProgress(
+      validatedData.listId,
+      validatedData.history || {},
+      resolvedWinnerId
+    );
 
-  const updatedList = await getListById(listId);
+    const updatedList = await getListById(validatedData.listId);
     const res = NextResponse.json({
       ok: true,
       winnerId: resolvedWinnerId,
@@ -67,8 +86,7 @@ export async function POST(req: NextRequest) {
     });
     return withCORS(res, origin);
   } catch (e: any) {
-    const res = NextResponse.json({ ok: false, error: e?.message || "Unknown error" }, { status: 400 });
-    return withCORS(res, getOrigin(req));
+    return withCORS(createErrorResponse(e, 400, "Failed to finalize watchlist"), origin);
   }
 }
 

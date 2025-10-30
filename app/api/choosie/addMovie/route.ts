@@ -4,28 +4,52 @@ import { auth } from "@/lib/auth.server";
 import { searchMovies } from "@/lib/tmdb";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
+import { validateOrigin, createErrorResponse, requireAuth } from "@/lib/security";
+import { validateRequest, addMovieSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const origin = getOrigin(req);
+
   try {
-    const origin = getOrigin(req);
+    // Rate limiting
     const rl = rateLimit(req, { scope: "addMovie", limit: 60, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
-  const body = await req.json();
-  const session = await auth();
-    const listId = body?.listId as string;
-    const title = body?.title as string;
-    const notes = body?.notes as string | undefined;
-    if (!listId || !title) {
-      return NextResponse.json({ ok: false, error: "Missing listId or title" }, { status: 400 });
+
+    // Origin validation for CSRF protection
+    if (!validateOrigin(req)) {
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Invalid origin" }, { status: 403 }),
+        origin
+      );
     }
 
-    // try to enrich with TMDB poster
+    const body = await req.json();
+    const validatedData = validateRequest(addMovieSchema, body);
+    
+    const session = await auth();
+
+    // Ownership check before modifying
+    const listBefore = await getListById(validatedData.listId);
+    if (!listBefore) {
+      return withCORS(
+        NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }),
+        origin
+      );
+    }
+
+    // Require authentication and ownership
+    const authCheck = requireAuth(session, listBefore.userId);
+    if (!authCheck.ok) {
+      return withCORS(authCheck.response, origin);
+    }
+
+    // Try to enrich with TMDB poster
     let image: string | null = null;
     let tmdbId: string | undefined;
     try {
-      const results = await searchMovies(title);
+      const results = await searchMovies(validatedData.title);
       if (results && results.length > 0) {
         image = results[0].poster;
         tmdbId = results[0].id?.toString();
@@ -34,24 +58,21 @@ export async function POST(req: NextRequest) {
       // ignore TMDB errors for robustness
     }
 
-    // Ownership check before modifying
-    const listBefore = await getListById(listId);
-    if (!listBefore) {
-      const res404a = NextResponse.json({ ok: false, error: "List not found" }, { status: 404 });
-      return withCORS(res404a, getOrigin(req));
-    }
-    if (session?.user?.id && listBefore.userId !== session.user.id) {
-      const res403 = NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
-      return withCORS(res403, getOrigin(req));
-    }
-
-    const item = await addItemToList(listId, { title, notes, image, tmdbId });
+    const item = await addItemToList(validatedData.listId, {
+      title: validatedData.title,
+      notes: validatedData.notes,
+      image,
+      tmdbId,
+    });
+    
     if (!item) {
-      const res404 = NextResponse.json({ ok: false, error: "List not found" }, { status: 404 });
-      return withCORS(res404, getOrigin(req));
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Failed to add item" }, { status: 400 }),
+        origin
+      );
     }
 
-    const list = await getListById(listId);
+    const list = await getListById(validatedData.listId);
     const res = NextResponse.json({
       ok: true,
       item: {
@@ -74,10 +95,9 @@ export async function POST(req: NextRequest) {
           }
         : undefined,
     });
-    return withCORS(res, getOrigin(req));
+    return withCORS(res, origin);
   } catch (e: any) {
-    const res = NextResponse.json({ ok: false, error: e?.message || "Unknown error" }, { status: 400 });
-    return withCORS(res, getOrigin(req));
+    return withCORS(createErrorResponse(e, 400, "Failed to add movie"), origin);
   }
 }
 

@@ -74,8 +74,16 @@ export async function POST(req: NextRequest) {
         break;
     }
   } catch (err: any) {
-    // Log and return 200 so Stripe doesn't retry forever if it's a data issue
-    console.error("Stripe webhook handler error", err);
+    // Log full error details server-side for debugging
+    console.error("Stripe webhook handler error:", {
+      error: err.message,
+      stack: err.stack,
+      eventType: event?.type,
+      eventId: event?.id,
+    });
+    
+    // Return 200 to prevent Stripe from retrying on data/logic errors
+    // (Signature verification errors already return 400 above)
   }
 
   return NextResponse.json({ ok: true });

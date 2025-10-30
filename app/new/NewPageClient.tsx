@@ -938,11 +938,11 @@ export default function NewPageClient() {
           </div>
         </div>
       ) : selectedModule === "music" ? (
-        <MusicModule />
+          musicModuleJSX()
       ) : selectedModule === "food" ? (
-        <FoodModule />
+          foodModuleJSX()
       ) : selectedModule === "anything" ? (
-        <AnythingModule />
+          anythingModuleJSX()
       ) : (
         <ListForm onSave={handleSave} existingList={existingList} />
       )}
@@ -950,7 +950,7 @@ export default function NewPageClient() {
   );
 
   // ========== KARAOKE MODULE COMPONENT ==========
-  function MusicModule() {
+    function musicModuleJSX() {
     return (
       <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
         <label className="block mb-3 text-sm font-medium">Name your music list</label>
@@ -1181,7 +1181,7 @@ export default function NewPageClient() {
   }
 
   // ========== FOOD MODULE COMPONENT ==========
-  function FoodModule() {
+    function foodModuleJSX() {
     return (
       <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
         <label className="block mb-3 text-sm font-medium">Name your food list</label>
@@ -1384,7 +1384,7 @@ export default function NewPageClient() {
   }
 
   // ========== ANYTHING MODULE COMPONENT ==========
-  function AnythingModule() {
+    function anythingModuleJSX() {
     return (
       <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
         <label className="block mb-3 text-sm font-medium">Name your list</label>
