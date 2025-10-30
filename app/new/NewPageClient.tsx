@@ -51,7 +51,7 @@ export default function NewPageClient() {
           Premium modules <span className="ml-2 rounded-full bg-amber-300 px-2 py-0.5 text-xs font-semibold text-black">Pro</span>
         </div>
         {!me?.isPro && (
-          <button onClick={() => setUpsellOpen(true)} className="text-sm rounded-full bg-amber-300 px-3 py-1 font-semibold text-black">
+          <button type="button" onClick={() => setUpsellOpen(true)} className="text-sm rounded-full bg-amber-300 px-3 py-1 font-semibold text-black">
             Unlock Pro
           </button>
         )}
