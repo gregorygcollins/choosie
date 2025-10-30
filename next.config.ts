@@ -40,9 +40,9 @@ const nextConfig: NextConfig = {
       "connect-src 'self' https:",
       // Next.js may inline styles; allow inline styles
       "style-src 'self' 'unsafe-inline' https:",
-      // In production avoid 'unsafe-eval'; dev tooling needs it
+      // Next.js uses inline scripts for hydration - need unsafe-inline in production
       isProd
-        ? "script-src 'self' https:"
+        ? "script-src 'self' 'unsafe-inline' https:"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
       // Stripe embeds
       "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://billing.stripe.com",
