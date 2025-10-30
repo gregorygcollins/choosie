@@ -54,7 +54,7 @@ export default function Nav() {
             Home
           </Link>
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
-            Watchlists
+            Lists
           </Link>
           <Link href="/new" className="text-sm text-zinc-700 hover:text-brand">
             Create

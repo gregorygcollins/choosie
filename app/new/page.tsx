@@ -6,18 +6,26 @@ import NewPageClient from "./NewPageClient";
 const LIST_TYPES = [
   { word: "watch", color: "text-rose-500" },
   { word: "book", color: "text-blue-500" },
-  { word: "karaoke", color: "text-purple-500" },
-  { word: "recipe", color: "text-emerald-500" },
+  { word: "music", color: "text-purple-500" },
+  { word: "food", color: "text-emerald-500" },
   { word: "anything", color: "text-amber-500" },
 ];
 
+// Calculate the maximum word length for consistent spacing
+const maxWordLength = Math.max(...LIST_TYPES.map((t) => t.word.length));
+
 export default function NewPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % LIST_TYPES.length);
-    }, 2000);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % LIST_TYPES.length);
+        setIsTransitioning(false);
+      }, 350); // Half of the transition duration for crossfade effect
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
@@ -31,12 +39,16 @@ export default function NewPage() {
           <div className="flex flex-col space-y-2 text-left sm:text-center">
             <h1 className="text-3xl font-bold text-black sm:text-4xl">
               Build your{" "}
-              <span className={`${current.color} transition-colors duration-500`}>
+              <span 
+                className={`${current.color} transition-all duration-700 ease-in-out inline-block ${
+                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`}
+              >
                 {current.word}
               </span>
               list.
             </h1>
-            <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're looking forward to it, so is someone else.</p>
+            <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
 
           </div>
         </section>

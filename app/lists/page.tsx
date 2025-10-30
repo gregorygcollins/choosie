@@ -70,18 +70,24 @@ export default function ListsPage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold text-black dark:text-white">
-            My Watchlists
+            My Lists
           </h1>
           <Link
             href="/new"
             className="inline-flex h-10 items-center justify-center rounded-full bg-brand px-5 text-sm text-white transition-all hover:opacity-90 active:translate-y-px"
           >
-            Create new watchlist
+            Create new list
           </Link>
         </div>
 
         <div className="grid gap-4">
-          {lists.map((list) => (
+          {lists.map((list) => {
+            const listTypeName = list.moduleType === "books" ? "booklist" :
+                                 list.moduleType === "food" ? "food list" :
+                                 list.moduleType === "music" ? "music list" :
+                                 list.moduleType === "anything" ? "list" : "watchlist";
+            
+            return (
             <div
               key={list.id}
               className="card flex flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between"
@@ -100,7 +106,7 @@ export default function ListsPage() {
                   href={`/list/${list.id}`}
                   className="inline-flex h-9 items-center justify-center rounded-full bg-brand px-4 text-sm text-white transition-all hover:opacity-90 active:translate-y-px"
                 >
-                  View watchlist
+                  View {listTypeName}
                 </Link>
                 {list.narrowers && (
                   <Link
@@ -112,7 +118,8 @@ export default function ListsPage() {
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
     </div>

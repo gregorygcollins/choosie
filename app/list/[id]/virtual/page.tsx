@@ -13,6 +13,16 @@ export default function VirtualInvitesPage() {
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
+  // Helper to get list type name
+  const getListTypeName = () => {
+    if (!list) return "list";
+    if (list.moduleType === "books") return "booklist";
+    if (list.moduleType === "food") return "food list";
+    if (list.moduleType === "music") return "music list";
+    if (list.moduleType === "anything") return "list";
+    return "watchlist"; // default for movies
+  };
+
   useEffect(() => {
     if (typeof id === "string") {
       const found = getList(id);
@@ -56,8 +66,12 @@ export default function VirtualInvitesPage() {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
   // For virtual narrowing, link directly to the narrowing flow
   const link = `${origin}${basePath}/narrow/${updated.id}`;
-      const subject = `Join my watchlist: ${updated.title}`;
-      const body = `I just made a watchlist in Choosie.\n\nHelp narrow it down here: ${link}\n\nWe’ll vote it down to one perfect pick together.\n\n—`;
+      const listTypeName = list.moduleType === "books" ? "booklist" : 
+                           list.moduleType === "food" ? "food list" :
+                           list.moduleType === "karaoke" ? "karaoke list" :
+                           list.moduleType === "anything" ? "list" : "watchlist";
+      const subject = `Join my ${listTypeName}: ${updated.title}`;
+      const body = `I just made a ${listTypeName} in Choosie.\n\nHelp narrow it down here: ${link}\n\nWe'll vote it down to one perfect pick together.\n\n—`;
 
       const mailto = `mailto:${encodeURIComponent(emails.join(","))}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailto;
@@ -70,12 +84,12 @@ export default function VirtualInvitesPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-amber-50">
         <div className="text-center text-zinc-700">
-          <p className="text-xl mb-4">Watchlist not found</p>
+          <p className="text-xl mb-4">List not found</p>
           <button
             onClick={() => router.push("/lists")}
             className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors"
           >
-            Back to My Watchlists
+            Back to My Lists
           </button>
         </div>
       </main>
@@ -115,7 +129,7 @@ export default function VirtualInvitesPage() {
             onClick={() => router.push(`/list/${list.id}`)}
             className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            Back to watchlist
+            Back to {getListTypeName()}
           </button>
           <button
             onClick={saveAndSend}

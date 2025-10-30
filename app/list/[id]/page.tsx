@@ -13,6 +13,16 @@ export default function ViewListPage() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper to get list type name
+  const getListTypeName = () => {
+    if (!list) return "list";
+    if (list.moduleType === "books") return "booklist";
+    if (list.moduleType === "food") return "food list";
+    if (list.moduleType === "music") return "music list";
+    if (list.moduleType === "anything") return "list";
+    return "watchlist"; // default for movies
+  };
+
   useEffect(() => {
     if (typeof id !== "string") return;
     let cancelled = false;
@@ -213,19 +223,19 @@ export default function ViewListPage() {
               onClick={() => router.push(`/narrow/${list.id}`)}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
-              Narrow watchlist in person
+              Narrow {getListTypeName()} in person
             </button>
             <button
               onClick={() => router.push(`/list/${list.id}/virtual`)}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
-              Narrow watchlist virtually
+              Narrow {getListTypeName()} virtually
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
               className="rounded-full bg-white border border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-50 transition-colors"
             >
-              Edit watchlist
+              Edit {getListTypeName()}
             </button>
           </div>
 

@@ -61,7 +61,13 @@ export default function AccountPage() {
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        setError(data?.error || "Failed to open portal");
+        // Graceful fallback: if no Stripe customer, kick off checkout to create one
+        const msg = (data?.error || "").toString();
+        if (msg.includes("No Stripe customer")) {
+          await startCheckout();
+        } else {
+          setError(data?.error || "Failed to open portal");
+        }
       }
     } catch (err: any) {
       setError(err?.message || "Network error");

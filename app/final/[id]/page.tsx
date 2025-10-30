@@ -17,6 +17,16 @@ export default function FinalPage() {
     }
   }, [params.id]);
 
+  // Helper to get list type name
+  const getListTypeName = () => {
+    if (!list) return "list";
+    if (list.moduleType === "books") return "booklist";
+    if (list.moduleType === "food") return "food list";
+    if (list.moduleType === "music") return "music list";
+    if (list.moduleType === "anything") return "list";
+    return "watchlist"; // default for movies
+  };
+
   if (!list) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center">
@@ -73,7 +83,7 @@ export default function FinalPage() {
           href="/new"
           className="inline-block rounded-full bg-brand px-8 py-4 font-semibold text-white hover:opacity-90 transition-colors"
         >
-          Create another watchlist
+          Create another {getListTypeName()}
         </Link>
       </div>
     </div>

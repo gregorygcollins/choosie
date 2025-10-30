@@ -24,7 +24,7 @@ export default function Home() {
             href="/new"
             className="flex h-14 items-center justify-center rounded-full bg-brand px-8 font-semibold text-white shadow-lg shadow-brand/20 transition hover:scale-105 hover:bg-brand-dark active:scale-100 dark:shadow-brand/40"
           >
-            Be choosie!
+            Be Choosie!
           </Link>
         </div>
       </main>

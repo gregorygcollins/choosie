@@ -21,6 +21,8 @@ export type ChoosieList = {
   title: string;
   items: ChoosieItem[];
   createdAt: string;
+  // Module type for different list types (movies, books, recipes, etc.)
+  moduleType?: string;
   // final outcome (optional)
   winnerId?: string;
   // Optional taste preferences (MVP for movies)
@@ -334,7 +336,7 @@ export default function ListForm({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
     className="w-full rounded-lg border px-3 py-2 shadow-inner"
-      placeholder="Family Vacation, Rainy Weekend Rewatches, Road Trip Flicks, Oscar Contenders…"
+  placeholder="Family vacation, Rainy weekend rewatchables, Oscar contenders…"
       />
       <p className="text-sm text-zinc-500 mt-1">
         Add the movies you want to watch — Choosie will find what hits for everyone else.
