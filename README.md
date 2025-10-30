@@ -122,10 +122,12 @@ Set these in your Vercel project (Settings → Environment Variables) for **Prod
 - `STRIPE_WEBHOOK_SECRET` = (from Stripe Dashboard → Developers → Webhooks; set endpoint to `https://your-domain.vercel.app/api/stripe/webhook`)
 
 **API Keys**
-- `GOOGLE_BOOKS_API_KEY` = (from Google Cloud Console)
+- `GOOGLE_BOOKS_API_KEY` = (from Google Cloud Console → APIs & Services → Credentials)
 - `SPOONACULAR_API_KEY` = (from Spoonacular API Dashboard)
 - `SPOTIFY_CLIENT_ID` = (from Spotify Developer Dashboard)
 - `SPOTIFY_CLIENT_SECRET` = (from Spotify Developer Dashboard)
+
+> **Note**: API keys should be set in Vercel environment variables, not committed to git. Update keys in Vercel dashboard when they change locally.
 
 ### Post-Deployment Steps
 
