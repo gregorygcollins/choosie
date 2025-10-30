@@ -11,8 +11,11 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 export default function Nav() {
   const { data: nextSession } = useSession();
   const [localSession, setLocalSession] = useState(auth.getSession());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Mark as mounted to prevent hydration mismatch
+    setMounted(true);
     // sync session on mount
     setLocalSession(getSession());
     // basic storage listener so multiple tabs update UI
@@ -60,7 +63,10 @@ export default function Nav() {
       </div>
 
       <div className="flex items-center gap-3">
-        {activeUser ? (
+        {!mounted ? (
+          // Prevent hydration mismatch by showing nothing until client-side
+          <div className="h-6 w-24" />
+        ) : activeUser ? (
           <>
             {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
               <span className="rounded-full bg-amber-300 px-2 py-1 text-xs font-semibold text-black">

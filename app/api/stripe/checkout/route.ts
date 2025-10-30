@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({ ok: true, url: checkoutSession.url });
     return withCORS(res, origin);
   } catch (err: any) {
+    console.error("Stripe checkout error:", err);
     const res = NextResponse.json({ ok: false, error: err?.message || "Failed to create checkout session" }, { status: 500 });
     return withCORS(res, origin);
   }

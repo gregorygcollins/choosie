@@ -8,6 +8,7 @@ export default function AccountPage() {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,10 +30,17 @@ export default function AccountPage() {
 
   async function startCheckout() {
     setBusy(true);
+    setError(null);
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" } });
       const data = await res.json();
-      if (data?.url) window.location.href = data.url;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data?.error || "Failed to start checkout");
+      }
+    } catch (err: any) {
+      setError(err?.message || "Network error");
     } finally {
       setBusy(false);
     }
@@ -40,10 +48,17 @@ export default function AccountPage() {
 
   async function openPortal() {
     setBusy(true);
+    setError(null);
     try {
       const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" } });
       const data = await res.json();
-      if (data?.url) window.location.href = data.url;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data?.error || "Failed to open portal");
+      }
+    } catch (err: any) {
+      setError(err?.message || "Network error");
     } finally {
       setBusy(false);
     }
@@ -71,6 +86,12 @@ export default function AccountPage() {
         <div className="text-sm">Name: <strong>{user.name}</strong></div>
         <div className="text-sm">Email: <strong>{user.email}</strong></div>
         <div className="text-sm">Plan: <strong>{user.isPro ? 'Pro' : 'Free'}</strong></div>
+
+        {error && (
+          <div className="mt-4 p-3 rounded bg-rose-100 text-rose-700 text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="mt-4 flex items-center gap-3">
           {user.isPro ? (
