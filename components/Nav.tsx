@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import auth, { getSession, signInDemo, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { Pacifico } from "next/font/google";
+
+const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
 export default function Nav() {
   const { data: nextSession } = useSession();
@@ -39,7 +42,7 @@ export default function Nav() {
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-4">
-        <Link href="/" className="text-lg font-cursive font-semibold text-brand">
+        <Link href="/" className={`${pacifico.className} text-lg font-semibold text-brand`}>
           Choosie
         </Link>
 
