@@ -18,6 +18,7 @@ export default function ProcessSection() {
             width={1152}
             height={768}
             priority={false}
+            unoptimized
             className="h-auto w-full max-w-3xl select-none"
           />
         </div>
