@@ -53,7 +53,7 @@ export default function NewPage() {
         </section>
 
         {/* Choosie process diagram (discreet connector: tight spacing, dropdown-aligned width) */}
-  <div className="relative flex justify-center mt-[0.12rem] mb-[0.04rem]">
+  <div className="relative flex justify-center mt-[0.5rem] mb-[0.04rem]">
           <div className="w-full max-w-[420px] sm:max-w-[440px] h-[44px] sm:h-[56px] overflow-hidden">
             <img
               src="/choosie-process.svg"
