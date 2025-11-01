@@ -52,21 +52,23 @@ export default function NewPage() {
           </div>
         </section>
 
-        {/* Choosie process diagram */}
-<div className="flex justify-center my-1">
-  <img
-    src="/choosie-process.svg"
-    alt="Choosie process diagram"
-    aria-hidden="true"
-    className="w-full max-w-[420px] h-auto opacity-70 object-contain"
-    onError={(e) => {
-      const t = e.currentTarget as HTMLImageElement;
-      if (!t.src.endsWith('/choosie-process.png')) {
-        t.onerror = null;
-        t.src = '/choosie-process.png';
-      }
-    }}
-  />
+       {/* Choosie process diagram (tight spacing, full form width, no distortion) */}
+<div className="relative flex justify-center my-0" style={{ height: "60px" }}>
+  <div className="w-full">
+    <img
+      src="/choosie-process.svg"
+      alt="Choosie process diagram"
+      aria-hidden="true"
+      className="w-full h-full object-contain opacity-70"
+      onError={(e) => {
+        const t = e.currentTarget as HTMLImageElement;
+        if (!t.src.endsWith('/choosie-process.png')) {
+          t.onerror = null;
+          t.src = '/choosie-process.png';
+        }
+      }}
+    />
+  </div>
 </div>
 
         <div className="mt-2">
