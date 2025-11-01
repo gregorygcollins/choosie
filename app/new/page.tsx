@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
 import NewPageClient from "./NewPageClient";
 
 const LIST_TYPES = [
@@ -50,16 +49,13 @@ export default function NewPage() {
               list.
             </h1>
             <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
-            {/* Subtle connector image between headline and form */}
-            <div className="py-2 sm:py-3 flex justify-center">
-              <Image
-                src="/choosie-process.png"
-                alt="Choosie process"
-                width={1152}
-                height={768}
-                unoptimized
-                className="h-auto w-full max-w-[30rem] select-none opacity-95"
-                priority={false}
+            {/* Subtle SVG connector between headline and form */}
+            <div className="my-4 flex justify-center">
+              <img
+                src="/choosie-process.svg"
+                alt="Choosie process diagram"
+                className="block h-auto w-full select-none"
+                loading="lazy"
               />
             </div>
           </div>
