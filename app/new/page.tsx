@@ -59,6 +59,13 @@ export default function NewPage() {
             alt="Choosie process diagram"
             className="block h-auto w-full select-none"
             loading="lazy"
+            onError={(e) => {
+              const t = e.currentTarget as HTMLImageElement;
+              if (!t.src.endsWith('/choosie-process.png')) {
+                t.onerror = null; // prevent loops
+                t.src = '/choosie-process.png';
+              }
+            }}
           />
         </div>
 
