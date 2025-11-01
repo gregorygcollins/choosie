@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 import NewPageClient from "./NewPageClient";
-import ProcessSection from "@/components/ProcessSection";
 
 const LIST_TYPES = [
   { word: "watch", color: "text-rose-500" },
@@ -50,11 +50,20 @@ export default function NewPage() {
               list.
             </h1>
             <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
+            {/* Subtle connector image between headline and form */}
+            <div className="py-4 sm:py-6 flex justify-center">
+              <Image
+                src="/choosie-process.png"
+                alt="Choosie process"
+                width={1152}
+                height={768}
+                unoptimized
+                className="h-auto w-full max-w-sm select-none opacity-95"
+                priority={false}
+              />
+            </div>
           </div>
         </section>
-
-        {/* Process overview section */}
-        <ProcessSection />
 
         <div className="mt-2">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
