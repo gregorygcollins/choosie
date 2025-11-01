@@ -52,29 +52,22 @@ export default function NewPage() {
           </div>
         </section>
 
-        {/* SVG connector placed between headline and form with exact inline styles */}
-        <div style={{ textAlign: "center", margin: 0 }}>
-          <img
-            src="/choosie-process.svg"
-            alt="Choosie process diagram"
-            style={{
-              display: "block",
-              margin: "0.5rem auto",
-              width: "100%",
-              maxWidth: "420px",
-              height: "auto",
-              opacity: 0.7,
-              objectFit: "contain",
-            }}
-            onError={(e) => {
-              const t = e.currentTarget as HTMLImageElement;
-              if (!t.src.endsWith('/choosie-process.png')) {
-                t.onerror = null; // prevent loop
-                t.src = '/choosie-process.png';
-              }
-            }}
-          />
-        </div>
+        {/* Choosie process diagram */}
+<div className="flex justify-center my-1">
+  <img
+    src="/choosie-process.svg"
+    alt="Choosie process diagram"
+    aria-hidden="true"
+    className="w-full max-w-[420px] h-auto opacity-70 object-contain"
+    onError={(e) => {
+      const t = e.currentTarget as HTMLImageElement;
+      if (!t.src.endsWith('/choosie-process.png')) {
+        t.onerror = null;
+        t.src = '/choosie-process.png';
+      }
+    }}
+  />
+</div>
 
         <div className="mt-2">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
