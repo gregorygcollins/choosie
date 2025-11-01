@@ -52,23 +52,24 @@ export default function NewPage() {
           </p>
         </section>
 
-        {/* Choosie process diagram (discreet connector: tight spacing, dropdown-aligned width) */}
-  <div className="relative flex justify-center mt-[0.5rem] mb-[0.04rem]">
-          <div className="w-full max-w-[420px] sm:max-w-[440px] h-[44px] sm:h-[56px] overflow-hidden">
-            <img
-              src="/choosie-process.svg"
-              alt="Choosie process diagram"
-              className="w-full h-full object-cover opacity-[0.65]"
-              onError={(e) => {
-                const t = e.currentTarget as HTMLImageElement;
-                if (!t.src.endsWith('/choosie-process.png')) {
-                  t.onerror = null;
-                  t.src = '/choosie-process.png';
-                }
-              }}
-            />
-          </div>
-        </div>
+        {/* Choosie process diagram */}
+<div className="flex justify-center mt-8 mb-2">
+  <img
+    src="/choosie-process.svg"
+    alt="Choosie process diagram"
+    className="w-full max-w-[480px] opacity-70 object-contain"
+    style={{
+      height: "auto",
+    }}
+    onError={(e) => {
+      const t = e.currentTarget as HTMLImageElement;
+      if (!t.src.endsWith("/choosie-process.png")) {
+        t.onerror = null;
+        t.src = "/choosie-process.png";
+      }
+    }}
+  />
+</div>
 
         {/* Form section */}
   <div className="mt-[0.075rem]">
