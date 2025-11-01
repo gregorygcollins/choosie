@@ -35,41 +35,42 @@ export default function NewPage() {
     <main className="min-h-screen bg-gradient-to-b from-white to-brand-light p-8">
       <div className="mx-auto max-w-3xl">
         {/* Hero invitation */}
-  <section className="mb-[0.225rem] px-4 sm:px-0">
-          <div className="flex flex-col space-y-2 text-left sm:text-center">
-            <h1 className="text-3xl font-bold text-black sm:text-4xl">
-              Build your{" "}
-              <span 
-                className={`${current.color} transition-all duration-700 ease-in-out inline-block ${
-                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                }`}
-              >
-                {current.word}
-              </span>
-              list.
-            </h1>
-            <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
-          </div>
+  <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
+          <h1 className="text-3xl font-bold text-black sm:text-4xl">
+            Build your{" "}
+            <span
+              className={`${current.color} transition-all duration-700 ease-in-out inline-block ${
+                isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
+              }`}
+            >
+              {current.word}
+            </span>
+            list.
+          </h1>
+          <p className="mt-2 text-lg font-normal text-zinc-700 sm:text-xl">
+            If you're into it, so is someone else.
+          </p>
         </section>
 
-       {/* Choosie process diagram (tight spacing, full form width, preserve aspect) */}
-<div className="relative flex justify-center my-[0.04rem]">
-  <div className="w-full max-w-[420px] sm:max-w-[440px] h-[44px] sm:h-[56px] overflow-hidden rounded-none">
-    <img
-      src="/choosie-process.svg"
-      alt="Choosie process diagram"
-  className="w-full h-full object-cover opacity-[0.65] object-center"
-      onError={(e) => {
-        const t = e.currentTarget as HTMLImageElement;
-        if (!t.src.endsWith('/choosie-process.png')) {
-          t.onerror = null;
-          t.src = '/choosie-process.png';
-        }
-      }}
-    />
-  </div>
-</div>
+        {/* Choosie process diagram (discreet connector: tight spacing, dropdown-aligned width) */}
+  <div className="relative flex justify-center mt-[0.12rem] mb-[0.04rem]">
+          <div className="w-full max-w-[420px] sm:max-w-[440px] h-[44px] sm:h-[56px] overflow-hidden">
+            <img
+              src="/choosie-process.svg"
+              alt="Choosie process diagram"
+              className="w-full h-full object-cover opacity-[0.65]"
+              onError={(e) => {
+                const t = e.currentTarget as HTMLImageElement;
+                if (!t.src.endsWith('/choosie-process.png')) {
+                  t.onerror = null;
+                  t.src = '/choosie-process.png';
+                }
+              }}
+            />
+          </div>
+        </div>
 
+        {/* Form section */}
   <div className="mt-[0.075rem]">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
             <NewPageClient />
