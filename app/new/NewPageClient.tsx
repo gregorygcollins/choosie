@@ -30,6 +30,7 @@ export default function NewPageClient() {
   const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedBookResult, setSelectedBookResult] = useState<BookSearchResult | null>(null);
   const [bookNote, setBookNote] = useState("");
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -41,6 +42,7 @@ export default function NewPageClient() {
   const [musicItems, setMusicItems] = useState<ChoosieItem[]>([]);
   const [musicInput, setMusicInput] = useState("");
   const [musicNote, setMusicNote] = useState("");
+  const [musicAlbumArt, setMusicAlbumArt] = useState<string | undefined>(undefined);
   const [musicSearchResults, setMusicSearchResults] = useState<SpotifyTrack[]>([]);
   const [musicSearchLoading, setMusicSearchLoading] = useState(false);
   const [showMusicResults, setShowMusicResults] = useState(false);
@@ -58,6 +60,22 @@ export default function NewPageClient() {
   const [foodAiLoading, setFoodAiLoading] = useState(false);
   const [foodViewMode, setFoodViewMode] = useState<"list" | "grid">("list");
   const [foodDragIndex, setFoodDragIndex] = useState<number | null>(null);
+
+  // Starter ideas for Food when tailored suggestions aren't available yet
+  const DEFAULT_FOOD_SUGGESTIONS: Array<{ title: string; reason?: string }> = [
+    { title: "Taco night", reason: "Build-your-own and crowd-pleaser" },
+    { title: "Stir-fry", reason: "Fast, flexible, great with veggies" },
+    { title: "Sheet‑pan chicken", reason: "Easy, minimal cleanup" },
+    { title: "Pasta al limone", reason: "Bright, simple, comforting" },
+    { title: "Burgers + oven fries", reason: "Weeknight classic" },
+    { title: "Thai curry", reason: "Cozy and customizable heat" },
+    { title: "Grain bowl", reason: "Healthy base with fun toppings" },
+    { title: "Homemade pizza", reason: "Everyone picks a topping" },
+    { title: "Chili", reason: "Make-ahead and feeds a crowd" },
+    { title: "Fajitas", reason: "Sizzle factor, quick on the stove" },
+    { title: "Ramen upgrade", reason: "Quick broth + add‑ins" },
+    { title: "Salmon + greens", reason: "Light and weeknight easy" },
+  ];
 
   // Anything list state (no API search, manual entry only)
   const [anythingTitle, setAnythingTitle] = useState("");
@@ -176,6 +194,7 @@ export default function NewPageClient() {
     // Reset book state
     setBookTitle("");
     setBookItems([]);
+  setSelectedBookResult(null);
     setSearchQuery("");
     setSearchResults([]);
     setShowSearchResults(false);
@@ -207,11 +226,13 @@ export default function NewPageClient() {
     setBookNote(book.description || "");
     setSearchResults([]);
     setShowSearchResults(false);
+    setSelectedBookResult(book);
   }
 
   function selectSpotifyTrack(track: SpotifyTrack) {
     setMusicInput(`${track.name} - ${track.artists.join(", ")}`);
     setMusicNote(track.album || "");
+    setMusicAlbumArt(track.albumArt);
     setMusicSearchResults([]);
     setShowMusicResults(false);
   }
@@ -229,8 +250,8 @@ export default function NewPageClient() {
       return;
     }
 
-    // Find the selected book from search results if available
-    const selectedBook = searchResults.find(b => b.title === searchQuery);
+  // Prefer an explicitly selected result (set by selectBookSuggestion). If not set, try to match the title from the current searchResults.
+  const selectedBook = selectedBookResult || searchResults.find(b => b.title === searchQuery);
     
     setBookItems((s) => [
       ...s,
@@ -245,6 +266,7 @@ export default function NewPageClient() {
     setBookNote("");
     setSearchResults([]);
     setShowSearchResults(false);
+    setSelectedBookResult(null);
   }
 
   function removeBookItem(itemId: string) {
@@ -363,11 +385,13 @@ export default function NewPageClient() {
       { 
         id: id(), 
         title, 
-        notes: musicNote?.trim() || undefined
+        notes: musicNote?.trim() || undefined,
+        image: musicAlbumArt
       },
     ]);
     setMusicInput("");
     setMusicNote("");
+    setMusicAlbumArt(undefined);
   }
 
   function removeMusicItem(itemId: string) {
@@ -533,23 +557,29 @@ export default function NewPageClient() {
   }
 
   async function loadAiSuggestionsForFood() {
-    if (!existingList?.id) {
-      alert("Save your food list first to get tailored suggestions.");
-      return;
-    }
     setFoodAiLoading(true);
     try {
-      const res = await fetch(`/api/choosie/getSuggestions`, {
+      // Call dedicated food suggestions endpoint and pass existing item titles
+      const payload = {
+        listId: existingList?.id,
+        items: foodItems.map((it) => it.title),
+        limit: 12,
+      };
+      const res = await fetch(`/api/food/suggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId: existingList.id, limit: 12 }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (data.ok) setFoodAiSuggestions(data.suggestions || []);
-      else throw new Error(data.error || "Failed to load suggestions");
+      if (res.ok && data?.ok) {
+        const suggestions = (data.suggestions || []) as any[];
+        setFoodAiSuggestions(suggestions.length ? suggestions : DEFAULT_FOOD_SUGGESTIONS);
+      } else {
+        setFoodAiSuggestions(DEFAULT_FOOD_SUGGESTIONS);
+      }
     } catch (e) {
       console.error(e);
-      alert("Couldn't load suggestions right now. Try again soon.");
+      setFoodAiSuggestions(DEFAULT_FOOD_SUGGESTIONS);
     } finally {
       setFoodAiLoading(false);
     }
@@ -735,9 +765,14 @@ export default function NewPageClient() {
             
             <div className="grid gap-2 sm:grid-cols-3 relative">
               <div className="col-span-2 relative">
+                <div className="flex items-center gap-3">
                 <input
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    // If the user types after selecting, clear the explicit selection
+                    setSelectedBookResult(null);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -753,6 +788,10 @@ export default function NewPageClient() {
                   className="w-full rounded-lg border px-3 py-2"
                   placeholder="Book title or author"
                 />
+                {selectedBookResult?.thumbnail && (
+                  <img src={selectedBookResult.thumbnail} alt={selectedBookResult.title} className="w-12 h-16 object-cover rounded" />
+                )}
+                </div>
                 {/* Book suggestions dropdown */}
                 {showSearchResults && searchResults.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
@@ -796,6 +835,13 @@ export default function NewPageClient() {
                   className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
                 >
                   Add book
+                </button>
+                <button
+                  type="button"
+                  onClick={() => console.log('bookItems', bookItems)}
+                  className="ml-2 rounded-full border px-3 py-2 text-sm text-zinc-700 hover:bg-white"
+                >
+                  Debug state
                 </button>
               </div>
             </div>
@@ -1114,7 +1160,11 @@ export default function NewPageClient() {
                         <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                       </svg>
                     </div>
-                    <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🎤</div>
+                    {it.image ? (
+                      <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">�</div>
+                    )}
                     <div>
                       <div className="font-medium">{it.title}</div>
                       {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
@@ -1151,7 +1201,11 @@ export default function NewPageClient() {
                         <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                       </svg>
                     </div>
-                    <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🎤</div>
+                    {it.image ? (
+                      <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">�</div>
+                    )}
                     <div className="flex-1">
                       <div className="font-medium">{it.title}</div>
                       {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
@@ -1266,17 +1320,18 @@ export default function NewPageClient() {
           <div className="mt-4 rounded-lg bg-white/70 p-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold">Suggestions</h3>
-              {existingList?.id ? (
+              <div className="flex items-center gap-2">
+                {!existingList?.id && (
+                  <span className="text-xs text-zinc-500">Starter ideas shown — save to unlock tailored picks</span>
+                )}
                 <button onClick={loadAiSuggestionsForFood} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                  {foodAiLoading ? "Loading…" : "Get suggestions"}
+                  {foodAiLoading ? "Loading…" : existingList?.id ? "Get suggestions" : "Load starter ideas"}
                 </button>
-              ) : (
-                <span className="text-xs text-zinc-500">Save to unlock tailored suggestions</span>
-              )}
+              </div>
             </div>
-            {foodAiSuggestions.length > 0 ? (
+            {(foodAiSuggestions.length > 0 ? foodAiSuggestions : DEFAULT_FOOD_SUGGESTIONS).length > 0 ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {foodAiSuggestions.map((s, idx) => (
+                {(foodAiSuggestions.length > 0 ? foodAiSuggestions : DEFAULT_FOOD_SUGGESTIONS).map((s, idx) => (
                   <div key={idx} className="rounded-md bg-white/60 p-3">
                     <div className="font-medium truncate">{s.title}</div>
                     {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}

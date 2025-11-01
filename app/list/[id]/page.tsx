@@ -18,7 +18,7 @@ export default function ViewListPage() {
     if (!list) return "list";
     if (list.moduleType === "books") return "booklist";
     if (list.moduleType === "food") return "food list";
-    if (list.moduleType === "music") return "music list";
+    if (list.moduleType === "music") return "musiclist";
     if (list.moduleType === "anything") return "list";
     return "watchlist"; // default for movies
   };

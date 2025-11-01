@@ -84,7 +84,7 @@ export default function ListsPage() {
           {lists.map((list) => {
             const listTypeName = list.moduleType === "books" ? "booklist" :
                                  list.moduleType === "food" ? "food list" :
-                                 list.moduleType === "music" ? "music list" :
+                                 list.moduleType === "music" ? "musiclist" :
                                  list.moduleType === "anything" ? "list" : "watchlist";
             
             return (

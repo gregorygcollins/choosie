@@ -436,7 +436,7 @@ export default function NarrowPage() {
           }}
           className="rounded-full bg-zinc-100 px-6 py-3 text-zinc-700"
         >
-          Back to watchlist
+          Back to {list.moduleType === 'music' ? 'musiclist' : list.moduleType === 'food' ? 'foodlist' : list.moduleType === 'books' ? 'booklist' : 'watchlist'}
         </button>
 
         <button

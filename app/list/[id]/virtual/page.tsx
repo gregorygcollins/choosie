@@ -18,7 +18,7 @@ export default function VirtualInvitesPage() {
     if (!list) return "list";
     if (list.moduleType === "books") return "booklist";
     if (list.moduleType === "food") return "food list";
-    if (list.moduleType === "music") return "music list";
+    if (list.moduleType === "music") return "musiclist";
     if (list.moduleType === "anything") return "list";
     return "watchlist"; // default for movies
   };
@@ -68,6 +68,7 @@ export default function VirtualInvitesPage() {
   const link = `${origin}${basePath}/narrow/${updated.id}`;
       const listTypeName = list.moduleType === "books" ? "booklist" : 
                            list.moduleType === "food" ? "food list" :
+                           list.moduleType === "music" ? "musiclist" :
                            list.moduleType === "karaoke" ? "karaoke list" :
                            list.moduleType === "anything" ? "list" : "watchlist";
       const subject = `Join my ${listTypeName}: ${updated.title}`;
