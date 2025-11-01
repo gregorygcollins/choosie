@@ -52,14 +52,13 @@ export default function NewPage() {
           </div>
         </section>
 
-       {/* Choosie process diagram (tight spacing, full form width, no distortion) */}
-<div className="relative flex justify-center my-0" style={{ height: "60px" }}>
+       {/* Choosie process diagram (tight spacing, full form width, preserve aspect) */}
+<div className="relative flex justify-center my-1">
   <div className="w-full">
     <img
       src="/choosie-process.svg"
       alt="Choosie process diagram"
-      aria-hidden="true"
-      className="w-full h-full object-contain opacity-70"
+      className="w-full h-auto object-contain opacity-70"
       onError={(e) => {
         const t = e.currentTarget as HTMLImageElement;
         if (!t.src.endsWith('/choosie-process.png')) {
