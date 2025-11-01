@@ -49,7 +49,15 @@ export default function NewPage() {
               list.
             </h1>
             <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
-
+            <div className="mt-6 flex justify-center">
+              {/* Illustration: Programmer → Curator → Selector → Decider */}
+              <img
+                src="/choosie-flow.svg"
+                alt="Programmer to Curator to Selector to Decider"
+                className="w-full max-w-4xl h-auto opacity-95"
+                loading="lazy"
+              />
+            </div>
           </div>
         </section>
 
