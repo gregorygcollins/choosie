@@ -53,11 +53,11 @@ export default function NewPage() {
         </section>
 
         {/* SVG connector placed between headline and form, width aligned to form container */}
-        <div className="my-2 flex justify-center">
+        <div className="my-[0.3rem] sm:my-[0.4rem] flex justify-center">
           <img
             src="/choosie-process.svg"
             alt=""
-            className="block h-auto w-full max-w-[420px] select-none opacity-[0.65] transform scale-[0.85]"
+            className="block h-auto w-full select-none opacity-[0.65] transform scale-y-[0.8]"
             loading="lazy"
             onError={(e) => {
               const t = e.currentTarget as HTMLImageElement;
