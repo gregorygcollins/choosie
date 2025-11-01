@@ -53,18 +53,25 @@ export default function NewPage() {
         </section>
 
         {/* SVG connector placed between headline and form with exact inline styles */}
-        <div style={{ textAlign: "center", margin: "0.75rem 0" }}>
+        <div style={{ textAlign: "center", margin: "0.375rem 0" }}>
           <img
             src="/choosie-process.svg"
             alt="Choosie process diagram"
             style={{
               display: "block",
-              margin: "0.5rem auto",
+              margin: "0.25rem auto",
               width: "100%",
               maxWidth: "420px",
               height: "auto",
               opacity: 0.7,
               objectFit: "contain",
+            }}
+            onError={(e) => {
+              const t = e.currentTarget as HTMLImageElement;
+              if (!t.src.endsWith('/choosie-process.png')) {
+                t.onerror = null; // prevent loop
+                t.src = '/choosie-process.png';
+              }
             }}
           />
         </div>
