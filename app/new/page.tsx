@@ -35,7 +35,7 @@ export default function NewPage() {
     <main className="min-h-screen bg-gradient-to-b from-white to-brand-light p-8">
       <div className="mx-auto max-w-3xl">
         {/* Hero invitation */}
-        <section className="mb-6 px-4 sm:px-0">
+  <section className="mb-[0.45rem] px-4 sm:px-0">
           <div className="flex flex-col space-y-2 text-left sm:text-center">
             <h1 className="text-3xl font-bold text-black sm:text-4xl">
               Build your{" "}
@@ -53,7 +53,7 @@ export default function NewPage() {
         </section>
 
        {/* Choosie process diagram (tight spacing, full form width, preserve aspect) */}
-<div className="relative flex justify-center my-1">
+<div className="relative flex justify-center my-[0.08rem]">
   <div className="w-full max-w-[420px] sm:max-w-[440px]">
     <img
       src="/choosie-process.svg"
@@ -70,7 +70,7 @@ export default function NewPage() {
   </div>
 </div>
 
-        <div className="mt-2">
+  <div className="mt-[0.15rem]">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
             <NewPageClient />
           </Suspense>
