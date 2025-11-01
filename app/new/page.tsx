@@ -54,7 +54,7 @@ export default function NewPage() {
               <img
                 src="/choosie-flow.svg"
                 alt="Programmer to Curator to Selector to Decider"
-                className="w-full max-w-4xl h-auto opacity-95"
+                className="w-full max-w-2xl h-auto opacity-95"
                 loading="lazy"
               />
             </div>
