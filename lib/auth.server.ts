@@ -19,4 +19,5 @@ export const {
     // Email provider can be added later when SMTP is available
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  debug: true,
 });
