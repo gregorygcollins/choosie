@@ -49,17 +49,18 @@ export default function NewPage() {
               list.
             </h1>
             <p className="text-lg font-normal text-zinc-700 sm:text-xl">If you're into it, so is someone else.</p>
-            {/* Subtle SVG connector between headline and form */}
-            <div className="my-4 flex justify-center">
-              <img
-                src="/choosie-process.svg"
-                alt="Choosie process diagram"
-                className="block h-auto w-full select-none"
-                loading="lazy"
-              />
-            </div>
           </div>
         </section>
+
+        {/* SVG connector placed between headline and form, width aligned to form container */}
+        <div className="my-3 sm:my-4 flex justify-center">
+          <img
+            src="/choosie-process.svg"
+            alt="Choosie process diagram"
+            className="block h-auto w-full select-none"
+            loading="lazy"
+          />
+        </div>
 
         <div className="mt-2">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
