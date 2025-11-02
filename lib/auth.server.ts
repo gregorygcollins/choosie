@@ -5,8 +5,9 @@ import prisma from "./prisma";
 import "./auth.types"; // Import type augmentation
 
 const config = {
-  // Temporarily use JWT instead of database sessions to isolate issue
-  session: { strategy: "jwt" as const },
+  // Use database sessions with Prisma adapter
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "database" as const },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -52,18 +53,7 @@ const config = {
         return baseUrl;
       }
     },
-    async jwt({ token, user, account }: any) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }: any) {
-      if (session?.user && token?.id) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
+    // With database sessions, default session content is sufficient
   },
   events: {
     async error(error: unknown) {
