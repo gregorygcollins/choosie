@@ -10,8 +10,8 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" },
+  // Temporarily use JWT instead of database sessions to isolate issue
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -31,9 +31,17 @@ export const {
       });
       return true;
     },
-    async session({ session, user }) {
-      if (session?.user && user?.id) {
-        session.user.id = user.id;
+    async jwt({ token, user, account }) {
+      // Add user ID to JWT token on sign in
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add user ID to session from JWT token
+      if (session?.user && token?.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },
