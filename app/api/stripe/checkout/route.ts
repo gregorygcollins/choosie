@@ -23,13 +23,47 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id as string;
   const email = (session.user as any).email as string | undefined;
 
-  const priceId = process.env.STRIPE_PRICE_ID;
-  if (!priceId) {
-    const res = NextResponse.json({ ok: false, error: "Server not configured: STRIPE_PRICE_ID missing" }, { status: 500 });
-    return withCORS(res, origin);
+  const stripe = getStripe();
+
+  async function resolvePriceId(): Promise<string | null> {
+    // 1) Direct price ID
+    if (process.env.STRIPE_PRICE_ID) return process.env.STRIPE_PRICE_ID;
+
+    // 2) Lookup key (recommended in Stripe)
+    if (process.env.STRIPE_PRICE_LOOKUP_KEY) {
+      try {
+        const prices = await stripe.prices.list({
+          lookup_keys: [process.env.STRIPE_PRICE_LOOKUP_KEY],
+          active: true,
+          limit: 1,
+        });
+        if (prices.data[0]?.id) return prices.data[0].id;
+      } catch (e) {
+        console.warn("Failed to resolve price via STRIPE_PRICE_LOOKUP_KEY:", e);
+      }
+    }
+
+    // 3) Product default price
+    if (process.env.STRIPE_PRODUCT_ID) {
+      try {
+        const product = await stripe.products.retrieve(process.env.STRIPE_PRODUCT_ID, {
+          expand: ["default_price"],
+        } as any);
+        const dp: any = (product as any).default_price;
+        if (dp?.id) return dp.id as string;
+      } catch (e) {
+        console.warn("Failed to resolve default price from STRIPE_PRODUCT_ID:", e);
+      }
+    }
+
+    return null;
   }
 
-  const stripe = getStripe();
+  const priceId = await resolvePriceId();
+  if (!priceId) {
+    const res = NextResponse.json({ ok: false, error: "Server not configured: set STRIPE_PRICE_ID, or STRIPE_PRICE_LOOKUP_KEY, or STRIPE_PRODUCT_ID with a default price" }, { status: 500 });
+    return withCORS(res, origin);
+  }
 
   // Try to reuse existing Stripe customer if we have one
   const existingSub = await prisma.subscription.findFirst({ where: { userId }, orderBy: { createdAt: "desc" } });
