@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma";
+import "./auth.types"; // Import type augmentation
 
 export const {
   handlers: { GET, POST },
@@ -23,12 +24,15 @@ export const {
   debug: true,
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log("SignIn callback:", { user, account, profile });
+      console.log("SignIn callback - Success:", { 
+        userId: user.id, 
+        email: user.email,
+        provider: account?.provider 
+      });
       return true;
     },
     async session({ session, user }) {
-      console.log("Session callback:", { session, user });
-      if (session.user) {
+      if (session?.user && user?.id) {
         session.user.id = user.id;
       }
       return session;
