@@ -16,6 +16,17 @@ const config = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
   debug: true,
+  logger: {
+    error(error: Error) {
+      console.error("[NextAuth][error]", error);
+    },
+    warn(code: string) {
+      console.warn("[NextAuth][warn]", code);
+    },
+    debug(code: string, metadata?: unknown) {
+      console.log("[NextAuth][debug]", code, metadata);
+    },
+  },
   callbacks: {
     async signIn({ user, account, profile }: any) {
       console.log("SignIn callback - Success:", { 
