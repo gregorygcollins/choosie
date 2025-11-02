@@ -16,6 +16,7 @@ function formatDate(isoString: string) {
 export default function ListsPage() {
   const [lists, setLists] = useState<ChoosieList[]>([]);
   const [loading, setLoading] = useState(true);
+  const [usedLocalFallback, setUsedLocalFallback] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +35,7 @@ export default function ListsPage() {
       } catch {}
       // Fallback: local lists
       if (!cancelled) {
+        setUsedLocalFallback(true);
         setLists(loadLists());
         setLoading(false);
       }
@@ -68,6 +70,11 @@ export default function ListsPage() {
   return (
       <div className="min-h-screen px-8 py-12 sm:px-16">
       <div className="mx-auto max-w-3xl">
+        {usedLocalFallback && (
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm">
+            Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren’t loading.
+          </div>
+        )}
         <div className="mb-8 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold text-black dark:text-white">
             My Lists

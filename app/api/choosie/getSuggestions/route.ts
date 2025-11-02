@@ -70,20 +70,22 @@ export async function POST(req: NextRequest) {
     if (!rl.ok) return withCORS(rl.res, origin);
 
     const body = await req.json();
-    const listId = body?.listId as string;
+    const listId = body?.listId as string | undefined;
+    const clientItems: string[] | undefined = Array.isArray(body?.items) ? body.items.map((s: any) => String(s)).filter(Boolean) : undefined;
     const limit = Math.min(Math.max(Number(body?.limit ?? 12), 1), 24);
-    if (!listId) {
-      const res = NextResponse.json({ ok: false, error: "Missing listId" }, { status: 400 });
-      return withCORS(res, origin);
+
+    // Load server list when available; otherwise operate on client-provided items to enable suggestions for local lists
+    let list = null as Awaited<ReturnType<typeof getListById>> | null;
+    if (listId) {
+      list = await getListById(listId);
     }
-    const list = await getListById(listId);
-    if (!list) {
-      const res = NextResponse.json({ ok: false, error: "List not found" }, { status: 404 });
+    if (!list && !clientItems) {
+      const res = NextResponse.json({ ok: false, error: "Provide listId or items[]" }, { status: 400 });
       return withCORS(res, origin);
     }
 
   // Build discover params from preferences (if present). If preferences were removed, fall back to empty.
-  const prefs = (list as any).preferences || {} as any;
+  const prefs = (list as any)?.preferences || (body?.preferences || {}) as any;
     const boosted = new Set([...(prefs.genres || []), ...moodBoostGenres(prefs.mood)]);
     const genreIds = Array.from(boosted)
       .map((g) => GENRE_NAME_TO_ID[g] || null)
@@ -107,7 +109,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Deduplicate and exclude already-added by case-insensitive title match
-    const existing = new Set(list.items.map((i) => i.title.toLowerCase()));
+    const existing = new Set(
+      (list?.items || []).map((i) => i.title.toLowerCase()).concat(
+        (clientItems || []).map((t) => t.toLowerCase())
+      )
+    );
     const out: any[] = [];
     for (const r of results) {
       if (existing.has((r.title || "").toLowerCase())) continue;
