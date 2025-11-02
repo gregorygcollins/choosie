@@ -193,19 +193,21 @@ export default function ListForm({
   }
 
   async function loadAiSuggestions() {
-    if (!existingList?.id) {
-      alert("Save your watchlist first to get tailored suggestions.");
-      return;
-    }
+    // Allow suggestions without a saved list by sending the current item titles
     setAiLoading(true);
     try {
+      const payload: any = { limit: 12 };
+      if (existingList?.id) payload.listId = existingList.id;
+      // Always include item titles so the API can fall back if listId isn't server-backed
+      payload.items = items.map((it) => it.title);
+
       const res = await fetch(`/api/choosie/getSuggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId: existingList.id, limit: 12 }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (data.ok) setAiSuggestions(data.suggestions || []);
+      if (res.ok && data.ok) setAiSuggestions(data.suggestions || []);
       else throw new Error(data.error || "Failed to load suggestions");
     } catch (e) {
       console.error(e);
@@ -298,7 +300,14 @@ export default function ListForm({
   }
 
   function handleSave() {
-    if (!title.trim() || items.length === 0) return;
+    if (!title.trim()) {
+      alert("Please add a list name");
+      return;
+    }
+    if (items.length === 0) {
+      alert("Please add at least one movie");
+      return;
+    }
     const invitees = eventInviteesInput
       .split(",")
       .map((s) => s.trim())
@@ -447,15 +456,11 @@ export default function ListForm({
 
         {/* Suggestions panel */}
         <div className="mt-4 rounded-lg bg-white/70 p-4">
-          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold">Suggestions</h3>
-            {existingList?.id ? (
-              <button onClick={loadAiSuggestions} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                {aiLoading ? "Loading…" : "Get suggestions"}
-              </button>
-            ) : (
-              <span className="text-xs text-zinc-500">Save to unlock tailored suggestions</span>
-            )}
+            <button onClick={loadAiSuggestions} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
+              {aiLoading ? "Loading…" : "Get suggestions"}
+            </button>
           </div>
           {aiSuggestions.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

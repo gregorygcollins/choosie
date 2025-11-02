@@ -229,11 +229,9 @@ export default function ViewListPage() {
                 setSugsLoading(true);
                 try {
                   const payload: any = { limit: 12 };
-                  // Prefer using server id if this page loaded it successfully; else send item titles
+                  // Include server id when available, but always send item titles so API can fall back
                   payload.listId = typeof id === 'string' ? id : undefined;
-                  if (!payload.listId) {
-                    payload.items = list.items.map((it) => it.title);
-                  }
+                  payload.items = list.items.map((it) => it.title);
                   const res = await fetch(`/api/choosie/getSuggestions`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
