@@ -1,5 +1,6 @@
 export async function searchMovies(query: string) {
-  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  // Prefer client-exposed key for browser usage; fall back to server-only key on the server
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.TMDB_API_KEY;
   if (!key) throw new Error("TMDB API key missing");
 
   const res = await fetch(
@@ -31,7 +32,7 @@ export type DiscoverParams = {
 };
 
 export async function discoverMovies(params: DiscoverParams = {}) {
-  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.TMDB_API_KEY;
   if (!key) throw new Error("TMDB API key missing");
   const usp = new URLSearchParams({ api_key: key });
   Object.entries(params).forEach(([k, v]) => {
@@ -54,7 +55,7 @@ export async function discoverMovies(params: DiscoverParams = {}) {
 }
 
 export async function trendingMovies() {
-  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  const key = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.TMDB_API_KEY;
   if (!key) throw new Error("TMDB API key missing");
   const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${key}`);
   if (!res.ok) throw new Error("TMDB trending failed");

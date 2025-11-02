@@ -186,7 +186,38 @@ export default function NewPageClient() {
       moduleType: selectedModule,
     };
     upsertList(listWithModule);
-    router.push(`/list/${list.id}`);
+    // If signed in, also persist to server so it appears across devices
+    if (me && (me as any).id) {
+      const payload = {
+        title: listWithModule.title,
+        items: (listWithModule.items || []).map((it: any) => ({
+          title: it.title,
+          notes: it.notes,
+          image: it.image,
+        })),
+      };
+      fetch(`/api/choosie/createList`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("createList failed");
+          const data = await res.json();
+          if (data?.ok && data?.url) {
+            router.push(data.url);
+            return;
+          }
+          router.push(`/list/${list.id}`);
+        })
+        .catch(() => {
+          // fall back to local view on failure
+          router.push(`/list/${list.id}`);
+        });
+    } else {
+      router.push(`/list/${list.id}`);
+    }
   }
 
   function handleSelectModule(moduleId: string) {
