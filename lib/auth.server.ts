@@ -36,6 +36,22 @@ const config = {
       });
       return true;
     },
+    async redirect({ url, baseUrl }: any) {
+      try {
+        console.log("[NextAuth][debug] redirect callback", { url, baseUrl });
+        // Relative URLs -> resolve against base
+        if (url.startsWith("/")) return `${baseUrl}${url}`;
+        const u = new URL(url);
+        const b = new URL(baseUrl);
+        // Same-origin allowed
+        if (u.origin === b.origin) return url;
+        // Otherwise, always return baseUrl to avoid host drift
+        return baseUrl;
+      } catch (e) {
+        console.warn("[NextAuth][warn] redirect parsing failed, falling back to baseUrl", e);
+        return baseUrl;
+      }
+    },
     async jwt({ token, user, account }: any) {
       if (user) {
         token.id = user.id;
@@ -47,6 +63,17 @@ const config = {
         session.user.id = token.id as string;
       }
       return session;
+    },
+  },
+  events: {
+    async error(error: unknown) {
+      console.error("[NextAuth][events.error]", error);
+    },
+    async signIn(message: unknown) {
+      console.log("[NextAuth][events.signIn]", message);
+    },
+    async session(message: unknown) {
+      console.log("[NextAuth][events.session]", message);
     },
   },
   pages: {
