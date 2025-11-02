@@ -34,6 +34,7 @@ export default function AccountPage() {
       if (err) {
         const map: Record<string, string> = {
           stripe_price_missing: "Billing is not configured. Please set a Stripe price.",
+          stripe_not_configured: "Stripe is not configured. Set STRIPE_SECRET_KEY (and a price).",
           checkout_failed: "We couldn’t start checkout. Please try again.",
           no_stripe_customer: "No Stripe customer found. Start a subscription first.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",

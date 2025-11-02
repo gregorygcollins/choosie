@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../../../lib/auth.server";
 import { getStripe } from "../../../../lib/stripe";
+import type { Stripe } from "../../../../lib/stripe";
 import prisma from "../../../../lib/prisma";
 import { preflight, getOrigin, withCORS } from "../../../../lib/cors";
 import { rateLimit } from "../../../../lib/rateLimit";
@@ -20,8 +21,13 @@ export async function GET(req: NextRequest) {
 
   const userId = session.user.id as string;
   const email = (session.user as any).email as string | undefined;
-
-  const stripe = getStripe();
+  let stripe: Stripe;
+  try {
+    stripe = getStripe();
+  } catch (e) {
+    console.error("Stripe not configured:", e);
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=stripe_not_configured`, 302);
+  }
 
   async function resolvePriceId(): Promise<string | null> {
     if (process.env.STRIPE_PRICE_ID) return process.env.STRIPE_PRICE_ID;
@@ -65,6 +71,7 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.redirect(checkoutSession.url!, 303);
   } catch (err) {
+    console.error("Stripe checkout session creation failed:", err);
     // On error, return to account with an error message to show
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=checkout_failed`, 302);
   }

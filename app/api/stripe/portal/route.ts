@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../../../lib/auth.server";
 import { getStripe } from "../../../../lib/stripe";
+import type { Stripe } from "../../../../lib/stripe";
 import prisma from "../../../../lib/prisma";
 import { preflight, getOrigin, withCORS } from "../../../../lib/cors";
 import { rateLimit } from "../../../../lib/rateLimit";
@@ -26,13 +27,20 @@ export async function GET(req: NextRequest) {
     "/account?portal=return";
 
   try {
-    const stripe = getStripe();
+    let stripe: Stripe;
+    try {
+      stripe = getStripe();
+    } catch (e) {
+      console.error("Stripe not configured:", e);
+      return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=stripe_not_configured`, 302);
+    }
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: sub.stripeCustomerId,
       return_url: returnUrl,
     });
     return NextResponse.redirect(portalSession.url!, 303);
   } catch (err) {
+    console.error("Stripe portal session creation failed:", err);
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=portal_failed`, 302);
   }
 }
