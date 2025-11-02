@@ -20,7 +20,7 @@ export default function NewPageClient() {
   const searchParams = useSearchParams();
   const editId = searchParams.get("editId");
   const [existingList, setExistingList] = useState<ChoosieList | null>(null);
-  const [me, setMe] = useState<{ isPro?: boolean } | null>(null);
+  const [me, setMe] = useState<{ id?: string; isPro?: boolean } | null>(null);
   const [selectedModule, setSelectedModule] = useState<string>("movies");
   
   // Book list state
@@ -342,16 +342,15 @@ export default function NewPageClient() {
   }
 
   async function loadAiSuggestionsForBooks() {
-    if (!existingList?.id) {
-      alert("Save your booklist first to get tailored suggestions.");
-      return;
-    }
     setAiLoading(true);
     try {
+      const payload: any = { limit: 12 };
+      if (existingList?.id) payload.listId = existingList.id;
+      else payload.items = bookItems.map((it) => it.title);
       const res = await fetch(`/api/choosie/getSuggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId: existingList.id, limit: 12 }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.ok) setAiSuggestions(data.suggestions || []);
@@ -394,7 +393,27 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
-    router.push(`/list/${list.id}`);
+    if (me?.id) {
+      const payload = {
+        title: list.title,
+        items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
+      };
+      fetch(`/api/choosie/createList`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("createList failed");
+          const data = await res.json();
+          if (data?.ok && data?.url) return router.push(data.url);
+          return router.push(`/list/${list.id}`);
+        })
+        .catch(() => router.push(`/list/${list.id}`));
+    } else {
+      router.push(`/list/${list.id}`);
+    }
   }
 
   // ========== KARAOKE MODULE FUNCTIONS ==========
@@ -466,16 +485,15 @@ export default function NewPageClient() {
   }
 
   async function loadAiSuggestionsForMusic() {
-    if (!existingList?.id) {
-      alert("Save your music list first to get tailored suggestions.");
-      return;
-    }
     setMusicAiLoading(true);
     try {
+      const payload: any = { limit: 12 };
+      if (existingList?.id) payload.listId = existingList.id;
+      else payload.items = musicItems.map((it) => it.title);
       const res = await fetch(`/api/choosie/getSuggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId: existingList.id, limit: 12 }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.ok) setMusicAiSuggestions(data.suggestions || []);
@@ -518,7 +536,27 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
-    router.push(`/list/${list.id}`);
+    if (me?.id) {
+      const payload = {
+        title: list.title,
+        items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
+      };
+      fetch(`/api/choosie/createList`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("createList failed");
+          const data = await res.json();
+          if (data?.ok && data?.url) return router.push(data.url);
+          return router.push(`/list/${list.id}`);
+        })
+        .catch(() => router.push(`/list/${list.id}`));
+    } else {
+      router.push(`/list/${list.id}`);
+    }
   }
 
   // ========== FOOD MODULE FUNCTIONS ==========
@@ -646,7 +684,27 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
-    router.push(`/list/${list.id}`);
+    if (me?.id) {
+      const payload = {
+        title: list.title,
+        items: list.items.map((it) => ({ title: it.title, notes: it.notes })),
+      };
+      fetch(`/api/choosie/createList`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("createList failed");
+          const data = await res.json();
+          if (data?.ok && data?.url) return router.push(data.url);
+          return router.push(`/list/${list.id}`);
+        })
+        .catch(() => router.push(`/list/${list.id}`));
+    } else {
+      router.push(`/list/${list.id}`);
+    }
   }
 
   // ========== ANYTHING MODULE FUNCTIONS ==========
