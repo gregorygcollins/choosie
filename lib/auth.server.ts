@@ -20,4 +20,20 @@ export const {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      console.log("SignIn callback:", { user, account, profile });
+      return true;
+    },
+    async session({ session, user }) {
+      console.log("Session callback:", { session, user });
+      if (session.user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+  },
+  pages: {
+    error: "/auth/error",
+  },
 });
