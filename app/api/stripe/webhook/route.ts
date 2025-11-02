@@ -81,9 +81,8 @@ export async function POST(req: NextRequest) {
       eventType: event?.type,
       eventId: event?.id,
     });
-    
-    // Return 200 to prevent Stripe from retrying on data/logic errors
-    // (Signature verification errors already return 400 above)
+    // Signal failure so Stripe retries delivery
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
