@@ -39,7 +39,6 @@
     <circle class="dot" r="1.5" cx="0" cy="-6"/>
     <circle class="dot" r="1.5" cx="6" cy="0"/>
     <circle class="dot" r="1.5" cx="0" cy="6"/>
-    <text class="label" x="0" y="60">Programmer</text>
   </g>
 
   <!-- Curved Arrow 1 -->
@@ -59,7 +58,6 @@
     <circle class="dot" r="2.1" cx="-6" cy="0"/>
     <circle class="dot" r="2.1" cx="0" cy="-6"/>
     <circle class="dot" r="2.1" cx="0" cy="6"/>
-    <text class="label" x="0" y="60">Curator</text>
   </g>
 
   <!-- Curved Arrow 2 -->
@@ -70,7 +68,6 @@
     <circle class="hollow" r="4.5" cx="-8" cy="-2"/>
     <circle class="hollow" r="4.5" cx="2" cy="4"/>
     <circle class="hollow" r="4.5" cx="12" cy="-3"/>
-    <text class="label" x="2" y="60">Selector</text>
   </g>
 
   <!-- Curved Arrow 3 -->
@@ -79,6 +76,5 @@
   <!-- DECIDER -->
   <g transform="translate(410,36)">
     <circle class="dot" r="6" cx="0" cy="0"/>
-    <text class="label" x="0" y="60">Decider</text>
   </g>
 </svg>
