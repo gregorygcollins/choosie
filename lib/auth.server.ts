@@ -19,6 +19,7 @@ export const {
     // Email provider can be added later when SMTP is available
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Required for Vercel deployments with preview URLs
   debug: true,
   callbacks: {
     async signIn({ user, account, profile }) {
