@@ -9,6 +9,34 @@ export async function OPTIONS(req: NextRequest) {
   return preflight(getOrigin(req));
 }
 
+export async function GET(req: NextRequest) {
+  const origin = getOrigin(req);
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/auth/login?callbackUrl=/account`, 302);
+  }
+
+  const userId = session.user.id as string;
+  const sub = await prisma.subscription.findFirst({ where: { userId }, orderBy: { createdAt: "desc" } });
+  if (!sub?.stripeCustomerId) {
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=no_stripe_customer`, 302);
+  }
+
+  const returnUrl = (process.env.NEXTAUTH_URL || origin) + 
+    "/account?portal=return";
+
+  try {
+    const stripe = getStripe();
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: sub.stripeCustomerId,
+      return_url: returnUrl,
+    });
+    return NextResponse.redirect(portalSession.url!, 303);
+  } catch (err) {
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=portal_failed`, 302);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   const limited = rateLimit(req, { scope: "stripe-portal", limit: 20, windowMs: 60_000 });

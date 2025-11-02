@@ -38,16 +38,10 @@ export default function AccountPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" } });
-      const data = await res.json();
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data?.error || "Failed to start checkout");
-      }
+      // Prefer server-side redirect flow (avoids JSON parsing/CORS edge-cases)
+      window.location.href = "/api/stripe/checkout";
     } catch (err: any) {
-      setError(err?.message || "Network error");
-    } finally {
+      setError(err?.message || "Navigation error");
       setBusy(false);
     }
   }
@@ -56,22 +50,9 @@ export default function AccountPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/stripe/portal", { method: "POST", headers: { "Content-Type": "application/json" } });
-      const data = await res.json();
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        // Graceful fallback: if no Stripe customer, kick off checkout to create one
-        const msg = (data?.error || "").toString();
-        if (msg.includes("No Stripe customer")) {
-          await startCheckout();
-        } else {
-          setError(data?.error || "Failed to open portal");
-        }
-      }
+      window.location.href = "/api/stripe/portal";
     } catch (err: any) {
-      setError(err?.message || "Network error");
-    } finally {
+      setError(err?.message || "Navigation error");
       setBusy(false);
     }
   }

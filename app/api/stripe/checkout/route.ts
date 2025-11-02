@@ -9,6 +9,67 @@ export async function OPTIONS(req: NextRequest) {
   return preflight(getOrigin(req));
 }
 
+export async function GET(req: NextRequest) {
+  // Create checkout session and redirect the browser (no JSON parsing on client)
+  const origin = getOrigin(req);
+  const session = await auth();
+  if (!session?.user?.id) {
+    // Redirect to login if not authenticated
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/auth/login?callbackUrl=/account`, 302);
+  }
+
+  const userId = session.user.id as string;
+  const email = (session.user as any).email as string | undefined;
+
+  const stripe = getStripe();
+
+  async function resolvePriceId(): Promise<string | null> {
+    if (process.env.STRIPE_PRICE_ID) return process.env.STRIPE_PRICE_ID;
+    if (process.env.STRIPE_PRICE_LOOKUP_KEY) {
+      try {
+        const prices = await stripe.prices.list({ lookup_keys: [process.env.STRIPE_PRICE_LOOKUP_KEY], active: true, limit: 1 });
+        if (prices.data[0]?.id) return prices.data[0].id;
+      } catch {}
+    }
+    if (process.env.STRIPE_PRODUCT_ID) {
+      try {
+        const product = await stripe.products.retrieve(process.env.STRIPE_PRODUCT_ID, { expand: ["default_price"] } as any);
+        const dp: any = (product as any).default_price;
+        if (dp?.id) return dp.id as string;
+      } catch {}
+    }
+    return null;
+  }
+
+  const priceId = await resolvePriceId();
+  if (!priceId) {
+    // Go back to account with an error message
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=stripe_price_missing`, 302);
+  }
+
+  const successUrl = (process.env.NEXTAUTH_URL || origin) + 
+    "/account?checkout=success";
+  const cancelUrl = (process.env.NEXTAUTH_URL || origin) + 
+    "/account?checkout=cancelled";
+
+  try {
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      allow_promotion_codes: true,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      customer: undefined,
+      customer_email: email,
+      metadata: { userId },
+    });
+    return NextResponse.redirect(checkoutSession.url!, 303);
+  } catch (err) {
+    // On error, return to account with an error message to show
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=checkout_failed`, 302);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   const limited = rateLimit(req, { scope: "stripe-checkout", limit: 20, windowMs: 60_000 });
