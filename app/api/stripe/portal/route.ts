@@ -35,11 +35,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=stripe_not_configured`, 302);
     }
     // Ensure the customer exists in this Stripe mode; if not, guide the user back to create one via checkout
+    // Retrieve the customer and verify mode alignment (test vs live)
+    let customer: Stripe.Customer | Stripe.DeletedCustomer;
     try {
-      await stripe.customers.retrieve(sub.stripeCustomerId);
+      customer = await stripe.customers.retrieve(sub.stripeCustomerId);
     } catch (e) {
       console.warn("No such Stripe customer for portal:", sub.stripeCustomerId);
       return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=no_stripe_customer`, 302);
+    }
+    if ((customer as Stripe.DeletedCustomer).deleted) {
+      console.warn("Stripe customer is deleted:", sub.stripeCustomerId);
+      return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=no_stripe_customer&reason=customer_deleted`, 302);
+    }
+    const keyIsLive = (process.env.STRIPE_SECRET_KEY || "").startsWith("sk_live");
+    const customerIsLive = (customer as any)?.livemode === true;
+    if (keyIsLive !== customerIsLive) {
+      const reason = keyIsLive ? "live_key_test_customer" : "test_key_live_customer";
+      console.warn("Stripe mode mismatch for portal:", { keyIsLive, customerIsLive, reason });
+      return NextResponse.redirect(
+        `${process.env.NEXTAUTH_URL || origin}/account?error=portal_failed&reason=${encodeURIComponent("mode_mismatch:" + reason)}`,
+        302
+      );
     }
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: sub.stripeCustomerId,
@@ -48,7 +64,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(portalSession.url!, 303);
   } catch (err) {
     console.error("Stripe portal session creation failed:", err);
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=portal_failed`, 302);
+    const anyErr = err as any;
+    const reason = encodeURIComponent(anyErr?.message || anyErr?.code || "unknown");
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=portal_failed&reason=${reason}`, 302);
   }
 }
 

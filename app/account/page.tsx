@@ -63,7 +63,9 @@ export default function AccountPage() {
           no_stripe_customer: "No Stripe customer found. Start a subscription first.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",
         };
-        setError(map[err] || "An unknown billing error occurred.");
+        const reason = params.get("reason");
+        const msg = map[err] || "An unknown billing error occurred.";
+        setError(reason ? `${msg} (${reason})` : msg);
       }
     } catch {}
     return () => {
