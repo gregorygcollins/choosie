@@ -30,6 +30,16 @@ export default function AccountPage() {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get("checkout") === "success") setShowSuccessBanner(true);
+      const err = params.get("error");
+      if (err) {
+        const map: Record<string, string> = {
+          stripe_price_missing: "Billing is not configured. Please set a Stripe price.",
+          checkout_failed: "We couldn’t start checkout. Please try again.",
+          no_stripe_customer: "No Stripe customer found. Start a subscription first.",
+          portal_failed: "We couldn’t open the billing portal. Please try again.",
+        };
+        setError(map[err] || "An unknown billing error occurred.");
+      }
     } catch {}
     return () => { cancelled = true; };
   }, [status]);
