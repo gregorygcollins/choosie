@@ -34,6 +34,13 @@ export async function GET(req: NextRequest) {
       console.error("Stripe not configured:", e);
       return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=stripe_not_configured`, 302);
     }
+    // Ensure the customer exists in this Stripe mode; if not, guide the user back to create one via checkout
+    try {
+      await stripe.customers.retrieve(sub.stripeCustomerId);
+    } catch (e) {
+      console.warn("No such Stripe customer for portal:", sub.stripeCustomerId);
+      return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/account?error=no_stripe_customer`, 302);
+    }
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: sub.stripeCustomerId,
       return_url: returnUrl,
