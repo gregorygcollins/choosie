@@ -57,7 +57,7 @@ export default function NewPage() {
   <img
     src="/choosie-process.svg"
     alt="Choosie process diagram"
-    className="w-full max-w-[460px] opacity-80"
+    className="w-full max-w-[690px] opacity-80"
     style={{
       marginTop: "0.25rem",
       marginBottom: "0.25rem",
