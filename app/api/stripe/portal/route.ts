@@ -57,9 +57,11 @@ export async function GET(req: NextRequest) {
         302
       );
     }
+    const configuration = process.env.STRIPE_PORTAL_CONFIGURATION_ID;
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: sub.stripeCustomerId,
       return_url: returnUrl,
+      ...(configuration ? { configuration } : {}),
     });
     return NextResponse.redirect(portalSession.url!, 303);
   } catch (err) {
