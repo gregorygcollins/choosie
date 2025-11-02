@@ -6,6 +6,11 @@ export function middleware(request: Request) {
   const isProd = process.env.NODE_ENV === "production";
   const canonical = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL;
 
+  // Never interfere with Stripe webhooks (signature depends on exact raw body + headers)
+  if (url.pathname === "/api/stripe/webhook") {
+    return NextResponse.next();
+  }
+
   if (isProd && canonical) {
     try {
       const c = new URL(canonical);

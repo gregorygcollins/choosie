@@ -3,6 +3,7 @@ import { getStripe } from "../../../../lib/stripe";
 import prisma from "../../../../lib/prisma";
 
 export const dynamic = "force-dynamic"; // ensure edge/body parsing doesn't interfere
+export const runtime = "nodejs"; // explicitly use Node.js runtime for raw body access
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
