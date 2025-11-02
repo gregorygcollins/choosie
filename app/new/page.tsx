@@ -52,21 +52,17 @@ export default function NewPage() {
           </p>
         </section>
 
-        {/* Choosie process diagram */}
-<div className="flex justify-center mt-8 mb-2">
+        {/* Choosie Process Diagram */}
+<div className="flex justify-center my-2">
   <img
     src="/choosie-process.svg"
     alt="Choosie process diagram"
-    className="w-full max-w-[480px] opacity-70 object-contain"
+    className="w-full max-w-[460px] opacity-80"
     style={{
+      marginTop: "0.25rem",
+      marginBottom: "0.25rem",
       height: "auto",
-    }}
-    onError={(e) => {
-      const t = e.currentTarget as HTMLImageElement;
-      if (!t.src.endsWith("/choosie-process.png")) {
-        t.onerror = null;
-        t.src = "/choosie-process.png";
-      }
+      objectFit: "contain",
     }}
   />
 </div>

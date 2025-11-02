@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" width="480" height="100" style="background:white">
+  <style>
+    .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #555; text-anchor: middle; }
+    .dot   { fill: #555; }
+    .hollow { fill: none; stroke: #555; stroke-width: 1.4; }
+    .arrow { fill: none; stroke: #555; stroke-width: 1.1; marker-end: url(#arrowhead); }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#555" />
+    </marker>
+  </defs>
+
+  <!-- PROGRAMMER (complete, circular cloud, radius 24px) -->
+  <g transform="translate(60,36)">
+    <circle class="dot" r="1.5" cx="0" cy="-24"/>
+    <circle class="dot" r="1.5" cx="12" cy="-21"/>
+    <circle class="dot" r="1.5" cx="21" cy="-12"/>
+    <circle class="dot" r="1.5" cx="24" cy="0"/>
+    <circle class="dot" r="1.5" cx="21" cy="12"/>
+    <circle class="dot" r="1.5" cx="12" cy="21"/>
+    <circle class="dot" r="1.5" cx="0" cy="24"/>
+    <circle class="dot" r="1.5" cx="-12" cy="21"/>
+    <circle class="dot" r="1.5" cx="-21" cy="12"/>
+    <circle class="dot" r="1.5" cx="-24" cy="0"/>
+    <circle class="dot" r="1.5" cx="-21" cy="-12"/>
+    <circle class="dot" r="1.5" cx="-12" cy="-21"/>
+    <!-- inner ring -->
+    <circle class="dot" r="1.5" cx="6" cy="-12"/>
+    <circle class="dot" r="1.5" cx="12" cy="-6"/>
+    <circle class="dot" r="1.5" cx="12" cy="6"/>
+    <circle class="dot" r="1.5" cx="6" cy="12"/>
+    <circle class="dot" r="1.5" cx="-6" cy="12"/>
+    <circle class="dot" r="1.5" cx="-12" cy="6"/>
+    <circle class="dot" r="1.5" cx="-12" cy="-6"/>
+    <circle class="dot" r="1.5" cx="-6" cy="-12"/>
+    <circle class="dot" r="1.5" cx="0" cy="0"/>
+    <circle class="dot" r="1.5" cx="0" cy="-6"/>
+    <circle class="dot" r="1.5" cx="6" cy="0"/>
+    <circle class="dot" r="1.5" cx="0" cy="6"/>
+    <text class="label" x="0" y="60">Programmer</text>
+  </g>
+
+  <!-- Curved Arrow 1 -->
+  <path class="arrow" d="M90,36 C120,31 120,41 150,36"/>
+
+  <!-- CURATOR (circular cluster, radius 12px) -->
+  <g transform="translate(180,36)">
+    <circle class="dot" r="2.1" cx="0" cy="-12"/>
+    <circle class="dot" r="2.1" cx="10" cy="-6"/>
+    <circle class="dot" r="2.1" cx="12" cy="0"/>
+    <circle class="dot" r="2.1" cx="10" cy="6"/>
+    <circle class="dot" r="2.1" cx="0" cy="12"/>
+    <circle class="dot" r="2.1" cx="-10" cy="6"/>
+    <circle class="dot" r="2.1" cx="-12" cy="0"/>
+    <circle class="dot" r="2.1" cx="-10" cy="-6"/>
+    <circle class="dot" r="2.1" cx="6" cy="0"/>
+    <circle class="dot" r="2.1" cx="-6" cy="0"/>
+    <circle class="dot" r="2.1" cx="0" cy="-6"/>
+    <circle class="dot" r="2.1" cx="0" cy="6"/>
+    <text class="label" x="0" y="60">Curator</text>
+  </g>
+
+  <!-- Curved Arrow 2 -->
+  <path class="arrow" d="M210,36 C240,31 240,41 270,36"/>
+
+  <!-- SELECTOR -->
+  <g transform="translate(300,36)">
+    <circle class="hollow" r="4.5" cx="-8" cy="-2"/>
+    <circle class="hollow" r="4.5" cx="2" cy="4"/>
+    <circle class="hollow" r="4.5" cx="12" cy="-3"/>
+    <text class="label" x="2" y="60">Selector</text>
+  </g>
+
+  <!-- Curved Arrow 3 -->
+  <path class="arrow" d="M330,36 C360,31 360,41 380,36"/>
+
+  <!-- DECIDER -->
+  <g transform="translate(410,36)">
+    <circle class="dot" r="6" cx="0" cy="0"/>
+    <text class="label" x="0" y="60">Decider</text>
+  </g>
+</svg>
