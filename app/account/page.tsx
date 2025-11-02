@@ -13,6 +13,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     let cancelled = false;
+    let pollInterval: NodeJS.Timeout | undefined;
+
     async function load() {
       setLoading(true);
       try {
@@ -29,7 +31,29 @@ export default function AccountPage() {
     // Read checkout status from the URL on mount to avoid Suspense requirement
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("checkout") === "success") setShowSuccessBanner(true);
+      if (params.get("checkout") === "success") {
+        setShowSuccessBanner(true);
+        // Poll for user.isPro update for up to 10 seconds after checkout success
+        let attempts = 0;
+        pollInterval = setInterval(async () => {
+          attempts++;
+          if (cancelled || attempts > 20) {
+            clearInterval(pollInterval);
+            return;
+          }
+          try {
+            const res = await fetch("/api/me", { credentials: "include" });
+            const data = await res.json();
+            if (!cancelled) {
+              setUser(data.user);
+              // Stop polling once isPro is true
+              if (data.user?.isPro) {
+                clearInterval(pollInterval);
+              }
+            }
+          } catch {}
+        }, 500); // Poll every 500ms
+      }
       const err = params.get("error");
       if (err) {
         const map: Record<string, string> = {
@@ -42,7 +66,10 @@ export default function AccountPage() {
         setError(map[err] || "An unknown billing error occurred.");
       }
     } catch {}
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, [status]);
 
   async function startCheckout() {
