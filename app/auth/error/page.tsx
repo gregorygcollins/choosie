@@ -7,6 +7,9 @@ function ErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
+  // Log all search params for debugging
+  console.log("Auth error page - all params:", Object.fromEntries(searchParams.entries()));
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-brand-light p-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
@@ -22,11 +25,16 @@ function ErrorContent() {
           </div>
         )}
         <div className="space-y-2 text-sm text-gray-600">
-          <p>Possible issues:</p>
+          <p className="font-semibold">Debug info:</p>
+          <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-32">
+            {JSON.stringify(Object.fromEntries(searchParams.entries()), null, 2)}
+          </pre>
+          <p className="mt-4">Possible issues:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Database connection failed</li>
             <li>Missing environment variables</li>
             <li>Database migrations not run</li>
+            <li>NextAuth configuration error</li>
           </ul>
         </div>
         <a
