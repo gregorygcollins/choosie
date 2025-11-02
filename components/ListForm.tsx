@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { searchMovies } from "@/lib/tmdb";
 
 // simple unique id helper
 function id() {
@@ -146,7 +145,10 @@ export default function ListForm({
     }
     setIsSearching(true);
     try {
-      const results = await searchMovies(query);
+      const res = await fetch(`/api/movies/search?query=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("Movie search failed");
+      const data = await res.json();
+      const results = Array.isArray(data?.results) ? data.results : [];
       setSuggestions(results.slice(0, 5));
       setShowSuggestions(results.length > 0);
     } catch (err) {
