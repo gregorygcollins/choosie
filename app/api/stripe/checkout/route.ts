@@ -68,6 +68,9 @@ export async function GET(req: NextRequest) {
       customer: undefined,
       customer_email: email,
       metadata: { userId },
+      subscription_data: {
+        description: "Choosie Pro subscription",
+      },
     });
     return NextResponse.redirect(checkoutSession.url!, 303);
   } catch (err) {
@@ -149,10 +152,12 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
-      // If we already have a customer, attach it; otherwise pass email and let Stripe create on completion
       customer: customerId,
       customer_email: customerId ? undefined : email,
       metadata: { userId },
+      subscription_data: {
+        description: "Choosie Pro subscription",
+      },
     });
 
     const res = NextResponse.json({ ok: true, url: checkoutSession.url });

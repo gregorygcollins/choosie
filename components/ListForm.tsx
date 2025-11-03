@@ -104,9 +104,6 @@ export default function ListForm({
   const [suggestions, setSuggestions] = useState<any[]>([]); // search box suggestions
   const [isSearching, setIsSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  // AI suggestions (server-powered)
-  const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
-  const [aiLoading, setAiLoading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   // Update form when existingList is loaded
@@ -190,42 +187,6 @@ export default function ListForm({
     setImageUrl("");
     setSuggestions([]);
     setShowSuggestions(false);
-  }
-
-  async function loadAiSuggestions() {
-    // Allow suggestions without a saved list by sending the current item titles
-    setAiLoading(true);
-    try {
-      const payload: any = { limit: 12 };
-      if (existingList?.id) payload.listId = existingList.id;
-      // Always include item titles so the API can fall back if listId isn't server-backed
-      payload.items = items.map((it) => it.title);
-
-      const res = await fetch(`/api/choosie/getSuggestions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) setAiSuggestions(data.suggestions || []);
-      else throw new Error(data.error || "Failed to load suggestions");
-    } catch (e) {
-      console.error(e);
-      alert("Couldn't load suggestions right now. Try again soon.");
-    } finally {
-      setAiLoading(false);
-    }
-  }
-
-  function addFromAiSuggestion(s: any) {
-    const title = String(s.title || "").trim();
-    if (!title) return;
-    const duplicate = items.find((it) => it.title.toLowerCase() === title.toLowerCase());
-    if (duplicate) {
-      alert(`"${title}" has already been added to your list.`);
-      return;
-    }
-    setItems((curr) => [...curr, { id: id(), title, notes: s.reason, image: s.image || undefined }]);
   }
 
   function removeItem(id: string) {
@@ -452,40 +413,6 @@ export default function ListForm({
               Add movie
             </button>
           </div>
-        </div>
-
-        {/* Suggestions panel */}
-        <div className="mt-4 rounded-lg bg-white/70 p-4">
-            <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold">Suggestions</h3>
-            <button onClick={loadAiSuggestions} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-              {aiLoading ? "Loading…" : "Get suggestions"}
-            </button>
-          </div>
-          {aiSuggestions.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {aiSuggestions.map((s, idx) => (
-                <div key={idx} className="rounded-md bg-white/60 p-3 flex gap-3">
-                  {s.image ? (
-                    <img src={s.image} alt={s.title} className="w-14 h-20 object-cover rounded" />
-                  ) : (
-                    <div className="w-14 h-20 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 text-xs">No poster</div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{s.title}</div>
-                    {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}
-                    <div className="mt-2">
-                      <button onClick={() => addFromAiSuggestion(s)} className="text-xs rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-zinc-500">No suggestions yet.</p>
-          )}
         </div>
 
         {/* Virtual session options moved to saved list page */}

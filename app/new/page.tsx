@@ -53,19 +53,24 @@ export default function NewPage() {
         </section>
 
         {/* Choosie Process Diagram */}
-<div className="flex justify-center my-2">
-  <img
-    src="/choosie-process.svg"
-    alt="Choosie process diagram"
-    className="w-full max-w-[690px] opacity-80"
-    style={{
-      marginTop: "0.25rem",
-      marginBottom: "0.25rem",
-      height: "auto",
-      objectFit: "contain",
-    }}
-  />
-</div>
+        <div className="flex justify-center my-2">
+          {/* Wrapper crops a few pixels and nudges content slightly right to give the first cloud more breathing room */}
+          <div className="relative w-full max-w-[690px] overflow-hidden">
+            <img
+              src="/choosie-process.svg"
+              alt="Choosie process diagram"
+              className="block opacity-80"
+              style={{
+                width: "calc(100% + 16px)",
+                transform: "translateX(2px)",
+                marginTop: "0.25rem",
+                marginBottom: "0.25rem",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+        </div>
 
         {/* Form section */}
   <div className="mt-[0.075rem]">

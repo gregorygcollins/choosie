@@ -32,8 +32,6 @@ export default function NewPageClient() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedBookResult, setSelectedBookResult] = useState<BookSearchResult | null>(null);
   const [bookNote, setBookNote] = useState("");
-  const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
-  const [aiLoading, setAiLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
@@ -46,8 +44,6 @@ export default function NewPageClient() {
   const [musicSearchResults, setMusicSearchResults] = useState<SpotifyTrack[]>([]);
   const [musicSearchLoading, setMusicSearchLoading] = useState(false);
   const [showMusicResults, setShowMusicResults] = useState(false);
-  const [musicAiSuggestions, setMusicAiSuggestions] = useState<any[]>([]);
-  const [musicAiLoading, setMusicAiLoading] = useState(false);
   const [musicViewMode, setMusicViewMode] = useState<"list" | "grid">("list");
   const [musicDragIndex, setMusicDragIndex] = useState<number | null>(null);
 
@@ -56,26 +52,8 @@ export default function NewPageClient() {
   const [foodItems, setFoodItems] = useState<ChoosieItem[]>([]);
   const [foodInput, setFoodInput] = useState("");
   const [foodNote, setFoodNote] = useState("");
-  const [foodAiSuggestions, setFoodAiSuggestions] = useState<any[]>([]);
-  const [foodAiLoading, setFoodAiLoading] = useState(false);
   const [foodViewMode, setFoodViewMode] = useState<"list" | "grid">("list");
   const [foodDragIndex, setFoodDragIndex] = useState<number | null>(null);
-
-  // Starter ideas for Food when tailored suggestions aren't available yet
-  const DEFAULT_FOOD_SUGGESTIONS: Array<{ title: string; reason?: string }> = [
-    { title: "Taco night", reason: "Build-your-own and crowd-pleaser" },
-    { title: "Stir-fry", reason: "Fast, flexible, great with veggies" },
-    { title: "Sheet‑pan chicken", reason: "Easy, minimal cleanup" },
-    { title: "Pasta al limone", reason: "Bright, simple, comforting" },
-    { title: "Burgers + oven fries", reason: "Weeknight classic" },
-    { title: "Thai curry", reason: "Cozy and customizable heat" },
-    { title: "Grain bowl", reason: "Healthy base with fun toppings" },
-    { title: "Homemade pizza", reason: "Everyone picks a topping" },
-    { title: "Chili", reason: "Make-ahead and feeds a crowd" },
-    { title: "Fajitas", reason: "Sizzle factor, quick on the stove" },
-    { title: "Ramen upgrade", reason: "Quick broth + add‑ins" },
-    { title: "Salmon + greens", reason: "Light and weeknight easy" },
-  ];
 
   // Anything list state (no API search, manual entry only)
   const [anythingTitle, setAnythingTitle] = useState("");
@@ -230,7 +208,6 @@ export default function NewPageClient() {
     setSearchResults([]);
     setShowSearchResults(false);
     setBookNote("");
-    setAiSuggestions([]);
     // Reset music state
     setMusicTitle("");
     setMusicItems([]);
@@ -238,13 +215,11 @@ export default function NewPageClient() {
     setMusicNote("");
     setMusicSearchResults([]);
     setShowMusicResults(false);
-    setMusicAiSuggestions([]);
     // Reset food state
     setFoodTitle("");
     setFoodItems([]);
     setFoodInput("");
     setFoodNote("");
-    setFoodAiSuggestions([]);
     // Reset anything state
     setAnythingTitle("");
     setAnythingItems([]);
@@ -339,39 +314,6 @@ export default function NewPageClient() {
     }
     if (from != null) reorderBooks(from, index);
     setDragIndex(null);
-  }
-
-  async function loadAiSuggestionsForBooks() {
-    setAiLoading(true);
-    try {
-      const payload: any = { limit: 12 };
-      if (existingList?.id) payload.listId = existingList.id;
-      else payload.items = bookItems.map((it) => it.title);
-      const res = await fetch(`/api/choosie/getSuggestions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (data.ok) setAiSuggestions(data.suggestions || []);
-      else throw new Error(data.error || "Failed to load suggestions");
-    } catch (e) {
-      console.error(e);
-      alert("Couldn't load suggestions right now. Try again soon.");
-    } finally {
-      setAiLoading(false);
-    }
-  }
-
-  function addFromAiSuggestion(s: any) {
-    const title = String(s.title || "").trim();
-    if (!title) return;
-    const duplicate = bookItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
-    if (duplicate) {
-      alert(`"${title}" has already been added to your list.`);
-      return;
-    }
-    setBookItems((curr) => [...curr, { id: id(), title, notes: s.reason, image: s.image || undefined }]);
   }
 
   function handleSaveBookList() {
@@ -484,39 +426,6 @@ export default function NewPageClient() {
     setMusicDragIndex(null);
   }
 
-  async function loadAiSuggestionsForMusic() {
-    setMusicAiLoading(true);
-    try {
-      const payload: any = { limit: 12 };
-      if (existingList?.id) payload.listId = existingList.id;
-      else payload.items = musicItems.map((it) => it.title);
-      const res = await fetch(`/api/choosie/getSuggestions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (data.ok) setMusicAiSuggestions(data.suggestions || []);
-      else throw new Error(data.error || "Failed to load suggestions");
-    } catch (e) {
-      console.error(e);
-      alert("Couldn't load suggestions right now. Try again soon.");
-    } finally {
-      setMusicAiLoading(false);
-    }
-  }
-
-  function addFromMusicAiSuggestion(s: any) {
-    const title = String(s.title || "").trim();
-    if (!title) return;
-    const duplicate = musicItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
-    if (duplicate) {
-      alert(`"${title}" has already been added to your list.`);
-      return;
-    }
-    setMusicItems((curr) => [...curr, { id: id(), title, notes: s.reason }]);
-  }
-
   function handleSaveMusicList() {
     if (!musicTitle.trim()) {
       alert("Please add a list name");
@@ -623,46 +532,6 @@ export default function NewPageClient() {
     }
     if (from != null) reorderFood(from, index);
     setFoodDragIndex(null);
-  }
-
-  async function loadAiSuggestionsForFood() {
-    setFoodAiLoading(true);
-    try {
-      // Call dedicated food suggestions endpoint and pass existing item titles
-      const payload = {
-        listId: existingList?.id,
-        items: foodItems.map((it) => it.title),
-        limit: 12,
-      };
-      const res = await fetch(`/api/food/suggestions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok && data?.ok) {
-        const suggestions = (data.suggestions || []) as any[];
-        setFoodAiSuggestions(suggestions.length ? suggestions : DEFAULT_FOOD_SUGGESTIONS);
-      } else {
-        setFoodAiSuggestions(DEFAULT_FOOD_SUGGESTIONS);
-      }
-    } catch (e) {
-      console.error(e);
-      setFoodAiSuggestions(DEFAULT_FOOD_SUGGESTIONS);
-    } finally {
-      setFoodAiLoading(false);
-    }
-  }
-
-  function addFromFoodAiSuggestion(s: any) {
-    const title = String(s.title || "").trim();
-    if (!title) return;
-    const duplicate = foodItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
-    if (duplicate) {
-      alert(`"${title}" has already been added to your list.`);
-      return;
-    }
-    setFoodItems((curr) => [...curr, { id: id(), title, notes: s.reason }]);
   }
 
   function handleSaveFoodList() {
@@ -935,44 +804,6 @@ export default function NewPageClient() {
               </div>
             </div>
 
-            {/* Suggestions panel */}
-            <div className="mt-4 rounded-lg bg-white/70 p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold">Suggestions</h3>
-                {existingList?.id ? (
-                  <button onClick={loadAiSuggestionsForBooks} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                    {aiLoading ? "Loading…" : "Get suggestions"}
-                  </button>
-                ) : (
-                  <span className="text-xs text-zinc-500">Save to unlock tailored suggestions</span>
-                )}
-              </div>
-              {aiSuggestions.length > 0 ? (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {aiSuggestions.map((s, idx) => (
-                    <div key={idx} className="rounded-md bg-white/60 p-3 flex gap-3">
-                      {s.image ? (
-                        <img src={s.image} alt={s.title} className="w-14 h-20 object-cover rounded" />
-                      ) : (
-                        <div className="w-14 h-20 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 text-xs">No cover</div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">{s.title}</div>
-                        {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}
-                        <div className="mt-2">
-                          <button onClick={() => addFromAiSuggestion(s)} className="text-xs rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                            Add
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-zinc-500">No suggestions yet.</p>
-              )}
-            </div>
-
             {viewMode === "list" ? (
               <ul className="mt-3 space-y-2">
                 {bookItems.map((it, idx) => (
@@ -1194,37 +1025,6 @@ export default function NewPageClient() {
             </div>
           </div>
 
-          {/* Suggestions panel */}
-          <div className="mt-4 rounded-lg bg-white/70 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold">Suggestions</h3>
-              {existingList?.id ? (
-                <button onClick={loadAiSuggestionsForMusic} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                  {musicAiLoading ? "Loading…" : "Get suggestions"}
-                </button>
-              ) : (
-                <span className="text-xs text-zinc-500">Save to unlock tailored suggestions</span>
-              )}
-            </div>
-            {musicAiSuggestions.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {musicAiSuggestions.map((s, idx) => (
-                  <div key={idx} className="rounded-md bg-white/60 p-3">
-                    <div className="font-medium truncate">{s.title}</div>
-                    {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}
-                    <div className="mt-2">
-                      <button onClick={() => addFromMusicAiSuggestion(s)} className="text-xs rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-zinc-500">No suggestions yet.</p>
-            )}
-          </div>
-
           {musicViewMode === "list" ? (
             <ul className="mt-3 space-y-2">
               {musicItems.map((it, idx) => (
@@ -1403,38 +1203,6 @@ export default function NewPageClient() {
                 Add dish
               </button>
             </div>
-          </div>
-
-          {/* Suggestions panel */}
-          <div className="mt-4 rounded-lg bg-white/70 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold">Suggestions</h3>
-              <div className="flex items-center gap-2">
-                {!existingList?.id && (
-                  <span className="text-xs text-zinc-500">Starter ideas shown — save to unlock tailored picks</span>
-                )}
-                <button onClick={loadAiSuggestionsForFood} className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                  {foodAiLoading ? "Loading…" : existingList?.id ? "Get suggestions" : "Load starter ideas"}
-                </button>
-              </div>
-            </div>
-            {(foodAiSuggestions.length > 0 ? foodAiSuggestions : DEFAULT_FOOD_SUGGESTIONS).length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {(foodAiSuggestions.length > 0 ? foodAiSuggestions : DEFAULT_FOOD_SUGGESTIONS).map((s, idx) => (
-                  <div key={idx} className="rounded-md bg-white/60 p-3">
-                    <div className="font-medium truncate">{s.title}</div>
-                    {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}
-                    <div className="mt-2">
-                      <button onClick={() => addFromFoodAiSuggestion(s)} className="text-xs rounded-full bg-brand px-3 py-1 text-white hover:opacity-90">
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-zinc-500">No suggestions yet.</p>
-            )}
           </div>
 
           {foodViewMode === "list" ? (
