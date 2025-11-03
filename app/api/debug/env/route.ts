@@ -1,6 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+function computeAllowedOrigins() {
+  const envOrigins = (process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
+  const local = "http://localhost:3000";
+  return [...envOrigins, siteUrl, vercelUrl, local].filter(Boolean) as string[];
+}
+
+export async function GET(req: NextRequest) {
+  const requestOrigin = req.headers.get("origin") || (req.headers.get("referer") ? new URL(req.headers.get("referer") as string).origin : "");
+  const allowedOrigins = computeAllowedOrigins();
+
   const envVars = {
     DATABASE_URL: process.env.DATABASE_URL ? "✓ Set" : "✗ Missing",
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? "✓ Set" : "✗ Missing",
@@ -21,6 +35,10 @@ export async function GET() {
     STRIPE_PORTAL_CONFIGURATION_ID: process.env.STRIPE_PORTAL_CONFIGURATION_ID ? "✓ Set" : "✗ Not set (optional)",
     NODE_ENV: process.env.NODE_ENV,
     VERCEL_URL: process.env.VERCEL_URL || "Not on Vercel",
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || "(not set)",
+    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "(not set)",
+    requestOrigin: requestOrigin || "(no origin)",
+    allowedOrigins,
   };
 
   return NextResponse.json({
