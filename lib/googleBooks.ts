@@ -62,12 +62,14 @@ export async function searchBooks(query: string, maxResults: number = 20): Promi
         (id) => id.type === "ISBN_13" || id.type === "ISBN_10"
       )?.identifier;
 
+      const rawThumb = volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail;
+      const thumbnail = rawThumb ? rawThumb.replace(/^http:\/\//, "https://") : undefined;
       return {
         id: item.id,
         title: volumeInfo.title || "Unknown Title",
         authors: volumeInfo.authors || ["Unknown Author"],
         publishedYear: volumeInfo.publishedDate?.split("-")[0],
-        thumbnail: volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail,
+        thumbnail,
         description: volumeInfo.description,
         isbn,
       };
@@ -93,12 +95,14 @@ export async function getBookById(bookId: string): Promise<BookSearchResult | nu
       (id) => id.type === "ISBN_13" || id.type === "ISBN_10"
     )?.identifier;
 
+    const rawThumb = volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail;
+    const thumbnail = rawThumb ? rawThumb.replace(/^http:\/\//, "https://") : undefined;
     return {
       id: item.id,
       title: volumeInfo.title || "Unknown Title",
       authors: volumeInfo.authors || ["Unknown Author"],
       publishedYear: volumeInfo.publishedDate?.split("-")[0],
-      thumbnail: volumeInfo.imageLinks?.thumbnail || volumeInfo.imageLinks?.smallThumbnail,
+      thumbnail,
       description: volumeInfo.description,
       isbn,
     };

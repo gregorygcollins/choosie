@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { getListById } from "@/lib/db";
+import { getPopularRecipes } from "@/lib/spoonacular";
 
 export const runtime = "nodejs";
 
@@ -70,20 +71,38 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Basic filtering by optional tags
+    // Optional tags to hint cuisine; e.g., ["italian", "mexican"]
     const wantTags = Array.isArray(body?.tags)
       ? (body.tags as string[]).map((t) => t.toLowerCase())
       : [];
 
-    const pool = wantTags.length
-      ? CATALOG.filter((c) => (c.tags || []).some((t) => wantTags.includes(t.toLowerCase())))
-      : CATALOG;
+    // If Spoonacular key is present, use it for richer suggestions; otherwise use the curated catalog
+    const hasSpoonacular = !!process.env.SPOONACULAR_API_KEY;
+    let out: any[] = [];
 
-    const out: any[] = [];
-    for (const s of shuffle(pool)) {
-      if (existingTitles.has(s.title.toLowerCase())) continue;
-      out.push({ id: s.title, title: s.title, reason: s.reason });
-      if (out.length >= limit) break;
+    if (hasSpoonacular) {
+      try {
+        const recipes = await getPopularRecipes({ tags: wantTags, limit });
+        for (const r of recipes) {
+          if (existingTitles.has(String(r.title).toLowerCase())) continue;
+          out.push({ id: r.id, title: r.title, image: r.image, reason: wantTags.length ? "Matches your cuisine" : "Popular pick" });
+          if (out.length >= limit) break;
+        }
+      } catch (e) {
+        // fall back silently to curated catalog below
+        out = [];
+      }
+    }
+
+    if (!hasSpoonacular || out.length === 0) {
+      const pool = wantTags.length
+        ? CATALOG.filter((c) => (c.tags || []).some((t) => wantTags.includes(t.toLowerCase())))
+        : CATALOG;
+      for (const s of shuffle(pool)) {
+        if (existingTitles.has(s.title.toLowerCase())) continue;
+        out.push({ id: s.title, title: s.title, reason: s.reason });
+        if (out.length >= limit) break;
+      }
     }
 
     const res = NextResponse.json({ ok: true, suggestions: out });
