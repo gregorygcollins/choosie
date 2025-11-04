@@ -5,6 +5,9 @@ import auth, { signInDemo, getSession } from "../../../lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 function LoginForm() {
   const [name, setName] = useState("");
   const [pro, setPro] = useState(false);
