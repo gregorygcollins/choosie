@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import auth, { signInDemo, getSession } from "../../../lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
-export default function LoginPage() {
+function LoginForm() {
   const [name, setName] = useState("");
   const [pro, setPro] = useState(false);
   const router = useRouter();
@@ -43,5 +43,13 @@ export default function LoginPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-md p-6 text-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
