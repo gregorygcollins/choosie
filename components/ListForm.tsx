@@ -101,9 +101,7 @@ export default function ListForm({
 
   
 
-  const [suggestions, setSuggestions] = useState<any[]>([]); // search box suggestions
-  const [isSearching, setIsSearching] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  // ...existing code...
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   // Update form when existingList is loaded
@@ -120,50 +118,7 @@ export default function ListForm({
     }
   }, [existingList]);
 
-  // Debounced search for movie suggestions
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (input.trim().length > 2) {
-        handleSearch(input);
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [input]);
-
-  async function handleSearch(query: string) {
-    if (!query.trim()) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-    setIsSearching(true);
-    try {
-      const res = await fetch(`/api/movies/search?query=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new Error("Movie search failed");
-      const data = await res.json();
-      const results = Array.isArray(data?.results) ? data.results : [];
-      setSuggestions(results.slice(0, 5));
-      setShowSuggestions(results.length > 0);
-    } catch (err) {
-      console.error(err);
-      setSuggestions([]);
-      setShowSuggestions(false);
-    } finally {
-      setIsSearching(false);
-    }
-  }
-
-  function selectSuggestion(movie: any) {
-    setInput(movie.title);
-    setNote(movie.overview || "");
-    setImageUrl(movie.poster || "");
-    setSuggestions([]);
-    setShowSuggestions(false);
-  }
+  // ...existing code...
 
   function addItem() {
     if (!input.trim()) return;
@@ -185,8 +140,7 @@ export default function ListForm({
     setInput("");
     setNote("");
     setImageUrl("");
-    setSuggestions([]);
-    setShowSuggestions(false);
+  // ...existing code...
   }
 
   function removeItem(id: string) {
@@ -304,12 +258,12 @@ export default function ListForm({
   return (
     <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
   <label className="block mb-3 text-sm font-medium">Name your watchlist</label>
-            <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-    className="w-full rounded-lg border px-3 py-2 shadow-inner"
+      <input
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+  className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 pr-10 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
   placeholder="Family vacation, Rainy weekend rewatchables, Oscar contenders…"
-      />
+    />
       <p className="text-sm text-zinc-500 mt-1">
         Add the movies you want to watch — Choosie will find what hits for everyone else.
       </p>
@@ -359,50 +313,15 @@ export default function ListForm({
                   e.preventDefault();
                   addItem();
                 }
-                if (e.key === "Escape") {
-                  setShowSuggestions(false);
-                }
               }}
-              onFocus={() => {
-                if (suggestions.length > 0) setShowSuggestions(true);
-              }}
-              className="w-full rounded-lg border px-3 py-2"
+              className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
               placeholder="Movie title"
             />
-            {/* Movie suggestions dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                {suggestions.map((movie, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => selectSuggestion(movie)}
-                    className="w-full flex items-start gap-3 p-3 hover:bg-zinc-50 transition-colors text-left"
-                  >
-                    {movie.poster ? (
-                      <img src={movie.poster} alt={movie.title} className="w-12 h-18 object-cover rounded" />
-                    ) : (
-                      <div className="w-12 h-18 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 text-xs">No poster</div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{movie.title}</div>
-                      {movie.year && <div className="text-xs text-zinc-500">{movie.year}</div>}
-                      {movie.overview && (
-                        <div className="text-xs text-zinc-600 mt-1 line-clamp-2">{movie.overview}</div>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-            {isSearching && (
-              <div className="absolute right-3 top-3 text-xs text-zinc-400">Searching...</div>
-            )}
           </div>
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="rounded-lg border px-3 py-2"
+            className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
             placeholder="Optional note"
           />
           <div className="sm:col-span-3 flex justify-end">

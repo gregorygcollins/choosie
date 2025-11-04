@@ -89,10 +89,17 @@ export default function ListsPage() {
 
         <div className="grid gap-4">
           {lists.map((list) => {
-            const listTypeName = list.moduleType === "books" ? "booklist" :
-                                 list.moduleType === "food" ? "food list" :
-                                 list.moduleType === "music" ? "musiclist" :
-                                 list.moduleType === "anything" ? "list" : "watchlist";
+            // Derive module if missing from server/local legacy data
+            const derivedModule = (list as any).moduleType
+              || (list.id?.startsWith("book-") ? "books"
+                  : list.id?.startsWith("music-") ? "music"
+                  : list.id?.startsWith("food-") ? "food"
+                  : list.id?.startsWith("anything-") ? "anything"
+                  : "movies");
+            const listTypeName = derivedModule === "books" ? "booklist" :
+                                 derivedModule === "food" ? "foodlist" :
+                                 derivedModule === "music" ? "musiclist" :
+                                 derivedModule === "anything" ? "list" : "watchlist";
             
             return (
             <div

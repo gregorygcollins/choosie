@@ -57,7 +57,7 @@ export default function NewPage() {
           {/* Wrapper crops a few pixels and nudges content slightly right to give the first cloud more breathing room */}
           <div className="relative w-full max-w-[690px] overflow-hidden">
             <img
-              src="/choosie-process.svg"
+              src="/choosie-process.svg?v=6"
               alt="Choosie process diagram"
               className="block opacity-80"
               style={{

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createList } from "@/lib/db";
+import type { ModuleType } from "@prisma/client";
 import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
@@ -28,6 +29,19 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const validatedData = validateRequest(createListSchema, body);
+    // Normalize module string to Prisma enum
+    const clientModule = (validatedData as any).module || (validatedData as any).moduleType;
+    const moduleMap: Record<string, ModuleType> = {
+      movies: "MOVIES",
+      books: "BOOKS",
+      food: "RECIPES",
+      anything: "ANYTHING",
+      // No MUSIC in Prisma schema; store as ANYTHING for now
+      music: "ANYTHING",
+    } as const;
+    const moduleEnum: ModuleType = clientModule && moduleMap[String(clientModule)]
+      ? moduleMap[String(clientModule)]
+      : "MOVIES";
     
     const session = await auth();
     const userId = session?.user?.id || "dev-user-temp"; // fallback for anonymous/dev
@@ -35,7 +49,8 @@ export async function POST(req: NextRequest) {
     const list = await createList(
       userId,
       validatedData.title,
-      validatedData.items
+      validatedData.items,
+      moduleEnum
     );
   
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -53,6 +68,11 @@ export async function POST(req: NextRequest) {
           image: it.imageUrl,
         })),
         createdAt: list.createdAt.toISOString(),
+        // Echo a friendly moduleType for client UI
+        moduleType: list.module === "BOOKS" ? "books"
+          : list.module === "RECIPES" ? "food"
+          : list.module === "ANYTHING" ? (clientModule === "music" ? "music" : "anything")
+          : "movies",
       },
     });
     return withCORS(res, origin);

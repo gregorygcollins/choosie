@@ -11,6 +11,16 @@ export function middleware(request: Request) {
     return NextResponse.next();
   }
 
+  // Allow Vercel preview/staging hosts through without canonical redirect so you can test new builds
+  const host = url.host.toLowerCase();
+  const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development'
+  const isVercel = process.env.VERCEL === "1";
+  const isPreviewEnv = isVercel && vercelEnv && vercelEnv !== "production";
+  const isPreviewHost = /\.vercel\.app$/i.test(host);
+  if (isPreviewEnv || isPreviewHost) {
+    return NextResponse.next();
+  }
+
   if (isProd && canonical) {
     try {
       const c = new URL(canonical);

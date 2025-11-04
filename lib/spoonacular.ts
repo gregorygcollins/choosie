@@ -36,3 +36,24 @@ export async function getPopularRecipes({ tags = [], limit = 12 }: { tags?: stri
   const results = Array.isArray(data?.results) ? data.results : [];
   return results.map((r: any) => ({ id: r.id, title: r.title, image: r.image || null }));
 }
+
+/**
+ * Text search for recipes. Returns basic info suitable for suggestions/autocomplete.
+ */
+export async function searchRecipes(query: string, limit = 8): Promise<RecipeSuggestion[]> {
+  const key = getKey();
+  const q = (query || "").trim();
+  if (!q) return [];
+  const n = Math.min(Math.max(limit || 8, 1), 24);
+  const url = new URL("https://api.spoonacular.com/recipes/complexSearch");
+  url.searchParams.set("apiKey", key);
+  url.searchParams.set("number", String(n));
+  url.searchParams.set("query", q);
+  url.searchParams.set("addRecipeInformation", "false");
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Spoonacular search failed: ${res.status}`);
+  const data = await res.json();
+  const results = Array.isArray(data?.results) ? data.results : [];
+  return results.map((r: any) => ({ id: r.id, title: r.title, image: r.image || null }));
+}

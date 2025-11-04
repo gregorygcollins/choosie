@@ -26,11 +26,6 @@ export default function NewPageClient() {
   // Book list state
   const [bookTitle, setBookTitle] = useState("");
   const [bookItems, setBookItems] = useState<ChoosieItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedBookResult, setSelectedBookResult] = useState<BookSearchResult | null>(null);
   const [bookNote, setBookNote] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -38,19 +33,14 @@ export default function NewPageClient() {
   // Music list state
   const [musicTitle, setMusicTitle] = useState("");
   const [musicItems, setMusicItems] = useState<ChoosieItem[]>([]);
-  const [musicInput, setMusicInput] = useState("");
   const [musicNote, setMusicNote] = useState("");
   const [musicAlbumArt, setMusicAlbumArt] = useState<string | undefined>(undefined);
-  const [musicSearchResults, setMusicSearchResults] = useState<SpotifyTrack[]>([]);
-  const [musicSearchLoading, setMusicSearchLoading] = useState(false);
-  const [showMusicResults, setShowMusicResults] = useState(false);
   const [musicViewMode, setMusicViewMode] = useState<"list" | "grid">("list");
   const [musicDragIndex, setMusicDragIndex] = useState<number | null>(null);
 
   // Food list state
   const [foodTitle, setFoodTitle] = useState("");
   const [foodItems, setFoodItems] = useState<ChoosieItem[]>([]);
-  const [foodInput, setFoodInput] = useState("");
   const [foodNote, setFoodNote] = useState("");
   const [foodViewMode, setFoodViewMode] = useState<"list" | "grid">("list");
   const [foodDragIndex, setFoodDragIndex] = useState<number | null>(null);
@@ -104,59 +94,7 @@ export default function NewPageClient() {
     return () => { cancelled = true; };
   }, []);
 
-  // Book search with debounce
-  useEffect(() => {
-    if (!searchQuery.trim() || selectedModule !== "books") {
-      setSearchResults([]);
-      setShowSearchResults(false);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setSearchLoading(true);
-      try {
-        const res = await fetch(`/api/books/search?query=${encodeURIComponent(searchQuery)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSearchResults(data.books || []);
-          setShowSearchResults((data.books || []).length > 0);
-        }
-      } catch (err) {
-        console.error("Book search error:", err);
-      } finally {
-        setSearchLoading(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery, selectedModule]);
-
-  // Spotify search with debounce
-  useEffect(() => {
-    if (!musicInput.trim() || selectedModule !== "music") {
-      setMusicSearchResults([]);
-      setShowMusicResults(false);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setMusicSearchLoading(true);
-      try {
-        const res = await fetch(`/api/spotify/search?query=${encodeURIComponent(musicInput)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setMusicSearchResults(data.tracks || []);
-          setShowMusicResults((data.tracks || []).length > 0);
-        }
-      } catch (err) {
-        console.error("Spotify search error:", err);
-      } finally {
-        setMusicSearchLoading(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [musicInput, selectedModule]);
+  // Removed all suggestion/autocomplete effects for books, music, and food
 
   function handleSave(list: any) {
     const listWithModule = {
@@ -168,6 +106,7 @@ export default function NewPageClient() {
     if (me && (me as any).id) {
       const payload = {
         title: listWithModule.title,
+        moduleType: selectedModule,
         items: (listWithModule.items || []).map((it: any) => ({
           title: it.title,
           notes: it.notes,
@@ -203,22 +142,15 @@ export default function NewPageClient() {
     // Reset book state
     setBookTitle("");
     setBookItems([]);
-  setSelectedBookResult(null);
-    setSearchQuery("");
-    setSearchResults([]);
-    setShowSearchResults(false);
     setBookNote("");
     // Reset music state
     setMusicTitle("");
     setMusicItems([]);
-    setMusicInput("");
     setMusicNote("");
-    setMusicSearchResults([]);
-    setShowMusicResults(false);
+    setMusicAlbumArt(undefined);
     // Reset food state
     setFoodTitle("");
     setFoodItems([]);
-    setFoodInput("");
     setFoodNote("");
     // Reset anything state
     setAnythingTitle("");
@@ -228,51 +160,34 @@ export default function NewPageClient() {
   }
 
   function selectBookSuggestion(book: BookSearchResult) {
-    setSearchQuery(book.title);
-    setBookNote(book.description || "");
-    setSearchResults([]);
-    setShowSearchResults(false);
-    setSelectedBookResult(book);
+  // Removed: suggestion/autocomplete logic
   }
 
   function selectSpotifyTrack(track: SpotifyTrack) {
-    setMusicInput(`${track.name} - ${track.artists.join(", ")}`);
-    setMusicNote(track.album || "");
-    setMusicAlbumArt(track.albumArt);
-    setMusicSearchResults([]);
-    setShowMusicResults(false);
+  // Removed: suggestion/autocomplete logic
   }
 
   function addBookItem() {
-    if (!searchQuery.trim()) return;
-    
-    const title = searchQuery.trim();
+    // Manual add only
+    const title = bookTitle.trim();
+    if (!title) return;
     const duplicate = bookItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
     );
-    
     if (duplicate) {
       alert(`"${title}" has already been added to your list.`);
       return;
     }
-
-  // Prefer an explicitly selected result (set by selectBookSuggestion). If not set, try to match the title from the current searchResults.
-  const selectedBook = selectedBookResult || searchResults.find(b => b.title === searchQuery);
-    
     setBookItems((s) => [
       ...s,
       { 
         id: id(), 
         title, 
-        notes: bookNote?.trim() || undefined, 
-        image: selectedBook?.thumbnail || undefined 
+        notes: bookNote?.trim() || undefined
       },
     ]);
-    setSearchQuery("");
+    setBookTitle("");
     setBookNote("");
-    setSearchResults([]);
-    setShowSearchResults(false);
-    setSelectedBookResult(null);
   }
 
   function removeBookItem(itemId: string) {
@@ -338,6 +253,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        moduleType: "books",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
       fetch(`/api/choosie/createList`, {
@@ -360,18 +276,16 @@ export default function NewPageClient() {
 
   // ========== KARAOKE MODULE FUNCTIONS ==========
   function addMusicItem() {
-    if (!musicInput.trim()) return;
-    
-    const title = musicInput.trim();
+    // Manual add only
+    const title = musicTitle.trim();
+    if (!title) return;
     const duplicate = musicItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
     );
-    
     if (duplicate) {
       alert(`"${title}" has already been added to your list.`);
       return;
     }
-    
     setMusicItems((s) => [
       ...s,
       { 
@@ -381,7 +295,7 @@ export default function NewPageClient() {
         image: musicAlbumArt
       },
     ]);
-    setMusicInput("");
+    setMusicTitle("");
     setMusicNote("");
     setMusicAlbumArt(undefined);
   }
@@ -448,6 +362,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        moduleType: "music",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
       fetch(`/api/choosie/createList`, {
@@ -470,28 +385,37 @@ export default function NewPageClient() {
 
   // ========== FOOD MODULE FUNCTIONS ==========
   function addFoodItem() {
-    if (!foodInput.trim()) return;
-    
-    const title = foodInput.trim();
+    // Manual add only
+    const title = foodTitle.trim();
+    if (!title) return;
     const duplicate = foodItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
     );
-    
     if (duplicate) {
       alert(`"${title}" has already been added to your list.`);
       return;
     }
-    
+    const newId = id();
     setFoodItems((s) => [
       ...s,
       { 
-        id: id(), 
+        id: newId, 
         title, 
         notes: foodNote?.trim() || undefined
       },
     ]);
-    setFoodInput("");
+    setFoodTitle("");
     setFoodNote("");
+    // Fetch a representative meal image (not recipe-specific) from Wikimedia Commons
+    fetch(`/api/food/image?q=${encodeURIComponent(title)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const img: string | undefined = data?.image || undefined;
+        if (img) {
+          setFoodItems((prev) => prev.map((it) => (it.id === newId ? { ...it, image: img } : it)));
+        }
+      })
+      .catch(() => {});
   }
 
   function removeFoodItem(itemId: string) {
@@ -556,6 +480,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        moduleType: "food",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes })),
       };
       fetch(`/api/choosie/createList`, {
@@ -725,66 +650,26 @@ export default function NewPageClient() {
               <div className="col-span-2 relative">
                 <div className="flex items-center gap-3">
                 <input
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    // If the user types after selecting, clear the explicit selection
-                    setSelectedBookResult(null);
-                  }}
+                  value={bookTitle}
+                  onChange={(e) => setBookTitle(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       addBookItem();
                     }
-                    if (e.key === "Escape") {
-                      setShowSearchResults(false);
-                    }
                   }}
-                  onFocus={() => {
-                    if (searchResults.length > 0) setShowSearchResults(true);
-                  }}
-                  className="w-full rounded-lg border px-3 py-2"
-                  placeholder="Book title or author"
+                  className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
+                  placeholder="Book title"
                 />
-                {selectedBookResult?.thumbnail && (
-                  <img src={selectedBookResult.thumbnail} alt={selectedBookResult.title} className="w-12 h-16 object-cover rounded" />
-                )}
+                {/* Removed: book suggestion thumbnail */}
                 </div>
                 {/* Book suggestions dropdown */}
-                {showSearchResults && searchResults.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                    {searchResults.slice(0, 5).map((book, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => selectBookSuggestion(book)}
-                        className="w-full flex items-start gap-3 p-3 hover:bg-zinc-50 transition-colors text-left"
-                      >
-                        {book.thumbnail ? (
-                          <img src={book.thumbnail} alt={book.title} className="w-12 h-18 object-cover rounded" />
-                        ) : (
-                          <div className="w-12 h-18 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 text-xs">No cover</div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">{book.title}</div>
-                          {book.authors.length > 0 && <div className="text-xs text-zinc-500">{book.authors.join(", ")}</div>}
-                          {book.publishedYear && <div className="text-xs text-zinc-500">{book.publishedYear}</div>}
-                          {book.description && (
-                            <div className="text-xs text-zinc-600 mt-1 line-clamp-2">{book.description}</div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {searchLoading && (
-                  <div className="absolute right-3 top-3 text-xs text-zinc-400">Searching...</div>
-                )}
+                {/* Removed: book suggestions dropdown and loading indicator */}
               </div>
               <input
                 value={bookNote}
                 onChange={(e) => setBookNote(e.target.value)}
-                className="rounded-lg border px-3 py-2"
+                className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
                 placeholder="Optional note"
               />
               <div className="sm:col-span-3 flex justify-end">
@@ -793,13 +678,6 @@ export default function NewPageClient() {
                   className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
                 >
                   Add book
-                </button>
-                <button
-                  type="button"
-                  onClick={() => console.log('bookItems', bookItems)}
-                  className="ml-2 rounded-full border px-3 py-2 text-sm text-zinc-700 hover:bg-white"
-                >
-                  Debug state
                 </button>
               </div>
             </div>
@@ -969,50 +847,24 @@ export default function NewPageClient() {
           <div className="grid gap-2 sm:grid-cols-3 relative">
             <div className="col-span-2 relative">
               <input
-                value={musicInput}
-                onChange={(e) => setMusicInput(e.target.value)}
+                value={musicTitle}
+                onChange={(e) => setMusicTitle(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     addMusicItem();
                   }
                 }}
-                className="w-full rounded-lg border px-3 py-2"
+                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
                 placeholder="Song title"
               />
               {/* Spotify search dropdown */}
-              {showMusicResults && musicSearchResults.length > 0 && (
-                <div className="absolute z-10 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border bg-white shadow-lg">
-                  {musicSearchLoading ? (
-                    <div className="px-4 py-2 text-sm text-zinc-500">Searching...</div>
-                  ) : (
-                    musicSearchResults.slice(0, 5).map((track) => (
-                      <div
-                        key={track.id}
-                        className="flex items-center gap-3 px-3 py-2 hover:bg-zinc-50 cursor-pointer"
-                        onClick={() => selectSpotifyTrack(track)}
-                      >
-                        {track.albumArt ? (
-                          <img src={track.albumArt} alt={track.album} className="w-10 h-10 rounded object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 rounded bg-zinc-200 flex items-center justify-center text-zinc-400">🎵</div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{track.name}</div>
-                          <div className="text-xs text-zinc-500 truncate">
-                            {track.artists.join(", ")} {track.releaseYear && `• ${track.releaseYear}`}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
+              {/* Removed: music suggestions dropdown and loading indicator */}
             </div>
             <input
               value={musicNote}
               onChange={(e) => setMusicNote(e.target.value)}
-              className="rounded-lg border px-3 py-2"
+              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
               placeholder="Optional note"
             />
             <div className="sm:col-span-3 flex justify-end">
@@ -1177,22 +1029,24 @@ export default function NewPageClient() {
           <div className="grid gap-2 sm:grid-cols-3 relative">
             <div className="col-span-2 relative">
               <input
-                value={foodInput}
-                onChange={(e) => setFoodInput(e.target.value)}
+                value={foodTitle}
+                onChange={(e) => setFoodTitle(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     addFoodItem();
                   }
                 }}
-                className="w-full rounded-lg border px-3 py-2"
+                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
                 placeholder="Dish name"
               />
+              {/* Food search dropdown */}
+              {/* Removed: food suggestions dropdown and loading indicator */}
             </div>
             <input
               value={foodNote}
               onChange={(e) => setFoodNote(e.target.value)}
-              className="rounded-lg border px-3 py-2"
+              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
               placeholder="Optional note"
             />
             <div className="sm:col-span-3 flex justify-end">
@@ -1229,7 +1083,11 @@ export default function NewPageClient() {
                         <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                       </svg>
                     </div>
-                    <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                    {it.image ? (
+                      <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                    )}
                     <div>
                       <div className="font-medium">{it.title}</div>
                       {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
@@ -1266,7 +1124,11 @@ export default function NewPageClient() {
                         <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                       </svg>
                     </div>
-                    <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                    {it.image ? (
+                      <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                    )}
                     <div className="flex-1">
                       <div className="font-medium">{it.title}</div>
                       {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
@@ -1303,7 +1165,7 @@ export default function NewPageClient() {
         <input
           value={anythingTitle}
           onChange={(e) => setAnythingTitle(e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 shadow-inner"
+          className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 pr-10 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
           placeholder="Travel destinations, Baby names, Group activities, etc."
         />
         <p className="text-sm text-zinc-500 mt-1">
@@ -1357,14 +1219,14 @@ export default function NewPageClient() {
                     addAnythingItem();
                   }
                 }}
-                className="w-full rounded-lg border px-3 py-2"
+                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
                 placeholder="Item name"
               />
             </div>
             <input
               value={anythingNote}
               onChange={(e) => setAnythingNote(e.target.value)}
-              className="rounded-lg border px-3 py-2"
+              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
               placeholder="Optional note"
             />
             <div className="sm:col-span-3 flex justify-end">

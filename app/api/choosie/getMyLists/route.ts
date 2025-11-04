@@ -26,6 +26,11 @@ export async function GET(req: NextRequest) {
         title: l.title,
         items: l.items.map((it) => ({ id: it.id, title: it.title, notes: it.notes, image: it.imageUrl })),
         createdAt: l.createdAt.toISOString(),
+        moduleType:
+          l.module === "BOOKS" ? "books" :
+          l.module === "RECIPES" ? "food" :
+          l.module === "ANYTHING" ? "anything" :
+          "movies",
       })),
     });
     return withCORS(res, origin);

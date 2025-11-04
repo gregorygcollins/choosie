@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" width="480" height="100" style="background:white">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="600" height="100" style="background:white">
   <style>
     .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #555; text-anchor: middle; }
     .dot   { fill: #555; }
@@ -13,7 +13,7 @@
   </defs>
 
   <!-- PROGRAMMER (complete, circular cloud, radius 24px) -->
-  <g transform="translate(60,36)">
+  <g transform="translate(50,50)">
     <circle class="dot" r="1.5" cx="0" cy="-24"/>
     <circle class="dot" r="1.5" cx="12" cy="-21"/>
     <circle class="dot" r="1.5" cx="21" cy="-12"/>
@@ -42,10 +42,10 @@
   </g>
 
   <!-- Curved Arrow 1 -->
-  <path class="arrow" d="M90,36 C120,31 120,41 150,36"/>
+  <path class="arrow" d="M149,50 C174,44 174,56 198,50"/>
 
   <!-- CURATOR (circular cluster, radius 12px) -->
-  <g transform="translate(180,36)">
+  <g transform="translate(255,50)">
     <circle class="dot" r="2.1" cx="0" cy="-12"/>
     <circle class="dot" r="2.1" cx="10" cy="-6"/>
     <circle class="dot" r="2.1" cx="12" cy="0"/>
@@ -61,20 +61,20 @@
   </g>
 
   <!-- Curved Arrow 2 -->
-  <path class="arrow" d="M210,36 C240,31 240,41 270,36"/>
+  <path class="arrow" d="M285,50 C330,44 330,56 375,50"/>
 
   <!-- SELECTOR -->
-  <g transform="translate(300,36)">
+  <g transform="translate(415,50)">
     <circle class="hollow" r="4.5" cx="-8" cy="-2"/>
     <circle class="hollow" r="4.5" cx="2" cy="4"/>
     <circle class="hollow" r="4.5" cx="12" cy="-3"/>
   </g>
 
   <!-- Curved Arrow 3 -->
-  <path class="arrow" d="M330,36 C360,31 360,41 380,36"/>
+  <path class="arrow" d="M445,50 C482,44 482,56 515,50"/>
 
   <!-- DECIDER -->
-  <g transform="translate(410,36)">
+  <g transform="translate(540,50)">
     <circle class="dot" r="6" cx="0" cy="0"/>
   </g>
 </svg>

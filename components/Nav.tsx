@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import auth, { getSession, signInDemo, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Pacifico } from "next/font/google";
@@ -12,6 +13,7 @@ export default function Nav() {
   const { data: nextSession } = useSession();
   const [localSession, setLocalSession] = useState(auth.getSession());
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Mark as mounted to prevent hydration mismatch
@@ -82,7 +84,7 @@ export default function Nav() {
           </>
         ) : (
           <div className="flex items-center gap-2">
-            <Link href="/auth/login" className="text-sm text-zinc-700 hover:text-brand">
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-700 hover:text-brand">
               Sign in
             </Link>
             <button onClick={() => handleDemoSignIn(false)} className="text-sm text-zinc-500">

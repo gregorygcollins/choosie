@@ -18,10 +18,16 @@ export default function ViewListPage() {
   // Helper to get list type name
   const getListTypeName = () => {
     if (!list) return "list";
-    if (list.moduleType === "books") return "booklist";
-    if (list.moduleType === "food") return "food list";
-    if (list.moduleType === "music") return "musiclist";
-    if (list.moduleType === "anything") return "list";
+    const module = (list as any).moduleType
+      || (String(list.id).startsWith("book-") ? "books"
+          : String(list.id).startsWith("music-") ? "music"
+          : String(list.id).startsWith("food-") ? "food"
+          : String(list.id).startsWith("anything-") ? "anything"
+          : "movies");
+    if (module === "books") return "booklist";
+    if (module === "food") return "food list";
+    if (module === "music") return "musiclist";
+    if (module === "anything") return "list";
     return "watchlist"; // default for movies
   };
 

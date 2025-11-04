@@ -55,6 +55,11 @@ export async function POST(req: NextRequest) {
           image: it.imageUrl,
         })),
         createdAt: list.createdAt.toISOString(),
+        moduleType:
+          list.module === "BOOKS" ? "books" :
+          list.module === "RECIPES" ? "food" :
+          list.module === "ANYTHING" ? "anything" :
+          "movies",
         winnerId: list.progress?.winnerItemId,
         progress: list.progress?.historyJson,
       },

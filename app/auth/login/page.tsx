@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 import auth, { signInDemo, getSession } from "../../../lib/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
   const [pro, setPro] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     signInDemo(name || "Demo User", pro);
     // quick client-side navigation back to home (or previous page)
-    router.push("/");
+    router.push(callbackUrl);
   }
 
   return (
@@ -29,12 +31,12 @@ export default function LoginPage() {
         </label>
         <div className="flex items-center gap-2">
           <button className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors">Sign in</button>
-          <button type="button" onClick={() => { signInDemo("Demo User", false); router.push('/'); }} className="text-sm text-zinc-500">Quick demo</button>
+          <button type="button" onClick={() => { signInDemo("Demo User", false); router.push(callbackUrl); }} className="text-sm text-zinc-500">Quick demo</button>
         </div>
       </form>
       <div className="mt-6 border-t pt-4">
         <button
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => signIn("google", { callbackUrl })}
           className="w-full rounded-full bg-black text-white px-4 py-2 hover:opacity-90 transition-colors"
         >
           Continue with Google
