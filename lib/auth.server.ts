@@ -36,7 +36,7 @@ const config = {
   providers,
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   logger: {
     error(error: Error) {
       console.error("[NextAuth][error]", error);
@@ -45,17 +45,25 @@ const config = {
       console.warn("[NextAuth][warn]", code);
     },
     debug(code: string, metadata?: unknown) {
-      console.log("[NextAuth][debug]", code, metadata);
+      if (process.env.NODE_ENV === "development") {
+        console.log("[NextAuth][debug]", code, metadata);
+      }
     },
   },
   callbacks: {
     async signIn({ user, account, profile }: any) {
-      console.log("SignIn callback - Success:", { 
-        userId: user.id, 
-        email: user.email,
-        provider: account?.provider 
-      });
-      return true;
+      try {
+        console.log("SignIn callback - Success:", { 
+          userId: user.id, 
+          email: user.email,
+          provider: account?.provider 
+        });
+        return true;
+      } catch (error) {
+        console.error("[NextAuth] signIn callback error:", error);
+        // Return true anyway to allow sign-in even if logging fails
+        return true;
+      }
     },
     async redirect({ url, baseUrl }: any) {
       try {

@@ -41,9 +41,9 @@
     <circle class="dot" r="1.5" cx="0" cy="6"/>
   </g>
 
-  <!-- Curved Arrow 1: between Programmer (~r=24) and Curator (~r=12), equidistant spacing -->
-  <!-- Start just outside PROGRAMMER right edge (50+24+5=79), end just before CURATOR left edge (255-12-5=238) -->
-  <path class="arrow" d="M79,50 C118,44 118,56 238,50"/>
+  <!-- Curved Arrow 1: between Programmer (~r=24) and Curator (~r=12), with larger gaps for phase separation -->
+  <!-- Start (50+24+20=94), end (255-12-20=223) -->
+  <path class="arrow" d="M94,50 C135,44 135,56 223,50"/>
 
   <!-- CURATOR (circular cluster, radius 12px) -->
   <g transform="translate(255,50)">
@@ -61,9 +61,9 @@
     <circle class="dot" r="2.1" cx="0" cy="6"/>
   </g>
 
-  <!-- Curved Arrow 2: between Curator (~r=12) and Selector (~r≈12), equidistant spacing -->
-  <!-- Start (255+12+5=272), end (415-12-5=398) -->
-  <path class="arrow" d="M272,50 C335,44 335,56 398,50"/>
+  <!-- Curved Arrow 2: between Curator (~r=12) and Selector (~r≈12), with larger gaps for phase separation -->
+  <!-- Start (255+12+20=287), end (415-12-20=383) -->
+  <path class="arrow" d="M287,50 C335,44 335,56 383,50"/>
 
   <!-- SELECTOR -->
   <g transform="translate(415,50)">
@@ -72,9 +72,9 @@
     <circle class="hollow" r="4.5" cx="12" cy="-3"/>
   </g>
 
-  <!-- Curved Arrow 3: between Selector (~r≈12) and Decider (r=6), equidistant spacing -->
-  <!-- Start (415+12+5=432), end (540-6-5=529) -->
-  <path class="arrow" d="M432,50 C480,44 480,56 529,50"/>
+  <!-- Curved Arrow 3: between Selector (~r≈12) and Decider (r=6), with larger gaps for phase separation -->
+  <!-- Start (415+12+20=447), end (540-6-20=514) -->
+  <path class="arrow" d="M447,50 C480,44 480,56 514,50"/>
 
   <!-- DECIDER -->
   <g transform="translate(540,50)">

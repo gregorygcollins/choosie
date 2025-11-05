@@ -11,6 +11,11 @@ export function middleware(request: Request) {
     return NextResponse.next();
   }
 
+  // Never interfere with NextAuth routes to avoid PKCE/state cookie mismatches
+  if (url.pathname.startsWith("/api/auth/")) {
+    return NextResponse.next();
+  }
+
   // Allow Vercel preview/staging hosts through without canonical redirect so you can test new builds
   const host = url.host.toLowerCase();
   const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development'
