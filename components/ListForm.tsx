@@ -122,25 +122,42 @@ export default function ListForm({
 
   function addItem() {
     if (!input.trim()) return;
-    
+    const title = input.trim();
+
     // Check for duplicates (case-insensitive)
     const duplicate = items.find(
-      (item) => item.title.toLowerCase() === input.trim().toLowerCase()
+      (item) => item.title.toLowerCase() === title.toLowerCase()
     );
-    
     if (duplicate) {
-      alert(`"${input.trim()}" has already been added to your list.`);
+      alert(`"${title}" has already been added to your list.`);
       return;
     }
-    
+
+    // Create item locally first
+    const newId = id();
+    const initialImage = imageUrl?.trim() || undefined;
     setItems((s) => [
       ...s,
-      { id: id(), title: input.trim(), notes: note?.trim() || undefined, image: imageUrl?.trim() || undefined },
+      { id: newId, title, notes: note?.trim() || undefined, image: initialImage },
     ]);
     setInput("");
     setNote("");
     setImageUrl("");
-  // ...existing code...
+
+    // If no image provided, try to enrich with TMDB poster via server endpoint
+    if (!initialImage) {
+      fetch(`/api/movies/search?query=${encodeURIComponent(title)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          const poster = data?.results?.[0]?.poster || null;
+          if (poster) {
+            setItems((prev) => prev.map((it) => (it.id === newId ? { ...it, image: poster } : it)));
+          }
+        })
+        .catch(() => {
+          // silent fail; keep item without image
+        });
+    }
   }
 
   function removeItem(id: string) {
