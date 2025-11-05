@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createList } from "@/lib/db";
+import { searchMovies } from "@/lib/tmdb";
 import type { ModuleType } from "@prisma/client";
 import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
@@ -46,10 +47,30 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     const userId = session?.user?.id || "dev-user-temp"; // fallback for anonymous/dev
     
+    // Optionally enrich movie items with posters on the server to ensure artwork persists
+    let items = validatedData.items as Array<{ title: string; notes?: string; image?: string | null }> | undefined;
+    if (moduleEnum === "MOVIES" && Array.isArray(items) && items.length) {
+      const enriched: typeof items = [];
+      for (const it of items) {
+        if (it.image) {
+          enriched.push(it);
+          continue;
+        }
+        try {
+          const results = await searchMovies(it.title);
+          const poster = results?.[0]?.poster || null;
+          enriched.push({ ...it, image: poster });
+        } catch {
+          enriched.push(it);
+        }
+      }
+      items = enriched;
+    }
+
     const list = await createList(
       userId,
       validatedData.title,
-      validatedData.items,
+      items,
       moduleEnum
     );
   
