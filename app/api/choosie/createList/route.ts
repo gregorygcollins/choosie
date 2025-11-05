@@ -48,18 +48,23 @@ export async function POST(req: NextRequest) {
     const userId = session?.user?.id || "dev-user-temp"; // fallback for anonymous/dev
     
     // Optionally enrich movie items with posters on the server to ensure artwork persists
-    let items = validatedData.items as Array<{ title: string; notes?: string; image?: string | null }> | undefined;
+    let items = validatedData.items as Array<{ title: string; notes?: string; image?: string | null; tmdbId?: string }> | undefined;
     if (moduleEnum === "MOVIES" && Array.isArray(items) && items.length) {
       const enriched: typeof items = [];
       for (const it of items) {
-        if (it.image) {
-          enriched.push(it);
-          continue;
-        }
         try {
           const results = await searchMovies(it.title);
-          const poster = results?.[0]?.poster || null;
-          enriched.push({ ...it, image: poster });
+          const best = results?.[0];
+          const poster = best?.poster || null;
+          const overview = (best?.overview || "").toString().trim();
+          const tmdbId = best?.id ? String(best.id) : undefined;
+          enriched.push({
+            ...it,
+            image: it.image || poster || undefined,
+            // If client didn't provide notes, store TMDB overview as summary
+            notes: (it.notes && it.notes.trim().length > 0) ? it.notes : (overview || undefined),
+            tmdbId,
+          });
         } catch {
           enriched.push(it);
         }

@@ -45,14 +45,16 @@ export async function POST(req: NextRequest) {
       return withCORS(authCheck.response, origin);
     }
 
-    // Try to enrich with TMDB poster
+    // Try to enrich with TMDB poster and overview
     let image: string | null = null;
     let tmdbId: string | undefined;
+    let overview: string | undefined;
     try {
       const results = await searchMovies(validatedData.title);
       if (results && results.length > 0) {
         image = results[0].poster;
         tmdbId = results[0].id?.toString();
+        overview = (results[0].overview || "").toString().trim() || undefined;
       }
     } catch {
       // ignore TMDB errors for robustness
@@ -60,7 +62,8 @@ export async function POST(req: NextRequest) {
 
     const item = await addItemToList(validatedData.listId, {
       title: validatedData.title,
-      notes: validatedData.notes,
+      // If user didn't provide notes, use TMDB overview as a helpful summary
+      notes: (validatedData.notes && validatedData.notes.trim().length > 0) ? validatedData.notes : overview,
       image,
       tmdbId,
     });

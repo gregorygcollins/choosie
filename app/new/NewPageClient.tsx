@@ -27,6 +27,8 @@ export default function NewPageClient() {
   const [bookTitle, setBookTitle] = useState("");
   const [bookItems, setBookItems] = useState<ChoosieItem[]>([]);
   const [bookNote, setBookNote] = useState("");
+  const [bookSugs, setBookSugs] = useState<BookSearchResult[]>([]);
+  const [bookSugsLoading, setBookSugsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
@@ -35,6 +37,8 @@ export default function NewPageClient() {
   const [musicItems, setMusicItems] = useState<ChoosieItem[]>([]);
   const [musicNote, setMusicNote] = useState("");
   const [musicAlbumArt, setMusicAlbumArt] = useState<string | undefined>(undefined);
+  const [musicSugs, setMusicSugs] = useState<SpotifyTrack[]>([]);
+  const [musicSugsLoading, setMusicSugsLoading] = useState(false);
   const [musicViewMode, setMusicViewMode] = useState<"list" | "grid">("list");
   const [musicDragIndex, setMusicDragIndex] = useState<number | null>(null);
 
@@ -43,6 +47,8 @@ export default function NewPageClient() {
   const [foodInput, setFoodInput] = useState("");
   const [foodItems, setFoodItems] = useState<ChoosieItem[]>([]);
   const [foodNote, setFoodNote] = useState("");
+  const [foodSugs, setFoodSugs] = useState<Array<{ id: number; title: string; image?: string | null }>>([]);
+  const [foodSugsLoading, setFoodSugsLoading] = useState(false);
   const [foodViewMode, setFoodViewMode] = useState<"list" | "grid">("list");
   const [foodDragIndex, setFoodDragIndex] = useState<number | null>(null);
 
@@ -94,6 +100,57 @@ export default function NewPageClient() {
     loadMe();
     return () => { cancelled = true; };
   }, []);
+
+  // Book suggestions
+  useEffect(() => {
+    if (selectedModule !== "books") return;
+    const q = bookTitle.trim();
+    if (q.length < 2) { setBookSugs([]); return; }
+    let cancelled = false;
+    setBookSugsLoading(true);
+    const t = setTimeout(() => {
+      fetch(`/api/books/search?query=${encodeURIComponent(q)}`)
+        .then((r) => r.json())
+        .then((data) => { if (!cancelled) setBookSugs((data?.books || []).slice(0,8)); })
+        .catch(() => { if (!cancelled) setBookSugs([]); })
+        .finally(() => { if (!cancelled) setBookSugsLoading(false); });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [bookTitle, selectedModule]);
+
+  // Music suggestions
+  useEffect(() => {
+    if (selectedModule !== "music") return;
+    const q = musicTitle.trim();
+    if (q.length < 2) { setMusicSugs([]); return; }
+    let cancelled = false;
+    setMusicSugsLoading(true);
+    const t = setTimeout(() => {
+      fetch(`/api/spotify/search?query=${encodeURIComponent(q)}`)
+        .then((r) => r.json())
+        .then((data) => { if (!cancelled) setMusicSugs((data?.tracks || []).slice(0,8)); })
+        .catch(() => { if (!cancelled) setMusicSugs([]); })
+        .finally(() => { if (!cancelled) setMusicSugsLoading(false); });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [musicTitle, selectedModule]);
+
+  // Food suggestions
+  useEffect(() => {
+    if (selectedModule !== "food") return;
+    const q = foodInput.trim();
+    if (q.length < 2) { setFoodSugs([]); return; }
+    let cancelled = false;
+    setFoodSugsLoading(true);
+    const t = setTimeout(() => {
+      fetch(`/api/food/search?query=${encodeURIComponent(q)}`)
+        .then((r) => r.json())
+        .then((data) => { if (!cancelled) setFoodSugs((data?.recipes || []).slice(0,8)); })
+        .catch(() => { if (!cancelled) setFoodSugs([]); })
+        .finally(() => { if (!cancelled) setFoodSugsLoading(false); });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [foodInput, selectedModule]);
 
   // Removed all suggestion/autocomplete effects for books, music, and food
 
@@ -189,6 +246,22 @@ export default function NewPageClient() {
     ]);
     setBookTitle("");
     setBookNote("");
+  }
+
+  function chooseBookSuggestion(book: BookSearchResult) {
+    const title = book.title;
+    const duplicate = bookItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
+    if (duplicate) return;
+    const newItem: ChoosieItem = {
+      id: id(),
+      title,
+      notes: (bookNote && bookNote.trim().length > 0) ? bookNote : (book.description || undefined),
+      image: book.thumbnail,
+    };
+    setBookItems((s) => [...s, newItem]);
+    setBookTitle("");
+    setBookNote("");
+    setBookSugs([]);
   }
 
   function removeBookItem(itemId: string) {
@@ -299,6 +372,23 @@ export default function NewPageClient() {
     setMusicTitle("");
     setMusicNote("");
     setMusicAlbumArt(undefined);
+  }
+
+  function chooseMusicSuggestion(track: SpotifyTrack) {
+    const title = `${track.name} — ${track.artists?.[0] || ""}`.trim();
+    const duplicate = musicItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
+    if (duplicate) return;
+    const newItem: ChoosieItem = {
+      id: id(),
+      title,
+      notes: (musicNote && musicNote.trim().length > 0) ? musicNote : [track.album, track.releaseYear].filter(Boolean).join(" · ") || undefined,
+      image: track.albumArt,
+    };
+    setMusicItems((s) => [...s, newItem]);
+    setMusicTitle("");
+    setMusicNote("");
+    setMusicAlbumArt(undefined);
+    setMusicSugs([]);
   }
 
   function removeMusicItem(itemId: string) {
@@ -417,6 +507,17 @@ export default function NewPageClient() {
         }
       })
       .catch(() => {});
+  }
+
+  function chooseFoodSuggestion(recipe: { id: number; title: string; image?: string | null }) {
+    const title = recipe.title;
+    const duplicate = foodItems.find((it) => it.title.toLowerCase() === title.toLowerCase());
+    if (duplicate) return;
+    const newIdVal = id();
+    setFoodItems((s) => [...s, { id: newIdVal, title, notes: foodNote?.trim() || undefined, image: recipe.image || undefined }]);
+    setFoodInput("");
+    setFoodNote("");
+    setFoodSugs([]);
   }
 
   function removeFoodItem(itemId: string) {
@@ -649,7 +750,7 @@ export default function NewPageClient() {
             
             <div className="grid gap-2 sm:grid-cols-3 relative">
               <div className="col-span-2 relative">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 relative">
                 <input
                   value={bookTitle}
                   onChange={(e) => setBookTitle(e.target.value)}
@@ -662,10 +763,22 @@ export default function NewPageClient() {
                   className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
                   placeholder="Book title"
                 />
-                {/* Removed: book suggestion thumbnail */}
-                </div>
                 {/* Book suggestions dropdown */}
-                {/* Removed: book suggestions dropdown and loading indicator */}
+                {selectedModule === "books" && (bookSugsLoading || bookSugs.length > 0) && (
+                  <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
+                    {bookSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
+                    {bookSugs.map((b) => (
+                      <button key={b.id} type="button" onClick={() => chooseBookSuggestion(b)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
+                        {b.thumbnail ? <img src={b.thumbnail} alt="" className="w-8 h-12 rounded object-cover"/> : <div className="w-8 h-12 rounded bg-zinc-100"/>}
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium truncate">{b.title}{b.publishedYear ? ` (${b.publishedYear})` : ""}</div>
+                          {b.authors?.length ? <div className="text-xs text-zinc-500 truncate">{b.authors.join(", ")}</div> : null}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                </div>
               </div>
               <input
                 value={bookNote}
@@ -860,7 +973,20 @@ export default function NewPageClient() {
                 placeholder="Song title"
               />
               {/* Spotify search dropdown */}
-              {/* Removed: music suggestions dropdown and loading indicator */}
+              {selectedModule === "music" && (musicSugsLoading || musicSugs.length > 0) && (
+                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
+                  {musicSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
+                  {musicSugs.map((t) => (
+                    <button key={t.id} type="button" onClick={() => chooseMusicSuggestion(t)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
+                      {t.albumArt ? <img src={t.albumArt} alt="" className="w-10 h-10 rounded object-cover"/> : <div className="w-10 h-10 rounded bg-zinc-100"/>}
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{t.name}</div>
+                        <div className="text-xs text-zinc-500 truncate">{t.artists?.join(", ")}{t.releaseYear ? ` • ${t.releaseYear}` : ""}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <input
               value={musicNote}
@@ -1042,7 +1168,19 @@ export default function NewPageClient() {
                 placeholder="Dish name"
               />
               {/* Food search dropdown */}
-              {/* Removed: food suggestions dropdown and loading indicator */}
+              {selectedModule === "food" && (foodSugsLoading || foodSugs.length > 0) && (
+                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
+                  {foodSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
+                  {foodSugs.map((f) => (
+                    <button key={f.id} type="button" onClick={() => chooseFoodSuggestion(f)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
+                      {f.image ? <img src={f.image} alt="" className="w-10 h-10 rounded object-cover"/> : <div className="w-10 h-10 rounded bg-zinc-100"/>}
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{f.title}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <input
               value={foodNote}

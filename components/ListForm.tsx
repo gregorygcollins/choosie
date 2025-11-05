@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // simple unique id helper
 function id() {
@@ -72,6 +72,11 @@ export default function ListForm({
   const [input, setInput] = useState("");
   const [note, setNote] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  // movie autocomplete state
+  const [sugs, setSugs] = useState<Array<{ id: string; title: string; year?: string; poster?: string; overview?: string }>>([]);
+  const [sugsOpen, setSugsOpen] = useState(false);
+  const [sugsLoading, setSugsLoading] = useState(false);
+  const sugsRef = useRef<HTMLDivElement | null>(null);
   const VIEW_MODE_KEY = "choosie_view_mode_v1";
   const [viewMode, setViewMode] = useState<"list" | "grid">(() => {
     try {
@@ -91,6 +96,46 @@ export default function ListForm({
       // ignore
     }
   }, [viewMode]);
+
+  // Fetch movie suggestions (debounced)
+  useEffect(() => {
+    if (!input || input.trim().length < 2) {
+      setSugs([]);
+      setSugsOpen(false);
+      return;
+    }
+    let cancelled = false;
+    setSugsLoading(true);
+    const t = setTimeout(() => {
+      fetch(`/api/movies/search?query=${encodeURIComponent(input.trim())}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (cancelled) return;
+          const results = (data?.results || []).slice(0, 6);
+          setSugs(results);
+          setSugsOpen(true);
+        })
+        .catch(() => {
+          if (!cancelled) setSugs([]);
+        })
+        .finally(() => {
+          if (!cancelled) setSugsLoading(false);
+        });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [input]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!sugsRef.current) return;
+      if (!sugsRef.current.contains(e.target as Node)) {
+        setSugsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   // Optional event metadata state
   const [eventDate, setEventDate] = useState<string>(existingList?.event?.date || "");
@@ -140,24 +185,34 @@ export default function ListForm({
       ...s,
       { id: newId, title, notes: note?.trim() || undefined, image: initialImage },
     ]);
-    setInput("");
-    setNote("");
-    setImageUrl("");
+  setInput("");
+  setNote("");
+  setImageUrl("");
+  setSugsOpen(false);
 
-    // If no image provided, try to enrich with TMDB poster via server endpoint
-    if (!initialImage) {
-      fetch(`/api/movies/search?query=${encodeURIComponent(title)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          const poster = data?.results?.[0]?.poster || null;
-          if (poster) {
-            setItems((prev) => prev.map((it) => (it.id === newId ? { ...it, image: poster } : it)));
-          }
-        })
-        .catch(() => {
-          // silent fail; keep item without image
-        });
-    }
+    // Try to enrich with TMDB: poster and overview (use overview as notes if none provided)
+    fetch(`/api/movies/search?query=${encodeURIComponent(title)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const first = data?.results?.[0];
+        const poster = first?.poster || null;
+        const overview: string | undefined = first?.overview || undefined;
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === newId
+              ? {
+                  ...it,
+                  image: it.image || poster || undefined,
+                  // If user didn't provide a note, use TMDB overview as a helpful summary
+                  notes: (it.notes && it.notes.trim().length > 0) ? it.notes : (overview || undefined),
+                }
+              : it
+          )
+        );
+      })
+      .catch(() => {
+        // silent fail; keep item as-is
+      });
   }
 
   function removeItem(id: string) {
@@ -334,6 +389,41 @@ export default function ListForm({
               className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
               placeholder="Movie title"
             />
+            {/* suggestions dropdown */}
+            <div ref={sugsRef} className="relative">
+              {sugsOpen && (sugs.length > 0 || sugsLoading) && (
+                <div className="absolute z-20 mt-1 w-full rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
+                  {sugsLoading && (
+                    <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>
+                  )}
+                  {sugs.map((m) => (
+                    <button
+                      type="button"
+                      key={m.id}
+                      onClick={() => {
+                        setInput(m.title);
+                        // Prefill note with overview if not typed yet
+                        setNote((prev) => (prev && prev.trim().length > 0 ? prev : (m.overview || "")));
+                        setImageUrl(m.poster || "");
+                        setSugsOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50"
+                    >
+                      {m.poster ? (
+                        <img src={m.poster} alt="" className="w-8 h-12 rounded object-cover" />
+                      ) : (
+                        <div className="w-8 h-12 rounded bg-zinc-100 flex items-center justify-center text-zinc-400 text-xs">🎬</div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                        {m.overview && <div className="text-xs text-zinc-500 line-clamp-2">{m.overview}</div>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-[11px] text-zinc-500">Type to search and pick a result, or press Enter to add.</p>
           </div>
           <input
             value={note}
