@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
           id: it.id,
           title: it.title,
           notes: it.notes,
-          image: it.imageUrl,
+          image: it.imageUrl || null,
         })),
         createdAt: list.createdAt.toISOString(),
         // Echo a friendly moduleType for client UI

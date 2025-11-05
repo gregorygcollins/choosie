@@ -40,6 +40,7 @@ export default function NewPageClient() {
 
   // Food list state
   const [foodTitle, setFoodTitle] = useState("");
+  const [foodInput, setFoodInput] = useState("");
   const [foodItems, setFoodItems] = useState<ChoosieItem[]>([]);
   const [foodNote, setFoodNote] = useState("");
   const [foodViewMode, setFoodViewMode] = useState<"list" | "grid">("list");
@@ -386,7 +387,7 @@ export default function NewPageClient() {
   // ========== FOOD MODULE FUNCTIONS ==========
   function addFoodItem() {
     // Manual add only
-    const title = foodTitle.trim();
+    const title = foodInput.trim();
     if (!title) return;
     const duplicate = foodItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
@@ -404,7 +405,7 @@ export default function NewPageClient() {
         notes: foodNote?.trim() || undefined
       },
     ]);
-    setFoodTitle("");
+    setFoodInput("");
     setFoodNote("");
     // Fetch a representative meal image (not recipe-specific) from Wikimedia Commons
     fetch(`/api/food/image?q=${encodeURIComponent(title)}`)
@@ -1029,8 +1030,8 @@ export default function NewPageClient() {
           <div className="grid gap-2 sm:grid-cols-3 relative">
             <div className="col-span-2 relative">
               <input
-                value={foodTitle}
-                onChange={(e) => setFoodTitle(e.target.value)}
+                value={foodInput}
+                onChange={(e) => setFoodInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();

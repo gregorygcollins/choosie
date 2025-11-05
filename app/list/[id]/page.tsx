@@ -225,75 +225,7 @@ export default function ViewListPage() {
           </div>
         )}
 
-        {/* Suggestions panel for saved lists */}
-        <div className="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Suggestions</h3>
-            <button
-              onClick={async () => {
-                if (!list) return;
-                setSugsLoading(true);
-                try {
-                  const payload: any = { limit: 12 };
-                  // Include server id when available, but always send item titles so API can fall back
-                  payload.listId = typeof id === 'string' ? id : undefined;
-                  payload.items = list.items.map((it) => it.title);
-                  const res = await fetch(`/api/choosie/getSuggestions`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                  });
-                  const data = await res.json();
-                  if (res.ok && data?.ok) setSugs(data.suggestions || []);
-                  else setSugs([]);
-                } catch {
-                  setSugs([]);
-                } finally {
-                  setSugsLoading(false);
-                }
-              }}
-              className="text-sm rounded-full bg-brand px-3 py-1 text-white hover:opacity-90"
-            >
-              {sugsLoading ? "Loading…" : "Get suggestions"}
-            </button>
-          </div>
-          {sugs.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {sugs.map((s, idx) => (
-                <div key={idx} className="rounded-md bg-white/60 p-3 flex gap-3">
-                  {s.image ? (
-                    <img src={s.image} alt={s.title} className="w-14 h-20 object-cover rounded" />
-                  ) : (
-                    <div className="w-14 h-20 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 text-xs">No poster</div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{s.title}</div>
-                    {s.reason && <div className="text-xs text-zinc-500 line-clamp-2">{s.reason}</div>}
-                    <div className="mt-2">
-                      <button
-                        onClick={() => {
-                          setList((prev) => {
-                            if (!prev) return prev;
-                            const exists = prev.items.some((it) => it.title.toLowerCase() === String(s.title).toLowerCase());
-                            if (exists) return prev;
-                            const updated = { ...prev, items: [...prev.items, { id: Date.now().toString(36), title: s.title, notes: s.reason, image: s.image }] } as ChoosieList;
-                            upsertList(updated);
-                            return updated;
-                          });
-                        }}
-                        className="text-xs rounded-full bg-brand px-3 py-1 text-white hover:opacity-90"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-zinc-500">No suggestions yet.</p>
-          )}
-        </div>
+        {/* Suggestions panel removed as requested */}
 
         <div className="mt-8 flex justify-between items-center">
           <div className="flex gap-3">
