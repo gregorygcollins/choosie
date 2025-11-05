@@ -54,6 +54,7 @@ console.log(`[NextAuth] ✓ Successfully initialized with ${providers.length} pr
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers,
+  trustHost: true,
   session: { 
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
