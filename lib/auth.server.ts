@@ -52,24 +52,16 @@ if (providers.length === 0) {
 console.log(`[NextAuth] ✓ Successfully initialized with ${providers.length} provider(s)`);
 
 const config = {
-  // Use database sessions with Prisma adapter
+  // Use JWT sessions instead of database sessions to avoid PKCE cookie issues
+  // Database adapter still handles user/account storage
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" as const },
+  session: { 
+    strategy: "jwt" as const,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   providers,
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-  useSecureCookies: process.env.NODE_ENV === "production",
-  cookies: {
-    pkceCodeVerifier: {
-      name: "next-auth.pkce.code_verifier",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
   debug: process.env.NODE_ENV === "development",
   logger: {
     error(error: Error) {
