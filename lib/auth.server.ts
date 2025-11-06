@@ -10,6 +10,7 @@ const providers: any[] = [];
 
 console.log("[NextAuth] Initializing authentication providers...");
 console.log("[NextAuth] Checking environment variables...");
+console.log("[NextAuth] NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "(unset)");
 console.log("[NextAuth] GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "✓ Set" : "✗ Missing");
 console.log("[NextAuth] GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "✓ Set" : "✗ Missing");
 console.log("[NextAuth] GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID ? "✓ Set" : "✗ Missing");
@@ -61,6 +62,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
+    async jwt({ token, account, user }) {
+      // Log only minimal, non-sensitive info
+      if (account?.provider) {
+        console.log("[NextAuth][jwt] provider:", account.provider, "token.sub:", token?.sub);
+      }
+      if (user?.id) {
+        token.sub = token.sub || (user.id as any);
+      }
+      return token;
+    },
     async signIn({ user, account, profile }: any) {
       try {
         console.log("SignIn callback - Success:", { 
@@ -80,6 +91,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const b = new URL(baseUrl);
       if (u.origin === b.origin) return url;
       return baseUrl;
+    },
+    async session({ session, token }) {
+      // Propagate id from token to session for server usage
+      if (token?.sub) {
+        (session.user as any).id = token.sub;
+      }
+      console.log("[NextAuth][session] userId:", (session.user as any)?.id || null);
+      return session;
     },
   },
   pages: {
