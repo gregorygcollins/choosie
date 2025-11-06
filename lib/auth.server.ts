@@ -8,6 +8,7 @@ import "./auth.types"; // Import type augmentation
 // Build providers conditionally based on available env vars
 const providers: any[] = [];
 
+console.log("[NextAuth] Initializing authentication providers...");
 console.log("[NextAuth] Checking environment variables...");
 console.log("[NextAuth] GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "✓ Set" : "✗ Missing");
 console.log("[NextAuth] GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "✓ Set" : "✗ Missing");
