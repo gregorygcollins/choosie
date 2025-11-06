@@ -1,5 +1,8 @@
 # 🎬 Choosie
 
+<!-- Deployment trigger: updated README timestamp -->
+<!-- Last touch: auth/session investigation commit -->
+
 **Turn your passions into shared experiences.**
 
 Choosie is a playful, future-oriented app that helps groups decide what to do next—together.  
@@ -109,6 +112,7 @@ When deploying to Postgres, change the Prisma datasource provider to `postgresql
 Set these in your Vercel project (Settings → Environment Variables) for **Production** and **Preview**:
 
 **Authentication & App**
+Ensure `NEXTAUTH_URL` matches the public production URL (https://your-domain) — do NOT leave it pointing at localhost in Vercel.
 - `NEXTAUTH_URL` = `https://your-vercel-domain.vercel.app` (or custom domain)
 - `NEXTAUTH_SECRET` = (generate with `openssl rand -base64 32`)
 - `GOOGLE_CLIENT_ID` = (from Google Cloud Console OAuth app)
