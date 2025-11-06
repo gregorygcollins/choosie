@@ -10,7 +10,8 @@ const providers: any[] = [];
 
 const databaseUrl = process.env.DATABASE_URL || "";
 const looksLocalDb = /localhost|127\.0\.0\.1/i.test(databaseUrl);
-const usePrismaAdapter = !!databaseUrl && !looksLocalDb;
+// Temporarily disable Prisma adapter to allow sign-in while we fix DB setup
+const usePrismaAdapter = false; // !!databaseUrl && !looksLocalDb;
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   providers.push(
