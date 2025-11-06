@@ -11,6 +11,11 @@ const providers: any[] = [];
 console.log("[NextAuth] Initializing authentication providers...");
 console.log("[NextAuth] Checking environment variables...");
 console.log("[NextAuth] NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "(unset)");
+const databaseUrl = process.env.DATABASE_URL || "";
+const looksLocalDb = /localhost|127\.0\.0\.1/i.test(databaseUrl);
+const usePrismaAdapter = !!databaseUrl && !looksLocalDb;
+console.log("[NextAuth] DATABASE_URL:", databaseUrl ? (looksLocalDb ? "local (disabled in prod)" : "set") : "(unset)");
+console.log("[NextAuth] Using PrismaAdapter:", usePrismaAdapter);
 console.log("[NextAuth] GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "✓ Set" : "✗ Missing");
 console.log("[NextAuth] GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "✓ Set" : "✗ Missing");
 console.log("[NextAuth] GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID ? "✓ Set" : "✗ Missing");
@@ -54,7 +59,9 @@ if (providers.length === 0) {
 console.log(`[NextAuth] ✓ Successfully initialized with ${providers.length} provider(s)`);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  // Only use the Prisma adapter when a non-local database is configured.
+  // This avoids OAuth failures in environments where DATABASE_URL points to localhost.
+  ...(usePrismaAdapter ? { adapter: PrismaAdapter(prisma) } : {}),
   providers,
   trustHost: true,
   session: { 
