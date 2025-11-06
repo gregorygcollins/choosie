@@ -4,7 +4,11 @@ import { NextResponse } from "next/server";
 export function middleware(request: Request) {
   const url = new URL(request.url);
   const isProd = process.env.NODE_ENV === "production";
-  const canonical = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL;
+  // IMPORTANT: Only use NEXT_PUBLIC_BASE_URL for canonical redirects.
+  // NEXTAUTH_URL is reserved for NextAuth's own callbacks and may differ
+  // (e.g., in preview or local dev). Using it here can cause host drift
+  // and break OAuth callbacks. Trust NextAuth's `trustHost` instead.
+  const canonical = process.env.NEXT_PUBLIC_BASE_URL;
 
   // Never interfere with Stripe webhooks (signature depends on exact raw body + headers)
   if (url.pathname === "/api/stripe/webhook") {
