@@ -1,6 +1,6 @@
 # 🎬 Choosie
 
-<!-- Deployment trigger: updated README timestamp -->
+<!-- Deployment trigger: updated README timestamp (2025-11-06) -->
 <!-- Last touch: auth/session investigation commit -->
 
 **Turn your passions into shared experiences.**
