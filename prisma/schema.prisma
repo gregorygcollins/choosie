@@ -1,33 +1,25 @@
-// Prisma schema for Choosie
-// DB: use Postgres in production (Vercel Postgres), SQLite allowed for local dev.
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  // Using Postgres for local development and production
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// Auth.js / NextAuth core models -------------------------------------------
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
-
-  // Billing quick flags
-  isPro         Boolean   @default(false)
-
+  isPro         Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   accounts      Account[]
-  sessions      Session[]
   lists         List[]
+  sessions      Session[]
   subscriptions Subscription[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }
 
 model Account {
@@ -43,8 +35,7 @@ model Account {
   scope             String?
   id_token          String? @map("id_token")
   session_state     String? @map("session_state")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -54,8 +45,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -66,47 +56,33 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// App domain models ---------------------------------------------------------
-
-enum ModuleType {
-  MOVIES
-  BOOKS
-  RECIPES
-  ANYTHING
-}
-
 model List {
-  id          String      @id @default(cuid())
+  id          String     @id @default(cuid())
   userId      String
   title       String
-  module      ModuleType  @default(MOVIES)
+  module      ModuleType @default(MOVIES)
   description String?
-  // simple taste signals placeholder; can expand later
   tasteJson   Json?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   items       Item[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   progress    Progress?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Item {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   listId    String
-  // Common fields across modules
   title     String
   imageUrl  String?
-  // Module-specific identifiers (nullable)
   tmdbId    String?
   volumeId  String?
   recipeId  String?
   notes     String?
-  rank      Int        @default(0)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  rank      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
 
   @@index([listId])
 }
@@ -114,25 +90,29 @@ model Item {
 model Progress {
   id           String   @id @default(cuid())
   listId       String   @unique
-  // Snapshots of narrowing rounds, compacted JSON to keep flexibility
   historyJson  Json
   winnerItemId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list         List     @relation(fields: [listId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
-  id                String    @id @default(cuid())
-  userId            String
-  stripeCustomerId  String?   @unique
-  stripeSubscriptionId String? @unique
-  status            String?   // trialing, active, past_due, canceled, unpaid
-  plan              String?
-  currentPeriodEnd  DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                   String    @id @default(cuid())
+  userId               String
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  status               String?
+  plan                 String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum ModuleType {
+  MOVIES
+  BOOKS
+  RECIPES
+  ANYTHING
 }

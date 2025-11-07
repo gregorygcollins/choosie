@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth.server";
 
 function computeAllowedOrigins() {
   const envOrigins = (process.env.ALLOWED_ORIGINS || "")
@@ -12,6 +13,14 @@ function computeAllowedOrigins() {
 }
 
 export async function GET(req: NextRequest) {
+  // Require authentication in production
+  if (process.env.NODE_ENV === "production") {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   const requestOrigin = req.headers.get("origin") || (req.headers.get("referer") ? new URL(req.headers.get("referer") as string).origin : "");
   const allowedOrigins = computeAllowedOrigins();
 

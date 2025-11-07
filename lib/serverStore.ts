@@ -79,3 +79,12 @@ export async function addMovieToList(listId: string, item: { title: string; note
   await saveStore(store);
   return newItem;
 }
+
+export async function deleteList(id: string): Promise<boolean> {
+  const store = await ensureStore();
+  const idx = store.lists.findIndex((l) => l.id === id);
+  if (idx < 0) return false;
+  store.lists.splice(idx, 1);
+  await saveStore(store);
+  return true;
+}

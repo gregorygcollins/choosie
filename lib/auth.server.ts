@@ -56,16 +56,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user?.id) token.sub = token.sub || (user.id as any);
       return token;
     },
-    async signIn({ user, account }) {
-      // Log sign-in attempts to help debug Configuration errors
-      console.log("[NextAuth] signIn callback:", {
-        hasUser: !!user,
-        hasAccount: !!account,
-        provider: account?.provider,
-        usePrismaAdapter,
-      });
-      return true;
-    },
     async redirect({ url, baseUrl }: any) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       const u = new URL(url);

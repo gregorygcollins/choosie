@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { loadLists } from "@/lib/storage";
+import { useRouter } from "next/navigation";
+import { loadLists, removeList } from "@/lib/storage";
 import type { ChoosieList } from "@/components/ListForm";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { toast } from "@/components/Toast";
 
 function formatDate(isoString: string) {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -14,9 +17,12 @@ function formatDate(isoString: string) {
 }
 
 export default function ListsPage() {
+  const router = useRouter();
   const [lists, setLists] = useState<ChoosieList[]>([]);
   const [loading, setLoading] = useState(true);
   const [usedLocalFallback, setUsedLocalFallback] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ChoosieList | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +52,45 @@ export default function ListsPage() {
     };
   }, []);
 
+  async function handleDelete(list: ChoosieList) {
+    setIsDeleting(true);
+    try {
+      // Try to delete from server first
+      const res = await fetch("/api/choosie/deleteList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: list.id }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) {
+          setLists((prev) => prev.filter((l) => l.id !== list.id));
+          toast("List deleted successfully", "success");
+          setDeleteTarget(null);
+          setIsDeleting(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Server delete failed:", error);
+    }
+    
+    // Fallback: delete from local storage
+    try {
+      removeList(list.id);
+      setLists((prev) => prev.filter((l) => l.id !== list.id));
+      toast("List deleted", "success");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast("Failed to delete list", "error");
+    }
+    
+    setDeleteTarget(null);
+    setIsDeleting(false);
+  }
+
   if (lists.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white p-8 dark:bg-black">
@@ -69,6 +114,17 @@ export default function ListsPage() {
 
   return (
       <div className="min-h-screen px-8 py-12 sm:px-16">
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Delete List?"
+        message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+        confirmText={isDeleting ? "Deleting..." : "Delete"}
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      
       <div className="mx-auto max-w-3xl">
         {usedLocalFallback && (
           <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm">
@@ -130,6 +186,16 @@ export default function ListsPage() {
                     Continue narrowing
                   </Link>
                 )}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setDeleteTarget(list);
+                  }}
+                  className="inline-flex h-9 items-center justify-center rounded-full border border-red-600 px-4 text-sm text-red-600 transition-all hover:bg-red-50 active:translate-y-px"
+                  title="Delete list"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           );

@@ -12,6 +12,6 @@
     "url": "https://narrative-by-nature.com/choosie/openapi.json"
   },
   "logo_url": "https://narrative-by-nature.com/choosie/icon.png",
-  "contact_email": "support@example.com",
-  "legal_info_url": "https://narrative-by-nature.com/choosie/choosie-privacy/"
+  "contact_email": "hello@choosie.app",
+  "legal_info_url": "https://choosie-seven.vercel.app/legal"
 }

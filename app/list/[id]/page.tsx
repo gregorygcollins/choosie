@@ -4,6 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getList, removeList, upsertList } from "../../../lib/storage";
 import { ChoosieList } from "../../../components/ListForm";
+import { ConfirmModal } from "../../../components/ConfirmModal";
+import { toast } from "../../../components/Toast";
 
 export default function ViewListPage() {
   const router = useRouter();
@@ -14,6 +16,8 @@ export default function ViewListPage() {
   const [loading, setLoading] = useState(true);
   const [sugs, setSugs] = useState<any[]>([]);
   const [sugsLoading, setSugsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Helper to get list type name
   const getListTypeName = () => {
@@ -96,6 +100,43 @@ export default function ViewListPage() {
     setDragIndex(null);
   }
 
+  async function handleDelete() {
+    if (!list) return;
+    
+    setIsDeleting(true);
+    try {
+      // Try to delete from server first
+      const res = await fetch("/api/choosie/deleteList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: list.id }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) {
+          toast("List deleted successfully", "success");
+          router.push("/lists");
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Server delete failed:", error);
+    }
+    
+    // Fallback: delete from local storage
+    try {
+      removeList(list.id);
+      toast("List deleted", "success");
+      router.push("/lists");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast("Failed to delete list", "error");
+      setIsDeleting(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-amber-50">
@@ -124,6 +165,20 @@ export default function ViewListPage() {
 
   return (
     <main className="min-h-screen bg-amber-50 p-8">
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete List?"
+        message="Are you sure you want to delete this list? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          handleDelete();
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+      
       <div className="mx-auto max-w-3xl bg-white rounded-2xl p-8 shadow-soft">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-semibold">{list.title}</h1>
@@ -250,13 +305,11 @@ export default function ViewListPage() {
           </div>
 
           <button
-            onClick={() => {
-              removeList(list.id);
-              router.push("/");
-            }}
-            className="rounded-full bg-white border border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-50 transition-colors"
+            onClick={() => setShowDeleteModal(true)}
+            disabled={isDeleting}
+            className="rounded-full bg-white border border-red-600 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>
