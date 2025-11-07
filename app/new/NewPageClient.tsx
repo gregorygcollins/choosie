@@ -24,7 +24,8 @@ export default function NewPageClient() {
   const [selectedModule, setSelectedModule] = useState<string>("movies");
   
   // Book list state
-  const [bookTitle, setBookTitle] = useState("");
+  const [bookListTitle, setBookListTitle] = useState("");  // List name
+  const [bookSearchInput, setBookSearchInput] = useState("");  // Book search field
   const [bookItems, setBookItems] = useState<ChoosieItem[]>([]);
   const [bookNote, setBookNote] = useState("");
   const [bookSugs, setBookSugs] = useState<BookSearchResult[]>([]);
@@ -67,7 +68,7 @@ export default function NewPageClient() {
         setExistingList(list);
         if (list.moduleType === "books") {
           setSelectedModule("books");
-          setBookTitle(list.title);
+          setBookListTitle(list.title);
           setBookItems(list.items);
         } else if (list.moduleType === "music") {
           setSelectedModule("music");
@@ -104,7 +105,7 @@ export default function NewPageClient() {
   // Book suggestions
   useEffect(() => {
     if (selectedModule !== "books") return;
-    const q = bookTitle.trim();
+    const q = bookSearchInput.trim();
     if (q.length < 2) { setBookSugs([]); return; }
     let cancelled = false;
     setBookSugsLoading(true);
@@ -116,7 +117,7 @@ export default function NewPageClient() {
         .finally(() => { if (!cancelled) setBookSugsLoading(false); });
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [bookTitle, selectedModule]);
+  }, [bookSearchInput, selectedModule]);
 
   // Music suggestions
   useEffect(() => {
@@ -198,7 +199,8 @@ export default function NewPageClient() {
   function handleSelectModule(moduleId: string) {
     setSelectedModule(moduleId);
     // Reset book state
-    setBookTitle("");
+    setBookListTitle("");
+    setBookSearchInput("");
     setBookItems([]);
     setBookNote("");
     // Reset music state
@@ -227,7 +229,7 @@ export default function NewPageClient() {
 
   function addBookItem() {
     // Manual add only
-    const title = bookTitle.trim();
+    const title = bookSearchInput.trim();
     if (!title) return;
     const duplicate = bookItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
@@ -244,7 +246,7 @@ export default function NewPageClient() {
         notes: bookNote?.trim() || undefined
       },
     ]);
-    setBookTitle("");
+    setBookSearchInput("");
     setBookNote("");
   }
 
@@ -259,7 +261,7 @@ export default function NewPageClient() {
       image: book.thumbnail,
     };
     setBookItems((s) => [...s, newItem]);
-    setBookTitle("");
+    setBookSearchInput("");
     setBookNote("");
     setBookSugs([]);
   }
@@ -306,7 +308,7 @@ export default function NewPageClient() {
   }
 
   function handleSaveBookList() {
-    if (!bookTitle.trim()) {
+    if (!bookListTitle.trim()) {
       alert("Please add a list name");
       return;
     }
@@ -317,7 +319,7 @@ export default function NewPageClient() {
 
     const list: ChoosieList = {
       id: existingList?.id || `book-${Date.now()}`,
-      title: bookTitle,
+      title: bookListTitle,
       moduleType: "books",
       items: bookItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -583,7 +585,7 @@ export default function NewPageClient() {
       const payload = {
         title: list.title,
         moduleType: "food",
-        items: list.items.map((it) => ({ title: it.title, notes: it.notes })),
+        items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
       fetch(`/api/choosie/createList`, {
         method: "POST",
@@ -703,8 +705,8 @@ export default function NewPageClient() {
         <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
           <label className="block mb-3 text-sm font-medium">Name your booklist</label>
           <input
-            value={bookTitle}
-            onChange={(e) => setBookTitle(e.target.value)}
+            value={bookListTitle}
+            onChange={(e) => setBookListTitle(e.target.value)}
             className="w-full rounded-lg border px-3 py-2 shadow-inner"
             placeholder="Book club, Reading group, etc."
           />
@@ -752,8 +754,8 @@ export default function NewPageClient() {
               <div className="col-span-2 relative">
                 <div className="flex items-center gap-3 relative">
                 <input
-                  value={bookTitle}
-                  onChange={(e) => setBookTitle(e.target.value)}
+                  value={bookSearchInput}
+                  onChange={(e) => setBookSearchInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
