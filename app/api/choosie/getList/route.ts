@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         moduleType:
           list.module === "BOOKS" ? "books" :
           list.module === "RECIPES" ? "food" :
-          list.module === "ANYTHING" ? "anything" :
+          list.module === "ANYTHING" ? ((list as any).tasteJson?.module === "music" ? "music" : "anything") :
           "movies",
         winnerId: list.progress?.winnerItemId,
         progress: list.progress?.historyJson,

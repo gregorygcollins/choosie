@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       books: "BOOKS",
       food: "RECIPES",
       anything: "ANYTHING",
-      // No MUSIC in Prisma schema; store as ANYTHING for now
+      // Persist music as ANYTHING in db, but mark tasteJson.module = "music" to distinguish later
       music: "ANYTHING",
     } as const;
     const moduleEnum: ModuleType = clientModule && moduleMap[String(clientModule)]
@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
       userId,
       validatedData.title,
       items,
-      moduleEnum
+      moduleEnum,
+      { module: clientModule }
     );
   
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";

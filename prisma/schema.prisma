@@ -114,5 +114,6 @@ enum ModuleType {
   MOVIES
   BOOKS
   RECIPES
+  MUSIC
   ANYTHING
 }

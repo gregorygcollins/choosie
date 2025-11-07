@@ -36,7 +36,8 @@ export async function createList(
   userId: string,
   title: string,
   items?: Array<{ title: string; notes?: string; image?: string | null; tmdbId?: string }>,
-  module: ModuleType = "MOVIES"
+  module: ModuleType = "MOVIES",
+  metadata?: any,
 ): Promise<ListWithItems> {
   await ensureDevUser();
   const list = await prisma.list.create({
@@ -54,6 +55,8 @@ export async function createList(
             })),
           }
         : undefined,
+      // Store auxiliary info like original client module in tasteJson
+      tasteJson: metadata ? metadata : undefined,
     },
     include: {
       items: true,

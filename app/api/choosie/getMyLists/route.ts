@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         moduleType:
           l.module === "BOOKS" ? "books" :
           l.module === "RECIPES" ? "food" :
-          l.module === "ANYTHING" ? "anything" :
+          l.module === "ANYTHING" ? ((l as any).tasteJson?.module === "music" ? "music" : "anything") :
           "movies",
       })),
     });
