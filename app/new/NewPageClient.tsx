@@ -692,7 +692,28 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
-    router.push(`/list/${list.id}`);
+    if (me?.id) {
+      const payload = {
+        title: list.title,
+        moduleType: "anything",
+        items: list.items.map((it) => ({ title: it.title, notes: it.notes })),
+      };
+      fetch(`/api/choosie/createList`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("createList failed");
+          const data = await res.json();
+          if (data?.ok && data?.url) return router.push(data.url);
+          return router.push(`/list/${list.id}`);
+        })
+        .catch(() => router.push(`/list/${list.id}`));
+    } else {
+      router.push(`/list/${list.id}`);
+    }
   }
 
   return (
