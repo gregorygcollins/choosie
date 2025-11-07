@@ -155,7 +155,7 @@ export default function ListsPage() {
             const listTypeName = derivedModule === "books" ? "booklist" :
                                  derivedModule === "food" ? "foodlist" :
                                  derivedModule === "music" ? "musiclist" :
-                                 derivedModule === "anything" ? "list" : "watchlist";
+                                   derivedModule === "anything" ? "anythinglist" : "watchlist";
             
             return (
             <div
