@@ -34,7 +34,8 @@ export default function NewPageClient() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   // Music list state
-  const [musicTitle, setMusicTitle] = useState("");
+  const [musicListTitle, setMusicListTitle] = useState("");  // List name
+  const [musicSearchInput, setMusicSearchInput] = useState("");  // Song search field
   const [musicItems, setMusicItems] = useState<ChoosieItem[]>([]);
   const [musicNote, setMusicNote] = useState("");
   const [musicAlbumArt, setMusicAlbumArt] = useState<string | undefined>(undefined);
@@ -72,7 +73,7 @@ export default function NewPageClient() {
           setBookItems(list.items);
         } else if (list.moduleType === "music") {
           setSelectedModule("music");
-          setMusicTitle(list.title);
+          setMusicListTitle(list.title);
           setMusicItems(list.items);
         } else if (list.moduleType === "food") {
           setSelectedModule("food");
@@ -122,7 +123,7 @@ export default function NewPageClient() {
   // Music suggestions
   useEffect(() => {
     if (selectedModule !== "music") return;
-    const q = musicTitle.trim();
+    const q = musicSearchInput.trim();
     if (q.length < 2) { setMusicSugs([]); return; }
     let cancelled = false;
     setMusicSugsLoading(true);
@@ -134,7 +135,7 @@ export default function NewPageClient() {
         .finally(() => { if (!cancelled) setMusicSugsLoading(false); });
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [musicTitle, selectedModule]);
+  }, [musicSearchInput, selectedModule]);
 
   // Food suggestions
   useEffect(() => {
@@ -204,7 +205,8 @@ export default function NewPageClient() {
     setBookItems([]);
     setBookNote("");
     // Reset music state
-    setMusicTitle("");
+    setMusicListTitle("");
+    setMusicSearchInput("");
     setMusicItems([]);
     setMusicNote("");
     setMusicAlbumArt(undefined);
@@ -353,7 +355,7 @@ export default function NewPageClient() {
   // ========== KARAOKE MODULE FUNCTIONS ==========
   function addMusicItem() {
     // Manual add only
-    const title = musicTitle.trim();
+    const title = musicSearchInput.trim();
     if (!title) return;
     const duplicate = musicItems.find(
       (item) => item.title.toLowerCase() === title.toLowerCase()
@@ -371,7 +373,7 @@ export default function NewPageClient() {
         image: musicAlbumArt
       },
     ]);
-    setMusicTitle("");
+    setMusicSearchInput("");
     setMusicNote("");
     setMusicAlbumArt(undefined);
   }
@@ -387,7 +389,7 @@ export default function NewPageClient() {
       image: track.albumArt,
     };
     setMusicItems((s) => [...s, newItem]);
-    setMusicTitle("");
+    setMusicSearchInput("");
     setMusicNote("");
     setMusicAlbumArt(undefined);
     setMusicSugs([]);
@@ -434,7 +436,7 @@ export default function NewPageClient() {
   }
 
   function handleSaveMusicList() {
-    if (!musicTitle.trim()) {
+    if (!musicListTitle.trim()) {
       alert("Please add a list name");
       return;
     }
@@ -445,7 +447,7 @@ export default function NewPageClient() {
 
     const list: ChoosieList = {
       id: existingList?.id || `music-${Date.now()}`,
-      title: musicTitle,
+      title: musicListTitle,
       moduleType: "music",
       items: musicItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -915,8 +917,8 @@ export default function NewPageClient() {
       <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
         <label className="block mb-3 text-sm font-medium">Name your music list</label>
         <input
-          value={musicTitle}
-          onChange={(e) => setMusicTitle(e.target.value)}
+          value={musicListTitle}
+          onChange={(e) => setMusicListTitle(e.target.value)}
           className="w-full rounded-lg border px-3 py-2 shadow-inner"
           placeholder="Karaoke night, Roadtrip, etc."
         />
@@ -963,8 +965,8 @@ export default function NewPageClient() {
           <div className="grid gap-2 sm:grid-cols-3 relative">
             <div className="col-span-2 relative">
               <input
-                value={musicTitle}
-                onChange={(e) => setMusicTitle(e.target.value)}
+                value={musicSearchInput}
+                onChange={(e) => setMusicSearchInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
