@@ -64,15 +64,15 @@ body {
 
 /* Buttons */
 .btn-amber {
-  background: #6B6B6B;
-  color: #FFFFFF;
+  background: #F8F5EE;
+  color: #2B2B2B;
   font-weight: 600;
   border-radius: 9999px;
   padding: 0.55rem 1rem;
-  box-shadow: 0 2px 4px rgba(107, 107, 107, 0.28);
+  box-shadow: 0 2px 4px rgba(43, 43, 43, 0.15);
   transition: all .18s ease;
 }
-.btn-amber:hover { background: #7A7A7A; box-shadow: 0 4px 10px rgba(107, 107, 107, 0.38); transform: translateY(-1px); color:#FFFFFF; }
+.btn-amber:hover { background: #EFEBE5; box-shadow: 0 4px 10px rgba(43, 43, 43, 0.20); transform: translateY(-1px); color:#2B2B2B; }
 .btn-amber:active { transform: translateY(1px); }
 
 .btn-charcoal {
