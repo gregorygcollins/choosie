@@ -45,15 +45,15 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
   return (
     <>
   <div className="mb-6" key={UI_LABEL_VERSION}>
-        <label htmlFor="module-select" className="mb-2 block text-sm font-medium text-gray-600">
+        <label htmlFor="module-select" className="mb-2 block text-sm font-medium text-neutral-700">
           What type of list?
         </label>
-        <div className="relative bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="relative card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
           <select
             id="module-select"
             value={selectedModule}
             onChange={handleChange}
-            className="peer w-full appearance-none bg-slate-600 border border-slate-500 rounded-lg px-4 py-3 pr-12 text-base text-white shadow-xl transition focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 hover:border-slate-400 hover:bg-slate-500"
+            className="peer w-full appearance-none input-soft pr-12 text-base text-[#2B2B2B] bg-white/70"
           >
             {MODULES.map((module) => (
               <option key={module.id} value={module.id}>
@@ -63,7 +63,7 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
             ))}
           </select>
           {/* Custom chevron */}
-          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-slate-200 peer-focus:text-amber-400">
+          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-neutral-500 peer-focus:text-amber-400">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

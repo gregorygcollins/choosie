@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="600" height="100">
   <style>
-    .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #555; text-anchor: middle; }
-    .dot   { fill: #555; }
-    .hollow { fill: none; stroke: #555; stroke-width: 1.4; }
-    .arrow { fill: none; stroke: #555; stroke-width: 1.1; marker-end: url(#arrowhead); }
+    .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #7a7a7a; text-anchor: middle; }
+    .dot   { fill: #7a7a7a; }
+    .hollow { fill: none; stroke: #7a7a7a; stroke-width: 0.9; }
+    .arrow { fill: none; stroke: #7a7a7a; stroke-width: 0.85; marker-end: url(#arrowhead); }
   </style>
 
   <defs>
     <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-      <polygon points="0 0, 6 3, 0 6" fill="#555" />
+      <polygon points="0 0, 6 3, 0 6" fill="#7a7a7a" />
     </marker>
   </defs>
 

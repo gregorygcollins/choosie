@@ -725,57 +725,53 @@ export default function NewPageClient() {
       />
 
       {selectedModule === "books" ? (
-        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
           {/* List name panel */}
-          <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Name your booklist</label>
+          <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">Name your booklist</label>
             <input
               value={bookListTitle}
               onChange={(e) => setBookListTitle(e.target.value)}
-              className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+              className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Book club, Reading group, etc."
             />
           </div>
           {/* Add items panel */}
-          <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-            <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+          <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
             <div className="relative">
               <div className="flex gap-3">
                 <input
                   value={bookSearchInput}
                   onChange={(e) => setBookSearchInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
-                  className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+                  className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                   placeholder="Book title"
                 />
                 <button
                   onClick={addBookItem}
-                  className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+                  className="btn-amber px-5 py-2"
                 >
                   Add book
                 </button>
               </div>
               {/* Book suggestions dropdown */}
               {bookSugs.length > 0 && (
-                <div className="absolute z-20 mt-2 w-full rounded-lg border border-slate-500 bg-slate-600 backdrop-blur shadow-xl max-h-64 overflow-auto">
-                  {bookSugsLoading && (
-                    <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
-                  )}
+                <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+                  {bookSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                   {bookSugs.map((book) => (
                     <button
                       key={book.id}
                       type="button"
                       onClick={() => chooseBookSuggestion(book)}
-                      className="w-full px-3 py-2 text-left hover:bg-slate-500 flex items-center gap-3 transition-colors"
+                      className="suggestion-item w-full text-left flex items-center gap-3 transition-colors"
                     >
                       {book.thumbnail && (
                         <img src={book.thumbnail} alt={book.title} className="w-10 h-14 object-cover rounded" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-white truncate">{book.title}</div>
-                        {book.authors && book.authors.length > 0 && (
-                          <div className="text-sm text-gray-300 truncate">{book.authors.join(", ")}</div>
-                        )}
+                        <div className="font-medium text-[#F8F5EE] truncate">{book.title}</div>
+                        {book.authors && book.authors.length > 0 && <div className="text-xs text-neutral-300 truncate">{book.authors.join(", ")}</div>}
                       </div>
                     </button>
                   ))}
@@ -785,19 +781,19 @@ export default function NewPageClient() {
             <input
               value={bookNote}
               onChange={(e) => setBookNote(e.target.value)}
-              className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+              className="input-soft w-full mt-3 text-[0.95rem] placeholder-[#7A7A7A]"
               placeholder="Optional note"
             />
           </div>
           {/* Items list panel */}
           {bookItems.length > 0 && (
-            <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
-              <label className="block text-sm font-medium text-gray-600 mb-3">Your books</label>
+            <div className="card panel-tier-1 p-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-3">Your books</label>
               <ul className="space-y-3">
                 {bookItems.map((it, idx) => (
                   <li
                     key={it.id}
-                    className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
+                    className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
                     draggable
                     onDragStart={(e) => onBookDragStart(e, idx)}
                     onDragOver={onBookDragOver}
@@ -810,12 +806,12 @@ export default function NewPageClient() {
                       <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📚</div>
                     )}
                     <div className="flex-1">
-                      <div className="font-medium text-gray-800">{it.title}</div>
-                      {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
+                      <div className="font-medium text-neutral-800">{it.title}</div>
+                      {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                     </div>
                     <button
                       onClick={() => removeBookItem(it.id)}
-                      className="text-sm text-rose-500 hover:underline"
+                      className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
                     >Remove</button>
                   </li>
                 ))}
@@ -826,7 +822,7 @@ export default function NewPageClient() {
           <div className="flex justify-center">
             <button
               onClick={handleSaveBookList}
-              className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
+              className="btn-charcoal px-8 py-3 text-[1.05rem]"
             >
               {existingList ? "Update Booklist" : "Create Booklist"}
             </button>
@@ -847,57 +843,53 @@ export default function NewPageClient() {
   // ========== KARAOKE MODULE COMPONENT ==========
     function musicModuleJSX() {
     return (
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Name your music list</label>
+        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your music list</label>
           <input
             value={musicListTitle}
             onChange={(e) => setMusicListTitle(e.target.value)}
-            className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+            className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Karaoke night, Roadtrip, etc."
           />
         </div>
         {/* Add items panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
           <div className="relative">
             <div className="flex gap-3">
               <input
                 value={musicSearchInput}
                 onChange={(e) => setMusicSearchInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
-                className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+                className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                 placeholder="Song title"
               />
               <button
                 onClick={addMusicItem}
-                className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+                className="btn-amber px-5 py-2"
               >
                 Add song
               </button>
             </div>
             {/* Music suggestions dropdown */}
             {musicSugs.length > 0 && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-slate-500 bg-slate-600 backdrop-blur shadow-xl max-h-64 overflow-auto">
-                {musicSugsLoading && (
-                  <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
-                )}
+              <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+                {musicSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                 {musicSugs.map((track) => (
                   <button
                     key={track.id}
                     type="button"
                     onClick={() => chooseMusicSuggestion(track)}
-                    className="w-full px-3 py-2 text-left hover:bg-slate-500 flex items-center gap-3 transition-colors"
+                    className="suggestion-item w-full text-left flex items-center gap-3 transition-colors"
                   >
                     {track.albumArt && (
                       <img src={track.albumArt} alt={track.name} className="w-10 h-10 object-cover rounded" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-white truncate">{track.name}</div>
-                      {track.artists && track.artists.length > 0 && (
-                        <div className="text-sm text-gray-300 truncate">{track.artists.join(", ")}</div>
-                      )}
+                      <div className="font-medium text-[#F8F5EE] truncate">{track.name}</div>
+                      {track.artists && track.artists.length > 0 && <div className="text-xs text-neutral-300 truncate">{track.artists.join(", ")}</div>}
                     </div>
                   </button>
                 ))}
@@ -907,19 +899,19 @@ export default function NewPageClient() {
           <input
             value={musicNote}
             onChange={(e) => setMusicNote(e.target.value)}
-            className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+            className="input-soft w-full mt-3 text-[0.95rem] placeholder-[#7A7A7A]"
             placeholder="Optional note"
           />
         </div>
         {/* Items list panel */}
         {musicItems.length > 0 && (
-          <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
-            <label className="block text-sm font-medium text-gray-600 mb-3">Your songs</label>
+          <div className="card panel-tier-1 p-4">
+            <label className="block text-sm font-medium text-neutral-700 mb-3">Your songs</label>
             <ul className="space-y-3">
               {musicItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
+                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
                   draggable
                   onDragStart={(e) => onMusicDragStart(e, idx)}
                   onDragOver={onMusicDragOver}
@@ -932,12 +924,12 @@ export default function NewPageClient() {
                     <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🎵</div>
                   )}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
+                    <div className="font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   <button
                     onClick={() => removeMusicItem(it.id)}
-                    className="text-sm text-rose-500 hover:underline"
+                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
                   >Remove</button>
                 </li>
               ))}
@@ -948,7 +940,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveMusicList}
-            className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
+            className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
             {existingList ? "Update Music List" : "Create Music List"}
           </button>
@@ -960,31 +952,31 @@ export default function NewPageClient() {
   // ========== FOOD MODULE COMPONENT ==========
     function foodModuleJSX() {
     return (
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Name your food list</label>
+        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your food list</label>
           <input
             value={foodTitle}
             onChange={(e) => setFoodTitle(e.target.value)}
-            className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+            className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Weekday dinners, Holiday feasts, etc."
           />
         </div>
         {/* Add items panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
           <div className="flex gap-3">
             <input
               value={foodInput}
               onChange={(e) => setFoodInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFoodItem(); } }}
-              className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Dish name"
             />
             <button
               onClick={addFoodItem}
-              className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+              className="btn-amber px-5 py-2"
             >
               Add dish
             </button>
@@ -992,19 +984,19 @@ export default function NewPageClient() {
           <input
             value={foodNote}
             onChange={(e) => setFoodNote(e.target.value)}
-            className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+            className="input-soft w-full mt-3 text-[0.95rem] placeholder-[#7A7A7A]"
             placeholder="Optional note"
           />
         </div>
         {/* Items list panel */}
         {foodItems.length > 0 && (
-          <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
-            <label className="block text-sm font-medium text-gray-600 mb-3">Your dishes</label>
+          <div className="card panel-tier-1 p-4">
+            <label className="block text-sm font-medium text-neutral-700 mb-3">Your dishes</label>
             <ul className="space-y-3">
               {foodItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
+                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
                   draggable
                   onDragStart={(e) => onFoodDragStart(e, idx)}
                   onDragOver={onFoodDragOver}
@@ -1017,12 +1009,12 @@ export default function NewPageClient() {
                     <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
                   )}
                   <div className="flex-1">
-                    <div className="font-medium text-gray-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
+                    <div className="font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   <button
                     onClick={() => removeFoodItem(it.id)}
-                    className="text-sm text-rose-500 hover:underline"
+                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
                   >Remove</button>
                 </li>
               ))}
@@ -1033,7 +1025,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveFoodList}
-            className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
+            className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
             {existingList ? "Update Food List" : "Create Food List"}
           </button>
@@ -1045,31 +1037,31 @@ export default function NewPageClient() {
   // ========== ANYTHING MODULE COMPONENT ==========
     function anythingModuleJSX() {
     return (
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Name your list</label>
+        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your list</label>
           <input
             value={anythingTitle}
             onChange={(e) => setAnythingTitle(e.target.value)}
-            className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+            className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Travel destinations, Baby names, etc."
           />
         </div>
         {/* Add items panel */}
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
           <div className="flex gap-3">
             <input
               value={anythingInput}
               onChange={(e) => setAnythingInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAnythingItem(); } }}
-              className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Item name"
             />
             <button
               onClick={addAnythingItem}
-              className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+              className="btn-amber px-5 py-2"
             >
               Add item
             </button>
@@ -1077,19 +1069,19 @@ export default function NewPageClient() {
           <input
             value={anythingNote}
             onChange={(e) => setAnythingNote(e.target.value)}
-            className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+            className="input-soft w-full mt-3 text-[0.95rem] placeholder-[#7A7A7A]"
             placeholder="Optional note"
           />
         </div>
         {/* Items list panel */}
         {anythingItems.length > 0 && (
-          <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
-            <label className="block text-sm font-medium text-gray-600 mb-3">Your items</label>
+          <div className="card panel-tier-1 p-4">
+            <label className="block text-sm font-medium text-neutral-700 mb-3">Your items</label>
             <ul className="space-y-3">
               {anythingItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
+                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
                   draggable
                   onDragStart={(e) => onAnythingDragStart(e, idx)}
                   onDragOver={onAnythingDragOver}
@@ -1098,12 +1090,12 @@ export default function NewPageClient() {
                   <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                   <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
                   <div className="flex-1">
-                    <div className="font-medium text-gray-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
+                    <div className="font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   <button
                     onClick={() => removeAnythingItem(it.id)}
-                    className="text-sm text-rose-500 hover:underline"
+                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
                   >Remove</button>
                 </li>
               ))}
@@ -1114,7 +1106,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveAnythingList}
-            className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
+            className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
             {existingList ? "Update List" : "Create List"}
           </button>

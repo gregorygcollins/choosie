@@ -328,21 +328,21 @@ export default function ListForm({
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
       {/* List name panel */}
-      <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-        <label className="block text-sm font-medium text-gray-600 mb-2">Name your watchlist</label>
+      <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <label className="block text-sm font-medium text-neutral-700 mb-2">Name your watchlist</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+          className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
           placeholder="Family vacation, Rainy weekend rewatchables, etc."
         />
       </div>
 
       {/* Add items panel */}
-      <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
-        <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+      <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
         <div className="relative">
           <div className="flex gap-3">
             <input
@@ -354,12 +354,12 @@ export default function ListForm({
                   addItem();
                 }
               }}
-              className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Movie title"
             />
             <button
               onClick={addItem}
-              className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+              className="btn-amber px-5 py-2"
             >
               Add movie
             </button>
@@ -367,9 +367,9 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-slate-500 bg-slate-600 backdrop-blur shadow-xl max-h-64 overflow-auto">
+              <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                 {sugsLoading && (
-                  <div className="px-3 py-2 text-sm text-gray-300">Searching…</div>
+                  <div className="px-3 py-2 text-sm text-neutral-300">Searching…</div>
                 )}
                 {sugs.map((m) => (
                   <button
@@ -382,16 +382,16 @@ export default function ListForm({
                       setImageUrl(m.poster || "");
                       setSugsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-slate-500 transition-colors"
+                    className="suggestion-item w-full flex items-center gap-3 text-left transition-colors"
                   >
                     {m.poster ? (
                       <img src={m.poster} alt="" className="w-10 h-14 rounded object-cover" />
                     ) : (
-                      <div className="w-10 h-14 rounded bg-slate-500 flex items-center justify-center text-gray-200 text-xs">🎬</div>
+                      <div className="w-10 h-14 rounded bg-[#373737] flex items-center justify-center text-neutral-200 text-xs">🎬</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-white truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
-                      {m.overview && <div className="text-sm text-gray-300 truncate">{m.overview}</div>}
+                      <div className="font-medium text-[#F8F5EE] truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                      {m.overview && <div className="text-xs text-neutral-300 truncate">{m.overview}</div>}
                     </div>
                   </button>
                 ))}
@@ -402,20 +402,20 @@ export default function ListForm({
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+          className="input-soft w-full mt-3 text-[0.95rem] placeholder-[#7A7A7A]"
           placeholder="Optional note"
         />
       </div>
 
       {/* Items list panel */}
       {items.length > 0 && (
-        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
-          <label className="block text-sm font-medium text-gray-600 mb-3">Your movies</label>
+        <div className="card panel-tier-1 p-4">
+          <label className="block text-sm font-medium text-neutral-700 mb-3">Your movies</label>
           <ul className="space-y-3">
             {items.map((it, idx) => (
               <li
                 key={it.id}
-                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
+                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
                 draggable
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
@@ -428,12 +428,12 @@ export default function ListForm({
                   <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-gray-400">🎬</div>
                 )}
                 <div className="flex-1">
-                  <div className="font-medium text-gray-800">{it.title}</div>
-                  {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
+                  <div className="font-medium text-neutral-800">{it.title}</div>
+                  {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                 </div>
                 <button
                   onClick={() => removeItem(it.id)}
-                  className="text-sm text-rose-500 hover:underline"
+                  className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
                 >Remove</button>
               </li>
             ))}
@@ -445,7 +445,7 @@ export default function ListForm({
       <div className="flex justify-center">
         <button
           onClick={handleSave}
-          className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
+          className="btn-charcoal px-8 py-3 text-[1.05rem]"
         >
           {existingList ? "Update Watchlist" : "Create Watchlist"}
         </button>
