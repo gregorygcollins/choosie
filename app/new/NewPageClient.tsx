@@ -757,7 +757,7 @@ export default function NewPageClient() {
               </div>
               {/* Book suggestions dropdown */}
               {bookSugs.length > 0 && (
-                <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 bg-gray-700 backdrop-blur shadow-xl max-h-64 overflow-auto">
+                <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 backdrop-blur shadow-xl max-h-64 overflow-auto" style={{backgroundColor: '#6C6868'}}>
                   {bookSugsLoading && (
                     <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
                   )}
@@ -826,7 +826,10 @@ export default function NewPageClient() {
           <div className="flex justify-center">
             <button
               onClick={handleSaveBookList}
-              className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+              className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
+              style={{backgroundColor: '#6C6868'}}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
             >
               {existingList ? "Update Booklist" : "Create Booklist"}
             </button>
@@ -879,7 +882,7 @@ export default function NewPageClient() {
             </div>
             {/* Music suggestions dropdown */}
             {musicSugs.length > 0 && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 bg-gray-700 backdrop-blur shadow-xl max-h-64 overflow-auto">
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 backdrop-blur shadow-xl max-h-64 overflow-auto" style={{backgroundColor: '#6C6868'}}>
                 {musicSugsLoading && (
                   <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
                 )}
@@ -948,7 +951,10 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveMusicList}
-            className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+            className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
+            style={{backgroundColor: '#6C6868'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
           >
             {existingList ? "Update Music List" : "Create Music List"}
           </button>
@@ -1033,7 +1039,10 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveFoodList}
-            className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+            className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
+            style={{backgroundColor: '#6C6868'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
           >
             {existingList ? "Update Food List" : "Create Food List"}
           </button>
@@ -1114,7 +1123,10 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveAnythingList}
-            className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+            className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
+            style={{backgroundColor: '#6C6868'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
           >
             {existingList ? "Update List" : "Create List"}
           </button>

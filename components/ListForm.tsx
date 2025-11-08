@@ -367,7 +367,7 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 bg-gray-700 backdrop-blur shadow-xl max-h-64 overflow-auto">
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 backdrop-blur shadow-xl max-h-64 overflow-auto" style={{backgroundColor: '#6C6868'}}>
                 {sugsLoading && (
                   <div className="px-3 py-2 text-sm text-gray-300">Searching…</div>
                 )}
@@ -445,7 +445,10 @@ export default function ListForm({
       <div className="flex justify-center">
         <button
           onClick={handleSave}
-          className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+          className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
+          style={{backgroundColor: '#6C6868'}}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
         >
           {existingList ? "Update Watchlist" : "Create Watchlist"}
         </button>
