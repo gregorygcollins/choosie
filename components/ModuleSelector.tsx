@@ -45,15 +45,15 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
   return (
     <>
   <div className="mb-6" key={UI_LABEL_VERSION}>
-        <label htmlFor="module-select" className="mb-2 block text-sm font-medium text-zinc-700">
+        <label htmlFor="module-select" className="mb-2 block text-sm font-medium text-gray-600">
           What type of list?
         </label>
-        <div className="relative">
+        <div className="relative bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
           <select
             id="module-select"
             value={selectedModule}
             onChange={handleChange}
-            className="peer w-full appearance-none rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-4 py-3 pr-12 text-base text-zinc-900 shadow-[inset_0_1px_0_rgba(255,255,255,.6),0_1px_2px_rgba(0,0,0,.06)] transition focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand hover:border-zinc-300"
+            className="peer w-full appearance-none bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 pr-12 text-base text-white shadow-xl transition focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 hover:border-gray-600"
           >
             {MODULES.map((module) => (
               <option key={module.id} value={module.id}>
@@ -63,7 +63,7 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
             ))}
           </select>
           {/* Custom chevron */}
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 peer-focus:text-brand">
+          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-gray-400 peer-focus:text-amber-400">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

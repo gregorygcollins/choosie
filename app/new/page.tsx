@@ -55,7 +55,7 @@ export default function NewPage() {
         {/* Choosie Process Diagram */}
         <div className="flex justify-center my-2">
           {/* Wrapper crops a few pixels and nudges content slightly right to give the first cloud more breathing room */}
-          <div className="relative w-full max-w-[690px] overflow-hidden">
+          <div className="relative w-full max-w-[690px] overflow-visible">
             <img
               src="/choosie-process.svg?v=9"
               alt="Choosie process diagram"
@@ -67,6 +67,7 @@ export default function NewPage() {
                 marginBottom: "0.25rem",
                 height: "auto",
                 objectFit: "contain",
+                background: "transparent",
               }}
             />
           </div>
