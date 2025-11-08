@@ -103,7 +103,7 @@ export default function ListsPage() {
           </p>
           <Link
             href="/new"
-            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
+            className="btn-amber rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
           >
             Create your first list
           </Link>
@@ -137,7 +137,7 @@ export default function ListsPage() {
           </h1>
           <Link
             href="/new"
-            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
+            className="btn-amber rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
           >
             Create new list
           </Link>
