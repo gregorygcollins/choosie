@@ -773,7 +773,7 @@ export default function NewPageClient() {
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
           {/* List name panel */}
           <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Name your booklist</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your booklist"}</label>
             <input
               value={bookListTitle}
               onChange={(e) => setBookListTitle(e.target.value)}
@@ -783,7 +783,7 @@ export default function NewPageClient() {
           </div>
           {/* Add items panel */}
           <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">Add books</label>
             <div className="relative">
               <div className="flex gap-3">
                 <input
@@ -856,8 +856,29 @@ export default function NewPageClient() {
                     </div>
                     <button
                       onClick={() => removeBookItem(it.id)}
-                      className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
-                    >Remove</button>
+                      className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                      title="Delete item"
+                      aria-label="Delete item"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        <path d="M10 11v6" />
+                        <path d="M14 11v6" />
+                      </svg>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -891,7 +912,7 @@ export default function NewPageClient() {
   <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
         <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your music list</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your music list"}</label>
           <input
             value={musicListTitle}
             onChange={(e) => setMusicListTitle(e.target.value)}
@@ -901,7 +922,7 @@ export default function NewPageClient() {
         </div>
         {/* Add items panel */}
         <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Add songs</label>
           <div className="relative">
             <div className="flex gap-3">
               <input
@@ -974,8 +995,29 @@ export default function NewPageClient() {
                   </div>
                   <button
                     onClick={() => removeMusicItem(it.id)}
-                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
-                  >Remove</button>
+                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    title="Delete item"
+                    aria-label="Delete item"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -1000,7 +1042,7 @@ export default function NewPageClient() {
   <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
         <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your food list</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your food list"}</label>
           <input
             value={foodTitle}
             onChange={(e) => setFoodTitle(e.target.value)}
@@ -1010,7 +1052,7 @@ export default function NewPageClient() {
         </div>
         {/* Add items panel */}
         <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Add dishes</label>
           <div className="flex gap-3">
             <input
               value={foodInput}
@@ -1059,8 +1101,29 @@ export default function NewPageClient() {
                   </div>
                   <button
                     onClick={() => removeFoodItem(it.id)}
-                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
-                  >Remove</button>
+                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    title="Delete item"
+                    aria-label="Delete item"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -1085,7 +1148,7 @@ export default function NewPageClient() {
   <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
         {/* List name panel */}
         <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Name your list</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your list"}</label>
           <input
             value={anythingTitle}
             onChange={(e) => setAnythingTitle(e.target.value)}
@@ -1095,7 +1158,7 @@ export default function NewPageClient() {
         </div>
         {/* Add items panel */}
         <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Start building</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-2">Add items</label>
           <div className="flex gap-3">
             <input
               value={anythingInput}
@@ -1140,8 +1203,29 @@ export default function NewPageClient() {
                   </div>
                   <button
                     onClick={() => removeAnythingItem(it.id)}
-                    className="text-xs font-medium text-rose-500 hover:text-rose-400 transition-colors"
-                  >Remove</button>
+                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    title="Delete item"
+                    aria-label="Delete item"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
                 </li>
               ))}
             </ul>
