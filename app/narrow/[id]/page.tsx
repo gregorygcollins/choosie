@@ -315,7 +315,11 @@ export default function NarrowPage() {
           Round {Math.min(roundNumber, roundTargets.length)} of {roundTargets.length}
         </div>
         <div className="flex justify-center mb-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow-sm ring-1 ring-brand/20 text-zinc-800">
+          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
+            isFinalRound 
+              ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" 
+              : "bg-white/90 ring-1 ring-brand/20"
+          }`}>
             <span aria-hidden className="text-lg">{emoji}</span>
             <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
           </div>
@@ -330,12 +334,17 @@ export default function NarrowPage() {
             <button
               key={item.id}
               onClick={() => toggleSelect(item.id)}
-              className={`flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-transform focus:outline-none ${
+              className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
                 selected
-                  ? "border-brand scale-105"
+                  ? isFinalRound
+                    ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                    : "border-brand scale-105"
                   : "border-transparent hover:scale-[1.02]"
               }`}
             >
+              {selected && isFinalRound && (
+                <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
+              )}
               {item.image ? (
                 <img
                   src={item.image}
@@ -347,13 +356,13 @@ export default function NarrowPage() {
                   📷
                 </div>
               )}
-              <div className="font-semibold">{item.title}</div>
+              <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
               {item.notes && (
                 <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
               )}
-              <div className="mt-2 text-xs text-zinc-500">
+              <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
                 {selected
-                  ? `Selected (${selectedIds.indexOf(item.id) + 1})`
+                  ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
                   : `Tap to select`}
               </div>
             </button>
@@ -395,13 +404,15 @@ export default function NarrowPage() {
         <button
           onClick={confirmRound}
           disabled={selectedIds.length !== targetThisRound}
-          className={`rounded-full px-6 py-3 font-semibold text-white ${
+          className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
             selectedIds.length === targetThisRound
-              ? "bg-brand hover:opacity-90"
+              ? isFinalRound
+                ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
+                : "bg-brand hover:opacity-90"
               : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
           }`}
         >
-          {isFinalRound ? "Finalize" : "Confirm"} ({selectedIds.length}/{targetThisRound})
+          {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
         </button>
       </div>
 
@@ -410,9 +421,25 @@ export default function NarrowPage() {
       </div>
 
       {list.winnerId && (
-        <div className="mt-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 text-amber-800 font-medium">
-            🏆 Final pick: {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
+        <div className="mt-8 text-center animate-in fade-in zoom-in duration-700">
+          <div className="mb-4 text-6xl animate-bounce">🎉</div>
+          <div className="inline-block bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 p-1 rounded-3xl shadow-2xl">
+            <div className="bg-white rounded-3xl px-8 py-6">
+              <div className="text-amber-600 font-bold text-lg mb-2">🏆 THE WINNER! 🏆</div>
+              <div className="text-3xl font-bold text-zinc-800 mb-2">
+                {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
+              </div>
+              {list.items.find((i) => i.id === list.winnerId)?.notes && (
+                <div className="text-sm text-zinc-600 mt-2">
+                  {list.items.find((i) => i.id === list.winnerId)?.notes}
+                </div>
+              )}
+              <div className="mt-4 flex items-center justify-center gap-2 text-amber-500">
+                <span className="text-2xl">⭐</span>
+                <span className="text-2xl">⭐</span>
+                <span className="text-2xl">⭐</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
