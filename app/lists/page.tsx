@@ -103,7 +103,7 @@ export default function ListsPage() {
           </p>
           <Link
             href="/new"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-white transition-all hover:opacity-90 active:translate-y-px"
+            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
           >
             Create your first list
           </Link>
@@ -137,7 +137,7 @@ export default function ListsPage() {
           </h1>
           <Link
             href="/new"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-brand px-5 text-sm text-white transition-all hover:opacity-90 active:translate-y-px"
+            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
           >
             Create new list
           </Link>
@@ -191,7 +191,7 @@ export default function ListsPage() {
                     e.preventDefault();
                     setDeleteTarget(list);
                   }}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-600 text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FACC15] text-red-700 shadow-[0_2px_6px_rgba(250,204,21,0.35)] hover:shadow-[0_4px_10px_rgba(250,204,21,0.45)] focus:outline-none focus:ring-2 focus:ring-amber-300 active:translate-y-px"
                   title="Delete list"
                   aria-label={`Delete ${list.title}`}
                 >
