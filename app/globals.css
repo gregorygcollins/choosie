@@ -65,14 +65,14 @@ body {
 /* Buttons */
 .btn-amber {
   background: #D97A3A;
-  color: #2B2B2B;
+  color: #FFFFFF;
   font-weight: 600;
   border-radius: 9999px;
   padding: 0.55rem 1rem;
   box-shadow: 0 2px 4px rgba(217, 122, 58, 0.28);
   transition: all .18s ease;
 }
-.btn-amber:hover { background: #E78549; box-shadow: 0 4px 10px rgba(217, 122, 58, 0.38); transform: translateY(-1px); }
+.btn-amber:hover { background: #E78549; box-shadow: 0 4px 10px rgba(217, 122, 58, 0.38); transform: translateY(-1px); color:#FFFFFF; }
 .btn-amber:active { transform: translateY(1px); }
 
 .btn-charcoal {
