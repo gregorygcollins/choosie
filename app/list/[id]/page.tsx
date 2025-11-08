@@ -140,7 +140,7 @@ export default function ViewListPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-amber-50">
+      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
         <div className="text-center text-zinc-700">
           <p className="text-xl">Loading...</p>
         </div>
@@ -150,7 +150,7 @@ export default function ViewListPage() {
 
   if (!list) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-amber-50">
+      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
         <div className="text-center text-zinc-700">
           <p className="text-xl mb-4">List not found 😢</p>
           <button
@@ -165,7 +165,7 @@ export default function ViewListPage() {
   }
 
   return (
-    <main className="min-h-screen bg-amber-50 p-8">
+    <main className="min-h-screen bg-[#F5F1E8] p-8">
       <ConfirmModal
         isOpen={showDeleteModal}
         title="Delete List?"

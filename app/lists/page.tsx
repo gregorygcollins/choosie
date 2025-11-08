@@ -127,7 +127,7 @@ export default function ListsPage() {
       
       <div className="mx-auto max-w-3xl">
         {usedLocalFallback && (
-          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm">
+          <div className="mb-4 rounded-lg border border-amber-300 bg-[#F5F1E8] text-amber-900 px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren’t loading.
           </div>
         )}

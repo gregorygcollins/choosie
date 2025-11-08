@@ -283,7 +283,7 @@ export default function NarrowPage() {
   }
 
   return (
-    <main className="min-h-screen bg-amber-50">
+    <main className="min-h-screen bg-[#F5F1E8]">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <ProcessSection />
         <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
@@ -426,23 +426,37 @@ export default function NarrowPage() {
         </div>
 
         {list.winnerId && (
-          <div className="mt-8 text-center animate-in fade-in zoom-in duration-700">
-            <div className="mb-4 text-6xl animate-bounce">🎉</div>
-            <div className="inline-block bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 p-1 rounded-3xl shadow-2xl">
-              <div className="bg-white rounded-3xl px-8 py-6">
-                <div className="text-amber-600 font-bold text-lg mb-2">🏆 THE WINNER! 🏆</div>
-                <div className="text-3xl font-bold text-zinc-800 mb-2">
-                  {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
-                </div>
-                {list.items.find((i) => i.id === list.winnerId)?.notes && (
-                  <div className="text-sm text-zinc-600 mt-2">
-                    {list.items.find((i) => i.id === list.winnerId)?.notes}
+          <div className="mt-12 flex justify-center animate-in fade-in zoom-in duration-1000">
+            <div className="max-w-md w-full">
+              <div className="mb-6 text-center text-7xl animate-bounce">🎉</div>
+              <div className="bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-400 p-1.5 rounded-3xl shadow-2xl transform hover:scale-105 transition-transform">
+                <div className="bg-white rounded-3xl overflow-hidden">
+                  {list.items.find((i) => i.id === list.winnerId)?.image && (
+                    <div className="relative w-full aspect-[2/3] overflow-hidden">
+                      <img
+                        src={list.items.find((i) => i.id === list.winnerId)?.image}
+                        alt={list.items.find((i) => i.id === list.winnerId)?.title || "Winner"}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    </div>
+                  )}
+                  <div className="px-8 py-6">
+                    <div className="text-amber-600 font-bold text-xl mb-3 text-center">🏆 THE WINNER! 🏆</div>
+                    <div className="text-3xl font-bold text-zinc-800 mb-3 text-center">
+                      {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
+                    </div>
+                    {list.items.find((i) => i.id === list.winnerId)?.notes && (
+                      <div className="text-sm text-zinc-600 text-center mb-4">
+                        {list.items.find((i) => i.id === list.winnerId)?.notes}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-center gap-2 text-amber-500">
+                      <span className="text-3xl">⭐</span>
+                      <span className="text-3xl">⭐</span>
+                      <span className="text-3xl">⭐</span>
+                    </div>
                   </div>
-                )}
-                <div className="mt-4 flex items-center justify-center gap-2 text-amber-500">
-                  <span className="text-2xl">⭐</span>
-                  <span className="text-2xl">⭐</span>
-                  <span className="text-2xl">⭐</span>
                 </div>
               </div>
             </div>
