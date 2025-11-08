@@ -174,7 +174,7 @@ export default function ListsPage() {
               <div className="flex gap-3">
                 <Link
                   href={`/list/${list.id}`}
-                  className="btn-amber inline-flex items-center justify-center text-sm"
+                  className="inline-flex h-9 items-center justify-center rounded-full bg-white border border-brand px-4 text-sm font-semibold text-brand hover:bg-zinc-50 transition-colors"
                 >
                   View {listTypeName}
                 </Link>
