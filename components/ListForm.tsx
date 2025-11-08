@@ -367,7 +367,7 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 backdrop-blur shadow-xl max-h-64 overflow-auto" style={{backgroundColor: '#6C6868'}}>
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-slate-500 bg-slate-600 backdrop-blur shadow-xl max-h-64 overflow-auto">
                 {sugsLoading && (
                   <div className="px-3 py-2 text-sm text-gray-300">Searching…</div>
                 )}
@@ -382,12 +382,12 @@ export default function ListForm({
                       setImageUrl(m.poster || "");
                       setSugsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-600 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-slate-500 transition-colors"
                   >
                     {m.poster ? (
                       <img src={m.poster} alt="" className="w-10 h-14 rounded object-cover" />
                     ) : (
-                      <div className="w-10 h-14 rounded bg-gray-600 flex items-center justify-center text-gray-400 text-xs">🎬</div>
+                      <div className="w-10 h-14 rounded bg-slate-500 flex items-center justify-center text-gray-200 text-xs">🎬</div>
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-white truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
@@ -445,10 +445,7 @@ export default function ListForm({
       <div className="flex justify-center">
         <button
           onClick={handleSave}
-          className="text-white rounded-full px-8 py-3 text-lg font-medium transition-all shadow-sm"
-          style={{backgroundColor: '#6C6868'}}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a5656'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6C6868'}
+          className="bg-slate-600 hover:bg-slate-500 text-white rounded-full px-8 py-3 text-lg font-medium transition-colors shadow-sm"
         >
           {existingList ? "Update Watchlist" : "Create Watchlist"}
         </button>
