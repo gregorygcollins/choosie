@@ -66,26 +66,30 @@ export default function NewPageClient() {
     if (editId) {
       const list = getList(editId);
       if (list) {
-        setExistingList(list);
         if (list.moduleType === "books") {
           setSelectedModule("books");
           setBookListTitle(list.title);
           setBookItems(list.items);
+          setExistingList(list);
         } else if (list.moduleType === "music") {
           setSelectedModule("music");
           setMusicListTitle(list.title);
           setMusicItems(list.items);
+          setExistingList(list);
         } else if (list.moduleType === "food") {
           setSelectedModule("food");
           setFoodTitle(list.title);
           setFoodItems(list.items);
+          setExistingList(list);
         } else if (list.moduleType === "anything") {
           setSelectedModule("anything");
           setAnythingTitle(list.title);
           setAnythingItems(list.items);
+          setExistingList(list);
         } else {
           // Default to movies module for existing watchlists
           setSelectedModule("movies");
+          setExistingList(list);
         }
       }
     }
