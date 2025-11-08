@@ -283,170 +283,172 @@ export default function NarrowPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <ProcessSection />
-      <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
+    <main className="min-h-screen bg-amber-50">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <ProcessSection />
+        <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
 
-      {/* Progress timeline */}
-      <div className="mb-6 flex flex-col items-center">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          {roundTargets.map((t, idx) => {
-            const isCurrent = idx + 1 === roundNumber;
-            const isPast = idx + 1 < roundNumber;
-            return (
-              <div key={idx} className="flex items-center">
-                {idx > 0 && (
+        {/* Progress timeline */}
+        <div className="mb-6 flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            {roundTargets.map((t, idx) => {
+              const isCurrent = idx + 1 === roundNumber;
+              const isPast = idx + 1 < roundNumber;
+              return (
+                <div key={idx} className="flex items-center">
+                  {idx > 0 && (
+                    <div
+                      className={`h-[2px] w-8 mx-1 ${isPast ? "bg-brand" : "bg-zinc-200"}`}
+                    />
+                  )}
                   <div
-                    className={`h-[2px] w-8 mx-1 ${isPast ? "bg-brand" : "bg-zinc-200"}`}
-                  />
-                )}
-                <div
-                  className={`flex h-8 min-w-[2rem] items-center justify-center rounded-full px-3 text-sm font-medium transition-all ${
-                    isCurrent
-                      ? "bg-brand text-white ring-4 ring-brand/20"
-                      : isPast
-                      ? "bg-brand/20 text-brand"
-                      : "bg-zinc-100 text-zinc-400"
-                  }`}
-                >
-                  {t}
+                    className={`flex h-8 min-w-[2rem] items-center justify-center rounded-full px-3 text-sm font-medium transition-all ${
+                      isCurrent
+                        ? "bg-brand text-white ring-4 ring-brand/20"
+                        : isPast
+                        ? "bg-brand/20 text-brand"
+                        : "bg-zinc-100 text-zinc-400"
+                    }`}
+                  >
+                    {t}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="text-center mb-1 text-zinc-600">
-          Round {Math.min(roundNumber, roundTargets.length)} of {roundTargets.length}
-        </div>
-        <div className="flex justify-center mb-2">
-          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
-            isFinalRound 
-              ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" 
-              : "bg-white/90 ring-1 ring-brand/20"
-          }`}>
-            <span aria-hidden className="text-lg">{emoji}</span>
-            <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
+              );
+            })}
           </div>
-        </div>
-      </div>
-
-      {/* Items grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {remaining.map((item) => {
-          const selected = selectedIds.includes(item.id);
-          return (
-            <button
-              key={item.id}
-              onClick={() => toggleSelect(item.id)}
-              className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
-                selected
-                  ? isFinalRound
-                    ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                    : "border-brand scale-105"
-                  : "border-transparent hover:scale-[1.02]"
-              }`}
-            >
-              {selected && isFinalRound && (
-                <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
-              )}
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-36 object-cover rounded-md mb-3"
-                />
-              ) : (
-                <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
-                  📷
-                </div>
-              )}
-              <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-              {item.notes && (
-                <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-              )}
-              <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                {selected
-                  ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                  : `Tap to select`}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Actions */}
-      <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <button
-          onClick={undoLast}
-          disabled={history.length === 0}
-          className={`rounded-full px-6 py-3 text-sm ${
-            history.length === 0
-              ? "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-              : "bg-white/70 text-zinc-700 hover:bg-white"
-          }`}
-        >
-          ← Back
-        </button>
-        <button
-          onClick={resetAll}
-          className="rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white"
-        >
-          Reset
-        </button>
-        <button
-          onClick={() => router.push(`/list/${list.id}`)}
-          className="rounded-full bg-zinc-100 px-6 py-3 text-zinc-700"
-        >
-          Back to {list.moduleType === "music"
-            ? "musiclist"
-            : list.moduleType === "food"
-            ? "foodlist"
-            : list.moduleType === "books"
-            ? "booklist"
-            : "watchlist"}
-        </button>
-        <button
-          onClick={confirmRound}
-          disabled={selectedIds.length !== targetThisRound}
-          className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
-            selectedIds.length === targetThisRound
-              ? isFinalRound
-                ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
-                : "bg-brand hover:opacity-90"
-              : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-          }`}
-        >
-          {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
-        </button>
-      </div>
-
-      <div className="text-center mt-4 text-sm text-zinc-500">
-        {remaining.length} item{remaining.length === 1 ? "" : "s"} available
-      </div>
-
-      {list.winnerId && (
-        <div className="mt-8 text-center animate-in fade-in zoom-in duration-700">
-          <div className="mb-4 text-6xl animate-bounce">🎉</div>
-          <div className="inline-block bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 p-1 rounded-3xl shadow-2xl">
-            <div className="bg-white rounded-3xl px-8 py-6">
-              <div className="text-amber-600 font-bold text-lg mb-2">🏆 THE WINNER! 🏆</div>
-              <div className="text-3xl font-bold text-zinc-800 mb-2">
-                {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
-              </div>
-              {list.items.find((i) => i.id === list.winnerId)?.notes && (
-                <div className="text-sm text-zinc-600 mt-2">
-                  {list.items.find((i) => i.id === list.winnerId)?.notes}
-                </div>
-              )}
-              <div className="mt-4 flex items-center justify-center gap-2 text-amber-500">
-                <span className="text-2xl">⭐</span>
-                <span className="text-2xl">⭐</span>
-                <span className="text-2xl">⭐</span>
-              </div>
+          <div className="text-center mb-1 text-zinc-600">
+            Round {Math.min(roundNumber, roundTargets.length)} of {roundTargets.length}
+          </div>
+          <div className="flex justify-center mb-2">
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
+              isFinalRound 
+                ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" 
+                : "bg-white/90 ring-1 ring-brand/20"
+            }`}>
+              <span aria-hidden className="text-lg">{emoji}</span>
+              <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Items grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {remaining.map((item) => {
+            const selected = selectedIds.includes(item.id);
+            return (
+              <button
+                key={item.id}
+                onClick={() => toggleSelect(item.id)}
+                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
+                  selected
+                    ? isFinalRound
+                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                      : "border-brand scale-105"
+                    : "border-transparent hover:scale-[1.02]"
+                }`}
+              >
+                {selected && isFinalRound && (
+                  <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
+                )}
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-36 object-cover rounded-md mb-3"
+                  />
+                ) : (
+                  <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
+                    📷
+                  </div>
+                )}
+                <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                {item.notes && (
+                  <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
+                )}
+                <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                  {selected
+                    ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                    : `Tap to select`}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Actions */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button
+            onClick={undoLast}
+            disabled={history.length === 0}
+            className={`rounded-full px-6 py-3 text-sm ${
+              history.length === 0
+                ? "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+                : "bg-white/70 text-zinc-700 hover:bg-white"
+            }`}
+          >
+            ← Back
+          </button>
+          <button
+            onClick={resetAll}
+            className="rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white"
+          >
+            Reset
+          </button>
+          <button
+            onClick={() => router.push(`/list/${list.id}`)}
+            className="rounded-full bg-zinc-100 px-6 py-3 text-zinc-700"
+          >
+            Back to {list.moduleType === "music"
+              ? "musiclist"
+              : list.moduleType === "food"
+              ? "foodlist"
+              : list.moduleType === "books"
+              ? "booklist"
+              : "watchlist"}
+          </button>
+          <button
+            onClick={confirmRound}
+            disabled={selectedIds.length !== targetThisRound}
+            className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
+              selectedIds.length === targetThisRound
+                ? isFinalRound
+                  ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
+                  : "bg-brand hover:opacity-90"
+                : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+            }`}
+          >
+            {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
+          </button>
+        </div>
+
+        <div className="text-center mt-4 text-sm text-zinc-500">
+          {remaining.length} item{remaining.length === 1 ? "" : "s"} available
+        </div>
+
+        {list.winnerId && (
+          <div className="mt-8 text-center animate-in fade-in zoom-in duration-700">
+            <div className="mb-4 text-6xl animate-bounce">🎉</div>
+            <div className="inline-block bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 p-1 rounded-3xl shadow-2xl">
+              <div className="bg-white rounded-3xl px-8 py-6">
+                <div className="text-amber-600 font-bold text-lg mb-2">🏆 THE WINNER! 🏆</div>
+                <div className="text-3xl font-bold text-zinc-800 mb-2">
+                  {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
+                </div>
+                {list.items.find((i) => i.id === list.winnerId)?.notes && (
+                  <div className="text-sm text-zinc-600 mt-2">
+                    {list.items.find((i) => i.id === list.winnerId)?.notes}
+                  </div>
+                )}
+                <div className="mt-4 flex items-center justify-center gap-2 text-amber-500">
+                  <span className="text-2xl">⭐</span>
+                  <span className="text-2xl">⭐</span>
+                  <span className="text-2xl">⭐</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
