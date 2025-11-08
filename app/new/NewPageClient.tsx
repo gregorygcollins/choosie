@@ -757,16 +757,16 @@ export default function NewPageClient() {
               </div>
               {/* Book suggestions dropdown */}
               {bookSugs.length > 0 && (
-                <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-700 bg-gray-900 backdrop-blur shadow-xl max-h-64 overflow-auto">
+                <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 bg-gray-700 backdrop-blur shadow-xl max-h-64 overflow-auto">
                   {bookSugsLoading && (
-                    <div className="px-3 py-2 text-sm text-gray-400">Searching...</div>
+                    <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
                   )}
                   {bookSugs.map((book) => (
                     <button
                       key={book.id}
                       type="button"
                       onClick={() => chooseBookSuggestion(book)}
-                      className="w-full px-3 py-2 text-left hover:bg-gray-800 flex items-center gap-3 transition-colors"
+                      className="w-full px-3 py-2 text-left hover:bg-gray-600 flex items-center gap-3 transition-colors"
                     >
                       {book.thumbnail && (
                         <img src={book.thumbnail} alt={book.title} className="w-10 h-14 object-cover rounded" />
@@ -774,7 +774,7 @@ export default function NewPageClient() {
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-white truncate">{book.title}</div>
                         {book.authors && book.authors.length > 0 && (
-                          <div className="text-sm text-gray-400 truncate">{book.authors.join(", ")}</div>
+                          <div className="text-sm text-gray-300 truncate">{book.authors.join(", ")}</div>
                         )}
                       </div>
                     </button>
@@ -879,16 +879,16 @@ export default function NewPageClient() {
             </div>
             {/* Music suggestions dropdown */}
             {musicSugs.length > 0 && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-700 bg-gray-900 backdrop-blur shadow-xl max-h-64 overflow-auto">
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-600 bg-gray-700 backdrop-blur shadow-xl max-h-64 overflow-auto">
                 {musicSugsLoading && (
-                  <div className="px-3 py-2 text-sm text-gray-400">Searching...</div>
+                  <div className="px-3 py-2 text-sm text-gray-300">Searching...</div>
                 )}
                 {musicSugs.map((track) => (
                   <button
                     key={track.id}
                     type="button"
                     onClick={() => chooseMusicSuggestion(track)}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-800 flex items-center gap-3 transition-colors"
+                    className="w-full px-3 py-2 text-left hover:bg-gray-600 flex items-center gap-3 transition-colors"
                   >
                     {track.albumArt && (
                       <img src={track.albumArt} alt={track.name} className="w-10 h-10 object-cover rounded" />
@@ -896,7 +896,7 @@ export default function NewPageClient() {
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-white truncate">{track.name}</div>
                       {track.artists && track.artists.length > 0 && (
-                        <div className="text-sm text-gray-400 truncate">{track.artists.join(", ")}</div>
+                        <div className="text-sm text-gray-300 truncate">{track.artists.join(", ")}</div>
                       )}
                     </div>
                   </button>

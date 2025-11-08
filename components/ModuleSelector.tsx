@@ -53,7 +53,7 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
             id="module-select"
             value={selectedModule}
             onChange={handleChange}
-            className="peer w-full appearance-none bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 pr-12 text-base text-white shadow-xl transition focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 hover:border-gray-600"
+            className="peer w-full appearance-none bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12 text-base text-white shadow-xl transition focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 hover:border-gray-500"
           >
             {MODULES.map((module) => (
               <option key={module.id} value={module.id}>
