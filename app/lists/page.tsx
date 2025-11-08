@@ -191,10 +191,28 @@ export default function ListsPage() {
                     e.preventDefault();
                     setDeleteTarget(list);
                   }}
-                  className="inline-flex h-9 items-center justify-center rounded-full border border-red-600 px-4 text-sm text-red-600 transition-all hover:bg-red-50 active:translate-y-px"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-600 text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                   title="Delete list"
+                  aria-label={`Delete ${list.title}`}
                 >
-                  Delete
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
                 </button>
               </div>
             </div>
