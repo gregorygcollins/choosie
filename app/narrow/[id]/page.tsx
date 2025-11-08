@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getList, upsertList } from "@/lib/storage";
 import { computeNarrowingPlan } from "@/lib/planner";
 import type { ChoosieList, ChoosieItem } from "@/components/ListForm";
+import ProcessSection from "@/components/ProcessSection";
 
 type LocalHistoryEntry = {
   remainingIds: string[];
@@ -37,8 +38,9 @@ export default function NarrowPage() {
       return;
     }
 
-    const narrowers = l.narrowers || 3;
-    const tail = l.narrowingTail || [5, 3, 1];
+    // Force 3 rounds: Curator (5), Selector (3), Decider (1)
+    const narrowers = 4; // numPlayers = 4 means 3 rounds (4 - 1 = 3)
+    const tail = [5, 3, 1];
 
     if (l.progress && l.progress.remainingIds?.length) {
       // Resume existing progress
@@ -199,8 +201,9 @@ export default function NarrowPage() {
 
   const resetAll = useCallback(() => {
     if (!list) return;
-    const narrowers = list.narrowers || 3;
-    const tail = list.narrowingTail || [5, 3, 1];
+    // Force 3 rounds: Curator (5), Selector (3), Decider (1)
+    const narrowers = 4; // numPlayers = 4 means 3 rounds (4 - 1 = 3)
+    const tail = [5, 3, 1];
     const plan = computeNarrowingPlan(list.items.length, narrowers, {
       tail,
       minReductionFraction: list.minReductionFraction || 0.2,
@@ -281,6 +284,7 @@ export default function NarrowPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <ProcessSection />
       <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
 
       {/* Progress timeline */}

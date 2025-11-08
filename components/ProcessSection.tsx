@@ -7,10 +7,9 @@ export default function ProcessSection() {
     <section className="mx-auto my-12 w-full max-w-4xl rounded-2xl bg-zinc-50 px-6 py-10 sm:px-10 sm:py-14">
       <div className="text-center">
         <div className="flex justify-center">
-          {/* Important: image must be provided exactly as-is at public/choosie-process.png */}
-          {/* Using next/image with fixed intrinsic sizing but no transforms to keep it pixel-faithful */}
+          {/* Narrowing process graphic showing workflow */}
           <Image
-            src="/choosie-process.png"
+            src="/choosie-process.svg"
             alt="Choosie process: Programmer, Curator, Selector, Decider"
             width={1152}
             height={768}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getList, upsertList } from "@/lib/storage";
 import type { ChoosieList } from "@/components/ListForm";
+import ProcessSection from "@/components/ProcessSection";
 
 export default function VirtualInvitesPage() {
   const router = useRouter();
@@ -114,6 +115,7 @@ export default function VirtualInvitesPage() {
 
   return (
     <main className="min-h-screen bg-amber-50 p-8">
+      <ProcessSection />
       <div className="mx-auto max-w-2xl bg-white rounded-2xl p-6 shadow-soft">
         <h1 className="text-2xl font-semibold mb-1">Narrow “{list.title}” virtually</h1>
         <p className="text-sm text-zinc-600 mb-6">Enter emails to send an invite with a link to the narrowing page.</p>

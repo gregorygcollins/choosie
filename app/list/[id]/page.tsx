@@ -6,6 +6,7 @@ import { getList, removeList, upsertList } from "../../../lib/storage";
 import { ChoosieList } from "../../../components/ListForm";
 import { ConfirmModal } from "../../../components/ConfirmModal";
 import { toast } from "../../../components/Toast";
+import ProcessSection from "../../../components/ProcessSection";
 
 export default function ViewListPage() {
   const router = useRouter();
@@ -179,6 +180,7 @@ export default function ViewListPage() {
         onCancel={() => setShowDeleteModal(false)}
       />
       
+      <ProcessSection />
       <div className="mx-auto max-w-3xl bg-white rounded-2xl p-8 shadow-soft">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-semibold">{list.title}</h1>
