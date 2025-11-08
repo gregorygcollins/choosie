@@ -837,7 +837,7 @@ export default function NewPageClient() {
               </div>
               {/* Book suggestions dropdown */}
               {bookSugs.length > 0 && (
-                <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+                <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                   {bookSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                   {bookSugs.map((book) => (
                     <button
@@ -976,7 +976,7 @@ export default function NewPageClient() {
             </div>
             {/* Music suggestions dropdown */}
             {musicSugs.length > 0 && (
-              <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+              <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                 {musicSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                 {musicSugs.map((track) => (
                   <button

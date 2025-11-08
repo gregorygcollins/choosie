@@ -367,7 +367,7 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-20 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+              <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                 {sugsLoading && (
                   <div className="px-3 py-2 text-sm text-neutral-300">Searching…</div>
                 )}
