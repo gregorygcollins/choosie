@@ -798,11 +798,13 @@ export default function NewPageClient() {
 
   return (
     <>
-      <ModuleSelector 
-        userIsPro={me?.isPro || false} 
-        selectedModule={selectedModule}
-        onSelectModule={handleSelectModule}
-      />
+      {!existingList && (
+        <ModuleSelector 
+          userIsPro={me?.isPro || false} 
+          selectedModule={selectedModule}
+          onSelectModule={handleSelectModule}
+        />
+      )}
 
       {selectedModule === "books" ? (
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
