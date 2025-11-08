@@ -32,7 +32,7 @@ export default function NewPage() {
   const current = LIST_TYPES[currentIndex];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-brand-light p-8">
+    <main className="min-h-screen bg-gradient-to-b from-[#fafafa] to-[#f2f2f2] p-8">
       <div className="mx-auto max-w-3xl">
         {/* Hero invitation */}
   <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
