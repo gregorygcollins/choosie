@@ -1027,7 +1027,7 @@ export default function NewPageClient() {
             onClick={handleSaveFoodList}
             className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
-            {existingList ? "Update Food List" : "Create Food List"}
+            {existingList ? "Update Food List" : "Create foodlist"}
           </button>
         </div>
       </div>
