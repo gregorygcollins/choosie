@@ -83,6 +83,9 @@ export default function NewPageClient() {
           setSelectedModule("anything");
           setAnythingTitle(list.title);
           setAnythingItems(list.items);
+        } else {
+          // Default to movies module for existing watchlists
+          setSelectedModule("movies");
         }
       }
     }
