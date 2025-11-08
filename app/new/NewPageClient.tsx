@@ -63,36 +63,74 @@ export default function NewPageClient() {
   const [anythingDragIndex, setAnythingDragIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (editId) {
-      const list = getList(editId);
-      if (list) {
-        if (list.moduleType === "books") {
-          setSelectedModule("books");
-          setBookListTitle(list.title);
-          setBookItems(list.items);
-          setExistingList(list);
-        } else if (list.moduleType === "music") {
-          setSelectedModule("music");
-          setMusicListTitle(list.title);
-          setMusicItems(list.items);
-          setExistingList(list);
-        } else if (list.moduleType === "food") {
-          setSelectedModule("food");
-          setFoodTitle(list.title);
-          setFoodItems(list.items);
-          setExistingList(list);
-        } else if (list.moduleType === "anything") {
-          setSelectedModule("anything");
-          setAnythingTitle(list.title);
-          setAnythingItems(list.items);
-          setExistingList(list);
-        } else {
-          // Default to movies module for existing watchlists
-          setSelectedModule("movies");
-          setExistingList(list);
+    if (!editId) return;
+    
+    let cancelled = false;
+    
+    async function loadListForEdit() {
+      // Try server first (for signed-in users with server-persisted lists)
+      try {
+        const res = await fetch("/api/choosie/getList", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ listId: editId }),
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled && data?.ok && data.list) {
+            const list = data.list;
+            applyListToState(list);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Server fetch failed, trying local storage:", err);
+      }
+      
+      // Fallback to local storage
+      if (!cancelled) {
+        const list = getList(editId as string);
+        if (list) {
+          applyListToState(list);
         }
       }
     }
+    
+    function applyListToState(list: ChoosieList) {
+      if (list.moduleType === "books") {
+        setSelectedModule("books");
+        setBookListTitle(list.title);
+        setBookItems(list.items);
+        setExistingList(list);
+      } else if (list.moduleType === "music") {
+        setSelectedModule("music");
+        setMusicListTitle(list.title);
+        setMusicItems(list.items);
+        setExistingList(list);
+      } else if (list.moduleType === "food") {
+        setSelectedModule("food");
+        setFoodTitle(list.title);
+        setFoodItems(list.items);
+        setExistingList(list);
+      } else if (list.moduleType === "anything") {
+        setSelectedModule("anything");
+        setAnythingTitle(list.title);
+        setAnythingItems(list.items);
+        setExistingList(list);
+      } else {
+        // Default to movies module for existing watchlists
+        setSelectedModule("movies");
+        setExistingList(list);
+      }
+    }
+    
+    loadListForEdit();
+    
+    return () => {
+      cancelled = true;
+    };
   }, [editId]);
 
   useEffect(() => {
