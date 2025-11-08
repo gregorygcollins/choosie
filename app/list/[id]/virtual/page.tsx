@@ -31,6 +31,21 @@ export default function VirtualInvitesPage() {
       if (found?.event?.notes) setNotes(found.event.notes);
     }
   }, [id]);
+  if (list === null) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-amber-50">
+        <div className="text-center text-zinc-700">
+          <p className="text-xl mb-4">List not found 😢</p>
+          <button
+            onClick={() => router.push("/lists")}
+            className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors"
+          >
+            Return to My Lists
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   function validateEmails(raw: string) {
     const parts = raw

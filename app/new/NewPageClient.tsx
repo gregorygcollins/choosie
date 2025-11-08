@@ -960,7 +960,7 @@ export default function NewPageClient() {
             value={foodTitle}
             onChange={(e) => setFoodTitle(e.target.value)}
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
-            placeholder="Weekday dinners, Holiday feasts, etc."
+            placeholder="Weekday dinners, Holiday dishes, etc."
           />
         </div>
         {/* Add items panel */}
