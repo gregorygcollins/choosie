@@ -207,7 +207,14 @@ export default function NewPageClient() {
       moduleType: selectedModule,
     };
     upsertList(listWithModule);
-    // If signed in, also persist to server so it appears across devices
+    
+    // If editing an existing list, just navigate back - don't create a duplicate on server
+    if (existingList) {
+      router.push(`/list/${list.id}`);
+      return;
+    }
+    
+    // If signed in and creating a NEW list, persist to server so it appears across devices
     if (me && (me as any).id) {
       const payload = {
         title: listWithModule.title,
@@ -373,6 +380,13 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
+    
+    // If editing an existing list, just navigate back - don't create a duplicate on server
+    if (existingList) {
+      router.push(`/list/${list.id}`);
+      return;
+    }
+    
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -499,6 +513,13 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
+    
+    // If editing an existing list, just navigate back - don't create a duplicate on server
+    if (existingList) {
+      router.push(`/list/${list.id}`);
+      return;
+    }
+    
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -628,6 +649,13 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
+    
+    // If editing an existing list, just navigate back - don't create a duplicate on server
+    if (existingList) {
+      router.push(`/list/${list.id}`);
+      return;
+    }
+    
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -737,6 +765,13 @@ export default function NewPageClient() {
     };
 
     upsertList(list);
+    
+    // If editing an existing list, just navigate back - don't create a duplicate on server
+    if (existingList) {
+      router.push(`/list/${list.id}`);
+      return;
+    }
+    
     if (me?.id) {
       const payload = {
         title: list.title,
