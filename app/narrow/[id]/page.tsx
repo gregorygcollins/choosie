@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getList, upsertList } from "@/lib/storage";
-import { computeNarrowingPlan } from "@/lib/planner";
+import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
 import type { ChoosieList, ChoosieItem } from "@/components/ListForm";
 import ProcessSection from "@/components/ProcessSection";
 
@@ -38,9 +38,8 @@ export default function NarrowPage() {
       return;
     }
 
-    // Force 3 rounds: Curator (5), Selector (3), Decider (1)
-    const narrowers = 4; // numPlayers = 4 means 3 rounds (4 - 1 = 3)
-    const tail = [5, 3, 1];
+    // Get participant count from list (default to 4 for backwards compatibility)
+    const participants = (l as any).participants || 4;
 
     if (l.progress && l.progress.remainingIds?.length) {
       // Resume existing progress
@@ -48,9 +47,8 @@ export default function NarrowPage() {
       const rem = l.items.filter((it) => progress.remainingIds.includes(it.id));
       const plan = l.narrowingPlan && l.narrowingPlan.length
         ? l.narrowingPlan
-        : computeNarrowingPlan(rem.length, narrowers, {
-            tail,
-            minReductionFraction: l.minReductionFraction || 0.2,
+        : computeNarrowingPlan(rem.length, participants, {
+            participants,
           });
       setList(l);
       setRemaining(rem);
@@ -72,14 +70,12 @@ export default function NarrowPage() {
       const initialItems = l.items.slice();
       const plan = l.narrowingPlan && l.narrowingPlan.length
         ? l.narrowingPlan
-        : computeNarrowingPlan(initialItems.length, narrowers, {
-            tail,
-            minReductionFraction: l.minReductionFraction || 0.2,
+        : computeNarrowingPlan(initialItems.length, participants, {
+            participants,
           });
       const updated: ChoosieList = {
         ...l,
         narrowingPlan: plan,
-        narrowingTail: tail,
         progress: {
           remainingIds: initialItems.map((i) => i.id),
           currentNarrower: 1,
@@ -201,12 +197,9 @@ export default function NarrowPage() {
 
   const resetAll = useCallback(() => {
     if (!list) return;
-    // Force 3 rounds: Curator (5), Selector (3), Decider (1)
-    const narrowers = 4; // numPlayers = 4 means 3 rounds (4 - 1 = 3)
-    const tail = [5, 3, 1];
-    const plan = computeNarrowingPlan(list.items.length, narrowers, {
-      tail,
-      minReductionFraction: list.minReductionFraction || 0.2,
+    const participants = (list as any).participants || 4;
+    const plan = computeNarrowingPlan(list.items.length, participants, {
+      participants,
     });
     const updated: ChoosieList = {
       ...list,
@@ -250,23 +243,9 @@ export default function NarrowPage() {
     );
   }
 
-  // Banner role logic based on target count
-  let role = "Curator";
-  let emoji = "🎨";
-  if (targetThisRound === 1) {
-    role = "Decider";
-    emoji = "🏆";
-  } else if (targetThisRound === 3) {
-    role = "Selector";
-    emoji = "🎯";
-  } else if (targetThisRound === 5) {
-    role = "Curator";
-    emoji = "🎨";
-  } else {
-    // For other targets, use generic narrower
-    role = `Narrower ${currentNarrower}`;
-    emoji = "✨";
-  }
+  // Get role and emoji from planner
+  const participants = (list as any).participants || 4;
+  const { role, emoji } = getRoleName(participants, roundNumber - 1);
   
   // Determine item type based on module
   let itemType = "favorites";

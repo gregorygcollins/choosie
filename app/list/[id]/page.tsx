@@ -19,6 +19,8 @@ export default function ViewListPage() {
   const [sugsLoading, setSugsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showParticipantModal, setShowParticipantModal] = useState(false);
+  const [narrowingMode, setNarrowingMode] = useState<"in-person" | "virtual" | null>(null);
 
   // Helper to get list type name
   const getListTypeName = () => {
@@ -35,6 +37,26 @@ export default function ViewListPage() {
     if (module === "anything") return "list";
     return "watchlist"; // default for movies
   };
+
+  const handleNarrowClick = (mode: "in-person" | "virtual") => {
+    setNarrowingMode(mode);
+    setShowParticipantModal(true);
+  };
+
+  const handleParticipantSelect = (count: number) => {
+    if (!list) return;
+    const updated = { ...list, participants: count };
+    upsertList(updated);
+    setList(updated);
+    setShowParticipantModal(false);
+    
+    if (narrowingMode === "in-person") {
+      router.push(`/narrow/${list.id}`);
+    } else {
+      router.push(`/list/${list.id}/virtual`);
+    }
+  };
+
 
   useEffect(() => {
     if (typeof id !== "string") return;
@@ -166,6 +188,37 @@ export default function ViewListPage() {
 
   return (
     <main className="min-h-screen bg-[#F5F1E8] p-8">
+            {/* Participant Count Modal */}
+      {showParticipantModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowParticipantModal(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">
+              How many participants?
+            </h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">
+              Select the total number of people (including you as the Organizer)
+            </p>
+            <div className="grid grid-cols-5 gap-3 mb-6">
+              {[2, 3, 4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => handleParticipantSelect(n)}
+                  className="aspect-square rounded-xl bg-brand text-white font-semibold text-lg hover:opacity-90 transition-all hover:scale-105 shadow-md"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowParticipantModal(false)}
+              className="w-full rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <ConfirmModal
         isOpen={showDeleteModal}
         title="Delete List?"
@@ -287,13 +340,13 @@ export default function ViewListPage() {
         <div className="mt-8 flex justify-between items-center">
           <div className="flex gap-3">
             <button
-              onClick={() => router.push(`/narrow/${list.id}`)}
+              onClick={() => handleNarrowClick("in-person")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
               Narrow {getListTypeName()} in person
             </button>
             <button
-              onClick={() => router.push(`/list/${list.id}/virtual`)}
+              onClick={() => handleNarrowClick("virtual")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
               Narrow {getListTypeName()} virtually
