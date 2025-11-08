@@ -367,9 +367,9 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur shadow-lg max-h-64 overflow-auto">
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-700 bg-gray-900 backdrop-blur shadow-xl max-h-64 overflow-auto">
                 {sugsLoading && (
-                  <div className="px-3 py-2 text-sm text-gray-500">Searching…</div>
+                  <div className="px-3 py-2 text-sm text-gray-400">Searching…</div>
                 )}
                 {sugs.map((m) => (
                   <button
@@ -382,16 +382,16 @@ export default function ListForm({
                       setImageUrl(m.poster || "");
                       setSugsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-amber-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-800 transition-colors"
                   >
                     {m.poster ? (
                       <img src={m.poster} alt="" className="w-10 h-14 rounded object-cover" />
                     ) : (
-                      <div className="w-10 h-14 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs">🎬</div>
+                      <div className="w-10 h-14 rounded bg-gray-800 flex items-center justify-center text-gray-500 text-xs">🎬</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-gray-800 truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
-                      {m.overview && <div className="text-sm text-gray-500 truncate">{m.overview}</div>}
+                      <div className="font-medium text-white truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                      {m.overview && <div className="text-sm text-gray-400 truncate">{m.overview}</div>}
                     </div>
                   </button>
                 ))}
