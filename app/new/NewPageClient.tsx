@@ -725,199 +725,87 @@ export default function NewPageClient() {
       />
 
       {selectedModule === "books" ? (
-        <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
-          <label className="block mb-3 text-sm font-medium">Name your booklist</label>
-          <input
-            value={bookListTitle}
-            onChange={(e) => setBookListTitle(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2 shadow-inner"
-            placeholder="Book club, Reading group, etc."
-          />
-          <p className="text-sm text-zinc-500 mt-1">
-            Add the books you want to read — Choosie will find what hits for everyone.
-          </p>
-
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium">Start building</label>
-              <div className="flex items-center gap-2">
-                {/* list view button */}
-                <button
-                  type="button"
-                  title="List view"
-                  aria-pressed={viewMode === "list"}
-                  onClick={() => setViewMode("list")}
-                  className={`p-1 rounded-md ${viewMode === "list" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                    <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor" />
-                    <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" />
-                    <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor" />
-                  </svg>
-                </button>
-                {/* grid view button */}
-                <button
-                  type="button"
-                  title="Grid view"
-                  aria-pressed={viewMode === "grid"}
-                  onClick={() => setViewMode("grid")}
-                  className={`p-1 rounded-md ${viewMode === "grid" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                    <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                    <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                    <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                    <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid gap-2 sm:grid-cols-3 relative">
-              <div className="col-span-2 relative">
-                <div className="flex items-center gap-3 relative">
-                <input
-                  value={bookSearchInput}
-                  onChange={(e) => setBookSearchInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addBookItem();
-                    }
-                  }}
-                  className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-                  placeholder="Book title"
-                />
-                {/* Book suggestions dropdown */}
-                {selectedModule === "books" && (bookSugsLoading || bookSugs.length > 0) && (
-                  <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
-                    {bookSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
-                    {bookSugs.map((b) => (
-                      <button key={b.id} type="button" onClick={() => chooseBookSuggestion(b)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
-                        {b.thumbnail ? <img src={b.thumbnail} alt="" className="w-8 h-12 rounded object-cover"/> : <div className="w-8 h-12 rounded bg-zinc-100"/>}
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium truncate">{b.title}{b.publishedYear ? ` (${b.publishedYear})` : ""}</div>
-                          {b.authors?.length ? <div className="text-xs text-zinc-500 truncate">{b.authors.join(", ")}</div> : null}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                </div>
-              </div>
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8">
+          {/* Type selector panel */}
+          <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4 flex items-center gap-4">
+            <ModuleSelector userIsPro={me?.isPro || false} selectedModule={selectedModule} onSelectModule={handleSelectModule} />
+          </div>
+          {/* List name panel */}
+          <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+            <label className="block mb-2 text-sm font-medium">Name your booklist</label>
+            <input
+              value={bookListTitle}
+              onChange={(e) => setBookListTitle(e.target.value)}
+              className="w-full bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 text-lg placeholder:text-zinc-400 transition-all"
+              placeholder="Book club, Reading group, etc."
+            />
+          </div>
+          {/* Add items panel */}
+          <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+            <label className="block mb-2 text-sm font-medium">Add books</label>
+            <div className="flex gap-2 items-end">
               <input
-                value={bookNote}
-                onChange={(e) => setBookNote(e.target.value)}
-                className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-                placeholder="Optional note"
+                value={bookSearchInput}
+                onChange={(e) => setBookSearchInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
+                className="flex-1 bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+                placeholder="Book title"
               />
-              <div className="sm:col-span-3 flex justify-end">
-                <button
-                  onClick={addBookItem}
-                  className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
-                >
-                  Add book
-                </button>
-              </div>
-            </div>
-
-            {viewMode === "list" ? (
-              <ul className="mt-3 space-y-2">
-                {bookItems.map((it, idx) => (
-                  <li
-                    key={it.id}
-                    className="flex items-start justify-between gap-4 rounded-md bg-white/60 px-3 py-2"
-                    draggable
-                    onDragStart={(e) => onBookDragStart(e, idx)}
-                    onDragOver={onBookDragOver}
-                    onDrop={(e) => onBookDrop(e, idx)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* numeric badge */}
-                      <div className="flex-shrink-0">
-                        <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                          {idx + 1}
-                        </div>
-                      </div>
-                      {/* drag handle */}
-                      <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                        </svg>
-                      </div>
-
-                      {it.image ? (
-                        <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
-                      ) : (
-                        <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📚</div>
-                      )}
-
-                      <div>
-                        <div className="font-medium">{it.title}</div>
-                        {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeBookItem(it.id)}
-                      className="text-sm text-rose-500"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {bookItems.map((it, idx) => (
-                  <div
-                    key={it.id}
-                    className="rounded-md bg-white/60 p-3 flex flex-col gap-2"
-                    draggable
-                    onDragStart={(e) => onBookDragStart(e, idx)}
-                    onDragOver={onBookDragOver}
-                    onDrop={(e) => onBookDrop(e, idx)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                        {idx + 1}
-                      </div>
-                      <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                        </svg>
-                      </div>
-                      {it.image ? (
-                        <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
-                      ) : (
-                        <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📚</div>
-                      )}
-                      <div className="flex-1">
-                        <div className="font-medium">{it.title}</div>
-                        {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <button onClick={() => removeBookItem(it.id)} className="text-sm text-rose-500">
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-4 flex justify-end">
               <button
-                onClick={handleSaveBookList}
-                className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors active:translate-y-px"
+                onClick={addBookItem}
+                className="rounded-full bg-amber-400 shadow-md hover:shadow-lg text-white w-10 h-10 flex items-center justify-center transition-all active:scale-95"
+                aria-label="Add book"
               >
-                {existingList ? "Update Booklist" : "Create Booklist"}
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
               </button>
             </div>
+            <input
+              value={bookNote}
+              onChange={(e) => setBookNote(e.target.value)}
+              className="w-full mt-2 bg-transparent border-0 border-b border-zinc-200 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+              placeholder="Optional note"
+            />
+          </div>
+          {/* Items list panel */}
+          <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+            <label className="block mb-2 text-sm font-medium">Your books</label>
+            <ul className="space-y-3">
+              {bookItems.map((it, idx) => (
+                <li
+                  key={it.id}
+                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 animate-[slideIn_0.3s_ease]"
+                  draggable
+                  onDragStart={(e) => onBookDragStart(e, idx)}
+                  onDragOver={onBookDragOver}
+                  onDrop={(e) => onBookDrop(e, idx)}
+                  style={{ animation: 'slideIn 0.3s ease' }}
+                >
+                  <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  {it.image ? (
+                    <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📚</div>
+                  )}
+                  <div className="flex-1">
+                    <div className="font-medium text-zinc-800">{it.title}</div>
+                    {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
+                  </div>
+                  <button
+                    onClick={() => removeBookItem(it.id)}
+                    className="text-sm text-rose-500 hover:underline"
+                  >Remove</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {/* Save panel */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleSaveBookList}
+              className="rounded-full bg-amber-400 px-6 py-2 font-semibold text-white shadow-md hover:shadow-lg transition-all active:scale-95"
+            >
+              {existingList ? "Update Booklist" : "Create Booklist"}
+            </button>
           </div>
         </div>
       ) : selectedModule === "music" ? (
@@ -935,193 +823,83 @@ export default function NewPageClient() {
   // ========== KARAOKE MODULE COMPONENT ==========
     function musicModuleJSX() {
     return (
-      <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
-        <label className="block mb-3 text-sm font-medium">Name your music list</label>
-        <input
-          value={musicListTitle}
-          onChange={(e) => setMusicListTitle(e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 shadow-inner"
-          placeholder="Karaoke night, Roadtrip, etc."
-        />
-        <p className="text-sm text-zinc-500 mt-1">
-          Add the songs you want — Choosie will find what hits for everyone.
-        </p>
-
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium">Start building</label>
-            <div className="flex items-center gap-2">
-              {/* list view button */}
-              <button
-                type="button"
-                title="List view"
-                aria-pressed={musicViewMode === "list"}
-                onClick={() => setMusicViewMode("list")}
-                className={`p-1 rounded-md ${musicViewMode === "list" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-              {/* grid view button */}
-              <button
-                type="button"
-                title="Grid view"
-                aria-pressed={musicViewMode === "grid"}
-                onClick={() => setMusicViewMode("grid")}
-                className={`p-1 rounded-md ${musicViewMode === "grid" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <div className="grid gap-2 sm:grid-cols-3 relative">
-            <div className="col-span-2 relative">
-              <input
-                value={musicSearchInput}
-                onChange={(e) => setMusicSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addMusicItem();
-                  }
-                }}
-                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-                placeholder="Song title"
-              />
-              {/* Spotify search dropdown */}
-              {selectedModule === "music" && (musicSugsLoading || musicSugs.length > 0) && (
-                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
-                  {musicSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
-                  {musicSugs.map((t) => (
-                    <button key={t.id} type="button" onClick={() => chooseMusicSuggestion(t)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
-                      {t.albumArt ? <img src={t.albumArt} alt="" className="w-10 h-10 rounded object-cover"/> : <div className="w-10 h-10 rounded bg-zinc-100"/>}
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{t.name}</div>
-                        <div className="text-xs text-zinc-500 truncate">{t.artists?.join(", ")}{t.releaseYear ? ` • ${t.releaseYear}` : ""}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8">
+        {/* List name panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Name your music list</label>
+          <input
+            value={musicListTitle}
+            onChange={(e) => setMusicListTitle(e.target.value)}
+            className="w-full bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 text-lg placeholder:text-zinc-400 transition-all"
+            placeholder="Karaoke night, Roadtrip, etc."
+          />
+        </div>
+        {/* Add items panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Add songs</label>
+          <div className="flex gap-2 items-end">
             <input
-              value={musicNote}
-              onChange={(e) => setMusicNote(e.target.value)}
-              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-              placeholder="Optional note"
+              value={musicSearchInput}
+              onChange={(e) => setMusicSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
+              className="flex-1 bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+              placeholder="Song title"
             />
-            <div className="sm:col-span-3 flex justify-end">
-              <button
-                onClick={addMusicItem}
-                className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
-              >
-                Add song
-              </button>
-            </div>
-          </div>
-
-          {musicViewMode === "list" ? (
-            <ul className="mt-3 space-y-2">
-              {musicItems.map((it, idx) => (
-                <li
-                  key={it.id}
-                  className="flex items-start justify-between gap-4 rounded-md bg-white/60 px-3 py-2"
-                  draggable
-                  onDragStart={(e) => onMusicDragStart(e, idx)}
-                  onDragOver={onMusicDragOver}
-                  onDrop={(e) => onMusicDrop(e, idx)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                        {idx + 1}
-                      </div>
-                    </div>
-                    <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    {it.image ? (
-                      <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">�</div>
-                    )}
-                    <div>
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeMusicItem(it.id)}
-                    className="text-sm text-rose-500"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {musicItems.map((it, idx) => (
-                <div
-                  key={it.id}
-                  className="rounded-md bg-white/60 p-3 flex flex-col gap-2"
-                  draggable
-                  onDragStart={(e) => onMusicDragStart(e, idx)}
-                  onDragOver={onMusicDragOver}
-                  onDrop={(e) => onMusicDrop(e, idx)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                      {idx + 1}
-                    </div>
-                    <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    {it.image ? (
-                      <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
-                    ) : (
-                      <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">�</div>
-                    )}
-                    <div className="flex-1">
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button onClick={() => removeMusicItem(it.id)} className="text-sm text-rose-500">
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 flex justify-end">
             <button
-              onClick={handleSaveMusicList}
-              className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors active:translate-y-px"
+              onClick={addMusicItem}
+              className="rounded-full bg-amber-400 shadow-md hover:shadow-lg text-white w-10 h-10 flex items-center justify-center transition-all active:scale-95"
+              aria-label="Add song"
             >
-              {existingList ? "Update Music List" : "Create Music List"}
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
             </button>
           </div>
+          <input
+            value={musicNote}
+            onChange={(e) => setMusicNote(e.target.value)}
+            className="w-full mt-2 bg-transparent border-0 border-b border-zinc-200 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+            placeholder="Optional note"
+          />
+        </div>
+        {/* Items list panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Your songs</label>
+          <ul className="space-y-3">
+            {musicItems.map((it, idx) => (
+              <li
+                key={it.id}
+                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 animate-[slideIn_0.3s_ease]"
+                draggable
+                onDragStart={(e) => onMusicDragStart(e, idx)}
+                onDragOver={onMusicDragOver}
+                onDrop={(e) => onMusicDrop(e, idx)}
+                style={{ animation: 'slideIn 0.3s ease' }}
+              >
+                <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                {it.image ? (
+                  <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🎵</div>
+                )}
+                <div className="flex-1">
+                  <div className="font-medium text-zinc-800">{it.title}</div>
+                  {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
+                </div>
+                <button
+                  onClick={() => removeMusicItem(it.id)}
+                  className="text-sm text-rose-500 hover:underline"
+                >Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {/* Save panel */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveMusicList}
+            className="rounded-full bg-amber-400 px-6 py-2 font-semibold text-white shadow-md hover:shadow-lg transition-all active:scale-95"
+          >
+            {existingList ? "Update Music List" : "Create Music List"}
+          </button>
         </div>
       </div>
     );
@@ -1130,192 +908,83 @@ export default function NewPageClient() {
   // ========== FOOD MODULE COMPONENT ==========
     function foodModuleJSX() {
     return (
-      <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
-        <label className="block mb-3 text-sm font-medium">Name your food list</label>
-        <input
-          value={foodTitle}
-          onChange={(e) => setFoodTitle(e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 shadow-inner"
-          placeholder="Weekday dinners, Holiday feasts, Side dishes, etc."
-        />
-        <p className="text-sm text-zinc-500 mt-1">
-          Add the dishes you want to try — Choosie will find what hits for everyone.
-        </p>
-
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium">Start building</label>
-            <div className="flex items-center gap-2">
-              {/* list view button */}
-              <button
-                type="button"
-                title="List view"
-                aria-pressed={foodViewMode === "list"}
-                onClick={() => setFoodViewMode("list")}
-                className={`p-1 rounded-md ${foodViewMode === "list" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-              {/* grid view button */}
-              <button
-                type="button"
-                title="Grid view"
-                aria-pressed={foodViewMode === "grid"}
-                onClick={() => setFoodViewMode("grid")}
-                className={`p-1 rounded-md ${foodViewMode === "grid" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <div className="grid gap-2 sm:grid-cols-3 relative">
-            <div className="col-span-2 relative">
-              <input
-                value={foodInput}
-                onChange={(e) => setFoodInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addFoodItem();
-                  }
-                }}
-                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-                placeholder="Dish name"
-              />
-              {/* Food search dropdown */}
-              {selectedModule === "food" && (foodSugsLoading || foodSugs.length > 0) && (
-                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
-                  {foodSugsLoading && <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>}
-                  {foodSugs.map((f) => (
-                    <button key={f.id} type="button" onClick={() => chooseFoodSuggestion(f)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50">
-                      {f.image ? <img src={f.image} alt="" className="w-10 h-10 rounded object-cover"/> : <div className="w-10 h-10 rounded bg-zinc-100"/>}
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{f.title}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8">
+        {/* List name panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Name your food list</label>
+          <input
+            value={foodTitle}
+            onChange={(e) => setFoodTitle(e.target.value)}
+            className="w-full bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 text-lg placeholder:text-zinc-400 transition-all"
+            placeholder="Weekday dinners, Holiday feasts, Side dishes, etc."
+          />
+        </div>
+        {/* Add items panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Add dishes</label>
+          <div className="flex gap-2 items-end">
             <input
-              value={foodNote}
-              onChange={(e) => setFoodNote(e.target.value)}
-              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-              placeholder="Optional note"
+              value={foodInput}
+              onChange={(e) => setFoodInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFoodItem(); } }}
+              className="flex-1 bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+              placeholder="Dish name"
             />
-            <div className="sm:col-span-3 flex justify-end">
-              <button
-                onClick={addFoodItem}
-                className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
-              >
-                Add dish
-              </button>
-            </div>
-          </div>
-
-          {foodViewMode === "list" ? (
-            <ul className="mt-3 space-y-2">
-              {foodItems.map((it, idx) => (
-                <li
-                  key={it.id}
-                  className="flex items-start justify-between gap-4 rounded-md bg-white/60 px-3 py-2"
-                  draggable
-                  onDragStart={(e) => onFoodDragStart(e, idx)}
-                  onDragOver={onFoodDragOver}
-                  onDrop={(e) => onFoodDrop(e, idx)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                        {idx + 1}
-                      </div>
-                    </div>
-                    <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    {it.image ? (
-                      <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
-                    )}
-                    <div>
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeFoodItem(it.id)}
-                    className="text-sm text-rose-500"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {foodItems.map((it, idx) => (
-                <div
-                  key={it.id}
-                  className="rounded-md bg-white/60 p-3 flex flex-col gap-2"
-                  draggable
-                  onDragStart={(e) => onFoodDragStart(e, idx)}
-                  onDragOver={onFoodDragOver}
-                  onDrop={(e) => onFoodDrop(e, idx)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                      {idx + 1}
-                    </div>
-                    <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    {it.image ? (
-                      <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
-                    ) : (
-                      <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
-                    )}
-                    <div className="flex-1">
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button onClick={() => removeFoodItem(it.id)} className="text-sm text-rose-500">
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 flex justify-end">
             <button
-              onClick={handleSaveFoodList}
-              className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors active:translate-y-px"
+              onClick={addFoodItem}
+              className="rounded-full bg-amber-400 shadow-md hover:shadow-lg text-white w-10 h-10 flex items-center justify-center transition-all active:scale-95"
+              aria-label="Add dish"
             >
-              {existingList ? "Update Food List" : "Create Food List"}
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
             </button>
           </div>
+          <input
+            value={foodNote}
+            onChange={(e) => setFoodNote(e.target.value)}
+            className="w-full mt-2 bg-transparent border-0 border-b border-zinc-200 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+            placeholder="Optional note"
+          />
+        </div>
+        {/* Items list panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Your dishes</label>
+          <ul className="space-y-3">
+            {foodItems.map((it, idx) => (
+              <li
+                key={it.id}
+                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 animate-[slideIn_0.3s_ease]"
+                draggable
+                onDragStart={(e) => onFoodDragStart(e, idx)}
+                onDragOver={onFoodDragOver}
+                onDrop={(e) => onFoodDrop(e, idx)}
+                style={{ animation: 'slideIn 0.3s ease' }}
+              >
+                <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                {it.image ? (
+                  <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                )}
+                <div className="flex-1">
+                  <div className="font-medium text-zinc-800">{it.title}</div>
+                  {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
+                </div>
+                <button
+                  onClick={() => removeFoodItem(it.id)}
+                  className="text-sm text-rose-500 hover:underline"
+                >Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {/* Save panel */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveFoodList}
+            className="rounded-full bg-amber-400 px-6 py-2 font-semibold text-white shadow-md hover:shadow-lg transition-all active:scale-95"
+          >
+            {existingList ? "Update Food List" : "Create Food List"}
+          </button>
         </div>
       </div>
     );
@@ -1324,178 +993,79 @@ export default function NewPageClient() {
   // ========== ANYTHING MODULE COMPONENT ==========
     function anythingModuleJSX() {
     return (
-      <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
-        <label className="block mb-3 text-sm font-medium">Name your list</label>
-        <input
-          value={anythingTitle}
-          onChange={(e) => setAnythingTitle(e.target.value)}
-          className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 pr-10 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-          placeholder="Travel destinations, Baby names, Group activities, etc."
-        />
-        <p className="text-sm text-zinc-500 mt-1">
-          Add anything you want — Choosie will help you decide together.
-        </p>
-
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium">Start building</label>
-            <div className="flex items-center gap-2">
-              {/* list view button */}
-              <button
-                type="button"
-                title="List view"
-                aria-pressed={anythingViewMode === "list"}
-                onClick={() => setAnythingViewMode("list")}
-                className={`p-1 rounded-md ${anythingViewMode === "list" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" />
-                  <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-              {/* grid view button */}
-              <button
-                type="button"
-                title="Grid view"
-                aria-pressed={anythingViewMode === "grid"}
-                onClick={() => setAnythingViewMode("grid")}
-                className={`p-1 rounded-md ${anythingViewMode === "grid" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                  <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <div className="grid gap-2 sm:grid-cols-3 relative">
-            <div className="col-span-2 relative">
-              <input
-                value={anythingInput}
-                onChange={(e) => setAnythingInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addAnythingItem();
-                  }
-                }}
-                className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-                placeholder="Item name"
-              />
-            </div>
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 py-8">
+        {/* List name panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Name your list</label>
+          <input
+            value={anythingTitle}
+            onChange={(e) => setAnythingTitle(e.target.value)}
+            className="w-full bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 text-lg placeholder:text-zinc-400 transition-all"
+            placeholder="Travel destinations, Baby names, Group activities, etc."
+          />
+        </div>
+        {/* Add items panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Add items</label>
+          <div className="flex gap-2 items-end">
             <input
-              value={anythingNote}
-              onChange={(e) => setAnythingNote(e.target.value)}
-              className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-              placeholder="Optional note"
+              value={anythingInput}
+              onChange={(e) => setAnythingInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAnythingItem(); } }}
+              className="flex-1 bg-transparent border-0 border-b border-zinc-300 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+              placeholder="Item name"
             />
-            <div className="sm:col-span-3 flex justify-end">
-              <button
-                onClick={addAnythingItem}
-                className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
-              >
-                Add item
-              </button>
-            </div>
-          </div>
-
-          {/* No AI suggestions for Anything lists - they're too generic */}
-          <div className="mt-4 rounded-lg bg-white/70 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold">Build your list</h3>
-            </div>
-            <p className="text-xs text-zinc-500">Add items manually to create your custom list. Use the narrowing process to decide together!</p>
-          </div>
-
-          {anythingViewMode === "list" ? (
-            <ul className="mt-3 space-y-2">
-              {anythingItems.map((it, idx) => (
-                <li
-                  key={it.id}
-                  className="flex items-start justify-between gap-4 rounded-md bg-white/60 px-3 py-2"
-                  draggable
-                  onDragStart={(e) => onAnythingDragStart(e, idx)}
-                  onDragOver={onAnythingDragOver}
-                  onDrop={(e) => onAnythingDrop(e, idx)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                        {idx + 1}
-                      </div>
-                    </div>
-                    <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
-                    <div>
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeAnythingItem(it.id)}
-                    className="text-sm text-rose-500"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {anythingItems.map((it, idx) => (
-                <div
-                  key={it.id}
-                  className="rounded-md bg-white/60 p-3 flex flex-col gap-2"
-                  draggable
-                  onDragStart={(e) => onAnythingDragStart(e, idx)}
-                  onDragOver={onAnythingDragOver}
-                  onDrop={(e) => onAnythingDrop(e, idx)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                      {idx + 1}
-                    </div>
-                    <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                    <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
-                    <div className="flex-1">
-                      <div className="font-medium">{it.title}</div>
-                      {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button onClick={() => removeAnythingItem(it.id)} className="text-sm text-rose-500">
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-4 flex justify-end">
             <button
-              onClick={handleSaveAnythingList}
-              className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors active:translate-y-px"
+              onClick={addAnythingItem}
+              className="rounded-full bg-amber-400 shadow-md hover:shadow-lg text-white w-10 h-10 flex items-center justify-center transition-all active:scale-95"
+              aria-label="Add item"
             >
-              {existingList ? "Update List" : "Create List"}
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
             </button>
           </div>
+          <input
+            value={anythingNote}
+            onChange={(e) => setAnythingNote(e.target.value)}
+            className="w-full mt-2 bg-transparent border-0 border-b border-zinc-200 focus:ring-2 focus:ring-amber-400 focus:ring-offset-0 rounded-none px-2 py-2 placeholder:text-zinc-400 transition-all"
+            placeholder="Optional note"
+          />
+        </div>
+        {/* Items list panel */}
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm p-4">
+          <label className="block mb-2 text-sm font-medium">Your items</label>
+          <ul className="space-y-3">
+            {anythingItems.map((it, idx) => (
+              <li
+                key={it.id}
+                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 animate-[slideIn_0.3s_ease]"
+                draggable
+                onDragStart={(e) => onAnythingDragStart(e, idx)}
+                onDragOver={onAnythingDragOver}
+                onDrop={(e) => onAnythingDrop(e, idx)}
+                style={{ animation: 'slideIn 0.3s ease' }}
+              >
+                <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
+                <div className="flex-1">
+                  <div className="font-medium text-zinc-800">{it.title}</div>
+                  {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
+                </div>
+                <button
+                  onClick={() => removeAnythingItem(it.id)}
+                  className="text-sm text-rose-500 hover:underline"
+                >Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {/* Save panel */}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSaveAnythingList}
+            className="rounded-full bg-amber-400 px-6 py-2 font-semibold text-white shadow-md hover:shadow-lg transition-all active:scale-95"
+          >
+            {existingList ? "Update List" : "Create List"}
+          </button>
         </div>
       </div>
     );
