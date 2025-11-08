@@ -191,7 +191,7 @@ export default function ListsPage() {
                     e.preventDefault();
                     setDeleteTarget(list);
                   }}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FACC15] text-red-700 shadow-[0_2px_6px_rgba(250,204,21,0.35)] hover:shadow-[0_4px_10px_rgba(250,204,21,0.45)] focus:outline-none focus:ring-2 focus:ring-amber-300 active:translate-y-px"
+                  className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
                   title="Delete list"
                   aria-label={`Delete ${list.title}`}
                 >
