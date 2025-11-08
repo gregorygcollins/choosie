@@ -108,6 +108,8 @@ body {
   box-shadow: 0 6px 24px -4px rgba(43,43,43,0.5);
   backdrop-filter: blur(12px) saturate(140%);
   overflow: hidden;
+  z-index: 9999 !important;
+  position: relative;
 }
 .suggestion-item { padding: 0.55rem 0.85rem; cursor: pointer; font-size: 0.85rem; }
 .suggestion-item:hover { background: #373737; }

@@ -247,20 +247,37 @@ export default function NarrowPage() {
     );
   }
 
-  // Banner role logic
+  // Banner role logic based on target count
   let role = "Curator";
   let emoji = "🎨";
-  if (isFinalRound) {
+  if (targetThisRound === 1) {
     role = "Decider";
     emoji = "🏆";
-  } else if (roundNumber === 2) {
+  } else if (targetThisRound === 3) {
     role = "Selector";
     emoji = "🎯";
-  } else if (roundNumber > 2) {
+  } else if (targetThisRound === 5) {
+    role = "Curator";
+    emoji = "🎨";
+  } else {
+    // For other targets, use generic narrower
     role = `Narrower ${currentNarrower}`;
     emoji = "✨";
   }
-  const targetLabel = targetThisRound === 1 ? "pick" : "picks";
+  
+  // Determine item type based on module
+  let itemType = "favorites";
+  if (list.moduleType === "movies") {
+    itemType = targetThisRound === 1 ? "movie" : "movies";
+  } else if (list.moduleType === "books") {
+    itemType = targetThisRound === 1 ? "book" : "books";
+  } else if (list.moduleType === "music") {
+    itemType = targetThisRound === 1 ? "song" : "songs";
+  } else if (list.moduleType === "food") {
+    itemType = targetThisRound === 1 ? "dish" : "dishes";
+  } else {
+    itemType = targetThisRound === 1 ? "favorite" : "favorites";
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -300,7 +317,7 @@ export default function NarrowPage() {
         <div className="flex justify-center mb-2">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow-sm ring-1 ring-brand/20 text-zinc-800">
             <span aria-hidden className="text-lg">{emoji}</span>
-            <span><strong>{role}</strong>, choose {targetThisRound} {targetLabel}!</span>
+            <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
           </div>
         </div>
       </div>
