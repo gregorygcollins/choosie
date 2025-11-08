@@ -739,20 +739,48 @@ export default function NewPageClient() {
           {/* Add items panel */}
           <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
             <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
-            <div className="flex gap-3">
-              <input
-                value={bookSearchInput}
-                onChange={(e) => setBookSearchInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
-                className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
-                placeholder="Book title"
-              />
-              <button
-                onClick={addBookItem}
-                className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
-              >
-                Add book
-              </button>
+            <div className="relative">
+              <div className="flex gap-3">
+                <input
+                  value={bookSearchInput}
+                  onChange={(e) => setBookSearchInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
+                  className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+                  placeholder="Book title"
+                />
+                <button
+                  onClick={addBookItem}
+                  className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+                >
+                  Add book
+                </button>
+              </div>
+              {/* Book suggestions dropdown */}
+              {bookSugs.length > 0 && (
+                <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur shadow-lg max-h-64 overflow-auto">
+                  {bookSugsLoading && (
+                    <div className="px-3 py-2 text-sm text-gray-500">Searching...</div>
+                  )}
+                  {bookSugs.map((book) => (
+                    <button
+                      key={book.id}
+                      type="button"
+                      onClick={() => chooseBookSuggestion(book)}
+                      className="w-full px-3 py-2 text-left hover:bg-amber-50 flex items-center gap-3 transition-colors"
+                    >
+                      {book.thumbnail && (
+                        <img src={book.thumbnail} alt={book.title} className="w-10 h-14 object-cover rounded" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-800 truncate">{book.title}</div>
+                        {book.authors && book.authors.length > 0 && (
+                          <div className="text-sm text-gray-500 truncate">{book.authors.join(", ")}</div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <input
               value={bookNote}
@@ -833,20 +861,48 @@ export default function NewPageClient() {
         {/* Add items panel */}
         <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
           <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
-          <div className="flex gap-3">
-            <input
-              value={musicSearchInput}
-              onChange={(e) => setMusicSearchInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
-              className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
-              placeholder="Song title"
-            />
-            <button
-              onClick={addMusicItem}
-              className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
-            >
-              Add song
-            </button>
+          <div className="relative">
+            <div className="flex gap-3">
+              <input
+                value={musicSearchInput}
+                onChange={(e) => setMusicSearchInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
+                className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+                placeholder="Song title"
+              />
+              <button
+                onClick={addMusicItem}
+                className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
+              >
+                Add song
+              </button>
+            </div>
+            {/* Music suggestions dropdown */}
+            {musicSugs.length > 0 && (
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur shadow-lg max-h-64 overflow-auto">
+                {musicSugsLoading && (
+                  <div className="px-3 py-2 text-sm text-gray-500">Searching...</div>
+                )}
+                {musicSugs.map((track) => (
+                  <button
+                    key={track.id}
+                    type="button"
+                    onClick={() => chooseMusicSuggestion(track)}
+                    className="w-full px-3 py-2 text-left hover:bg-amber-50 flex items-center gap-3 transition-colors"
+                  >
+                    {track.albumArt && (
+                      <img src={track.albumArt} alt={track.name} className="w-10 h-10 object-cover rounded" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-800 truncate">{track.name}</div>
+                      {track.artists && track.artists.length > 0 && (
+                        <div className="text-sm text-gray-500 truncate">{track.artists.join(", ")}</div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <input
             value={musicNote}

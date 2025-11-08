@@ -328,55 +328,23 @@ export default function ListForm({
   }
 
   return (
-    <div className="w-full rounded-xl bg-white/80 p-6 shadow-soft transition-transform duration-200 ease-out transform motion-safe:translate-y-0">
-  <label className="block mb-3 text-sm font-medium">Name your watchlist</label>
-      <input
-    value={title}
-    onChange={(e) => setTitle(e.target.value)}
-  className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 pr-10 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-  placeholder="Family vacation, Rainy weekend rewatchables, Oscar contenders…"
-    />
-      <p className="text-sm text-zinc-500 mt-1">
-        Add the movies you want to watch — Choosie will find what hits for everyone else.
-      </p>
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+      {/* List name panel */}
+      <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
+        <label className="block text-sm font-medium text-gray-600 mb-2">Name your watchlist</label>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
+          placeholder="Family vacation, Rainy weekend rewatchables, etc."
+        />
+      </div>
 
-        <div className="mt-4">
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium">Start building</label>
-          <div className="flex items-center gap-2">
-            {/* list view button */}
-            <button
-              type="button"
-              title="List view"
-              aria-pressed={viewMode === "list"}
-              onClick={() => setViewMode("list")}
-              className={`p-1 rounded-md ${viewMode === "list" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor" />
-                <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" />
-                <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor" />
-              </svg>
-            </button>
-            {/* grid view button */}
-            <button
-              type="button"
-              title="Grid view"
-              aria-pressed={viewMode === "grid"}
-              onClick={() => setViewMode("grid")}
-              className={`p-1 rounded-md ${viewMode === "grid" ? "bg-white/90 shadow" : "hover:bg-white/40"}`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor" />
-                <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor" />
-                <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-3 relative">
-          <div className="col-span-2 relative">
+      {/* Add items panel */}
+      <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-transform duration-200">
+        <label className="block text-sm font-medium text-gray-600 mb-2">Start building</label>
+        <div className="relative">
+          <div className="flex gap-3">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -386,160 +354,101 @@ export default function ListForm({
                   addItem();
                 }
               }}
-              className="w-full rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
+              className="flex-1 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-lg text-gray-800 placeholder-gray-400"
               placeholder="Movie title"
             />
-            {/* suggestions dropdown */}
-            <div ref={sugsRef} className="relative">
-              {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-                <div className="absolute z-20 mt-1 w-full rounded-lg border border-zinc-200 bg-white/95 backdrop-blur shadow-soft max-h-64 overflow-auto">
-                  {sugsLoading && (
-                    <div className="px-3 py-2 text-sm text-zinc-500">Searching…</div>
-                  )}
-                  {sugs.map((m) => (
-                    <button
-                      type="button"
-                      key={m.id}
-                      onClick={() => {
-                        setInput(m.title);
-                        // Prefill note with overview if not typed yet
-                        setNote((prev) => (prev && prev.trim().length > 0 ? prev : (m.overview || "")));
-                        setImageUrl(m.poster || "");
-                        setSugsOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-zinc-50"
-                    >
-                      {m.poster ? (
-                        <img src={m.poster} alt="" className="w-8 h-12 rounded object-cover" />
-                      ) : (
-                        <div className="w-8 h-12 rounded bg-zinc-100 flex items-center justify-center text-zinc-400 text-xs">🎬</div>
-                      )}
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
-                        {m.overview && <div className="text-xs text-zinc-500 line-clamp-2">{m.overview}</div>}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <p className="mt-1 text-[11px] text-zinc-500">Type to search and pick a result, or press Enter to add.</p>
-          </div>
-          <input
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur-sm px-3 py-2 shadow-inner focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand placeholder:text-zinc-400"
-            placeholder="Optional note"
-          />
-          <div className="sm:col-span-3 flex justify-end">
             <button
               onClick={addItem}
-              className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors"
+              className="bg-amber-400 text-black rounded-full px-5 py-2 font-medium hover:bg-amber-300 transition-all"
             >
               Add movie
             </button>
           </div>
+          {/* suggestions dropdown */}
+          <div ref={sugsRef} className="relative">
+            {sugsOpen && (sugs.length > 0 || sugsLoading) && (
+              <div className="absolute z-20 mt-2 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur shadow-lg max-h-64 overflow-auto">
+                {sugsLoading && (
+                  <div className="px-3 py-2 text-sm text-gray-500">Searching…</div>
+                )}
+                {sugs.map((m) => (
+                  <button
+                    type="button"
+                    key={m.id}
+                    onClick={() => {
+                      setInput(m.title);
+                      // Prefill note with overview if not typed yet
+                      setNote((prev) => (prev && prev.trim().length > 0 ? prev : (m.overview || "")));
+                      setImageUrl(m.poster || "");
+                      setSugsOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-amber-50 transition-colors"
+                  >
+                    {m.poster ? (
+                      <img src={m.poster} alt="" className="w-10 h-14 rounded object-cover" />
+                    ) : (
+                      <div className="w-10 h-14 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs">🎬</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-gray-800 truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                      {m.overview && <div className="text-sm text-gray-500 truncate">{m.overview}</div>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+        <input
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="w-full mt-3 bg-transparent border-0 border-b border-gray-300 focus:border-amber-400 focus:ring-0 text-gray-800 placeholder-gray-400"
+          placeholder="Optional note"
+        />
+      </div>
 
-        {/* Virtual session options moved to saved list page */}
-
-        {viewMode === "list" ? (
-          <ul className="mt-3 space-y-2">
+      {/* Items list panel */}
+      {items.length > 0 && (
+        <div className="bg-white/50 backdrop-blur-md rounded-2xl p-4 shadow-lg shadow-black/5">
+          <label className="block text-sm font-medium text-gray-600 mb-3">Your movies</label>
+          <ul className="space-y-3">
             {items.map((it, idx) => (
               <li
                 key={it.id}
-                className="flex items-start justify-between gap-4 rounded-md bg-white/60 px-3 py-2"
+                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300"
                 draggable
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
               >
-                <div className="flex items-center gap-3">
-                  {/* numeric badge */}
-                  <div className="flex-shrink-0">
-                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                      {idx + 1}
-                    </div>
-                  </div>
-                  {/* drag handle */}
-                  <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                      <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                      <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                    </svg>
-                  </div>
-
-                  {it.image ? (
-                    <img src={it.image} alt={it.title} className="w-14 h-14 rounded-md object-cover" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📷</div>
-                  )}
-
-                  <div>
-                    <div className="font-medium">{it.title}</div>
-                    {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                  </div>
+                <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                {it.image ? (
+                  <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-gray-400">🎬</div>
+                )}
+                <div className="flex-1">
+                  <div className="font-medium text-gray-800">{it.title}</div>
+                  {it.notes && <div className="text-xs text-gray-500">{it.notes}</div>}
                 </div>
                 <button
                   onClick={() => removeItem(it.id)}
-                  className="text-sm text-rose-500"
-                >
-                  Remove
-                </button>
+                  className="text-sm text-rose-500 hover:underline"
+                >Remove</button>
               </li>
             ))}
           </ul>
-        ) : (
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((it, idx) => (
-              <div
-                key={it.id}
-                className="rounded-md bg-white/60 p-3 flex flex-col gap-2"
-                draggable
-                onDragStart={(e) => onDragStart(e, idx)}
-                onDragOver={onDragOver}
-                onDrop={(e) => onDrop(e, idx)}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">
-                    {idx + 1}
-                  </div>
-                  <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                      <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                      <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                    </svg>
-                  </div>
-                  {it.image ? (
-                    <img src={it.image} alt={it.title} className="w-16 h-16 rounded-md object-cover" />
-                  ) : (
-                    <div className="w-16 h-16 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📷</div>
-                  )}
-                  <div className="flex-1">
-                    <div className="font-medium">{it.title}</div>
-                    {it.notes && <div className="text-xs text-zinc-500">{it.notes}</div>}
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <button onClick={() => removeItem(it.id)} className="text-sm text-rose-500">
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={handleSave}
-            className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors active:translate-y-px"
-          >
-            {existingList ? "Update Watchlist" : "Create Watchlist"}
-          </button>
         </div>
+      )}
+
+      {/* Save button */}
+      <div className="flex justify-center">
+        <button
+          onClick={handleSave}
+          className="bg-gray-900 text-white rounded-full px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-all shadow-sm"
+        >
+          {existingList ? "Update Watchlist" : "Create Watchlist"}
+        </button>
       </div>
     </div>
   );
