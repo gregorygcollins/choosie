@@ -35,9 +35,10 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
           <button disabled={busy} onClick={onClose} className="text-zinc-500 hover:text-black disabled:opacity-40">✕</button>
         </div>
         <p className="mt-2 text-sm text-zinc-700">
-          Unlock premium modules (Books, Recipes, and more), smarter suggestions, and priority features.
+          Unlock virtual narrowing, premium modules, smarter suggestions, and priority features.
         </p>
         <ul className="mt-3 space-y-1 text-sm text-zinc-700 list-disc list-inside">
+          <li>Virtual narrowing (remote invites via email or text)</li>
           <li>Premium modules: Books, Recipes, Anything</li>
           <li>Advanced suggestions and filtering</li>
           <li>Priority improvements</li>
