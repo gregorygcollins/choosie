@@ -162,7 +162,7 @@ export default function ViewListPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-zinc-700">
           <p className="text-xl">Loading...</p>
         </div>
@@ -172,7 +172,7 @@ export default function ViewListPage() {
 
   if (!list) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-zinc-700">
           <p className="text-xl mb-4">List not found 😢</p>
           <button
@@ -187,7 +187,7 @@ export default function ViewListPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F5F1E8] p-8">
+    <main className="min-h-screen p-8">
             {/* Participant Count Modal */}
       {showParticipantModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowParticipantModal(false)}>

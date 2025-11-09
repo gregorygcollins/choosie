@@ -34,7 +34,7 @@ export default function VirtualInvitesPage() {
   }, [id]);
   if (list === null) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-zinc-700">
           <p className="text-xl mb-4">List not found 😢</p>
           <button
@@ -99,7 +99,7 @@ export default function VirtualInvitesPage() {
 
   if (!list) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-zinc-700">
           <p className="text-xl mb-4">List not found</p>
           <button
@@ -114,7 +114,7 @@ export default function VirtualInvitesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F5F1E8] p-8">
+    <main className="min-h-screen p-8">
       <ProcessSection />
       <div className="mx-auto max-w-2xl bg-white rounded-2xl p-6 shadow-soft">
         <h1 className="text-2xl font-semibold mb-1">Narrow “{list.title}” virtually</h1>

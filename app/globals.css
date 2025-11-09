@@ -107,7 +107,9 @@ body {
   border-radius: 14px;
   box-shadow: 0 6px 24px -4px rgba(43,43,43,0.5);
   backdrop-filter: blur(12px) saturate(140%);
-  overflow: hidden;
+  max-height: 256px;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 9999 !important;
   position: relative;
 }

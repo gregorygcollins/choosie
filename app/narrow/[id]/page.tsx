@@ -261,8 +261,56 @@ export default function NarrowPage() {
     itemType = targetThisRound === 1 ? "favorite" : "favorites";
   }
 
+  // If there's a winner, show full-page celebration
+  if (list.winnerId) {
+    const winner = list.items.find((i) => i.id === list.winnerId);
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full text-center">
+          <div className="mb-8 text-8xl animate-bounce">🎉</div>
+          <div className="bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-400 p-2 rounded-3xl shadow-2xl">
+            <div className="bg-white rounded-3xl overflow-hidden">
+              {winner?.image && (
+                <div className="relative w-full aspect-[2/3] overflow-hidden">
+                  <img
+                    src={winner.image}
+                    alt={winner.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                </div>
+              )}
+              <div className="px-8 py-8">
+                <div className="text-amber-600 font-bold text-2xl mb-4">🏆 THE WINNER! 🏆</div>
+                <div className="text-4xl font-bold text-zinc-800 mb-4">
+                  {winner?.title || "Chosen"}
+                </div>
+                {winner?.notes && (
+                  <div className="text-base text-zinc-600 mb-6">
+                    {winner.notes}
+                  </div>
+                )}
+                <div className="flex items-center justify-center gap-3 text-amber-500 mb-6">
+                  <span className="text-4xl">⭐</span>
+                  <span className="text-4xl">⭐</span>
+                  <span className="text-4xl">⭐</span>
+                </div>
+                <button
+                  onClick={() => router.push(`/list/${list.id}`)}
+                  className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
+                >
+                  Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-[#F5F1E8]">
+    <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <ProcessSection />
         <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
@@ -404,43 +452,7 @@ export default function NarrowPage() {
           {remaining.length} item{remaining.length === 1 ? "" : "s"} available
         </div>
 
-        {list.winnerId && (
-          <div className="mt-12 flex justify-center animate-in fade-in zoom-in duration-1000">
-            <div className="max-w-md w-full">
-              <div className="mb-6 text-center text-7xl animate-bounce">🎉</div>
-              <div className="bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-400 p-1.5 rounded-3xl shadow-2xl transform hover:scale-105 transition-transform">
-                <div className="bg-white rounded-3xl overflow-hidden">
-                  {list.items.find((i) => i.id === list.winnerId)?.image && (
-                    <div className="relative w-full aspect-[2/3] overflow-hidden">
-                      <img
-                        src={list.items.find((i) => i.id === list.winnerId)?.image}
-                        alt={list.items.find((i) => i.id === list.winnerId)?.title || "Winner"}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    </div>
-                  )}
-                  <div className="px-8 py-6">
-                    <div className="text-amber-600 font-bold text-xl mb-3 text-center">🏆 THE WINNER! 🏆</div>
-                    <div className="text-3xl font-bold text-zinc-800 mb-3 text-center">
-                      {list.items.find((i) => i.id === list.winnerId)?.title || "Chosen"}
-                    </div>
-                    {list.items.find((i) => i.id === list.winnerId)?.notes && (
-                      <div className="text-sm text-zinc-600 text-center mb-4">
-                        {list.items.find((i) => i.id === list.winnerId)?.notes}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-center gap-2 text-amber-500">
-                      <span className="text-3xl">⭐</span>
-                      <span className="text-3xl">⭐</span>
-                      <span className="text-3xl">⭐</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </main>
   );

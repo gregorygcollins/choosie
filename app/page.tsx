@@ -5,7 +5,7 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-white to-brand-light px-6 dark:from-zinc-900 dark:to-black">
+    <div className="flex min-h-screen items-center justify-center px-6">
       <main className="flex flex-col items-center gap-12 text-center">
         {/* Brand and taglines */}
         <div className="flex flex-col items-center gap-6">

@@ -93,7 +93,7 @@ export default function ListsPage() {
 
   if (lists.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white p-8 dark:bg-black">
+      <div className="flex min-h-screen items-center justify-center p-8">
         <div className="text-center">
           <h1 className="mb-4 text-2xl font-semibold text-black dark:text-white">
             No lists yet
@@ -127,8 +127,8 @@ export default function ListsPage() {
       
       <div className="mx-auto max-w-3xl">
         {usedLocalFallback && (
-          <div className="mb-4 rounded-lg border border-amber-300 bg-[#F5F1E8] text-amber-900 px-4 py-3 text-sm">
-            Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren’t loading.
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm">
+            Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
           </div>
         )}
         <div className="mb-8 flex items-center justify-between gap-4">
