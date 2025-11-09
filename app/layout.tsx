@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://choosie-seven.vercel.app"),
   title: "Choosie - Do Only What You Love, Together",
   description: "Turn your passions into shared experiences. Create lists, narrow choices together, and discover what you'll love—without scrolling, bickering, or compromise.",
   keywords: ["movie night", "group decisions", "watchlist", "book club", "meal planning", "collaborative choices"],
@@ -24,15 +25,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love—no scrolling, no bickering, no compromise.",
-    url: "https://choosie-seven.vercel.app",
+    url: "https://choosie-seven.vercel.app/",
     siteName: "Choosie",
     type: "website",
     images: [
       {
-        url: "https://choosie-seven.vercel.app/og-image.png",
+        url: "/og-image.png",
         width: 1200,
-        height: 1200,
-        alt: "Choosie",
+        height: 630,
+        alt: "Choosie logo",
       },
     ],
   },
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["https://choosie-seven.vercel.app/og-image.png"],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/logo-check.svg",
