@@ -53,10 +53,7 @@ export default function Nav() {
 
         {/* Mobile quick nav */}
         <nav className="flex md:hidden items-center gap-2">
-          <Link href="/" className="text-sm text-zinc-700 hover:text-brand rounded-full px-3 py-1 bg-white/70 ring-1 ring-zinc-200">
-            Home
-          </Link>
-          <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand rounded-full px-3 py-1 bg-white/70 ring-1 ring-zinc-200">
+          <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             Lists
           </Link>
         </nav>

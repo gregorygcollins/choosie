@@ -1101,7 +1101,7 @@ export default function NewPageClient() {
             onClick={handleSaveMusicList}
             className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
-            {existingList ? "Update Music List" : "Create Music List"}
+            {existingList ? "Update Music List" : "Create Musiclist"}
           </button>
         </div>
       </div>
@@ -1209,7 +1209,7 @@ export default function NewPageClient() {
             onClick={handleSaveFoodList}
             className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
-            {existingList ? "Update Food List" : "Create foodlist"}
+            {existingList ? "Update Food List" : "Create Foodlist"}
           </button>
         </div>
       </div>
@@ -1313,7 +1313,7 @@ export default function NewPageClient() {
             onClick={handleSaveAnythingList}
             className="btn-charcoal px-8 py-3 text-[1.05rem]"
           >
-            {existingList ? "Update List" : "Create List"}
+            {existingList ? "Update List" : "Create Anythinglist"}
           </button>
         </div>
       </div>
