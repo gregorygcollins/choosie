@@ -864,8 +864,10 @@ export default function NewPageClient() {
                 <button
                   onClick={addBookItem}
                   className="btn-amber px-5 py-2"
+                  title="Add book"
+                  aria-label="Add book"
                 >
-                  Add book
+                  +
                 </button>
               </div>
               {/* Book suggestions dropdown */}
@@ -1003,8 +1005,10 @@ export default function NewPageClient() {
               <button
                 onClick={addMusicItem}
                 className="btn-amber px-5 py-2"
+                title="Add song"
+                aria-label="Add song"
               >
-                Add song
+                +
               </button>
             </div>
             {/* Music suggestions dropdown */}
@@ -1132,8 +1136,10 @@ export default function NewPageClient() {
             <button
               onClick={addFoodItem}
               className="btn-amber px-5 py-2"
+              title="Add dish"
+              aria-label="Add dish"
             >
-              Add dish
+              +
             </button>
           </div>
           <input
@@ -1238,8 +1244,10 @@ export default function NewPageClient() {
             <button
               onClick={addAnythingItem}
               className="btn-amber px-5 py-2"
+              title="Add item"
+              aria-label="Add item"
             >
-              Add item
+              +
             </button>
           </div>
           <input

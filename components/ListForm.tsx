@@ -360,8 +360,10 @@ export default function ListForm({
             <button
               onClick={addItem}
               className="btn-amber px-5 py-2"
+              title="Add movie"
+              aria-label="Add movie"
             >
-              Add movie
+              +
             </button>
           </div>
           {/* suggestions dropdown */}
