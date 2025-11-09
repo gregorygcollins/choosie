@@ -46,9 +46,9 @@ export const metadata: Metadata = {
   images: ["/og?v=3"],
   },
   icons: {
-    icon: "/logo-check.svg",
-    shortcut: "/logo-check.svg",
-    apple: "/logo-check.svg",
+    icon: "/og-image.png",
+    shortcut: "/og-image.png",
+    apple: "/og-image.png",
   },
   manifest: "/site.webmanifest",
 };
