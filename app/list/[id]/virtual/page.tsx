@@ -95,7 +95,25 @@ export default function VirtualInvitesPage() {
     }
     const arr = new Uint8Array(bytes);
     window.crypto.getRandomValues(arr);
-    return Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const token = Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const issuedAt = Date.now();
+    return `${token}.${issuedAt}`;
+  }
+
+  function validateToken(token: string): { valid: boolean; expired: boolean } {
+    if (!token || typeof token !== 'string') return { valid: false, expired: false };
+    const parts = token.split('.');
+    if (parts.length !== 2) {
+      // Legacy token without timestamp; allow for backwards compatibility
+      return { valid: true, expired: false };
+    }
+    const [tokenPart, issuedAtStr] = parts;
+    const issuedAt = parseInt(issuedAtStr, 10);
+    if (isNaN(issuedAt)) return { valid: false, expired: false };
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const expired = (now - issuedAt) > sevenDays;
+    return { valid: true, expired };
   }
 
   async function saveAndSend() {
@@ -122,7 +140,17 @@ export default function VirtualInvitesPage() {
       const structured = emails.map((email, i) => {
         const { role } = getRoleName(tempParticipants, i);
         const prev = existingMap.get(email.toLowerCase());
-        return { email, role, token: prev?.token || makeToken() };
+        // Reuse existing valid token or generate new one
+        let token = prev?.token;
+        if (token) {
+          const validation = validateToken(token);
+          if (!validation.valid || validation.expired) {
+            token = makeToken();
+          }
+        } else {
+          token = makeToken();
+        }
+        return { email, role, token };
       });
       const updated: ChoosieList = {
         ...list,

@@ -5,6 +5,22 @@ import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
+function validateToken(token: string): { valid: boolean; expired: boolean } {
+  if (!token || typeof token !== 'string') return { valid: false, expired: false };
+  const parts = token.split('.');
+  if (parts.length !== 2) {
+    // Legacy token without timestamp; allow for backwards compatibility
+    return { valid: true, expired: false };
+  }
+  const [tokenPart, issuedAtStr] = parts;
+  const issuedAt = parseInt(issuedAtStr, 10);
+  if (isNaN(issuedAt)) return { valid: false, expired: false };
+  const now = Date.now();
+  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  const expired = (now - issuedAt) > sevenDays;
+  return { valid: true, expired };
+}
+
 // Public list fetch via participant token OR share token (future)
 // Body: { listId: string, token?: string }
 
@@ -54,6 +70,11 @@ export async function POST(req: NextRequest) {
     if (token && invitees.length) {
       for (const inv of invitees) {
         if (typeof inv !== 'string' && inv.token && inv.token === token) {
+          // Validate token expiry
+          const validation = validateToken(inv.token);
+          if (!validation.valid || validation.expired) {
+            return withCORS(NextResponse.json({ ok: false, error: validation.expired ? 'Token expired' : 'Invalid token' }, { status: 403 }), origin);
+          }
           matched = inv;
           break;
         }

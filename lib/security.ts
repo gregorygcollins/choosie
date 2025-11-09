@@ -95,5 +95,30 @@ export function requireParticipant(invitees: Array<any>, token: string): { ok: t
       response: NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 })
     };
   }
-  return { ok: true, index: idx, invitee: invitees[idx] };
+  // Validate token expiry
+  const invitee = invitees[idx];
+  const tokenValidation = validateParticipantToken(invitee.token);
+  if (!tokenValidation.valid || tokenValidation.expired) {
+    return {
+      ok: false,
+      response: NextResponse.json({ ok: false, error: tokenValidation.expired ? 'Token expired' : 'Invalid token' }, { status: 403 })
+    };
+  }
+  return { ok: true, index: idx, invitee };
+}
+
+function validateParticipantToken(token: string): { valid: boolean; expired: boolean } {
+  if (!token || typeof token !== 'string') return { valid: false, expired: false };
+  const parts = token.split('.');
+  if (parts.length !== 2) {
+    // Legacy token without timestamp; allow for backwards compatibility
+    return { valid: true, expired: false };
+  }
+  const [tokenPart, issuedAtStr] = parts;
+  const issuedAt = parseInt(issuedAtStr, 10);
+  if (isNaN(issuedAt)) return { valid: false, expired: false };
+  const now = Date.now();
+  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  const expired = (now - issuedAt) > sevenDays;
+  return { valid: true, expired };
 }
