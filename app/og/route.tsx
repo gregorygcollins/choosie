@@ -5,6 +5,7 @@ export const runtime = 'edge';
 export async function GET() {
   const width = 1200;
   const height = 630;
+  
   return new ImageResponse(
     (
       <div
@@ -16,18 +17,49 @@ export async function GET() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#F6EEE5',
-          fontFamily: 'system-ui, sans-serif'
+          fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
-        <div style={{ position: 'relative', width: 300, height: 300, marginBottom: 40 }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 1024 1024">
-            <rect x="128" y="128" width="768" height="768" rx="220" fill="#12130F" />
-            <path d="M512 768L400 864c-8 6-18 9-28 9-22 0-40-18-40-40v-92h-44c-110 0-172-62-172-172V320c0-110 62-172 172-172h416c110 0 172 62 172 172v272c0 110-62 172-172 172H512z" fill="#12130F" />
-            <path d="M670 370c16 14 24 30 24 46 0 12-5 24-16 36L486 648c-12 14-28 20-44 20-16 0-30-6-42-18l-124-124c-12-12-18-26-18-42 0-12 4-24 12-34l42-46c12-14 26-20 42-20 16 0 30 6 42 18l80 81 188-206c12-12 26-18 42-18 18 0 34 6 48 20l36 35z" fill="#F6EEE5" />
-          </svg>
+        {/* Logo container - simplified speech bubble with checkmark */}
+        <div style={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 280,
+          height: 280,
+          background: '#12130F',
+          borderRadius: 70,
+          marginBottom: 40,
+          position: 'relative'
+        }}>
+          {/* Checkmark */}
+          <div style={{
+            display: 'flex',
+            fontSize: 180,
+            color: '#F6EEE5',
+            marginTop: -20
+          }}>
+            ✓
+          </div>
         </div>
-        <div style={{ fontSize: 60, color: '#12130F', fontWeight: 600, letterSpacing: -1 }}>Choosie</div>
-        <div style={{ marginTop: 20, fontSize: 32, color: '#3A3A38', fontWeight: 400, maxWidth: 900, textAlign: 'center', lineHeight: 1.25 }}>
+        
+        <div style={{ 
+          fontSize: 72, 
+          color: '#12130F', 
+          fontWeight: 700, 
+          letterSpacing: -2,
+          marginBottom: 20
+        }}>
+          Choosie
+        </div>
+        <div style={{ 
+          fontSize: 36, 
+          color: '#3A3A38', 
+          fontWeight: 400, 
+          maxWidth: 900, 
+          textAlign: 'center', 
+          lineHeight: 1.3 
+        }}>
           Do Only What You Love—Together.
         </div>
       </div>
