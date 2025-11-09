@@ -278,6 +278,14 @@ export default function NarrowPage() {
     setHistory([]);
   }, [list]);
 
+  // Reset progress to initial state and return to list detail
+  const resetListAndGoBack = useCallback(() => {
+    resetAll();
+    if (list) {
+      router.push(`/list/${list.id}`);
+    }
+  }, [resetAll, router, list]);
+
   if (loading) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>
@@ -360,10 +368,10 @@ export default function NarrowPage() {
                 Undo
               </button>
               <button
-                onClick={() => router.push(`/list/${list.id}`)}
+                onClick={resetListAndGoBack}
                 className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
               >
-                Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
+                Reset list
               </button>
             </div>
           </div>
