@@ -437,7 +437,7 @@ export default function NarrowPage() {
                   selected
                     ? isFinalRound
                       ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                      : "border-brand scale-105"
+                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
                     : "border-transparent hover:scale-[1.02]"
                 }`}
               >
@@ -453,6 +453,14 @@ export default function NarrowPage() {
                 ) : (
                   <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
                     📷
+                  </div>
+                )}
+                {/* Check mark icon for selected items */}
+                {selected && (
+                  <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
                 )}
                 <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>

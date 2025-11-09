@@ -466,7 +466,7 @@ export default function ViewListPage() {
               onClick={() => router.push(`/new?editId=${list.id}`)}
               className="rounded-full bg-white border border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-50 transition-colors"
             >
-              Edit {getListTypeName()}
+              Edit list
             </button>
           </div>
 
