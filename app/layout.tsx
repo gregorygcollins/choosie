@@ -30,9 +30,11 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/og-image.png?v=2",
+        secureUrl: "https://choosie-seven.vercel.app/og-image.png?v=2",
+        type: "image/png",
+        width: 768,
+        height: 768,
         alt: "Choosie logo",
       },
     ],
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["/og-image.png"],
+    images: ["/og-image.png?v=2"],
   },
   icons: {
     icon: "/logo-check.svg",
