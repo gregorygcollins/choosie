@@ -336,7 +336,7 @@ export default function ListForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
-          placeholder="Family vacation, Rainy weekend rewatchables, etc."
+          placeholder="Family vacation, Film club, Winter break, etc."
         />
       </div>
 
