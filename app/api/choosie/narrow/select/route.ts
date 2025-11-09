@@ -3,6 +3,8 @@ import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { narrowingSelectSchema, validateRequest } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
+import { publish } from "@/lib/sse";
+import { computeNarrowingPlan } from "@/lib/planner";
 
 export const runtime = "nodejs";
 
@@ -64,6 +66,16 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'Item not in remaining set' }, { status: 400 }), origin);
     }
     const selected = historyState.current.selectedIds as string[];
+
+    // Turn enforcement: only active participant may modify selection
+    const tj: any = list.tasteJson || {};
+    const participants = tj.participants || (invitees.length + 1) || 2;
+    historyState.plan = Array.isArray(historyState.plan) ? historyState.plan : computeNarrowingPlan(list.items.length, participants, { participants });
+    const activeIndex = (historyState.roundIndex || 0) % (participants - 1);
+    const participantIndex = invitees.findIndex((i: any) => i.token === data.participantToken);
+    if (participantIndex !== activeIndex) {
+      return withCORS(NextResponse.json({ ok: false, error: 'Out of turn' }, { status: 409 }), origin);
+    }
     if (selected.includes(data.itemId)) {
       return withCORS(NextResponse.json({ ok: true, state: historyState }), origin); // idempotent
     }
@@ -75,6 +87,8 @@ export async function POST(req: NextRequest) {
       update: { historyJson: historyState },
       create: { listId: list.id, historyJson: historyState },
     });
+
+    publish(list.id, { ok: true, event: 'state', state: historyState, winnerItemId: list.progress?.winnerItemId || null });
 
     return withCORS(NextResponse.json({ ok: true, state: historyState }), origin);
   } catch (e: any) {

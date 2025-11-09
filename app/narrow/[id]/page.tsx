@@ -614,22 +614,88 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
 
   // Polling for state updates
   useEffect(() => {
-    loadInitial();
-    const t = setInterval(async () => {
-      try {
-        const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!data?.ok) return;
-        setItems(data.items || []);
-        setRemainingIds(data.state?.current?.remainingIds || []);
-        setSelectedIds(data.state?.current?.selectedIds || []);
-        setPlan(data.state?.plan || []);
-        setRoundIndex(data.state?.roundIndex || 0);
-        setWinnerItemId(data.winnerItemId || null);
-      } catch {}
-    }, 3000);
-    return () => clearInterval(t);
+    let fallbackTimer: any;
+    let es: EventSource | null = null;
+    (async () => {
+      await loadInitial();
+      if (typeof window !== 'undefined' && 'EventSource' in window) {
+        try {
+          const url = `/api/choosie/narrow/stream?listId=${encodeURIComponent(listId)}`;
+          es = new EventSource(url);
+          es.onmessage = (evt) => {
+            try {
+              const data = JSON.parse(evt.data);
+              if (!data?.ok) return;
+              if (data.state) {
+                setRemainingIds(data.state?.current?.remainingIds || []);
+                setSelectedIds(data.state?.current?.selectedIds || []);
+                setPlan(data.state?.plan || []);
+                setRoundIndex(data.state?.roundIndex || 0);
+              }
+              if (typeof data.winnerItemId !== 'undefined') setWinnerItemId(data.winnerItemId);
+              if (Array.isArray(data.items)) setItems(data.items);
+            } catch {}
+          };
+          es.onerror = () => {
+            // Fallback to polling
+            if (es) { es.close(); es = null; }
+            if (!fallbackTimer) {
+              fallbackTimer = setInterval(async () => {
+                try {
+                  const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
+                  if (!res.ok) return;
+                  const data = await res.json();
+                  if (!data?.ok) return;
+                  setItems(data.items || []);
+                  setRemainingIds(data.state?.current?.remainingIds || []);
+                  setSelectedIds(data.state?.current?.selectedIds || []);
+                  setPlan(data.state?.plan || []);
+                  setRoundIndex(data.state?.roundIndex || 0);
+                  setWinnerItemId(data.winnerItemId || null);
+                } catch {}
+              }, 3000);
+            }
+          };
+        } catch {
+          // if EventSource construction fails, start polling
+          fallbackTimer = setInterval(async () => {
+            try {
+              const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
+              if (!res.ok) return;
+              const data = await res.json();
+              if (!data?.ok) return;
+              setItems(data.items || []);
+              setRemainingIds(data.state?.current?.remainingIds || []);
+              setSelectedIds(data.state?.current?.selectedIds || []);
+              setPlan(data.state?.plan || []);
+              setRoundIndex(data.state?.roundIndex || 0);
+              setWinnerItemId(data.winnerItemId || null);
+            } catch {}
+          }, 3000);
+        }
+      } else {
+        // No EventSource support
+        fallbackTimer = setInterval(async () => {
+          try {
+            const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data?.ok) return;
+            setItems(data.items || []);
+            setRemainingIds(data.state?.current?.remainingIds || []);
+            setSelectedIds(data.state?.current?.selectedIds || []);
+            setPlan(data.state?.plan || []);
+            setRoundIndex(data.state?.roundIndex || 0);
+            setWinnerItemId(data.winnerItemId || null);
+          } catch {}
+        }, 3000);
+      }
+    })();
+
+    return () => {
+      if (es) es.close();
+      if (fallbackTimer) clearInterval(fallbackTimer);
+    };
   }, [listId]);
 
   async function selectItem(itemId: string) {

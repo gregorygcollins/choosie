@@ -4,6 +4,7 @@ import { rateLimit } from "@/lib/rateLimit";
 import { narrowingUndoRoundSchema, validateRequest } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
 import { computeNarrowingPlan } from "@/lib/planner";
+import { publish } from "@/lib/sse";
 
 export const runtime = "nodejs";
 
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
       update: { historyJson: state, winnerItemId },
       create: { listId: list.id, historyJson: state, winnerItemId },
     });
+    publish(list.id, { ok: true, event: 'state', state, winnerItemId });
     return withCORS(NextResponse.json({ ok: true, state, winnerItemId }), origin);
   } catch (e: any) {
     console.error('narrow/undo error', e);

@@ -3,6 +3,8 @@ import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { narrowingDeselectSchema, validateRequest } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
+import { publish } from "@/lib/sse";
+import { computeNarrowingPlan } from "@/lib/planner";
 
 export const runtime = "nodejs";
 
@@ -51,6 +53,16 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
     }
     const state = ensureSelectionSet(buildCanonical(list));
+    // Turn enforcement
+    const tj: any = list.tasteJson || {};
+    const inviteCount = extractInvitees(list).length;
+    const participants = tj.participants || (inviteCount + 1) || 2;
+    state.plan = Array.isArray(state.plan) ? state.plan : computeNarrowingPlan(list.items.length, participants, { participants });
+    const activeIndex = (state.roundIndex || 0) % (participants - 1);
+    const participantIndex = extractInvitees(list).findIndex((i: any) => i.token === data.participantToken);
+    if (participantIndex !== activeIndex) {
+      return withCORS(NextResponse.json({ ok: false, error: 'Out of turn' }, { status: 409 }), origin);
+    }
     const selected = state.current.selectedIds as string[];
     const idx = selected.indexOf(data.itemId);
     if (idx >= 0) selected.splice(idx, 1);
@@ -60,6 +72,7 @@ export async function POST(req: NextRequest) {
       update: { historyJson: state },
       create: { listId: list.id, historyJson: state },
     });
+    publish(list.id, { ok: true, event: 'state', state, winnerItemId: list.progress?.winnerItemId || null });
     return withCORS(NextResponse.json({ ok: true, state }), origin);
   } catch (e: any) {
     console.error('narrow/deselect error', e);
