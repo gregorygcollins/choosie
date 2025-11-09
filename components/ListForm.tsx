@@ -41,7 +41,7 @@ export type ChoosieList = {
   event?: {
     date?: string; // ISO date (YYYY-MM-DD or ISO string)
     location?: string;
-    invitees?: string[]; // names or emails
+    invitees?: Array<string | { email: string; role?: string; token?: string; accepted?: boolean }>;
     notes?: string;
     visibility?: "private" | "link"; // shareability
   };

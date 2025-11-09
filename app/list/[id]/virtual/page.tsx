@@ -81,11 +81,18 @@ export default function VirtualInvitesPage() {
 
     setSaving(true);
     try {
+      // Build structured invitees with role placeholders (tokens to be added later)
+      const tempParticipants = (list as any).participants || (emails.length + 1) || 2;
+      const tempPlan = computeNarrowingPlan(list.items.length, tempParticipants, { participants: tempParticipants });
+      const structured = emails.map((email, i) => {
+        const { role } = getRoleName(tempParticipants, i);
+        return { email, role };
+      });
       const updated: ChoosieList = {
         ...list,
         event: {
           ...(list.event || {}),
-          invitees: emails,
+          invitees: structured,
           notes: notes?.trim() || undefined,
           visibility: list.event?.visibility || "link",
         },
@@ -103,18 +110,18 @@ export default function VirtualInvitesPage() {
                            list.moduleType === "anything" ? "list" : "watchlist";
 
       // Determine participants and plan, assign roles by email order (Organizer excluded)
-      const participants = (updated as any).participants || (emails.length + 1) || 2; // default min 2
-      const plan = computeNarrowingPlan(updated.items.length, participants, { participants });
-      const rounds = Math.min(emails.length, plan.length);
-      const itemType = updated.moduleType === "movies" ? (plan[rounds - 1] === 1 ? "movie" : "movies")
-                        : updated.moduleType === "books" ? (plan[rounds - 1] === 1 ? "book" : "books")
-                        : updated.moduleType === "music" ? (plan[rounds - 1] === 1 ? "song" : "songs")
-                        : updated.moduleType === "food" ? (plan[rounds - 1] === 1 ? "dish" : "dishes")
-                        : (plan[rounds - 1] === 1 ? "favorite" : "favorites");
+      const participantsFinal = (updated as any).participants || (emails.length + 1) || 2; // default min 2
+      const planFinal = computeNarrowingPlan(updated.items.length, participantsFinal, { participants: participantsFinal });
+      const rounds = Math.min(emails.length, planFinal.length);
+      const itemType = updated.moduleType === "movies" ? (planFinal[rounds - 1] === 1 ? "movie" : "movies")
+                        : updated.moduleType === "books" ? (planFinal[rounds - 1] === 1 ? "book" : "books")
+                        : updated.moduleType === "music" ? (planFinal[rounds - 1] === 1 ? "song" : "songs")
+                        : updated.moduleType === "food" ? (planFinal[rounds - 1] === 1 ? "dish" : "dishes")
+                        : (planFinal[rounds - 1] === 1 ? "favorite" : "favorites");
       const lines: string[] = [];
       for (let i = 0; i < rounds; i++) {
-        const { role } = getRoleName(participants, i);
-        const target = plan[i];
+        const { role } = getRoleName(participantsFinal, i);
+        const target = planFinal[i];
         lines.push(`${emails[i]} — ${role}: narrow to ${target} ${target === 1 ? itemType.slice(0, -1) || itemType : itemType}`);
       }
       const rolesBlock = lines.length
