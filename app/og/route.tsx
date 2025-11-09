@@ -6,6 +6,11 @@ export async function GET() {
   const width = 1200;
   const height = 630;
   
+  // Fetch the logo SVG
+  const logoSvg = await fetch(
+    new URL('../../public/logo-check.svg', import.meta.url)
+  ).then((res) => res.arrayBuffer());
+  
   return new ImageResponse(
     (
       <div
@@ -19,49 +24,13 @@ export async function GET() {
           background: '#F6EEE5',
         }}
       >
-        {/* Logo - dark rounded square with custom checkmark */}
-        <div style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 280,
-          height: 280,
-          background: '#12130F',
-          borderRadius: 70,
-          marginBottom: 40,
-          position: 'relative'
-        }}>
-          {/* Draw checkmark using positioned divs */}
-          <div style={{
-            display: 'flex',
-            position: 'relative',
-            width: 160,
-            height: 160,
-          }}>
-            {/* Short stroke of check */}
-            <div style={{
-              position: 'absolute',
-              width: 16,
-              height: 70,
-              background: '#F6EEE5',
-              transform: 'rotate(45deg)',
-              left: 35,
-              top: 60,
-              borderRadius: 8,
-            }} />
-            {/* Long stroke of check */}
-            <div style={{
-              position: 'absolute',
-              width: 16,
-              height: 130,
-              background: '#F6EEE5',
-              transform: 'rotate(-50deg)',
-              left: 50,
-              top: 15,
-              borderRadius: 8,
-            }} />
-          </div>
-        </div>
+        {/* Logo */}
+        <img 
+          src={`data:image/svg+xml;base64,${Buffer.from(logoSvg).toString('base64')}`}
+          width="280"
+          height="280"
+          style={{ marginBottom: 40 }}
+        />
         
         <div style={{ 
           fontSize: 72, 
