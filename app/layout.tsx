@@ -46,11 +46,17 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   icons: {
-    icon: "/og-image.png",
-    shortcut: "/og-image.png",
-    apple: "/og-image.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+    other: [
+      { rel: "icon", url: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", url: "/favicon.ico", sizes: "32x32 48x48 64x64 128x128" }
+    ]
   },
   manifest: "/site.webmanifest",
+  themeColor: "#12130F",
+  backgroundColor: "#F6EEE5",
 };
 
 export default function RootLayout({
