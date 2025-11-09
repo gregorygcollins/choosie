@@ -21,6 +21,7 @@ export default function ViewListPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [narrowingMode, setNarrowingMode] = useState<"in-person" | "virtual" | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // Helper to get list type name
   const getListTypeName = () => {
@@ -132,6 +133,18 @@ export default function ViewListPage() {
     setDragIndex(null);
   }
 
+  function handleDeleteItem(itemId: string) {
+    if (!list) return;
+    const updatedList = {
+      ...list,
+      items: list.items.filter((item) => item.id !== itemId),
+    };
+    upsertList(updatedList);
+    setList(updatedList);
+    setItemToDelete(null);
+    toast("Item removed", "success");
+  }
+
   async function handleDelete() {
     if (!list) return;
     
@@ -229,6 +242,17 @@ export default function ViewListPage() {
       )}
 
       <ConfirmModal
+        isOpen={!!itemToDelete}
+        title="Remove Item?"
+        message={`Remove "${list.items.find((i) => i.id === itemToDelete)?.title}" from this list?`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={() => itemToDelete && handleDeleteItem(itemToDelete)}
+        onCancel={() => setItemToDelete(null)}
+      />
+
+      <ConfirmModal
         isOpen={showDeleteModal}
         title="Delete List?"
         message="Are you sure you want to delete this list? This action cannot be undone."
@@ -305,6 +329,19 @@ export default function ViewListPage() {
                     )}
                   </div>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setItemToDelete(item.id);
+                  }}
+                  className="text-zinc-400 hover:text-red-600 transition-colors"
+                  title="Remove item"
+                  aria-label={`Remove ${item.title}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                  </svg>
+                </button>
               </li>
             ))}
           </ul>
@@ -325,15 +362,30 @@ export default function ViewListPage() {
                   <div className="w-full aspect-[2/3] rounded-md bg-zinc-100 flex items-center justify-center text-zinc-400 text-2xl">📷</div>
                 )}
                 <div>
-                  <div className="flex items-start gap-2">
-                    <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 flex-1">
+                      <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                        </svg>
+                      </div>
+                      <div className="font-medium text-sm line-clamp-2 flex-1">{item.title}</div>
                     </div>
-                    <div className="font-medium text-sm line-clamp-2">{item.title}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setItemToDelete(item.id);
+                      }}
+                      className="text-zinc-400 hover:text-red-600 transition-colors flex-shrink-0"
+                      title="Remove item"
+                      aria-label={`Remove ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                      </svg>
+                    </button>
                   </div>
                   {item.notes && (
                     <div className="text-xs text-zinc-500 line-clamp-1 mt-1">{item.notes}</div>

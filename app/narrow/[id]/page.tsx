@@ -271,43 +271,38 @@ export default function NarrowPage() {
     const winner = list.items.find((i) => i.id === list.winnerId);
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full text-center">
-          <div className="mb-8 text-8xl animate-bounce">🎉</div>
-          <div className="bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-400 p-2 rounded-3xl shadow-2xl">
-            <div className="bg-white rounded-3xl overflow-hidden">
-              {winner?.image && (
-                <div className="relative w-full aspect-[2/3] overflow-hidden">
-                  <img
-                    src={winner.image}
-                    alt={winner.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                </div>
-              )}
-              <div className="px-8 py-8">
-                <div className="text-amber-600 font-bold text-2xl mb-4">🏆 THE WINNER! 🏆</div>
-                <div className="text-4xl font-bold text-zinc-800 mb-4">
-                  {winner?.title || "Chosen"}
-                </div>
-                {winner?.notes && (
-                  <div className="text-base text-zinc-600 mb-6">
-                    {winner.notes}
-                  </div>
-                )}
-                <div className="flex items-center justify-center gap-3 text-amber-500 mb-6">
-                  <span className="text-4xl">⭐</span>
-                  <span className="text-4xl">⭐</span>
-                  <span className="text-4xl">⭐</span>
-                </div>
-                <button
-                  onClick={() => router.push(`/list/${list.id}`)}
-                  className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
-                >
-                  Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
-                </button>
+        <div className="max-w-md w-full text-center">
+          <div className="mb-6 text-6xl animate-bounce">🎉</div>
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            {winner?.image && (
+              <div className="relative w-48 h-48 mx-auto mb-6 rounded-xl overflow-hidden shadow-md">
+                <img
+                  src={winner.image}
+                  alt={winner.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
+            )}
+            <div className="mb-3 text-amber-600 font-semibold text-lg">🏆 We have a winner! 🏆</div>
+            <div className="text-3xl font-bold text-zinc-800 mb-3">
+              {winner?.title || "Chosen"}
             </div>
+            {winner?.notes && (
+              <div className="text-sm text-zinc-600 mb-6">
+                {winner.notes}
+              </div>
+            )}
+            <div className="flex items-center justify-center gap-2 text-amber-500 mb-6">
+              <span className="text-2xl">⭐</span>
+              <span className="text-2xl">⭐</span>
+              <span className="text-2xl">⭐</span>
+            </div>
+            <button
+              onClick={() => router.push(`/list/${list.id}`)}
+              className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
+            >
+              Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
+            </button>
           </div>
         </div>
       </main>
