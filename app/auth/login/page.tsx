@@ -52,7 +52,7 @@ function LoginForm() {
           <h3 className="font-semibold mb-2">Choosie Pro includes</h3>
           <ul className="list-disc pl-5 text-sm text-zinc-700 space-y-1">
             <li>Virtual narrowing: invite friends by email or text, no account needed</li>
-            <li>Premium modules: Booklists, Musiclists, Foodlists, and Anythinglists</li>
+            <li>Premium modules: <strong>Book</strong>lists, <strong>Music</strong>lists, <strong>Food</strong>lists, and <strong>Anything</strong>lists</li>
             <li>Smarter suggestions and overlap tools</li>
             <li>Priority features and early access</li>
           </ul>
