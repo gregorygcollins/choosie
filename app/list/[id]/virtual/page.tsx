@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getList, upsertList } from "@/lib/storage";
+import { getSession, isPremium } from "@/lib/auth";
+import UpsellModal from "@/components/UpsellModal";
 import type { ChoosieList } from "@/components/ListForm";
 import ProcessSection from "@/components/ProcessSection";
 
@@ -13,6 +15,9 @@ export default function VirtualInvitesPage() {
   const [invitees, setInvitees] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const session = typeof window !== 'undefined' ? getSession() : { user: null };
+  const pro = isPremium(session);
 
   // Helper to get list type name
   const getListTypeName = () => {
@@ -32,6 +37,14 @@ export default function VirtualInvitesPage() {
       if (found?.event?.notes) setNotes(found.event.notes);
     }
   }, [id]);
+  if (!pro) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6">
+        <UpsellModal open={true} onClose={() => router.push(`/list/${id}`)} />
+      </main>
+    );
+  }
+
   if (list === null) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -118,7 +131,7 @@ export default function VirtualInvitesPage() {
       <ProcessSection />
       <div className="mx-auto max-w-2xl bg-white rounded-2xl p-6 shadow-soft">
   <h1 className="text-2xl font-semibold mb-1">Narrow virtually</h1>
-        <p className="text-sm text-zinc-600 mb-6">Enter emails to send an invite with a link to the narrowing page.</p>
+        <p className="text-sm text-zinc-600 mb-6">Enter emails to send an invite with a link to the narrowing page. You can send via email or copy a link for text.</p>
 
         <div className="grid gap-3">
           <div className="flex flex-col gap-1">
@@ -149,13 +162,29 @@ export default function VirtualInvitesPage() {
           >
             Back to list
           </button>
-          <button
-            onClick={saveAndSend}
-            className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
-            disabled={saving}
-          >
-            {saving ? "Preparing…" : "Send invites"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={saveAndSend}
+              className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+              disabled={saving}
+            >
+              {saving ? "Preparing…" : "Send email invites"}
+            </button>
+            <button
+              onClick={() => {
+                if (!list) return;
+                const origin = typeof window !== "undefined" ? window.location.origin : "";
+                const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+                const link = `${origin}${basePath}/narrow/${list.id}`;
+                navigator.clipboard.writeText(link).then(() => {
+                  alert("Link copied. Paste it into an SMS or chat to text invites.");
+                });
+              }}
+              className="rounded-full bg-white border border-brand px-5 py-2 text-sm font-semibold text-brand hover:bg-zinc-50"
+            >
+              Copy link for text
+            </button>
+          </div>
         </div>
       </div>
     </main>

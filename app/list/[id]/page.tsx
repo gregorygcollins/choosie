@@ -7,6 +7,8 @@ import { ChoosieList } from "../../../components/ListForm";
 import { ConfirmModal } from "../../../components/ConfirmModal";
 import { toast } from "../../../components/Toast";
 import ProcessSection from "../../../components/ProcessSection";
+import { getSession, isPremium } from "@/lib/auth";
+import UpsellModal from "@/components/UpsellModal";
 
 export default function ViewListPage() {
   const router = useRouter();
@@ -22,6 +24,11 @@ export default function ViewListPage() {
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [narrowingMode, setNarrowingMode] = useState<"in-person" | "virtual" | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
+  const [lastFocusedEl, setLastFocusedEl] = useState<HTMLElement | null>(null);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const session = typeof window !== 'undefined' ? getSession() : { user: null };
+  const pro = isPremium(session);
 
   // Helper to get list type name
   const getListTypeName = () => {
@@ -40,6 +47,11 @@ export default function ViewListPage() {
   };
 
   const handleNarrowClick = (mode: "in-person" | "virtual") => {
+    // Gate virtual narrowing for Pro users
+    if (mode === "virtual" && !pro) {
+      setShowUpsell(true);
+      return;
+    }
     setNarrowingMode(mode);
     setShowParticipantModal(true);
   };
@@ -194,6 +206,58 @@ export default function ViewListPage() {
       console.error("Failed to sync item deletion to server:", err);
     });
   }
+
+  // Open preview helper
+  function openPreview(item: any) {
+    setLastFocusedEl(document.activeElement as HTMLElement);
+    setPreviewItem(item);
+  }
+
+  function closePreview() {
+    setPreviewItem(null);
+    // restore focus for accessibility
+    if (lastFocusedEl) {
+      setTimeout(() => {
+        try { lastFocusedEl.focus(); } catch {}
+      }, 0);
+    }
+  }
+
+  // Escape key to close preview
+  useEffect(() => {
+    if (!previewItem) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closePreview();
+      }
+      // basic focus trap: cycle Tab within modal
+      if (e.key === "Tab") {
+        const modal = document.getElementById("item-preview-modal");
+        if (!modal) return;
+        const focusables = Array.from(modal.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )).filter(el => !el.hasAttribute('data-focus-guard'));
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey) {
+          if (active === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    }
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [previewItem]);
 
   async function handleDelete() {
     if (!list) return;
@@ -353,11 +417,25 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-2"
+                className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-2 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                role="button"
+                tabIndex={0}
+                aria-label={`Preview ${item.title}`}
                 draggable
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
+                onClick={(e) => {
+                  // avoid accidental open when starting drag: if mouse moved substantially dragIndex set
+                  if (dragIndex != null) return;
+                  openPreview(item);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openPreview(item);
+                  }
+                }}
               >
                 <div className="flex items-center gap-4">
                   <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
@@ -400,11 +478,24 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-3"
+                className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-3 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                role="button"
+                tabIndex={0}
+                aria-label={`Preview ${item.title}`}
                 draggable
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
+                onClick={(e) => {
+                  if (dragIndex != null) return;
+                  openPreview(item);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openPreview(item);
+                  }
+                }}
               >
                 {item.image ? (
                   <img src={item.image} alt={item.title} className="w-full aspect-[2/3] rounded-md object-cover" />
@@ -458,9 +549,10 @@ export default function ViewListPage() {
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${pro ? 'bg-brand text-white hover:opacity-90' : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'}`}
+              title={pro ? 'Start remote narrowing' : 'Pro feature'}
             >
-              Narrow virtually
+              Narrow virtually {pro ? '' : '🔒'}
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
@@ -498,6 +590,62 @@ export default function ViewListPage() {
           </button>
         </div>
       </div>
+
+      {/* Item Preview Modal */}
+      {previewItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fadeIn"
+          onClick={closePreview}
+          aria-modal="true"
+          role="dialog"
+          aria-labelledby="item-preview-title"
+        >
+          <div
+            id="item-preview-modal"
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden focus:outline-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start p-5 pb-3">
+              <h2 id="item-preview-title" className="text-xl font-semibold pr-6">
+                {previewItem.title}
+              </h2>
+              <button
+                onClick={closePreview}
+                className="text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand/40 rounded-md p-1"
+                aria-label="Close preview"
+                autoFocus
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+            {previewItem.image && (
+              <div className="px-5">
+                <img src={previewItem.image} alt={previewItem.title} className="w-full max-h-80 object-cover rounded-lg" />
+              </div>
+            )}
+            <div className="p-5 pt-4 space-y-4">
+              {previewItem.notes ? (
+                <p className="text-sm text-zinc-600 whitespace-pre-line leading-relaxed">
+                  {previewItem.notes}
+                </p>
+              ) : (
+                <p className="text-sm text-zinc-400 italic">No notes provided.</p>
+              )}
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closePreview}
+                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showUpsell && (
+        <UpsellModal open={showUpsell} onClose={() => setShowUpsell(false)} />
+      )}
     </main>
   );
 }
