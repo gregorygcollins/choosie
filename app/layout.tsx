@@ -29,18 +29,18 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og",
-        width: 1200,
-        height: 630,
+        url: "https://choosie-seven.vercel.app/logo-check.svg",
+        width: 512,
+        height: 512,
         alt: "Choosie",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["/og"],
+    images: ["https://choosie-seven.vercel.app/logo-check.svg"],
   },
   icons: {
     icon: "/logo-check.svg",
