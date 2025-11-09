@@ -349,10 +349,15 @@ export default function NarrowPage() {
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                onClick={resetAll}
-                className="rounded-full bg-white text-brand ring-1 ring-brand/30 px-6 py-3 font-semibold hover:bg-brand/5 transition-colors"
+                onClick={undoLast}
+                disabled={history.length === 0}
+                className={`rounded-full px-6 py-3 font-semibold transition-colors ring-1 ${
+                  history.length === 0
+                    ? "bg-zinc-200 text-zinc-400 ring-zinc-300 cursor-not-allowed"
+                    : "bg-white text-brand ring-brand/30 hover:bg-brand/5"
+                }`}
               >
-                Restart narrowing
+                Undo
               </button>
               <button
                 onClick={() => router.push(`/list/${list.id}`)}
