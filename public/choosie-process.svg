@@ -1,44 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="600" height="100">
   <style>
-    .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #7a7a7a; text-anchor: middle; }
-    .dot   { fill: #7a7a7a; }
-    .hollow { fill: none; stroke: #7a7a7a; stroke-width: 0.9; }
-    .arrow { fill: none; stroke: #7a7a7a; stroke-width: 0.85; marker-end: url(#arrowhead); }
+    .label { font-family: system-ui, sans-serif; font-size: 10px; fill: #5a5a5a; text-anchor: middle; }
+    .dot   { fill: #565656; }
+    .hollow { fill: none; stroke: #565656; stroke-width: 1.2; }
+    .arrow { fill: none; stroke: #565656; stroke-width: 1.2; marker-end: url(#arrowhead); }
   </style>
 
   <defs>
     <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-      <polygon points="0 0, 6 3, 0 6" fill="#7a7a7a" />
+      <polygon points="0 0, 6 3, 0 6" fill="#565656" />
     </marker>
   </defs>
 
   <!-- PROGRAMMER (complete, circular cloud, radius 24px) -->
   <g transform="translate(50,50)">
-    <circle class="dot" r="1.5" cx="0" cy="-24"/>
-    <circle class="dot" r="1.5" cx="12" cy="-21"/>
-    <circle class="dot" r="1.5" cx="21" cy="-12"/>
-    <circle class="dot" r="1.5" cx="24" cy="0"/>
-    <circle class="dot" r="1.5" cx="21" cy="12"/>
-    <circle class="dot" r="1.5" cx="12" cy="21"/>
-    <circle class="dot" r="1.5" cx="0" cy="24"/>
-    <circle class="dot" r="1.5" cx="-12" cy="21"/>
-    <circle class="dot" r="1.5" cx="-21" cy="12"/>
-    <circle class="dot" r="1.5" cx="-24" cy="0"/>
-    <circle class="dot" r="1.5" cx="-21" cy="-12"/>
-    <circle class="dot" r="1.5" cx="-12" cy="-21"/>
+  <circle class="dot" r="1.8" cx="0" cy="-24"/>
+  <circle class="dot" r="1.8" cx="12" cy="-21"/>
+  <circle class="dot" r="1.8" cx="21" cy="-12"/>
+  <circle class="dot" r="1.8" cx="24" cy="0"/>
+  <circle class="dot" r="1.8" cx="21" cy="12"/>
+  <circle class="dot" r="1.8" cx="12" cy="21"/>
+  <circle class="dot" r="1.8" cx="0" cy="24"/>
+  <circle class="dot" r="1.8" cx="-12" cy="21"/>
+  <circle class="dot" r="1.8" cx="-21" cy="12"/>
+  <circle class="dot" r="1.8" cx="-24" cy="0"/>
+  <circle class="dot" r="1.8" cx="-21" cy="-12"/>
+  <circle class="dot" r="1.8" cx="-12" cy="-21"/>
     <!-- inner ring -->
-    <circle class="dot" r="1.5" cx="6" cy="-12"/>
-    <circle class="dot" r="1.5" cx="12" cy="-6"/>
-    <circle class="dot" r="1.5" cx="12" cy="6"/>
-    <circle class="dot" r="1.5" cx="6" cy="12"/>
-    <circle class="dot" r="1.5" cx="-6" cy="12"/>
-    <circle class="dot" r="1.5" cx="-12" cy="6"/>
-    <circle class="dot" r="1.5" cx="-12" cy="-6"/>
-    <circle class="dot" r="1.5" cx="-6" cy="-12"/>
-    <circle class="dot" r="1.5" cx="0" cy="0"/>
-    <circle class="dot" r="1.5" cx="0" cy="-6"/>
-    <circle class="dot" r="1.5" cx="6" cy="0"/>
-    <circle class="dot" r="1.5" cx="0" cy="6"/>
+  <circle class="dot" r="1.8" cx="6" cy="-12"/>
+  <circle class="dot" r="1.8" cx="12" cy="-6"/>
+  <circle class="dot" r="1.8" cx="12" cy="6"/>
+  <circle class="dot" r="1.8" cx="6" cy="12"/>
+  <circle class="dot" r="1.8" cx="-6" cy="12"/>
+  <circle class="dot" r="1.8" cx="-12" cy="6"/>
+  <circle class="dot" r="1.8" cx="-12" cy="-6"/>
+  <circle class="dot" r="1.8" cx="-6" cy="-12"/>
+  <circle class="dot" r="1.8" cx="0" cy="0"/>
+  <circle class="dot" r="1.8" cx="0" cy="-6"/>
+  <circle class="dot" r="1.8" cx="6" cy="0"/>
+  <circle class="dot" r="1.8" cx="0" cy="6"/>
   </g>
 
   <!-- Curved Arrow 1: between Programmer (~r=24) and Curator (~r=12), with larger gaps for phase separation -->
@@ -47,18 +47,18 @@
 
   <!-- CURATOR (circular cluster, radius 12px) -->
   <g transform="translate(255,50)">
-    <circle class="dot" r="2.1" cx="0" cy="-12"/>
-    <circle class="dot" r="2.1" cx="10" cy="-6"/>
-    <circle class="dot" r="2.1" cx="12" cy="0"/>
-    <circle class="dot" r="2.1" cx="10" cy="6"/>
-    <circle class="dot" r="2.1" cx="0" cy="12"/>
-    <circle class="dot" r="2.1" cx="-10" cy="6"/>
-    <circle class="dot" r="2.1" cx="-12" cy="0"/>
-    <circle class="dot" r="2.1" cx="-10" cy="-6"/>
-    <circle class="dot" r="2.1" cx="6" cy="0"/>
-    <circle class="dot" r="2.1" cx="-6" cy="0"/>
-    <circle class="dot" r="2.1" cx="0" cy="-6"/>
-    <circle class="dot" r="2.1" cx="0" cy="6"/>
+  <circle class="dot" r="2.4" cx="0" cy="-12"/>
+  <circle class="dot" r="2.4" cx="10" cy="-6"/>
+  <circle class="dot" r="2.4" cx="12" cy="0"/>
+  <circle class="dot" r="2.4" cx="10" cy="6"/>
+  <circle class="dot" r="2.4" cx="0" cy="12"/>
+  <circle class="dot" r="2.4" cx="-10" cy="6"/>
+  <circle class="dot" r="2.4" cx="-12" cy="0"/>
+  <circle class="dot" r="2.4" cx="-10" cy="-6"/>
+  <circle class="dot" r="2.4" cx="6" cy="0"/>
+  <circle class="dot" r="2.4" cx="-6" cy="0"/>
+  <circle class="dot" r="2.4" cx="0" cy="-6"/>
+  <circle class="dot" r="2.4" cx="0" cy="6"/>
   </g>
 
   <!-- Curved Arrow 2: between Curator (~r=12) and Selector (~r≈12), with larger gaps for phase separation -->
@@ -67,9 +67,9 @@
 
   <!-- SELECTOR -->
   <g transform="translate(415,50)">
-    <circle class="hollow" r="4.5" cx="-8" cy="-2"/>
-    <circle class="hollow" r="4.5" cx="2" cy="4"/>
-    <circle class="hollow" r="4.5" cx="12" cy="-3"/>
+  <circle class="hollow" r="4.5" cx="-8" cy="-2"/>
+  <circle class="hollow" r="4.5" cx="2" cy="4"/>
+  <circle class="hollow" r="4.5" cx="12" cy="-3"/>
   </g>
 
   <!-- Curved Arrow 3: between Selector (~r≈12) and Decider (r=6), with larger gaps for phase separation -->
@@ -78,6 +78,6 @@
 
   <!-- DECIDER -->
   <g transform="translate(540,50)">
-    <circle class="dot" r="6" cx="0" cy="0"/>
+  <circle class="dot" r="6" cx="0" cy="0"/>
   </g>
 </svg>
