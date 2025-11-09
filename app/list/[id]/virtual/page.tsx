@@ -117,7 +117,7 @@ export default function VirtualInvitesPage() {
     <main className="min-h-screen p-8">
       <ProcessSection />
       <div className="mx-auto max-w-2xl bg-white rounded-2xl p-6 shadow-soft">
-        <h1 className="text-2xl font-semibold mb-1">Narrow “{list.title}” virtually</h1>
+  <h1 className="text-2xl font-semibold mb-1">Narrow virtually</h1>
         <p className="text-sm text-zinc-600 mb-6">Enter emails to send an invite with a link to the narrowing page.</p>
 
         <div className="grid gap-3">
@@ -147,7 +147,7 @@ export default function VirtualInvitesPage() {
             onClick={() => router.push(`/list/${list.id}`)}
             className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
           >
-            Back to {getListTypeName()}
+            Back to list
           </button>
           <button
             onClick={saveAndSend}

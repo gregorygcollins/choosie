@@ -483,22 +483,17 @@ export default function NarrowPage() {
             ← Back
           </button>
           <button
-            onClick={resetAll}
-            className="rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white"
+            onClick={() => setSelectedIds([])}
+            disabled={selectedIds.length === 0}
+            className={`rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white ${selectedIds.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            Reset
+            Deselect all
           </button>
           <button
             onClick={() => router.push(`/list/${list.id}`)}
             className="rounded-full bg-zinc-100 px-6 py-3 text-zinc-700"
           >
-            Back to {list.moduleType === "music"
-              ? "musiclist"
-              : list.moduleType === "food"
-              ? "foodlist"
-              : list.moduleType === "books"
-              ? "booklist"
-              : "watchlist"}
+            Back to list
           </button>
           <button
             onClick={confirmRound}

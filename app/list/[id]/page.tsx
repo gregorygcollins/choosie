@@ -454,13 +454,13 @@ export default function ViewListPage() {
               onClick={() => handleNarrowClick("in-person")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
-              Narrow {getListTypeName()} in person
+              Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
-              Narrow {getListTypeName()} virtually
+              Narrow virtually
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
