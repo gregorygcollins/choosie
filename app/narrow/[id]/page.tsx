@@ -200,6 +200,56 @@ export default function NarrowPage() {
     setList(updated);
   }, [history, list, roundTargets.length]);
 
+  // Keyboard shortcuts: 1-9 to toggle selection of item index, Enter to confirm
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      // Ignore if modifier keys or active element is an input/textarea/contentEditable
+      const ae = document.activeElement as HTMLElement | null;
+      if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!remaining.length || list?.winnerId) return;
+
+      // Number keys 1-9 map to indices 0-8
+      if (/^[1-9]$/.test(e.key)) {
+        const idx = parseInt(e.key, 10) - 1;
+        if (idx >= 0 && idx < remaining.length) {
+          e.preventDefault();
+          const item = remaining[idx];
+          toggleSelect(item.id);
+        }
+        return;
+      }
+
+      // 0 key maps to index 9 (10th item) if present
+      if (e.key === '0') {
+        const idx = 9;
+        if (idx < remaining.length) {
+          e.preventDefault();
+          toggleSelect(remaining[idx].id);
+        }
+        return;
+      }
+
+      // Enter confirms when ready
+      if (e.key === 'Enter') {
+        if (selectedIds.length === targetThisRound) {
+          e.preventDefault();
+          confirmRound();
+        }
+        return;
+      }
+
+      // Backspace or Escape performs undo (only if selection empty)
+      if ((e.key === 'Backspace' || e.key === 'Escape') && selectedIds.length === 0) {
+        e.preventDefault();
+        undoLast();
+        return;
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [remaining, selectedIds, targetThisRound, toggleSelect, confirmRound, undoLast, list]);
+
   const resetAll = useCallback(() => {
     if (!list) return;
     const participants = (list as any).participants || 4;
@@ -356,6 +406,10 @@ export default function NarrowPage() {
               <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
             </div>
           </div>
+        </div>
+        {/* Keyboard hint */}
+        <div className="text-center text-xs text-zinc-500 mb-4">
+          Pro tip: press 1–9 (and 0 for 10) to select, Enter to confirm{history.length > 0 ? ", Esc to undo" : ""}.
         </div>
 
         {/* Items grid */}
