@@ -160,7 +160,16 @@ export default function ListsPage() {
             return (
             <div
               key={list.id}
-              className="card flex flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between"
+              onClick={() => router.push(`/list/${list.id}`)}
+              className="card flex flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(`/list/${list.id}`);
+                }
+              }}
             >
               <div>
                 <h2 className="font-medium text-black dark:text-white">
@@ -172,15 +181,10 @@ export default function ListsPage() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Link
-                  href={`/list/${list.id}`}
-                  className="btn-amber inline-flex h-9 items-center justify-center px-4 text-sm font-semibold"
-                >
-                  View {listTypeName}
-                </Link>
                 {list.narrowers && (
                   <Link
                     href={`/narrow/${list.id}`}
+                    onClick={(e) => e.stopPropagation()}
                     className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 px-4 text-sm transition-all hover:bg-black/[.03] active:translate-y-px dark:border-white/20 dark:hover:bg-white/[.06]"
                   >
                     Continue narrowing
@@ -189,6 +193,7 @@ export default function ListsPage() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     setDeleteTarget(list);
                   }}
                   className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
