@@ -24,6 +24,11 @@ export function computeNarrowingPlan(
   const participants = opts?.participants ?? numPlayers;
   
   if (listLength <= 1) return [1];
+  // If the list is very small (<= participants or <= 4), just jump straight to 1.
+  // This matches expectation that tiny lists don't need intermediate narrowing.
+  if (listLength <= Math.max(4, participants)) {
+    return [1];
+  }
 
   // Number of narrowing phases = participants - 1 (Organizer doesn't narrow)
   const phaseCount = Math.max(1, participants - 1);
