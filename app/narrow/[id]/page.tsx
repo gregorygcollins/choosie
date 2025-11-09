@@ -575,6 +575,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   const [plan, setPlan] = useState<number[]>([]);
   const [roundIndex, setRoundIndex] = useState<number>(0);
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'live' | 'polling'>('connecting');
 
   const targetThisRound = plan[roundIndex] ?? 1;
   const participants = plan.length + 1;
@@ -622,10 +623,14 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
         try {
           const url = `/api/choosie/narrow/stream?listId=${encodeURIComponent(listId)}`;
           es = new EventSource(url);
+          es.onopen = () => {
+            setConnectionStatus('live');
+          };
           es.onmessage = (evt) => {
             try {
               const data = JSON.parse(evt.data);
               if (!data?.ok) return;
+              setConnectionStatus('live');
               if (data.state) {
                 setRemainingIds(data.state?.current?.remainingIds || []);
                 setSelectedIds(data.state?.current?.selectedIds || []);
@@ -638,6 +643,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
           };
           es.onerror = () => {
             // Fallback to polling
+            setConnectionStatus('polling');
             if (es) { es.close(); es = null; }
             if (!fallbackTimer) {
               fallbackTimer = setInterval(async () => {
@@ -658,6 +664,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
           };
         } catch {
           // if EventSource construction fails, start polling
+          setConnectionStatus('polling');
           fallbackTimer = setInterval(async () => {
             try {
               const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
@@ -675,6 +682,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
         }
       } else {
         // No EventSource support
+        setConnectionStatus('polling');
         fallbackTimer = setInterval(async () => {
           try {
             const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
@@ -708,6 +716,9 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
         setSelectedIds(data.state?.current?.selectedIds || selectedIds);
         setPlan(data.state?.plan || plan);
         setRoundIndex(data.state?.roundIndex ?? roundIndex);
+      } else if (data?.error) {
+        // Show toast or inline error
+        console.warn('Selection error:', data.error);
       }
     } catch {}
   }
@@ -781,6 +792,27 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
     <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <ProcessSection />
+        {/* Connection status indicator */}
+        <div className="fixed top-4 right-4 z-50">
+          {connectionStatus === 'live' && (
+            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full shadow-md border border-green-200 text-sm">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span>Live</span>
+            </div>
+          )}
+          {connectionStatus === 'polling' && (
+            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full shadow-md border border-amber-200 text-sm">
+              <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+              <span>Polling</span>
+            </div>
+          )}
+          {connectionStatus === 'connecting' && (
+            <div className="flex items-center gap-2 bg-zinc-50 text-zinc-600 px-3 py-1.5 rounded-full shadow-md border border-zinc-200 text-sm">
+              <span className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse"></span>
+              <span>Connecting...</span>
+            </div>
+          )}
+        </div>
         <h1 className="text-2xl font-bold text-center mb-2">{title}</h1>
         <div className="text-center mb-4 text-zinc-600 text-sm">{effectiveRole ? `${effectiveRole} • ` : ''}Round {Math.min(roundIndex + 1, plan.length)} of {plan.length}</div>
         <div className="flex justify-center mb-6">
