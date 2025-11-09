@@ -56,7 +56,6 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   themeColor: "#12130F",
-  backgroundColor: "#F6EEE5",
 };
 
 export default function RootLayout({
