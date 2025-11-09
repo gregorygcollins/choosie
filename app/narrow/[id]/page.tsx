@@ -365,7 +365,7 @@ export default function NarrowPage() {
                     : "bg-white text-brand ring-brand/30 hover:bg-brand/5"
                 }`}
               >
-                Undo
+                Back
               </button>
               <button
                 onClick={resetListAndGoBack}
