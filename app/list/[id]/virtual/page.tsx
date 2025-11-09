@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getList, upsertList } from "@/lib/storage";
+import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
 import { getSession, isPremium } from "@/lib/auth";
 import UpsellModal from "@/components/UpsellModal";
 import type { ChoosieList } from "@/components/ListForm";
@@ -100,8 +101,28 @@ export default function VirtualInvitesPage() {
                            list.moduleType === "music" ? "musiclist" :
                            list.moduleType === "karaoke" ? "karaoke list" :
                            list.moduleType === "anything" ? "list" : "watchlist";
+
+      // Determine participants and plan, assign roles by email order (Organizer excluded)
+      const participants = (updated as any).participants || (emails.length + 1) || 2; // default min 2
+      const plan = computeNarrowingPlan(updated.items.length, participants, { participants });
+      const rounds = Math.min(emails.length, plan.length);
+      const itemType = updated.moduleType === "movies" ? (plan[rounds - 1] === 1 ? "movie" : "movies")
+                        : updated.moduleType === "books" ? (plan[rounds - 1] === 1 ? "book" : "books")
+                        : updated.moduleType === "music" ? (plan[rounds - 1] === 1 ? "song" : "songs")
+                        : updated.moduleType === "food" ? (plan[rounds - 1] === 1 ? "dish" : "dishes")
+                        : (plan[rounds - 1] === 1 ? "favorite" : "favorites");
+      const lines: string[] = [];
+      for (let i = 0; i < rounds; i++) {
+        const { role } = getRoleName(participants, i);
+        const target = plan[i];
+        lines.push(`${emails[i]} — ${role}: narrow to ${target} ${target === 1 ? itemType.slice(0, -1) || itemType : itemType}`);
+      }
+      const rolesBlock = lines.length
+        ? `Roles and rounds (in order):\n${lines.map((l) => `• ${l}`).join("\n")}\n\n`
+        : "";
+
       const subject = `Join my ${listTypeName}: ${updated.title}`;
-      const body = `I just made a ${listTypeName} in Choosie.\n\nHelp narrow it down here: ${link}\n\nWe'll vote it down to one perfect pick together.\n\n—`;
+      const body = `I just made a ${listTypeName} in Choosie.\n\n${rolesBlock}Open the narrowing link here: ${link}\n\nNo account needed. We’ll take turns by role until we pick a winner.\n\n—`;
 
       const mailto = `mailto:${encodeURIComponent(emails.join(","))}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailto;
