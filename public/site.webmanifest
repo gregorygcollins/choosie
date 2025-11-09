@@ -1,0 +1,16 @@
+{
+  "name": "Choosie",
+  "short_name": "Choosie",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6EEE5",
+  "theme_color": "#12130F",
+  "icons": [
+    {
+      "src": "/logo-check.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

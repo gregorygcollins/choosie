@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Choosie - Collaborative Decision Making",
+        url: "/logo-check.svg",
+        width: 800,
+        height: 800,
+        alt: "Choosie logo",
       },
     ],
   },
@@ -40,11 +40,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["/og-image.png"],
+    images: ["/logo-check.svg"],
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo-check.svg",
+    shortcut: "/logo-check.svg",
+    apple: "/logo-check.svg",
   },
   manifest: "/site.webmanifest",
 };
