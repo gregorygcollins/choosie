@@ -8,6 +8,7 @@ import { ConfirmModal } from "../../../components/ConfirmModal";
 import { toast } from "../../../components/Toast";
 import ProcessSection from "../../../components/ProcessSection";
 import { getSession, isPremium } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 import UpsellModal from "@/components/UpsellModal";
 
 export default function ViewListPage() {
@@ -27,8 +28,27 @@ export default function ViewListPage() {
   const [previewItem, setPreviewItem] = useState<any | null>(null);
   const [lastFocusedEl, setLastFocusedEl] = useState<HTMLElement | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
+  const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
-  const pro = isPremium(session);
+  const [pro, setPro] = useState<boolean>(isPremium(session));
+
+  // Elevate pro flag if next-auth session user has isPro or server reports upgrade
+  useEffect(() => {
+    // If next-auth session has user.isPro (augment later), trust it first
+    if (authSession?.user && (authSession.user as any).isPro && !pro) {
+      setPro(true);
+      return;
+    }
+    let cancelled = false;
+    // Fetch /api/me to get authoritative isPro (Stripe webhook may have updated DB)
+    fetch('/api/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data?.isPro && !pro) setPro(true);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [authSession, pro]);
 
   // Helper to get list type name
   const getListTypeName = () => {

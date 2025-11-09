@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getList, upsertList } from "@/lib/storage";
 import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
 import { getSession, isPremium } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 import UpsellModal from "@/components/UpsellModal";
 import type { ChoosieList } from "@/components/ListForm";
 import ProcessSection from "@/components/ProcessSection";
@@ -17,8 +18,24 @@ export default function VirtualInvitesPage() {
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
+  const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
-  const pro = isPremium(session);
+  const [pro, setPro] = useState<boolean>(isPremium(session));
+
+  useEffect(() => {
+    if (authSession?.user && (authSession.user as any).isPro && !pro) {
+      setPro(true);
+      return;
+    }
+    let cancelled = false;
+    fetch('/api/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data?.isPro && !pro) setPro(true);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [authSession, pro]);
 
   // Helper to get list type name
   const getListTypeName = () => {

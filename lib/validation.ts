@@ -36,6 +36,29 @@ export const finalizeWatchlistSchema = z.object({
   history: z.any().optional(), // JSON payload, validate structure if needed
 });
 
+// Narrowing action schemas (server canonical state management)
+export const narrowingSelectSchema = z.object({
+  listId: z.string().min(1).max(50),
+  itemId: z.string().min(1).max(50),
+  participantToken: z.string().min(16).max(128),
+});
+
+export const narrowingDeselectSchema = z.object({
+  listId: z.string().min(1).max(50),
+  itemId: z.string().min(1).max(50),
+  participantToken: z.string().min(16).max(128),
+});
+
+export const narrowingConfirmRoundSchema = z.object({
+  listId: z.string().min(1).max(50),
+  participantToken: z.string().min(16).max(128),
+});
+
+export const narrowingUndoRoundSchema = z.object({
+  listId: z.string().min(1).max(50),
+  participantToken: z.string().min(16).max(128),
+});
+
 export const getOverlapSchema = z.object({
   listId: z.string().min(1).max(50),
   userIds: z.array(z.string().min(1).max(50)).min(1).max(10),

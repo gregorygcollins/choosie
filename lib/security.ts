@@ -85,3 +85,15 @@ export function requireAuth(session: any, resourceUserId?: string): {
 
   return { ok: true, userId: session.user.id };
 }
+
+// Participant token authorization for narrowing actions
+export function requireParticipant(invitees: Array<any>, token: string): { ok: true; index: number; invitee: any } | { ok: false; response: NextResponse } {
+  const idx = invitees.findIndex((i: any) => i && typeof i !== 'string' && i.token === token);
+  if (idx < 0) {
+    return {
+      ok: false,
+      response: NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 })
+    };
+  }
+  return { ok: true, index: idx, invitee: invitees[idx] };
+}

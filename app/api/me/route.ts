@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "../../../lib/auth.server";
 import prisma from "../../../lib/prisma";
 
+export const runtime = "nodejs"; // ensure consistent environment for prisma
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -22,5 +24,5 @@ export async function GET() {
     image: (session.user as any).image,
     isPro,
   } as any;
-  return NextResponse.json({ ok: true, user });
+  return NextResponse.json({ ok: true, user, isPro });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getList, upsertList } from "@/lib/storage";
 import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
@@ -19,6 +19,13 @@ export default function NarrowPage() {
   const params = useParams();
   const router = useRouter();
   const listId = params.id as string;
+  const searchParams = useSearchParams();
+  const participantToken = (searchParams?.get('pt') || '').trim();
+  const serverMode = !!participantToken;
+
+  if (serverMode) {
+    return <ServerNarrowClient listId={listId} token={participantToken} />;
+  }
 
   const [list, setList] = useState<ChoosieList | null>(null);
   const [remaining, setRemaining] = useState<ChoosieItem[]>([]);
@@ -549,6 +556,227 @@ export default function NarrowPage() {
         </div>
 
 
+      </div>
+    </main>
+  );
+}
+
+// Server-backed narrowing client for virtual participants
+function ServerNarrowClient({ listId, token }: { listId: string; token: string }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [moduleType, setModuleType] = useState<string>("movies");
+  const [role, setRole] = useState<string | null>(null);
+  const [items, setItems] = useState<Array<{ id: string; title: string; image?: string | null }>>([]);
+  const [remainingIds, setRemainingIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [plan, setPlan] = useState<number[]>([]);
+  const [roundIndex, setRoundIndex] = useState<number>(0);
+  const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
+
+  const targetThisRound = plan[roundIndex] ?? 1;
+  const participants = plan.length + 1;
+  const { role: computedRole, emoji } = getRoleName(Math.max(participants, 2), roundIndex);
+  const effectiveRole = role || computedRole;
+
+  const remaining = items.filter((i) => remainingIds.includes(i.id));
+  const isFinalRound = roundIndex >= plan.length - 1;
+
+  async function loadInitial() {
+    setLoading(true);
+    setError(null);
+    try {
+      const [stateRes, pubRes] = await Promise.all([
+        fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) }),
+        fetch('/api/choosie/public/getList', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, token }) }),
+      ]);
+      const stateJson = stateRes.ok ? await stateRes.json() : null;
+      const pubJson = pubRes.ok ? await pubRes.json() : null;
+      if (!stateJson?.ok) throw new Error(stateJson?.error || 'Failed to load state');
+      if (!pubJson?.ok) throw new Error(pubJson?.error || 'Failed to load list');
+      setItems(stateJson.items || []);
+      setRemainingIds(stateJson.state?.current?.remainingIds || []);
+      setSelectedIds(stateJson.state?.current?.selectedIds || []);
+      setPlan(stateJson.state?.plan || []);
+      setRoundIndex(stateJson.state?.roundIndex || 0);
+      setWinnerItemId(stateJson.winnerItemId || null);
+      setTitle(pubJson.list?.title || '');
+      setModuleType(pubJson.list?.moduleType || 'movies');
+      setRole(pubJson.list?.participantRole || null);
+    } catch (e: any) {
+      setError(e?.message || 'Unable to load');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Polling for state updates
+  useEffect(() => {
+    loadInitial();
+    const t = setInterval(async () => {
+      try {
+        const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data?.ok) return;
+        setItems(data.items || []);
+        setRemainingIds(data.state?.current?.remainingIds || []);
+        setSelectedIds(data.state?.current?.selectedIds || []);
+        setPlan(data.state?.plan || []);
+        setRoundIndex(data.state?.roundIndex || 0);
+        setWinnerItemId(data.winnerItemId || null);
+      } catch {}
+    }, 3000);
+    return () => clearInterval(t);
+  }, [listId]);
+
+  async function selectItem(itemId: string) {
+    try {
+      const endpoint = selectedIds.includes(itemId) ? '/api/choosie/narrow/deselect' : '/api/choosie/narrow/select';
+      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, itemId, participantToken: token }) });
+      const data = await res.json();
+      if (data?.ok) {
+        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
+        setSelectedIds(data.state?.current?.selectedIds || selectedIds);
+        setPlan(data.state?.plan || plan);
+        setRoundIndex(data.state?.roundIndex ?? roundIndex);
+      }
+    } catch {}
+  }
+
+  async function confirmRound() {
+    try {
+      const res = await fetch('/api/choosie/narrow/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
+      const data = await res.json();
+      if (data?.ok) {
+        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
+        setSelectedIds(data.state?.current?.selectedIds || []);
+        setPlan(data.state?.plan || plan);
+        setRoundIndex(data.state?.roundIndex ?? roundIndex);
+        setWinnerItemId(data.winnerItemId || null);
+      } else if (data?.error) {
+        alert(data.error);
+      }
+    } catch {}
+  }
+
+  async function undoRound() {
+    try {
+      const res = await fetch('/api/choosie/narrow/undo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
+      const data = await res.json();
+      if (data?.ok) {
+        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
+        setSelectedIds(data.state?.current?.selectedIds || selectedIds);
+        setPlan(data.state?.plan || plan);
+        setRoundIndex(data.state?.roundIndex ?? roundIndex);
+        setWinnerItemId(data.winnerItemId || null);
+      } else if (data?.error) {
+        alert(data.error);
+      }
+    } catch {}
+  }
+
+  if (loading) {
+    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
+  }
+  if (error) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <h1 className="text-2xl font-bold mb-2">Unable to join</h1>
+        <p className="text-zinc-600 mb-4">{error}</p>
+        <button onClick={() => router.push('/')} className="rounded-full bg-brand px-6 py-3 font-semibold text-white">Return Home</button>
+      </div>
+    );
+  }
+
+  // Winner view
+  if (winnerItemId) {
+    const winner = items.find((i) => i.id === winnerItemId);
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center">
+          <div className="mb-6 text-6xl animate-bounce">🎉</div>
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <div className="mb-3 text-amber-600 font-semibold text-lg">🏆 We have a winner! 🏆</div>
+            <div className="text-3xl font-bold text-zinc-800 mb-3">{winner?.title || 'Chosen'}</div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button onClick={undoRound} className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5">Undo</button>
+              <button onClick={() => router.push(`/list/${listId}`)} className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90">Back to list</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <ProcessSection />
+        <h1 className="text-2xl font-bold text-center mb-2">{title}</h1>
+        <div className="text-center mb-4 text-zinc-600 text-sm">{effectiveRole ? `${effectiveRole} • ` : ''}Round {Math.min(roundIndex + 1, plan.length)} of {plan.length}</div>
+        <div className="flex justify-center mb-6">
+          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
+            isFinalRound ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" : "bg-white/90 ring-1 ring-brand/20"
+          }`}>
+            <span aria-hidden className="text-lg">{emoji}</span>
+            <span><strong>{effectiveRole || 'Your turn'}</strong>, pick {targetThisRound} {targetThisRound === 1 ? 'item' : 'items'}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {remaining.map((item) => {
+            const selected = selectedIds.includes(item.id);
+            return (
+              <button
+                key={item.id}
+                onClick={() => selectItem(item.id)}
+                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
+                  selected
+                    ? isFinalRound
+                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
+                    : "border-transparent hover:scale-[1.02]"
+                }`}
+              >
+                <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                  {selected
+                    ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                    : `Tap to select`}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button
+            onClick={undoRound}
+            className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
+          >
+            Undo
+          </button>
+          <button
+            onClick={confirmRound}
+            disabled={selectedIds.length !== targetThisRound}
+            className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
+              selectedIds.length === targetThisRound
+                ? isFinalRound
+                  ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
+                  : "bg-brand hover:opacity-90"
+                : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+            }`}
+          >
+            {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
+          </button>
+        </div>
+
+        <div className="text-center mt-4 text-sm text-zinc-500">
+          {remaining.length} item{remaining.length === 1 ? "" : "s"} available
+        </div>
       </div>
     </main>
   );
