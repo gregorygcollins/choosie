@@ -356,17 +356,14 @@ export default function NarrowPage() {
               <span className="text-2xl">⭐</span>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={undoLast}
-                disabled={history.length === 0}
-                className={`rounded-full px-6 py-3 font-semibold transition-colors ring-1 ${
-                  history.length === 0
-                    ? "bg-zinc-200 text-zinc-400 ring-zinc-300 cursor-not-allowed"
-                    : "bg-white text-brand ring-brand/30 hover:bg-brand/5"
-                }`}
-              >
-                Back
-              </button>
+              {history.length > 0 && (
+                <button
+                  onClick={undoLast}
+                  className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
+                >
+                  Undo
+                </button>
+              )}
               <button
                 onClick={resetListAndGoBack}
                 className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
@@ -487,17 +484,14 @@ export default function NarrowPage() {
 
         {/* Actions */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={undoLast}
-            disabled={history.length === 0}
-            className={`rounded-full px-6 py-3 text-sm ${
-              history.length === 0
-                ? "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-                : "bg-white/70 text-zinc-700 hover:bg-white"
-            }`}
-          >
-            ← Back
-          </button>
+          {history.length > 0 && (
+            <button
+              onClick={undoLast}
+              className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
+            >
+              Undo
+            </button>
+          )}
           <button
             onClick={() => setSelectedIds([])}
             disabled={selectedIds.length === 0}
