@@ -71,6 +71,16 @@ export default function VirtualInvitesPage() {
     return { parts, emails };
   }
 
+  function makeToken(bytes = 16) {
+    if (typeof window === 'undefined' || !window.crypto?.getRandomValues) {
+      // fallback
+      return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    }
+    const arr = new Uint8Array(bytes);
+    window.crypto.getRandomValues(arr);
+    return Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
   async function saveAndSend() {
     if (!list) return;
     const { emails } = validateEmails(invitees);
@@ -84,9 +94,18 @@ export default function VirtualInvitesPage() {
       // Build structured invitees with role placeholders (tokens to be added later)
       const tempParticipants = (list as any).participants || (emails.length + 1) || 2;
       const tempPlan = computeNarrowingPlan(list.items.length, tempParticipants, { participants: tempParticipants });
+      // keep existing tokens if present
+      const existingMap = new Map<string, { role?: string; token?: string }>();
+      const existing = (list.event?.invitees || []) as Array<string | { email: string; role?: string; token?: string; accepted?: boolean }>;
+      for (const it of existing) {
+        if (typeof it !== 'string') {
+          existingMap.set(it.email.toLowerCase(), { role: it.role, token: it.token });
+        }
+      }
       const structured = emails.map((email, i) => {
         const { role } = getRoleName(tempParticipants, i);
-        return { email, role };
+        const prev = existingMap.get(email.toLowerCase());
+        return { email, role, token: prev?.token || makeToken() };
       });
       const updated: ChoosieList = {
         ...list,
@@ -98,6 +117,7 @@ export default function VirtualInvitesPage() {
         },
       };
       upsertList(updated);
+      setList(updated);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -182,6 +202,44 @@ export default function VirtualInvitesPage() {
             />
           </div>
         </div>
+
+        {/* Per-invite links (copy for SMS or individual emails) */}
+        {list?.event?.invitees && Array.isArray(list.event.invitees) && list.event.invitees.length > 0 && (
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-base font-semibold mb-3">Per-invite links</h2>
+            <p className="text-xs text-zinc-600 mb-3">Share each person’s unique link (includes their role). Ideal for texting invites.</p>
+            <ul className="space-y-2">
+              {(() => {
+                const raw = list.event!.invitees! as Array<string | { email: string; role?: string; token?: string; accepted?: boolean }>;
+                const emails = raw.filter((x) => typeof x !== 'string') as Array<{ email: string; role?: string; token?: string }>;
+                const participants = (list as any).participants || (emails.length + 1) || 2;
+                const plan = computeNarrowingPlan(list.items.length, participants, { participants });
+                return emails.map((inv, i) => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+                  const link = `${origin}${basePath}/narrow/${list.id}?pt=${inv.token ?? ''}`;
+                  const target = plan[i];
+                  return (
+                    <li key={inv.email} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{inv.email}</div>
+                        <div className="text-xs text-zinc-600 truncate">{inv.role || 'Participant'} • Target: {typeof target === 'number' ? target : ''}</div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard'));
+                        }}
+                        className="rounded-full bg-white border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-zinc-50 flex-shrink-0"
+                      >
+                        Copy link
+                      </button>
+                    </li>
+                  );
+                });
+              })()}
+            </ul>
+          </div>
+        )}
 
         <div className="mt-6 flex justify-between">
           <button
