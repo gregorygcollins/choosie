@@ -50,26 +50,50 @@ export default function NarrowPage() {
       // Resume existing progress (only if list hasn't been modified)
       const progress = l.progress;
       const rem = l.items.filter((it) => progress.remainingIds.includes(it.id));
-      const plan = l.narrowingPlan && l.narrowingPlan.length
-        ? l.narrowingPlan
-        : computeNarrowingPlan(rem.length, participants, {
-            participants,
-          });
-      setList(l);
-      setRemaining(rem);
-      setRoundTargets(plan);
-      setRoundNumber(progress.round || 1);
-      setCurrentNarrower(progress.currentNarrower || 1);
-      // history in persisted progress does not include selectedIds; keep empty selectedIds locally
-      setHistory(
-        (progress.history || []).map((h) => ({
-          remainingIds: h.remainingIds,
-          currentNarrower: h.currentNarrower,
-          round: h.round,
-          selectedIds: [],
-        }))
-      );
-      setSelectedIds([]);
+      const desiredPlan = computeNarrowingPlan(rem.length, participants, { participants });
+      const existingPlan = l.narrowingPlan && l.narrowingPlan.length ? l.narrowingPlan : null;
+
+      // If participants changed (plan length mismatch), re-initialize to ensure correct number of phases
+      const expectedRounds = desiredPlan.length;
+      const existingRounds = existingPlan?.length ?? expectedRounds;
+      if (existingRounds !== expectedRounds) {
+        const updated: ChoosieList = {
+          ...l,
+          winnerId: undefined,
+          narrowingPlan: desiredPlan,
+          progress: {
+            remainingIds: l.items.map((i) => i.id),
+            currentNarrower: 1,
+            round: 1,
+            totalRounds: desiredPlan.length,
+            history: [],
+          },
+        } as ChoosieList;
+        upsertList(updated);
+        setList(updated);
+        setRemaining(l.items.slice());
+        setRoundTargets(desiredPlan);
+        setRoundNumber(1);
+        setCurrentNarrower(1);
+        setHistory([]);
+        setSelectedIds([]);
+      } else {
+        setList(l);
+        setRemaining(rem);
+        setRoundTargets(existingPlan || desiredPlan);
+        setRoundNumber(progress.round || 1);
+        setCurrentNarrower(progress.currentNarrower || 1);
+        // history in persisted progress does not include selectedIds; keep empty selectedIds locally
+        setHistory(
+          (progress.history || []).map((h) => ({
+            remainingIds: h.remainingIds,
+            currentNarrower: h.currentNarrower,
+            round: h.round,
+            selectedIds: [],
+          }))
+        );
+        setSelectedIds([]);
+      }
     } else {
       // Initialize fresh narrowing plan (either no progress exists, or list was modified since last narrowing)
       const initialItems = l.items.slice();
