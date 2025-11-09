@@ -63,6 +63,9 @@ export default function ViewListPage() {
     let cancelled = false;
 
     async function load() {
+      // Check localStorage first
+      const localList = getList(id as string);
+      
       try {
         // Try server-backed list first (requires sign-in and ownership)
         const res = await fetch("/api/choosie/getList", {
@@ -74,7 +77,14 @@ export default function ViewListPage() {
         if (res.ok) {
           const data = await res.json();
           if (!cancelled && data?.ok && data.list) {
-            setList(data.list);
+            // If we have a local copy, prefer it (might have unsaved edits)
+            // Otherwise use server copy and save to localStorage
+            if (localList) {
+              setList(localList);
+            } else {
+              upsertList(data.list);
+              setList(data.list);
+            }
             setLoading(false);
             return;
           }
@@ -82,8 +92,7 @@ export default function ViewListPage() {
       } catch {}
       // Fallback: local list
       if (!cancelled) {
-        const found = getList(id as string);
-        setList(found || null);
+        setList(localList || null);
         setLoading(false);
       }
     }

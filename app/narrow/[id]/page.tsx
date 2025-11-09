@@ -41,8 +41,13 @@ export default function NarrowPage() {
     // Get participant count from list (default to 4 for backwards compatibility)
     const participants = (l as any).participants || 4;
 
-    if (l.progress && l.progress.remainingIds?.length) {
-      // Resume existing progress
+    // Check if list has been modified since narrowing started
+    const listModified = l.progress && l.progress.remainingIds?.length
+      ? !l.progress.remainingIds.every((id: string) => l.items.some((item) => item.id === id))
+      : false;
+
+    if (l.progress && l.progress.remainingIds?.length && !listModified) {
+      // Resume existing progress (only if list hasn't been modified)
       const progress = l.progress;
       const rem = l.items.filter((it) => progress.remainingIds.includes(it.id));
       const plan = l.narrowingPlan && l.narrowingPlan.length
@@ -66,7 +71,7 @@ export default function NarrowPage() {
       );
       setSelectedIds([]);
     } else {
-      // Initialize fresh narrowing plan
+      // Initialize fresh narrowing plan (either no progress exists, or list was modified since last narrowing)
       const initialItems = l.items.slice();
       const plan = l.narrowingPlan && l.narrowingPlan.length
         ? l.narrowingPlan
