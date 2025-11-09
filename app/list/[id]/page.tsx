@@ -51,6 +51,19 @@ export default function ViewListPage() {
     setList(updated);
     setShowParticipantModal(false);
     
+    // Sync to server in background
+    fetch("/api/choosie/updateList", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        listId: list.id,
+        participants: count,
+      }),
+    }).catch((err) => {
+      console.error("Failed to sync participants to server:", err);
+    });
+    
     if (narrowingMode === "in-person") {
       router.push(`/narrow/${list.id}`);
     } else {
@@ -111,6 +124,25 @@ export default function ViewListPage() {
       const [moved] = copy.items.splice(from, 1);
       copy.items.splice(to, 0, moved);
       upsertList(copy);
+      
+      // Sync to server in background
+      fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: copy.id,
+          items: copy.items.map((it: any) => ({
+            id: it.id,
+            title: it.title,
+            notes: it.notes,
+            image: it.image,
+          })),
+        }),
+      }).catch((err) => {
+        console.error("Failed to sync reorder to server:", err);
+      });
+      
       return copy;
     });
   }
@@ -143,6 +175,24 @@ export default function ViewListPage() {
     setList(updatedList);
     setItemToDelete(null);
     toast("Item removed", "success");
+    
+    // Sync to server in background
+    fetch("/api/choosie/updateList", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        listId: updatedList.id,
+        items: updatedList.items.map((it: any) => ({
+          id: it.id,
+          title: it.title,
+          notes: it.notes,
+          image: it.image,
+        })),
+      }),
+    }).catch((err) => {
+      console.error("Failed to sync item deletion to server:", err);
+    });
   }
 
   async function handleDelete() {

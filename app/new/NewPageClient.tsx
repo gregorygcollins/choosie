@@ -208,8 +208,39 @@ export default function NewPageClient() {
     };
     upsertList(listWithModule);
     
-    // If editing an existing list, just navigate back - don't create a duplicate on server
+    // If editing an existing list, update it on the server if user is signed in
     if (existingList) {
+      if (me && (me as any).id) {
+        const payload = {
+          listId: list.id,
+          title: listWithModule.title,
+          items: (listWithModule.items || []).map((it: any) => ({
+            id: it.id,
+            title: it.title,
+            notes: it.notes,
+            image: it.image,
+          })),
+        };
+        fetch(`/api/choosie/updateList`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        })
+          .then(async (res) => {
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.ok && data?.list) {
+                // Update localStorage with server response to keep them in sync
+                upsertList(data.list);
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to update list on server:", err);
+            // Continue anyway - we have the localStorage update
+          });
+      }
       router.push(`/list/${list.id}`);
       return;
     }
