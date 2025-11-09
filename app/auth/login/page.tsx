@@ -24,10 +24,10 @@ function LoginForm() {
 
   return (
     <div className="mx-auto max-w-3xl p-6 rounded-xl bg-white/80 mt-6">
-      <h2 className="text-2xl font-bold mb-3">Sign in</h2>
-      <p className="text-sm text-zinc-600 mb-4">Use Google (NextAuth) or try the local demo sign-in. The demo stores a local session in your browser.</p>
+      <h2 className="text-2xl font-bold mb-6">Sign in</h2>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
+          <p className="text-sm text-zinc-600 mb-4">Use Google (NextAuth) or try the local demo sign-in. The demo stores a local session in your browser.</p>
           <form onSubmit={handleSignIn} className="flex flex-col gap-3">
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (optional)" className="rounded-lg border px-3 py-2" />
             <label className="flex items-center gap-2 text-sm">
@@ -48,16 +48,16 @@ function LoginForm() {
             </button>
           </div>
         </div>
-        <div className="rounded-xl border p-4 bg-white/60">
-          <h3 className="font-semibold mb-2">Choosie Pro includes</h3>
-          <ul className="list-disc pl-5 text-sm text-zinc-700 space-y-1">
+        <div className="rounded-xl border-2 border-brand/30 p-5 bg-gradient-to-br from-brand/5 via-white to-brand/10 shadow-lg">
+          <h3 className="font-bold text-lg mb-3 text-brand">Choosie Pro includes</h3>
+          <ul className="list-disc pl-5 text-sm text-zinc-800 space-y-2">
             <li>Virtual narrowing: invite friends by email or text, no account needed</li>
             <li>Premium modules: <strong>Book</strong>lists, <strong>Music</strong>lists, <strong>Food</strong>lists, and <strong>Anything</strong>lists</li>
             <li>Smarter suggestions and overlap tools</li>
             <li>Priority features and early access</li>
           </ul>
-          <div className="mt-3 text-sm">
-            <a href="/account" className="text-brand hover:underline">Try Pro</a>
+          <div className="mt-4">
+            <a href="/pricing" className="inline-block w-full text-center rounded-full bg-brand px-4 py-2.5 text-white font-semibold hover:opacity-90 transition-colors shadow-md">Try Pro</a>
           </div>
         </div>
       </div>
