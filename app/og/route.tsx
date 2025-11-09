@@ -17,10 +17,9 @@ export async function GET() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#F6EEE5',
-          fontFamily: 'system-ui, -apple-system, sans-serif'
         }}
       >
-        {/* Logo container - simplified speech bubble with checkmark */}
+        {/* Logo - dark rounded square with custom checkmark */}
         <div style={{ 
           display: 'flex',
           alignItems: 'center',
@@ -32,14 +31,35 @@ export async function GET() {
           marginBottom: 40,
           position: 'relative'
         }}>
-          {/* Checkmark */}
+          {/* Draw checkmark using positioned divs */}
           <div style={{
             display: 'flex',
-            fontSize: 180,
-            color: '#F6EEE5',
-            marginTop: -20
+            position: 'relative',
+            width: 160,
+            height: 160,
           }}>
-            ✓
+            {/* Short stroke of check */}
+            <div style={{
+              position: 'absolute',
+              width: 16,
+              height: 70,
+              background: '#F6EEE5',
+              transform: 'rotate(45deg)',
+              left: 35,
+              top: 60,
+              borderRadius: 8,
+            }} />
+            {/* Long stroke of check */}
+            <div style={{
+              position: 'absolute',
+              width: 16,
+              height: 130,
+              background: '#F6EEE5',
+              transform: 'rotate(-50deg)',
+              left: 50,
+              top: 15,
+              borderRadius: 8,
+            }} />
           </div>
         </div>
         
