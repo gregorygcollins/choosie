@@ -755,6 +755,23 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
     } catch {}
   }
 
+  async function resetProgress() {
+    if (!confirm('Reset this narrowing session? All progress will be lost.')) return;
+    try {
+      const res = await fetch('/api/choosie/narrow/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
+      const data = await res.json();
+      if (data?.ok) {
+        setRemainingIds(data.state?.current?.remainingIds || []);
+        setSelectedIds(data.state?.current?.selectedIds || []);
+        setPlan(data.state?.plan || []);
+        setRoundIndex(data.state?.roundIndex ?? 0);
+        setWinnerItemId(null);
+      } else if (data?.error) {
+        alert(data.error);
+      }
+    } catch {}
+  }
+
   if (loading) {
     return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
   }
@@ -851,6 +868,12 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
         </div>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button
+            onClick={resetProgress}
+            className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white border border-zinc-300"
+          >
+            Reset
+          </button>
           <button
             onClick={undoRound}
             className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
