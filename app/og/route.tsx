@@ -32,31 +32,22 @@ export async function GET() {
           position: 'relative',
           boxShadow: '0 8px 40px rgba(0,0,0,0.15)'
         }}>
-          {/* Draw checkmark using positioned divs */}
-          <div style={{ position: 'relative', width: 160, height: 160 }}>
-            {/* Short stroke */}
-            <div style={{
-              position: 'absolute',
-              width: 18,
-              height: 80,
-              background: '#F6EEE5',
-              transform: 'rotate(45deg)',
-              left: 32,
-              top: 62,
-              borderRadius: 10,
-            }} />
-            {/* Long stroke */}
-            <div style={{
-              position: 'absolute',
-              width: 18,
-              height: 145,
-              background: '#F6EEE5',
-              transform: 'rotate(-50deg)',
-              left: 54,
-              top: 10,
-              borderRadius: 10,
-            }} />
-          </div>
+          {/* Inline SVG checkmark for reliable rendering in next/og */}
+          <svg
+            width={160}
+            height={160}
+            viewBox="0 0 160 160"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M40 85 L68 113 L120 60"
+              stroke="#F6EEE5"
+              strokeWidth={18}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
 
         <div style={{
