@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo-check.svg",
-        width: 800,
-        height: 800,
-        alt: "Choosie logo",
+        url: "/og",
+        width: 1200,
+        height: 630,
+        alt: "Choosie",
       },
     ],
   },
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Choosie - Do Only What You Love, Together",
     description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["/logo-check.svg"],
+    images: ["/og"],
   },
   icons: {
     icon: "/logo-check.svg",
