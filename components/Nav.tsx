@@ -52,16 +52,16 @@ export default function Nav() {
         </Link>
 
         {/* Mobile quick nav */}
-        <nav className="flex md:hidden items-center gap-2">
+        <nav className="flex md:hidden items-center gap-3">
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             Lists
+          </Link>
+          <Link href="/new" className="text-sm text-zinc-700 hover:text-brand">
+            Create
           </Link>
         </nav>
 
         <nav className="hidden md:flex items-center gap-4">
-          <Link href="/" className="text-sm text-zinc-700 hover:text-brand">
-            Home
-          </Link>
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             Lists
           </Link>
