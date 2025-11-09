@@ -347,12 +347,20 @@ export default function NarrowPage() {
               <span className="text-2xl">⭐</span>
               <span className="text-2xl">⭐</span>
             </div>
-            <button
-              onClick={() => router.push(`/list/${list.id}`)}
-              className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
-            >
-              Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={resetAll}
+                className="rounded-full bg-white text-brand ring-1 ring-brand/30 px-6 py-3 font-semibold hover:bg-brand/5 transition-colors"
+              >
+                Restart narrowing
+              </button>
+              <button
+                onClick={() => router.push(`/list/${list.id}`)}
+                className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
+              >
+                Back to {list.moduleType === "music" ? "musiclist" : list.moduleType === "food" ? "foodlist" : list.moduleType === "books" ? "booklist" : "watchlist"}
+              </button>
+            </div>
           </div>
         </div>
       </main>
