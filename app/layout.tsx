@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Choosie" }],
   openGraph: {
     title: "Choosie - Do Only What You Love, Together",
-    description: "Create lists, narrow choices together, and discover what you'll love—no scrolling, no bickering, no compromise.",
+    description: "Create lists, narrow choices, and discover shared interests. No scrolling, no bickering, no compromise.",
     url: "https://choosie-seven.vercel.app/",
     siteName: "Choosie",
     type: "website",
@@ -46,14 +46,12 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   icons: {
-    icon: "/choosie-favicon.ico",
-    shortcut: "/choosie-favicon.ico",
-    apple: "/apple-touch-icon.png",
-    other: [
-      { rel: "icon", url: "/choosie-favicon.ico", type: "image/x-icon" },
-      { rel: "icon", url: "/choosie-favicon.ico", sizes: "32x32 48x48 64x64 128x128" }
-    ]
-  },
+  icon: [
+    { url: "/favicon-v4.ico", sizes: "16x16 32x32 48x48 64x64 128x128 256x256", type: "image/x-icon" },
+    { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+  ],
+},
+
   manifest: "/site.webmanifest",
   themeColor: "#12130F",
 };
