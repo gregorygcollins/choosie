@@ -16,48 +16,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata = {
   title: "Choosie – Do Only What You Love, Together",
-  description: "Turn your passions into shared experiences. No. scrolling, no bickering, no compromise.",
+  description: "Turn your passions into shared experiences. No scrolling, no bickering, no compromise.",
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
-    description: "Turn your passions into shared experiences. No. scrolling, no bickering, no compromise.",
+    description: "Turn your passions into shared experiences. No scrolling, no bickering, no compromise.",
     url: "https://choosie-seven.vercel.app",
     siteName: "Choosie",
     images: [
       {
-        url: "https://choosie-seven.vercel.app/og-image.png", // ✅ full absolute URL
+        url: "https://choosie-seven.vercel.app/og-image.png",
         width: 1200,
         height: 630,
         alt: "Choosie logo on warm ivory background",
       },
     ],
     locale: "en_US",
-    type: "website",
+    type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "Choosie – Do Only What You Love",
+    title: "Choosie – Do Only What You Love, Together",
     description: "Build and share lists with people who love what you love.",
-    images: ["https://choosie-seven.vercel.app/og-image.png"],
-  },
-};
-  twitter: {
-    card: "summary_large_image",
-    title: "Choosie - Do Only What You Love, Together",
-    description: "Create lists, narrow choices together, and discover what you'll love.",
-    images: ["/og-image.png"],
+    images: ["https://choosie-seven.vercel.app/og-image.png"]
   },
   icons: {
-  icon: [
-    { url: "/favicon-v4.ico", sizes: "16x16 32x32 48x48 64x64 128x128 256x256", type: "image/x-icon" },
-    { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-  ],
-},
-
+    icon: [
+      { url: "/favicon-v4.ico", sizes: "16x16 32x32 48x48 64x64 128x128 256x256", type: "image/x-icon" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ]
+  },
   manifest: "/site.webmanifest",
-  themeColor: "#12130F",
+  themeColor: "#12130F"
 };
 
 export default function RootLayout({
@@ -68,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+  className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
           <div className="min-h-screen flex flex-col">
