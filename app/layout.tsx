@@ -16,29 +16,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://choosie-seven.vercel.app"),
-  title: "Choosie - Do Only What You Love, Together",
-  description: "Turn your passions into shared experiences. Create lists, narrow choices together, and discover what you'll love—without scrolling, bickering, or compromise.",
-  keywords: ["movie night", "group decisions", "watchlist", "book club", "meal planning", "collaborative choices"],
-  authors: [{ name: "Choosie" }],
+
+export const metadata = {
+  title: "Choosie – Do Only What You Love, Together",
+  description: "Turn your passions into shared experiences. No. scrolling, no bickering, no compromise.",
   openGraph: {
-    title: "Choosie - Do Only What You Love, Together",
-    description: "Create lists, narrow choices, and discover shared interests. No scrolling, no bickering, no compromise.",
-    url: "https://choosie-seven.vercel.app/",
+    title: "Choosie – Do Only What You Love, Together",
+    description: "Turn your passions into shared experiences. No. scrolling, no bickering, no compromise.",
+    url: "https://choosie-seven.vercel.app",
     siteName: "Choosie",
-    type: "website",
     images: [
       {
-        url: "/og-image.png",
-        secureUrl: "https://choosie-seven.vercel.app/og-image.png",
-        type: "image/png",
+        url: "https://choosie-seven.vercel.app/og-image.png", // ✅ full absolute URL
         width: 1200,
         height: 630,
-        alt: "Choosie logo",
+        alt: "Choosie logo on warm ivory background",
       },
     ],
+    locale: "en_US",
+    type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Choosie – Do Only What You Love",
+    description: "Build and share lists with people who love what you love.",
+    images: ["https://choosie-seven.vercel.app/og-image.png"],
+  },
+};
   twitter: {
     card: "summary_large_image",
     title: "Choosie - Do Only What You Love, Together",
