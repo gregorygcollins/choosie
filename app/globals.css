@@ -121,20 +121,7 @@ body {
 .fade-in { animation: fadeIn .4s ease; }
 @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to { opacity:1; transform: translateY(0);} }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(180deg, #111111 0%, #1f1f1f 60%, #2a2a2a 100%);
-    color: #e8e6e3;
-  }
-  
-  .card, [class*="bg-white"] {
-    background: rgba(22,22,22,0.55) !important;
-    border-color: rgba(255,255,255,0.05) !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.55);
-  }
-  .btn-charcoal { background:#e8e6e3; color:#1e1e1e; }
-  .btn-charcoal:hover { background:#ffffff; }
-  .btn-amber { box-shadow: 0 2px 6px rgba(217, 122, 58, 0.45); }
+/* Force a single light theme so iOS Safari dark mode doesn't invert the palette. */
+:root {
+  color-scheme: light;
 }
-
