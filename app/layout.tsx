@@ -46,12 +46,12 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: "/choosie-favicon.ico",
+    shortcut: "/choosie-favicon.ico",
     apple: "/apple-touch-icon.png",
     other: [
-      { rel: "icon", url: "/favicon.ico", type: "image/x-icon" },
-      { rel: "icon", url: "/favicon.ico", sizes: "32x32 48x48 64x64 128x128" }
+      { rel: "icon", url: "/choosie-favicon.ico", type: "image/x-icon" },
+      { rel: "icon", url: "/choosie-favicon.ico", sizes: "32x32 48x48 64x64 128x128" }
     ]
   },
   manifest: "/site.webmanifest",
