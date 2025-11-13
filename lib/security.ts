@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { listAllowedOrigins } from "./env";
 
 /**
  * Validates that the request origin matches expected site origins.
@@ -23,14 +24,7 @@ export function validateOrigin(req: NextRequest): boolean {
 }
 
 function getAllowedOrigins(): string[] {
-  const envOrigins = (process.env.ALLOWED_ORIGINS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
-  const local = "http://localhost:3000";
-  return [...envOrigins, siteUrl, vercelUrl, local].filter(Boolean) as string[];
+  return listAllowedOrigins();
 }
 
 /**

@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { listAllowedOrigins } from "./env";
 
 // Compute caller origin but prefer the actual request URL origin rather than '*' to avoid wildcarding.
 export function getOrigin(req: NextRequest): string {
   return req.headers.get("origin") || req.nextUrl.origin;
 }
 
-function getAllowedOrigins(): string[] {
-  const envOrigins = (process.env.ALLOWED_ORIGINS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
-  const local = "http://localhost:3000";
-  return [...envOrigins, siteUrl, vercelUrl, local].filter(Boolean) as string[];
-}
-
 function isAllowedOrigin(origin: string | null | undefined): string | null {
   if (!origin) return null;
   try {
     const o = new URL(origin).origin;
-    const allowed = getAllowedOrigins();
+    const allowed = listAllowedOrigins();
     return allowed.includes(o) ? o : null;
   } catch {
     // Not a valid URL; reject

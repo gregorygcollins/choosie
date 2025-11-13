@@ -6,10 +6,9 @@ This document outlines the security hardening measures implemented in Choosie.
 
 ### 1. Security Headers (via next.config.ts)
 - ✅ **Content Security Policy (CSP)**: Restricts resource loading to trusted sources
-  - Allows same-origin scripts, styles, and images
-  - Permits HTTPS connections for external APIs
-  - Allows Stripe embeds for payment flows
-  - Development mode relaxed for HMR; production stricter
+  - Whitelists only required third-party domains (Stripe, TMDB, Spotify, Google, Spoonacular, Vercel Insights)
+  - Blocks inline script attributes (`script-src-attr 'none'`) and disallows object embeds
+  - Adds `worker-src`, `font-src`, and `media-src` restrictions plus `upgrade-insecure-requests`
 - ✅ **HSTS** (production only): Forces HTTPS connections (max-age: 2 years)
 - ✅ **X-Frame-Options: DENY**: Prevents clickjacking attacks
 - ✅ **X-Content-Type-Options: nosniff**: Prevents MIME sniffing
@@ -37,15 +36,16 @@ This document outlines the security hardening measures implemented in Choosie.
 - ✅ **Safe error responses**: Logs full errors server-side, returns generic messages to clients
 
 ### 5. Rate Limiting (lib/rateLimit.ts)
-- ✅ **Per-endpoint limits**:
+- ✅ **Redis-backed per-endpoint limits** (Upstash Redis REST API)
+  - Durable across serverless invocations with automatic fallback to in-memory if Redis is unavailable
+- ✅ **Per-endpoint thresholds**:
   - `createList`: 30 requests/minute
   - `addMovie`: 60 requests/minute
   - `getList`: 120 requests/minute
   - `finalizeWatchlist`: 30 requests/minute
   - `bookSearch`: 60 requests/minute
   - `spotifySearch`: 60 requests/minute
-- ⚠️ **Note**: Current implementation is in-memory (not durable across serverless restarts)
-- 📝 **Future**: Migrate to Redis/Upstash for production-grade rate limiting
+- ✅ **Automatic Retry-After headers**: Clients receive RFC-compliant rate limit metadata
 
 ### 6. Auth Configuration (lib/auth.server.ts)
 - ✅ **Removed dangerous account linking**: Disabled `allowDangerousEmailAccountLinking`
@@ -58,13 +58,22 @@ This document outlines the security hardening measures implemented in Choosie.
 - ✅ **Enhanced error logging**: Logs event type, ID, and stack traces for debugging
 - ✅ **Idempotent handling**: Returns 200 on data errors to prevent infinite retries
 
-### 8. API Route Hardening
+### 8. Environment Auditing
+- ✅ **Centralized env checker (`lib/env.ts`)**: Validates required variables on boot (throws in production if missing)
+- ✅ **Debug endpoint (`/api/debug/env`)**: Surfaces masked env status, allowed origins, and missing keys
+- ✅ **Shared origin helper**: All origin validation now uses a single source of truth
+
+### 9. API Route Hardening
 All `/api/choosie/*` routes now include:
 - Origin validation (CSRF protection)
 - Input validation with zod
 - Authentication/ownership checks
 - Rate limiting
 - Safe error handling (no internal details leaked)
+
+### 10. Request Size Limits
+- ✅ **Global 1MB cap** enforced in `middleware.ts` for all non-GET `/api/*` requests (configurable via `MAX_BODY_BYTES`)
+- ✅ **413 handler** returns structured JSON so clients can gracefully retry with smaller payloads
 
 ## Environment Variables Required
 
@@ -110,8 +119,6 @@ curl -X POST https://yoursite.com/api/choosie/createList \
 ## Known Limitations & Future Improvements
 
 ### High Priority
-- [ ] **Upgrade rate limiting to Redis/Upstash**: Current in-memory limiter won't work across serverless instances
-- [ ] **Add request body size limits**: Implement via middleware or Next.js config
 - [ ] **CSRF tokens for authenticated users**: Add token-based CSRF protection for logged-in state changes
 
 ### Medium Priority

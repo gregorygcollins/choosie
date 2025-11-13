@@ -38,7 +38,7 @@ function buildCanonical(list: any) {
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   try {
-    const rl = rateLimit(req, { scope: 'narrowUndo', limit: 100, windowMs: 60_000 });
+    const rl = await rateLimit(req, { scope: 'narrowUndo', limit: 100, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
     const body = await req.json();
     const data = validateRequest(narrowingUndoRoundSchema, body);

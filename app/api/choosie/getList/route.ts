@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Rate limiting
-    const rl = rateLimit(req, { scope: "getList", limit: 120, windowMs: 60_000 });
+    const rl = await rateLimit(req, { scope: "getList", limit: 120, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
 
     // Origin validation

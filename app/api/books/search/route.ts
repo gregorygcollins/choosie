@@ -5,7 +5,7 @@ import { rateLimit } from "@/lib/rateLimit";
 export async function GET(req: NextRequest) {
   try {
     // Rate limit book searches
-    const rl = rateLimit(req, { scope: "bookSearch", limit: 60, windowMs: 60_000 });
+    const rl = await rateLimit(req, { scope: "bookSearch", limit: 60, windowMs: 60_000 });
     if (!rl.ok) return rl.res;
 
     const { searchParams } = new URL(req.url);

@@ -66,7 +66,7 @@ function moodBoostGenres(mood?: string): string[] {
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   try {
-    const rl = rateLimit(req, { scope: "getSuggestions", limit: 60, windowMs: 60_000 });
+    const rl = await rateLimit(req, { scope: "getSuggestions", limit: 60, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
 
     const body = await req.json();

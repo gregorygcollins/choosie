@@ -50,11 +50,11 @@
 
 #### Security Hardening
 - [ ] Review all API endpoints for auth requirements
-- [ ] Implement proper rate limiting (replace in-memory with Redis/Upstash)
+- [x] Implement proper rate limiting (replace in-memory with Redis/Upstash)
 - [ ] Add input validation to all user-facing forms
 - [ ] Review CORS allowed origins
 - [ ] Add security headers audit
-- [ ] Configure Content Security Policy stricter rules
+- [x] Configure Content Security Policy stricter rules
 
 #### Assets
 - [ ] Create and add favicon.ico to /public

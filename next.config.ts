@@ -28,28 +28,80 @@ const nextConfig: NextConfig = {
       });
     }
 
-    // A conservative CSP; relaxed in dev to avoid blocking Next dev features
+    const scriptSrc = [
+      "'self'",
+      "'unsafe-inline'",
+      "https://js.stripe.com",
+      "https://checkout.stripe.com",
+      "https://billing.stripe.com",
+    ];
+    if (!isProd) {
+      scriptSrc.push("'unsafe-eval'");
+    }
+
+    const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
+
+    const fontSrc = ["'self'", "https://fonts.gstatic.com", "data:"];
+
+    const connectSrc = [
+      "'self'",
+      "https://api.themoviedb.org",
+      "https://image.tmdb.org",
+      "https://books.googleapis.com",
+      "https://www.googleapis.com",
+      "https://api.spotify.com",
+      "https://accounts.spotify.com",
+      "https://api.spoonacular.com",
+      "https://js.stripe.com",
+      "https://api.stripe.com",
+      "https://hooks.stripe.com",
+      "https://checkout.stripe.com",
+      "https://billing.stripe.com",
+      "https://vitals.vercel-insights.com",
+    ];
+    if (!isProd) {
+      connectSrc.push("http://localhost:3000", "ws://localhost:3000", "ws://127.0.0.1:3000");
+    }
+
+    const imgSrc = [
+      "'self'",
+      "data:",
+      "blob:",
+      "https://image.tmdb.org",
+      "https://i.scdn.co",
+      "https://m.media-amazon.com",
+      "https://img.youtube.com",
+      "https://books.googleusercontent.com",
+      "https://spoonacular.com",
+      "https://*.unsplash.com",
+    ];
+
+    const mediaSrc = ["'self'", "https:"];
+
+    const frameSrc = [
+      "https://js.stripe.com",
+      "https://hooks.stripe.com",
+      "https://checkout.stripe.com",
+      "https://billing.stripe.com",
+    ];
+
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
       "frame-ancestors 'none'",
-      // Allow images, audio from https and data URIs
-      "img-src 'self' https: data:",
-      "media-src 'self' https:",
-      // Allow connections to same-origin and https APIs (Stripe, OAuth, etc.)
-      "connect-src 'self' https:",
-      // Next.js may inline styles; allow inline styles
-      "style-src 'self' 'unsafe-inline' https:",
-      // Next.js uses inline scripts for hydration - need unsafe-inline in production
-      isProd
-        ? "script-src 'self' 'unsafe-inline' https:"
-        : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-      // Stripe embeds
-      "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://billing.stripe.com",
+      `font-src ${fontSrc.join(" ")}`,
+      `img-src ${imgSrc.join(" ")}`,
+      `media-src ${mediaSrc.join(" ")}`,
+      `connect-src ${connectSrc.join(" ")}`,
+      `style-src ${styleSrc.join(" ")}`,
+      `script-src ${scriptSrc.join(" ")}`,
+      `frame-src ${frameSrc.join(" ")}`,
       "form-action 'self' https://checkout.stripe.com https://billing.stripe.com",
-    ]
-      .filter(Boolean)
-      .join("; ");
+      "object-src 'none'",
+      "worker-src 'self' blob:",
+      "script-src-attr 'none'",
+      "upgrade-insecure-requests",
+    ].join("; ");
 
     if (csp) {
       headers.push({ key: "Content-Security-Policy", value: csp });

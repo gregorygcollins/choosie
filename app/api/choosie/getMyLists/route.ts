@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   const origin = getOrigin(req);
   try {
-    const rl = rateLimit(req, { scope: "getMyLists", limit: 120, windowMs: 60_000 });
+    const rl = await rateLimit(req, { scope: "getMyLists", limit: 120, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
 
     const session = await auth();

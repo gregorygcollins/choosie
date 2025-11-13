@@ -8,6 +8,8 @@ export function middleware(request: Request) {
   // Do not use NEXTAUTH_URL here; it's for NextAuth internals and may differ by env.
   const canonical = process.env.NEXT_PUBLIC_SITE_URL;
 
+  const maxBodyBytes = Number(process.env.MAX_BODY_BYTES || 1_000_000); // default 1MB
+
   // Never interfere with Stripe webhooks (signature depends on exact raw body + headers)
   if (url.pathname === "/api/stripe/webhook") {
     return NextResponse.next();
@@ -26,6 +28,28 @@ export function middleware(request: Request) {
   const isPreviewHost = /\.vercel\.app$/i.test(host);
   if (isPreviewEnv || isPreviewHost) {
     return NextResponse.next();
+  }
+
+  const isStateChangingMethod = !["GET", "HEAD", "OPTIONS"].includes(request.method.toUpperCase());
+  if (isStateChangingMethod && url.pathname.startsWith("/api/")) {
+    const lengthHeader = request.headers.get("content-length");
+    if (lengthHeader) {
+      const length = Number(lengthHeader);
+      if (Number.isFinite(length) && length > maxBodyBytes) {
+        return new NextResponse(
+          JSON.stringify({
+            ok: false,
+            error: `Request body too large. Limit is ${Math.round(maxBodyBytes / 1024)}KB.`,
+          }),
+          {
+            status: 413,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+    }
   }
 
   if (isProd && canonical) {

@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
-  const limited = rateLimit(req, { scope: "stripe-portal", limit: 20, windowMs: 60_000 });
+  const limited = await rateLimit(req, { scope: "stripe-portal", limit: 20, windowMs: 60_000 });
   if (limited.ok === false) return withCORS(limited.res, origin);
 
   const session = await auth();
