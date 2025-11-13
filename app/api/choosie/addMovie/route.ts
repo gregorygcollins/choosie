@@ -3,7 +3,6 @@ import { addItemToList, getListById } from "@/lib/db";
 import { auth } from "@/lib/auth.server";
 import { searchMovies } from "@/lib/tmdb";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
-import { rateLimit } from "@/lib/rateLimit";
 import { validateOrigin, createErrorResponse, requireAuth } from "@/lib/security";
 import { validateRequest, addMovieSchema } from "@/lib/validation";
 
@@ -13,9 +12,7 @@ export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
 
   try {
-    // Rate limiting
-    const rl = await rateLimit(req, { scope: "addMovie", limit: 60, windowMs: 60_000 });
-    if (!rl.ok) return withCORS(rl.res, origin);
+    // ---- REMOVED RATE LIMITING (caused Redis dependency) ----
 
     // Origin validation for CSRF protection
     if (!validateOrigin(req)) {
@@ -57,13 +54,15 @@ export async function POST(req: NextRequest) {
         overview = (results[0].overview || "").toString().trim() || undefined;
       }
     } catch {
-      // ignore TMDB errors for robustness
+      // Ignore TMDB errors for robustness
     }
 
     const item = await addItemToList(validatedData.listId, {
       title: validatedData.title,
-      // If user didn't provide notes, use TMDB overview as a helpful summary
-      notes: (validatedData.notes && validatedData.notes.trim().length > 0) ? validatedData.notes : overview,
+      notes:
+        validatedData.notes && validatedData.notes.trim().length > 0
+          ? validatedData.notes
+          : overview,
       image,
       tmdbId,
     });
@@ -98,6 +97,7 @@ export async function POST(req: NextRequest) {
           }
         : undefined,
     });
+
     return withCORS(res, origin);
   } catch (e: any) {
     return withCORS(createErrorResponse(e, 400, "Failed to add movie"), origin);
