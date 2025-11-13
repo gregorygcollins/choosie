@@ -121,6 +121,21 @@ export function maskEnvValue(key: string): string | null {
   return maskValue(value);
 }
 
-if (process.env.NODE_ENV === "production") {
+function shouldEnforceEnvAudit(): boolean {
+  if (process.env.ENFORCE_ENV_AUDIT === "true") return true;
+  const isVercelProd = process.env.VERCEL === "1" && process.env.VERCEL_ENV === "production";
+  return isVercelProd;
+}
+
+if (shouldEnforceEnvAudit()) {
   auditEnv({ throwOnError: true });
+} else if (process.env.NODE_ENV === "production") {
+  const { missing } = auditEnv({ throwOnError: false });
+  if (missing.length > 0) {
+    console.warn(
+      `[env] Missing optional environment variables (${missing.join(
+        ", "
+      )}). Set ENFORCE_ENV_AUDIT=true to fail builds when values are absent.`
+    );
+  }
 }
