@@ -563,12 +563,10 @@ export default function NarrowPage() {
 
 // Server-backed narrowing client for virtual participants
 function ServerNarrowClient({ listId, token }: { listId: string; token: string }) {
-      // Out-of-turn lockout logic
-      const [inviteIndex, setInviteIndex] = useState<number | null>(null);
-      const [participantsCount, setParticipantsCount] = useState<number | null>(null);
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    // Compute isMyTurn after roundIndex and state are defined
-    const isMyTurn = inviteIndex !== null && participantsCount !== null && (roundIndex % (participantsCount - 1)) === inviteIndex;
+  // Out-of-turn lockout logic
+  const [inviteIndex, setInviteIndex] = useState<number | null>(null);
+  const [participantsCount, setParticipantsCount] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -582,6 +580,9 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   const [roundIndex, setRoundIndex] = useState<number>(0);
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'live' | 'polling'>('connecting');
+
+  // Compute isMyTurn after all state/vars are declared
+  const isMyTurn = inviteIndex !== null && participantsCount !== null && (roundIndex % (participantsCount - 1)) === inviteIndex;
 
   const targetThisRound = plan[roundIndex] ?? 1;
   const participants = plan.length + 1;
