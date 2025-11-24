@@ -328,20 +328,23 @@ export default function VirtualInvitesPage() {
             >
               {saving ? "Preparing…" : "Send email invites"}
             </button>
-            <button
-              onClick={() => {
-                if (!list) return;
-                const origin = typeof window !== "undefined" ? window.location.origin : "";
-                const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-                const link = `${origin}${basePath}/narrow/${list.id}`;
-                navigator.clipboard.writeText(link).then(() => {
-                  alert("Link copied. Paste it into an SMS or chat to text invites.");
-                });
-              }}
-              className="rounded-full bg-white border border-brand px-5 py-2 text-sm font-semibold text-brand hover:bg-zinc-50"
-            >
-              Copy link for text
-            </button>
+            {/* Hide generic link if per-invite links are present */}
+            {!(list?.event?.invitees && Array.isArray(list.event.invitees) && list.event.invitees.length > 0) && (
+              <button
+                onClick={() => {
+                  if (!list) return;
+                  const origin = typeof window !== "undefined" ? window.location.origin : "";
+                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+                  const link = `${origin}${basePath}/narrow/${list.id}`;
+                  navigator.clipboard.writeText(link).then(() => {
+                    alert("Link copied. Paste it into an SMS or chat to text invites.");
+                  });
+                }}
+                className="rounded-full bg-white border border-brand px-5 py-2 text-sm font-semibold text-brand hover:bg-zinc-50"
+              >
+                Copy link for text
+              </button>
+            )}
           </div>
         </div>
       </div>
