@@ -16,6 +16,14 @@ type LocalHistoryEntry = {
 };
 
 export default function NarrowPage() {
+    // Warn if no participant token (i.e., generic link)
+    const noTokenWarning = (
+      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-center font-medium">
+        <span className="font-bold">Warning:</span> You are viewing this page without a unique narrowing invite link.<br />
+        To participate in narrowing, please use the unique link sent to you by the list creator. <br />
+        If you are the list creator, share the invite links with your narrowers from the Virtual Narrowing page.
+      </div>
+    );
   const params = useParams();
   const router = useRouter();
   const listId = params.id as string;
@@ -411,6 +419,7 @@ export default function NarrowPage() {
   return (
     <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {participantToken === '' && noTokenWarning}
         <ProcessSection />
         <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
 

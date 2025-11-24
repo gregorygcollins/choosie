@@ -283,11 +283,23 @@ export default function VirtualInvitesPage() {
                   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
                   const link = `${origin}${basePath}/narrow/${list.id}?pt=${inv.token ?? ''}`;
                   const target = plan[i];
+                  const { role } = getRoleName(participants, i);
+                  // Instructional text by role
+                  let instruction = '';
+                  if (role === 'Programmer') {
+                    instruction = `You are the Programmer. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+                  } else if (role === 'Selector') {
+                    instruction = `You are the Selector. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+                  } else if (role === 'Decider') {
+                    instruction = `You are the Decider. Please choosie your movie!`;
+                  } else {
+                    instruction = `You are the ${role}. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+                  }
                   return (
                     <li key={inv.email} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">{inv.email}</div>
-                        <div className="text-xs text-zinc-600 truncate">{inv.role || 'Participant'} • Target: {typeof target === 'number' ? target : ''}</div>
+                        <div className="text-xs text-zinc-600 truncate">{instruction}</div>
                       </div>
                       <button
                         onClick={() => {
