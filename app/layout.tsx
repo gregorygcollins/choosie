@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Choosie – Do Only What You Love, Together",
-  description: "Turn your passions into shared experiences. No scrolling, no bickering, no compromise.",
+  description: "Turn your interests into shared experiences. No scrolling, no bickering, no compromise.",
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
-    description: "Turn your passions into shared experiences. No scrolling, no bickering, no compromise.",
+    description: "Turn your interests into shared experiences. No scrolling, no bickering, no compromise.",
     url: "https://choosie-seven.vercel.app",
     siteName: "Choosie",
     images: [

@@ -563,13 +563,14 @@ export default function NarrowPage() {
 
 // Server-backed narrowing client for virtual participants
 function ServerNarrowClient({ listId, token }: { listId: string; token: string }) {
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [moduleType, setModuleType] = useState<string>("movies");
   const [role, setRole] = useState<string | null>(null);
-  const [items, setItems] = useState<Array<{ id: string; title: string; image?: string | null }>>([]);
+  const [items, setItems] = useState<Array<{ id: string; title: string; image?: string | null; notes?: string | null }>>([]);
   const [remainingIds, setRemainingIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [plan, setPlan] = useState<number[]>([]);
@@ -830,42 +831,111 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
             </div>
           )}
         </div>
-        <h1 className="text-2xl font-bold text-center mb-2">{title}</h1>
-        <div className="text-center mb-4 text-zinc-600 text-sm">{effectiveRole ? `${effectiveRole} • ` : ''}Round {Math.min(roundIndex + 1, plan.length)} of {plan.length}</div>
-        <div className="flex justify-center mb-6">
-          <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
-            isFinalRound ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" : "bg-white/90 ring-1 ring-brand/20"
-          }`}>
-            <span aria-hidden className="text-lg">{emoji}</span>
-            <span><strong>{effectiveRole || 'Your turn'}</strong>, pick {targetThisRound} {targetThisRound === 1 ? 'item' : 'items'}</span>
+
+        <div className="flex justify-end mb-4">
+          <div className="inline-flex rounded-lg bg-zinc-100 p-1">
+            <button
+              className={`px-3 py-1 rounded-l-lg text-sm font-medium ${viewMode === 'grid' ? 'bg-brand text-white' : 'text-zinc-600'}`}
+              onClick={() => setViewMode('grid')}
+              aria-label="Grid view"
+              type="button"
+            >
+              Grid
+            </button>
+            <button
+              className={`px-3 py-1 rounded-r-lg text-sm font-medium ${viewMode === 'list' ? 'bg-brand text-white' : 'text-zinc-600'}`}
+              onClick={() => setViewMode('list')}
+              aria-label="List view"
+              type="button"
+            >
+              List
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {remaining.map((item) => {
-            const selected = selectedIds.includes(item.id);
-            return (
-              <button
-                key={item.id}
-                onClick={() => selectItem(item.id)}
-                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
-                  selected
-                    ? isFinalRound
-                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
-                    : "border-transparent hover:scale-[1.02]"
-                }`}
-              >
-                <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                  {selected
-                    ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                    : `Tap to select`}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {remaining.map((item) => {
+              const selected = selectedIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => selectItem(item.id)}
+                  className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
+                    selected
+                      ? isFinalRound
+                        ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                        : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
+                      : "border-transparent hover:scale-[1.02]"
+                  }`}
+                >
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-36 object-cover rounded-md mb-3"
+                    />
+                  ) : (
+                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
+                      📷
+                    </div>
+                  )}
+                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                  {item.notes && (
+                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
+                  )}
+                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                    {selected
+                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                      : `Tap to select`}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {remaining.map((item) => {
+              const selected = selectedIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => selectItem(item.id)}
+                  className={`relative flex flex-row items-center p-3 rounded-xl bg-white/90 shadow border-2 transition-all duration-300 focus:outline-none ${
+                    selected
+                      ? isFinalRound
+                        ? "border-amber-400 shadow-2xl ring-2 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                        : "border-brand ring-2 ring-brand/40 bg-brand/5"
+                      : "border-transparent hover:scale-[1.01]"
+                  }`}
+                >
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-20 h-20 object-cover rounded-md mr-4"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-md bg-white/60 mr-4 flex items-center justify-center text-zinc-400">
+                      📷
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-semibold truncate ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                    {item.notes && (
+                      <div className="text-sm text-zinc-500 line-clamp-2">{item.notes}</div>
+                    )}
+                  </div>
+                  <div className={`ml-4 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                    {selected
+                      ? isFinalRound ? "🏆" : `✔️`
+                      : `Select`}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button

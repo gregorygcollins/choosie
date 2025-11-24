@@ -45,7 +45,17 @@ export async function POST(req: NextRequest) {
     });
 
     const winnerItemId = list.progress?.winnerItemId || null;
-    return withCORS(NextResponse.json({ ok: true, state, winnerItemId, items: list.items.map(i => ({ id: i.id, title: i.title, image: i.imageUrl || null })) }), origin);
+    return withCORS(NextResponse.json({
+      ok: true,
+      state,
+      winnerItemId,
+      items: list.items.map(i => ({
+        id: i.id,
+        title: i.title,
+        notes: i.notes,
+        image: i.imageUrl || null
+      }))
+    }), origin);
   } catch (e: any) {
     console.error('narrow/state error', e);
     return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
