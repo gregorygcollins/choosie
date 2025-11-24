@@ -11,6 +11,23 @@ import type { ChoosieList } from "@/components/ListForm";
 import ProcessSection from "@/components/ProcessSection";
 
 export default function VirtualInvitesPage() {
+    // Reset invitees and notes, and clear event.invitees from the list
+    function handleReset() {
+      if (!list) return;
+      if (!window.confirm('Reset all invitees and links? This will clear all narrowing links and allow you to start over.')) return;
+      const updated: ChoosieList = {
+        ...list,
+        event: {
+          ...(list.event || {}),
+          invitees: [],
+          notes: '',
+        },
+      };
+      upsertList(updated);
+      setList(updated);
+      setInvitees('');
+      setNotes('');
+    }
   const router = useRouter();
   const { id } = useParams();
   const [list, setList] = useState<ChoosieList | null>(null);
@@ -288,13 +305,21 @@ export default function VirtualInvitesPage() {
           </div>
         )}
 
-        <div className="mt-6 flex justify-between">
-          <button
-            onClick={() => router.push(`/list/${list.id}`)}
-            className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-          >
-            Back to list
-          </button>
+        <div className="mt-6 flex flex-col sm:flex-row justify-between gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={handleReset}
+              className="rounded-full border border-red-300 px-5 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              Reset
+            </button>
+            <button
+              onClick={() => router.push(`/list/${list.id}`)}
+              className="rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            >
+              Back to list
+            </button>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={saveAndSend}
