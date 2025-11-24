@@ -563,6 +563,10 @@ export default function NarrowPage() {
 
 // Server-backed narrowing client for virtual participants
 function ServerNarrowClient({ listId, token }: { listId: string; token: string }) {
+      // Out-of-turn lockout logic
+      const [inviteIndex, setInviteIndex] = useState<number | null>(null);
+      const [participantsCount, setParticipantsCount] = useState<number | null>(null);
+      const isMyTurn = inviteIndex !== null && participantsCount !== null && (roundIndex % (participantsCount - 1)) === inviteIndex;
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -607,6 +611,12 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
       setTitle(pubJson.list?.title || '');
       setModuleType(pubJson.list?.moduleType || 'movies');
       setRole(pubJson.list?.participantRole || null);
+      // Find this invitee's index and total participants
+      if (pubJson.list?.event?.invitees && Array.isArray(pubJson.list.event.invitees)) {
+        const idx = pubJson.list.event.invitees.findIndex((i: any) => i.token === token);
+        setInviteIndex(idx);
+        setParticipantsCount(pubJson.list.event.invitees.length + 1);
+      }
     } catch (e: any) {
       setError(e?.message || 'Unable to load');
     } finally {
@@ -708,6 +718,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   }, [listId]);
 
   async function selectItem(itemId: string) {
+    if (!isMyTurn) return;
     try {
       const endpoint = selectedIds.includes(itemId) ? '/api/choosie/narrow/deselect' : '/api/choosie/narrow/select';
       const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, itemId, participantToken: token }) });
@@ -725,6 +736,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   }
 
   async function confirmRound() {
+    if (!isMyTurn) return;
     try {
       const res = await fetch('/api/choosie/narrow/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
       const data = await res.json();
@@ -853,6 +865,11 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
           </div>
         </div>
 
+        {!isMyTurn && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center font-medium">
+            It’s not your turn yet. Please wait for the previous narrower to finish their round.
+          </div>
+        )}
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {remaining.map((item) => {
@@ -861,6 +878,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                 <button
                   key={item.id}
                   onClick={() => selectItem(item.id)}
+                  disabled={!isMyTurn}
                   className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
                     selected
                       ? isFinalRound
@@ -901,6 +919,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                 <button
                   key={item.id}
                   onClick={() => selectItem(item.id)}
+                  disabled={!isMyTurn}
                   className={`relative flex flex-row items-center p-3 rounded-xl bg-white/90 shadow border-2 transition-all duration-300 focus:outline-none ${
                     selected
                       ? isFinalRound
@@ -941,20 +960,22 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
           <button
             onClick={resetProgress}
             className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white border border-zinc-300"
+            disabled={!isMyTurn}
           >
             Reset
           </button>
           <button
             onClick={undoRound}
             className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
+            disabled={!isMyTurn}
           >
             Undo
           </button>
           <button
             onClick={confirmRound}
-            disabled={selectedIds.length !== targetThisRound}
+            disabled={selectedIds.length !== targetThisRound || !isMyTurn}
             className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
-              selectedIds.length === targetThisRound
+              selectedIds.length === targetThisRound && isMyTurn
                 ? isFinalRound
                   ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
                   : "bg-brand hover:opacity-90"

@@ -252,7 +252,9 @@ export default function VirtualInvitesPage() {
         {list?.event?.invitees && Array.isArray(list.event.invitees) && list.event.invitees.length > 0 && (
           <div className="mt-8 border-t pt-6">
             <h2 className="text-base font-semibold mb-3">Per-invite links</h2>
-            <p className="text-xs text-zinc-600 mb-3">Share each person’s unique link (includes their role). Ideal for texting invites.</p>
+            <p className="text-xs text-zinc-600 mb-3">
+              Each person must use their unique link below. <b>Only one narrower can act at a time, in order.</b> Later narrowers must wait until it’s their turn. Share these links individually (ideal for texting or email).
+            </p>
             <ul className="space-y-2">
               {(() => {
                 const raw = list.event!.invitees! as Array<string | { email: string; role?: string; token?: string; accepted?: boolean }>;
