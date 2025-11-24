@@ -210,11 +210,29 @@ export default function VirtualInvitesPage() {
         ? `Roles and rounds (in order):\n${lines.map((l) => `• ${l}`).join("\n")}\n\n`
         : "";
 
-      const subject = `Join my ${listTypeName}: ${updated.title}`;
-      const body = `I just made a ${listTypeName} in Choosie.\n\n${rolesBlock}Open the narrowing link here: ${link}\n\nNo account needed. We’ll take turns by role until we pick a winner.\n\n—`;
-
-      const mailto = `mailto:${encodeURIComponent(emails.join(","))}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
+      // Send individual emails with unique links and role-specific instructions
+      for (let i = 0; i < structured.length; i++) {
+        const inv = structured[i];
+        const { role } = getRoleName(participantsFinal, i);
+        const target = planFinal[i];
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+        const link = `${origin}${basePath}/narrow/${updated.id}?pt=${inv.token ?? ''}`;
+        let instruction = '';
+        if (role === 'Programmer') {
+          instruction = `You are the Programmer. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+        } else if (role === 'Selector') {
+          instruction = `You are the Selector. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+        } else if (role === 'Decider') {
+          instruction = `You are the Decider. Please choosie your movie!`;
+        } else {
+          instruction = `You are the ${role}. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+        }
+        const subject = `Your role: ${role} in ${updated.title}`;
+        const body = `I just made a ${listTypeName} in Choosie.\n\n${instruction}\n\nOpen your unique narrowing link here: ${link}\n\nNo account needed. We’ll take turns by role until we pick a winner.\n\n—`;
+        const mailto = `mailto:${encodeURIComponent(inv.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(mailto, '_blank');
+      }
     } finally {
       setSaving(false);
     }
