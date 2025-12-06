@@ -314,19 +314,30 @@ export default function VirtualInvitesPage() {
                     instruction = `You are the ${role}. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
                   }
                   return (
-                    <li key={inv.email} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
+                    <li key={inv.email} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border px-3 py-2">
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">{inv.email}</div>
                         <div className="text-xs text-zinc-600 truncate">{instruction}</div>
                       </div>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard'));
-                        }}
-                        className="rounded-full bg-white border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-zinc-50 flex-shrink-0"
-                      >
-                        Copy link
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard'));
+                          }}
+                          className="rounded-full bg-white border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-zinc-50"
+                        >
+                          Copy link
+                        </button>
+                        <button
+                          onClick={() => {
+                            const message = `Hi!\n\n${instruction}\n\nOpen your unique narrowing link here: ${link}\n\nNo account needed. We’ll take turns by role until we pick a winner.\n\n—`;
+                            navigator.clipboard.writeText(message).then(() => alert('Full message copied to clipboard'));
+                          }}
+                          className="rounded-full bg-brand border border-brand px-3 py-1 text-xs font-semibold text-white hover:bg-brand/80"
+                        >
+                          Copy full message
+                        </button>
+                      </div>
                     </li>
                   );
                 });
