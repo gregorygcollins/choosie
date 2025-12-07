@@ -590,8 +590,15 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'live' | 'polling'>('connecting');
 
-  // Compute isMyTurn after all state/vars are declared
-  const isMyTurn = inviteIndex !== null && participantsCount !== null && (roundIndex % (participantsCount - 1)) === inviteIndex;
+  // Compute isMyTurn: first invitee is always active in first round
+  let isMyTurn = false;
+  if (inviteIndex !== null && participantsCount !== null) {
+    if (roundIndex === 0) {
+      isMyTurn = inviteIndex === 0;
+    } else {
+      isMyTurn = (roundIndex % (participantsCount - 1)) === inviteIndex;
+    }
+  }
 
   const targetThisRound = plan[roundIndex] ?? 1;
   const participants = plan.length + 1;
