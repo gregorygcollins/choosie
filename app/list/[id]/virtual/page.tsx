@@ -32,6 +32,7 @@ export default function VirtualInvitesPage() {
   const { id } = useParams();
   const [list, setList] = useState<ChoosieList | null>(null);
   const [invitees, setInvitees] = useState<string>("");
+  const [mode, setMode] = useState<'number' | 'email'>("number");
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
@@ -261,16 +262,45 @@ export default function VirtualInvitesPage() {
   <h1 className="text-2xl font-semibold mb-1">Narrow virtually</h1>
         <p className="text-sm text-zinc-600 mb-6">Enter emails to send an invite with a link to the narrowing page. You can send via email or copy a link for text.</p>
 
+        <div className="mb-4 flex gap-2">
+          <button
+            className={`px-4 py-2 rounded-lg font-medium border ${mode === 'number' ? 'bg-brand text-white border-brand' : 'bg-white text-brand border-zinc-300'}`}
+            onClick={() => setMode('number')}
+          >
+            Generate links
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg font-medium border ${mode === 'email' ? 'bg-brand text-white border-brand' : 'bg-white text-brand border-zinc-300'}`}
+            onClick={() => setMode('email')}
+          >
+            Enter email addresses
+          </button>
+        </div>
         <div className="grid gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-600">Invitees (comma-separated)</label>
-            <input
-              value={invitees}
-              onChange={(e) => setInvitees(e.target.value)}
-              className="rounded-lg border px-3 py-2"
-              placeholder="e.g., alex@example.com, bea@example.com"
-            />
-          </div>
+          {mode === 'number' ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-zinc-600">Number of Narrowers</label>
+              <input
+                type="number"
+                min={1}
+                max={6}
+                value={invitees}
+                onChange={(e) => setInvitees(e.target.value.replace(/[^0-9]/g, ''))}
+                className="rounded-lg border px-3 py-2"
+                placeholder="e.g., 3"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-zinc-600">Invitees (comma-separated emails)</label>
+              <input
+                value={invitees}
+                onChange={(e) => setInvitees(e.target.value)}
+                className="rounded-lg border px-3 py-2"
+                placeholder="e.g., alex@example.com, bea@example.com"
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-1">
             <label className="text-xs text-zinc-600">Message (optional)</label>
             <textarea
@@ -284,39 +314,112 @@ export default function VirtualInvitesPage() {
         </div>
 
         {/* Per-invite links (copy for SMS or individual emails) */}
-        {list?.event?.invitees && Array.isArray(list.event.invitees) && list.event.invitees.length > 0 && (
+        {/* Show links for both modes */}
+        {mode === 'number' && invitees && Number(invitees) > 0 && (
           <div className="mt-8 border-t pt-6">
-            <h2 className="text-base font-semibold mb-3">Per-invite links</h2>
+            <h2 className="text-base font-semibold mb-3">Unique narrowing links</h2>
             <p className="text-xs text-zinc-600 mb-3">
-              Each person must use their unique link below. <b>Only one narrower can act at a time, in order.</b> Later narrowers must wait until it’s their turn. Share these links individually (ideal for texting or email).
+              Copy and send each link below to your group. <b>Only one narrower can act at a time, in order.</b> Later narrowers must wait until it’s their turn. Share these links individually (ideal for texting or email).
             </p>
             <ul className="space-y-2">
               {(() => {
-                const raw = list.event!.invitees! as Array<string | { email: string; role?: string; token?: string; accepted?: boolean }>;
-                const emails = raw.filter((x) => typeof x !== 'string') as Array<{ email: string; role?: string; token?: string }>;
-                const participants = (list as any).participants || (emails.length + 1) || 2;
+                const participants = Number(invitees) + 1;
                 const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-                return emails.map((inv, i) => {
+                // Generate tokens for each narrower
+                const tokens = Array.from({ length: Number(invitees) }, () => {
+                  const arr = new Uint8Array(16);
+                  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+                    window.crypto.getRandomValues(arr);
+                  } else {
+                    for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
+                  }
+                  const token = Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+                  const issuedAt = Date.now();
+                  return `${token}.${issuedAt}`;
+                });
+                return tokens.map((token, i) => {
                   const origin = typeof window !== 'undefined' ? window.location.origin : '';
                   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-                  const link = `${origin}${basePath}/narrow/${list.id}?pt=${inv.token ?? ''}`;
+                  const link = `${origin}${basePath}/narrow/${list.id}?pt=${token}`;
                   const target = plan[i];
                   const { role } = getRoleName(participants, i);
-                  // Instructional text by role
                   let instruction = '';
-                  if (role === 'Programmer') {
-                    instruction = `You are the Programmer. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
-                  } else if (role === 'Selector') {
-                    instruction = `You are the Selector. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
-                  } else if (role === 'Decider') {
-                    instruction = `You are the Decider. Please choosie your movie!`;
+                  const totalNarrowers = Number(invitees);
+                  if (i === totalNarrowers - 1) {
+                    instruction = `You are Narrower ${i + 1} of ${totalNarrowers}, please choosie your movie!`;
                   } else {
-                    instruction = `You are the ${role}. Please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+                    instruction = `You are Narrower ${i + 1} of ${totalNarrowers}, please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
                   }
                   return (
-                    <li key={inv.email} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border px-3 py-2">
+                    <li key={token} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border px-3 py-2">
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{inv.email}</div>
+                        <div className="text-sm font-medium truncate">Narrower {i + 1}</div>
+                        <div className="text-xs text-zinc-600 truncate">{instruction}</div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard'));
+                          }}
+                          className="rounded-full bg-white border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-zinc-50"
+                        >
+                          Copy link
+                        </button>
+                        <button
+                          onClick={() => {
+                            const message = `Hi!\n\n${instruction}\n\nOpen your unique narrowing link here: ${link}\n\nNo account needed. We’ll take turns by role until we pick a winner.\n\n—`;
+                            navigator.clipboard.writeText(message).then(() => alert('Full message copied to clipboard'));
+                          }}
+                          className="rounded-full bg-brand border border-brand px-3 py-1 text-xs font-semibold text-white hover:bg-brand/80"
+                        >
+                          Copy full message
+                        </button>
+                      </div>
+                    </li>
+                  );
+                });
+              })()}
+            </ul>
+          </div>
+        )}
+        {mode === 'email' && invitees && invitees.split(',').filter(e => e.trim()).length > 0 && (
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-base font-semibold mb-3">Unique narrowing links</h2>
+            <p className="text-xs text-zinc-600 mb-3">
+              Copy and send each link below to your group. <b>Only one narrower can act at a time, in order.</b> Later narrowers must wait until it’s their turn. Share these links individually (ideal for texting or email).
+            </p>
+            <ul className="space-y-2">
+              {(() => {
+                const emails = invitees.split(',').map(e => e.trim()).filter(Boolean);
+                const participants = emails.length + 1;
+                const plan = computeNarrowingPlan(list.items.length, participants, { participants });
+                const tokens = Array.from({ length: emails.length }, () => {
+                  const arr = new Uint8Array(16);
+                  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+                    window.crypto.getRandomValues(arr);
+                  } else {
+                    for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
+                  }
+                  const token = Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+                  const issuedAt = Date.now();
+                  return `${token}.${issuedAt}`;
+                });
+                return tokens.map((token, i) => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+                  const link = `${origin}${basePath}/narrow/${list.id}?pt=${token}`;
+                  const target = plan[i];
+                  const totalNarrowers = emails.length;
+                  let instruction = '';
+                  if (i === totalNarrowers - 1) {
+                    instruction = `You are Narrower ${i + 1} of ${totalNarrowers}, please choosie your movie!`;
+                  } else {
+                    instruction = `You are Narrower ${i + 1} of ${totalNarrowers}, please select ${target} ${target === 1 ? 'movie' : 'movies'}.`;
+                  }
+                  return (
+                    <li key={token} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border px-3 py-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{emails[i]}</div>
                         <div className="text-xs text-zinc-600 truncate">{instruction}</div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
