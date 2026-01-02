@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Nunito:wght@500;600&family=Pacifico&display=swap');
+/* Fonts are loaded via next/font in layout.tsx */
 @import "tailwindcss";
 
 /* Ensure Pacifico font is loaded */
