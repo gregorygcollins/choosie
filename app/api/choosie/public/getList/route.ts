@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       id: list.id,
       title: list.title,
       moduleType: mapModule(list.module, tasteJson),
-      items: list.items.map(it => ({ id: it.id, title: it.title, notes: it.notes, image: it.imageUrl || null })),
+      items: list.items.map((it: any) => ({ id: it.id, title: it.title, notes: it.notes, image: it.imageUrl || null })),
       winnerItemId: list.progress?.winnerItemId || null,
       participantRole: matched?.role || null,
     };

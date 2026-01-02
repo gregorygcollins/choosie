@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { sseResponse, publish } from "@/lib/sse";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { computeNarrowingPlan } from "@/lib/planner";
 
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ async function buildInitialState(listId: string) {
   const plan = computeNarrowingPlan(list.items.length, participants, { participants });
   let state: any = list.progress?.historyJson || null;
   if (!state) {
-    state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map(i => i.id), selectedIds: [], target: plan[0] } };
+    state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
   } else {
     if (!Array.isArray(state.plan)) state.plan = plan;
     const idx = typeof state.roundIndex === 'number' ? state.roundIndex : 0;
@@ -26,7 +26,7 @@ async function buildInitialState(listId: string) {
   return {
     listId,
     title: list.title,
-    items: list.items.map(i => ({ id: i.id, title: i.title })),
+    items: list.items.map((i: any) => ({ id: i.id, title: i.title })),
     state,
     winnerItemId: list.progress?.winnerItemId || null,
   };

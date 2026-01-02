@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
@@ -88,13 +88,13 @@ export async function POST(req: NextRequest) {
       // Delete items not in the new list
       const newItemIds = items.filter(it => it.id).map(it => it.id);
       const itemsToDelete = existingList.items.filter(
-        item => !newItemIds.includes(item.id)
+        (item: any) => !newItemIds.includes(item.id)
       );
       
       if (itemsToDelete.length > 0) {
         await prisma.item.deleteMany({
           where: {
-            id: { in: itemsToDelete.map(it => it.id) },
+            id: { in: itemsToDelete.map((it: any) => it.id) },
           },
         });
       }
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       // Update or create items
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        if (item.id && existingList.items.some(ei => ei.id === item.id)) {
+        if (item.id && existingList.items.some((ei: any) => ei.id === item.id)) {
           // Update existing item
           await prisma.item.update({
             where: { id: item.id },
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
       list: {
         id: finalList!.id,
         title: finalList!.title,
-        items: finalList!.items.map((it) => ({
+        items: finalList!.items.map((it: any) => ({
           id: it.id,
           title: it.title,
           notes: it.notes,

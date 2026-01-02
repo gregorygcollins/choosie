@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { publish } from "@/lib/sse";
 import { computeNarrowingPlan } from "@/lib/planner";
 import { z } from "zod";

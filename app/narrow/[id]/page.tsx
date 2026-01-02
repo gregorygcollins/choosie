@@ -1,7 +1,7 @@
 "use client";
-
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getList, upsertList } from "@/lib/storage";
 import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
@@ -12,145 +12,56 @@ type LocalHistoryEntry = {
   remainingIds: string[];
   currentNarrower: number;
   round: number;
-  selectedIds: string[]; // kept locally for undo clarity
+  selectedIds: string[];
 };
 
 export default function NarrowPage() {
-  const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
-  
-    // Warn if no participant token (i.e., generic link)
-    const noTokenWarning = (
-      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-center font-medium">
-        <span className="font-bold">Warning:</span> You are viewing this page without a unique narrowing invite link.<br />
-        To participate in narrowing, please use the unique link sent to you by the list creator. <br />
-        If you are the list creator, share the invite links with your narrowers from the Virtual Narrowing page.
-      </div>
-    );
   const params = useParams();
   const router = useRouter();
-  const listId = params.id as string;
-  const searchParams = useSearchParams();
-  const participantToken = (searchParams?.get('pt') || '').trim();
-  const serverMode = !!participantToken;
-
-  if (serverMode) {
-    return <ServerNarrowClient listId={listId} token={participantToken} />;
-  }
-
   const [list, setList] = useState<ChoosieList | null>(null);
   const [remaining, setRemaining] = useState<ChoosieItem[]>([]);
-  const [roundTargets, setRoundTargets] = useState<number[]>([]);
-  const [roundNumber, setRoundNumber] = useState<number>(1);
-  const [currentNarrower, setCurrentNarrower] = useState<number>(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [roundNumber, setRoundNumber] = useState(1);
+  const [currentNarrower, setCurrentNarrower] = useState(1);
+  const [roundTargets, setRoundTargets] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<LocalHistoryEntry[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Load / resume list progress
   useEffect(() => {
-    const l = getList(listId);
-    if (!l) {
-      setList(null);
-      setLoading(false);
-      return;
-    }
-
-    // Get participant count from list (default to 4 for backwards compatibility)
-    const participants = (l as any).participants || 4;
-
-    // Check if list has been modified since narrowing started
-    const listModified = l.progress && l.progress.remainingIds?.length
-      ? !l.progress.remainingIds.every((id: string) => l.items.some((item) => item.id === id))
-      : false;
-
-    if (l.progress && l.progress.remainingIds?.length && !listModified) {
-      // Resume existing progress (only if list hasn't been modified)
-      const progress = l.progress;
-      const rem = l.items.filter((it) => progress.remainingIds.includes(it.id));
-      const desiredPlan = computeNarrowingPlan(rem.length, participants, { participants });
-      const existingPlan = l.narrowingPlan && l.narrowingPlan.length ? l.narrowingPlan : null;
-
-      // If participants changed (plan length mismatch), re-initialize to ensure correct number of phases
-      const expectedRounds = desiredPlan.length;
-      const existingRounds = existingPlan?.length ?? expectedRounds;
-      if (existingRounds !== expectedRounds) {
-        const updated: ChoosieList = {
-          ...l,
-          winnerId: undefined,
-          narrowingPlan: desiredPlan,
-          progress: {
-            remainingIds: l.items.map((i) => i.id),
-            currentNarrower: 1,
-            round: 1,
-            totalRounds: desiredPlan.length,
-            history: [],
-          },
-        } as ChoosieList;
-        upsertList(updated);
-        setList(updated);
-        setRemaining(l.items.slice());
-        setRoundTargets(desiredPlan);
-        setRoundNumber(1);
-        setCurrentNarrower(1);
-        setHistory([]);
-        setSelectedIds([]);
-      } else {
+    async function load() {
+      setLoading(true);
+      const id = params?.id as string;
+      const l = await getList(id);
+      if (l) {
         setList(l);
-        setRemaining(rem);
-        setRoundTargets(existingPlan || desiredPlan);
-        setRoundNumber(progress.round || 1);
-        setCurrentNarrower(progress.currentNarrower || 1);
-        // history in persisted progress does not include selectedIds; keep empty selectedIds locally
+        setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
+        setRoundTargets(l.narrowingPlan || []);
+        setRoundNumber(l.progress?.round || 1);
+        setCurrentNarrower(l.progress?.currentNarrower || 1);
+        setSelectedIds((l.progress as any)?.selectedIds || []);
         setHistory(
-          (progress.history || []).map((h) => ({
-            remainingIds: h.remainingIds,
-            currentNarrower: h.currentNarrower,
-            round: h.round,
-            selectedIds: [],
+          (l.progress?.history || []).map((h: any) => ({
+            ...h,
+            selectedIds: h.selectedIds || [],
           }))
         );
-        setSelectedIds([]);
       }
-    } else {
-      // Initialize fresh narrowing plan (either no progress exists, or list was modified since last narrowing)
-      const initialItems = l.items.slice();
-      const plan = l.narrowingPlan && l.narrowingPlan.length
-        ? l.narrowingPlan
-        : computeNarrowingPlan(initialItems.length, participants, {
-            participants,
-          });
-      const updated: ChoosieList = {
-        ...l,
-        narrowingPlan: plan,
-        progress: {
-          remainingIds: initialItems.map((i) => i.id),
-          currentNarrower: 1,
-          round: 1,
-          totalRounds: plan.length,
-          history: [],
-        },
-      };
-      upsertList(updated);
-      setList(updated);
-      setRemaining(initialItems);
-      setRoundTargets(plan);
-      setRoundNumber(1);
-      setCurrentNarrower(1);
-      setHistory([]);
-      setSelectedIds([]);
+      setLoading(false);
     }
-    setLoading(false);
-  }, [listId]);
+    load();
+  }, [params]);
 
   const targetThisRound = roundTargets[roundNumber - 1] || 1;
-  const isFinalRound = roundNumber >= roundTargets.length;
+  const isFinalRound = roundNumber === roundTargets.length;
 
   const toggleSelect = useCallback(
     (id: string) => {
       setSelectedIds((prev) => {
         const exists = prev.includes(id);
         if (exists) return prev.filter((x) => x !== id);
-        if (prev.length >= targetThisRound) return prev; // can't exceed target
+        if (prev.length >= targetThisRound) return prev;
         return [...prev, id];
       });
     },
@@ -179,8 +90,8 @@ export default function NarrowPage() {
     let newPlan = roundTargets.slice();
     if (isFinalRound) {
       winnerId = selectedIds[0];
-      finalRoundNumber = roundNumber; // stays
-      nextRound = roundNumber; // no more rounds
+      finalRoundNumber = roundNumber;
+      nextRound = roundNumber;
     }
 
     const updatedList: ChoosieList = {
@@ -224,11 +135,10 @@ export default function NarrowPage() {
     setCurrentNarrower(last.currentNarrower);
     setSelectedIds([]);
 
-    // Persist rollback (remove last progress history entry)
     const persistedHistory = (list.progress?.history || []).slice(0, -1);
     const updated: ChoosieList = {
       ...list,
-      winnerId: undefined, // undo clears winner if existed
+      winnerId: undefined,
       progress: {
         remainingIds: last.remainingIds,
         currentNarrower: last.currentNarrower,
@@ -241,16 +151,12 @@ export default function NarrowPage() {
     setList(updated);
   }, [history, list, roundTargets.length]);
 
-  // Keyboard shortcuts: 1-9 to toggle selection of item index, Enter to confirm
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      // Ignore if modifier keys or active element is an input/textarea/contentEditable
       const ae = document.activeElement as HTMLElement | null;
       if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (!remaining.length || list?.winnerId) return;
-
-      // Number keys 1-9 map to indices 0-8
       if (/^[1-9]$/.test(e.key)) {
         const idx = parseInt(e.key, 10) - 1;
         if (idx >= 0 && idx < remaining.length) {
@@ -260,8 +166,6 @@ export default function NarrowPage() {
         }
         return;
       }
-
-      // 0 key maps to index 9 (10th item) if present
       if (e.key === '0') {
         const idx = 9;
         if (idx < remaining.length) {
@@ -270,8 +174,6 @@ export default function NarrowPage() {
         }
         return;
       }
-
-      // Enter confirms when ready
       if (e.key === 'Enter') {
         if (selectedIds.length === targetThisRound) {
           e.preventDefault();
@@ -279,8 +181,6 @@ export default function NarrowPage() {
         }
         return;
       }
-
-      // Backspace or Escape performs undo (only if selection empty)
       if ((e.key === 'Backspace' || e.key === 'Escape') && selectedIds.length === 0) {
         e.preventDefault();
         undoLast();
@@ -294,9 +194,7 @@ export default function NarrowPage() {
   const resetAll = useCallback(() => {
     if (!list) return;
     const participants = (list as any).participants || 4;
-    const plan = computeNarrowingPlan(list.items.length, participants, {
-      participants,
-    });
+    const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     const updated: ChoosieList = {
       ...list,
       winnerId: undefined,
@@ -319,7 +217,6 @@ export default function NarrowPage() {
     setHistory([]);
   }, [list]);
 
-  // Reset progress to initial state and return to list detail
   const resetListAndGoBack = useCallback(() => {
     resetAll();
     if (list) {
@@ -328,30 +225,19 @@ export default function NarrowPage() {
   }, [resetAll, router, list]);
 
   if (loading) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>
-    );
+    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
   }
-
   if (!list) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">List not found</h1>
-        <Link
-          href="/"
-          className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors"
-        >
-          Return Home
-        </Link>
+        <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
       </div>
     );
   }
 
-  // Get role and emoji from planner
   const participants = (list as any).participants || 4;
   const { role, emoji } = getRoleName(participants, roundNumber - 1);
-  
-  // Determine item type based on module
   let itemType = "favorites";
   if (list.moduleType === "movies") {
     itemType = targetThisRound === 1 ? "movie" : "movies";
@@ -365,7 +251,6 @@ export default function NarrowPage() {
     itemType = targetThisRound === 1 ? "favorite" : "favorites";
   }
 
-  // If there's a winner, show full-page celebration
   if (list.winnerId) {
     const winner = list.items.find((i) => i.id === list.winnerId);
     return (
@@ -375,22 +260,12 @@ export default function NarrowPage() {
           <div className="bg-white rounded-2xl shadow-lg p-8">
             {winner?.image && (
               <div className="relative w-48 h-48 mx-auto mb-6 rounded-xl overflow-hidden shadow-md">
-                <img
-                  src={winner.image}
-                  alt={winner.title}
-                  className="w-full h-full object-cover"
-                />
+                <img src={winner.image} alt={winner.title} className="w-full h-full object-cover" />
               </div>
             )}
             <div className="mb-3 text-amber-600 font-semibold text-lg">🏆 We have a winner! 🏆</div>
-            <div className="text-3xl font-bold text-zinc-800 mb-3">
-              {winner?.title || "Chosen"}
-            </div>
-            {winner?.notes && (
-              <div className="text-sm text-zinc-600 mb-6">
-                {winner.notes}
-              </div>
-            )}
+            <div className="text-3xl font-bold text-zinc-800 mb-3">{winner?.title || "Chosen"}</div>
+            {winner?.notes && (<div className="text-sm text-zinc-600 mb-6">{winner.notes}</div>)}
             <div className="flex items-center justify-center gap-2 text-amber-500 mb-6">
               <span className="text-2xl">⭐</span>
               <span className="text-2xl">⭐</span>
@@ -398,19 +273,9 @@ export default function NarrowPage() {
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               {history.length > 0 && (
-                <button
-                  onClick={undoLast}
-                  className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
-                >
-                  Undo
-                </button>
+                <button onClick={undoLast} className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5">Undo</button>
               )}
-              <button
-                onClick={resetListAndGoBack}
-                className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
-              >
-                Reset list
-              </button>
+              <button onClick={resetListAndGoBack} className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors">Reset list</button>
             </div>
           </div>
         </div>
@@ -421,732 +286,90 @@ export default function NarrowPage() {
   return (
     <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {participantToken === '' && noTokenWarning}
         <ProcessSection />
         <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
-
-        {/* Progress timeline */}
-        <div className="mb-6 flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            {roundTargets.map((t, idx) => {
-              const isCurrent = idx + 1 === roundNumber;
-              const isPast = idx + 1 < roundNumber;
-              return (
-                <div key={idx} className="flex items-center">
-                  {idx > 0 && (
-                    <div
-                      className={`h-[2px] w-8 mx-1 ${isPast ? "bg-brand" : "bg-zinc-200"}`}
-                    />
-                  )}
-                  <div
-                    className={`flex h-8 min-w-[2rem] items-center justify-center rounded-full px-3 text-sm font-medium transition-all ${
-                      isCurrent
-                        ? "bg-brand text-white ring-4 ring-brand/20"
-                        : isPast
-                        ? "bg-brand/20 text-brand"
-                        : "bg-zinc-100 text-zinc-400"
-                    }`}
-                  >
-                    {t}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Minimal narrowing UI placeholder */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="mb-4">
+            <button
+              className={`px-4 py-2 rounded-full font-semibold mr-2 ${viewMode === 'grid' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
+              onClick={() => setViewMode('grid')}
+            >
+              Grid View
+            </button>
+            <button
+              className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'list' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
+              onClick={() => setViewMode('list')}
+            >
+              List View
+            </button>
           </div>
-          <div className="text-center mb-1 text-zinc-600">
-            Round {Math.min(roundNumber, roundTargets.length)} of {roundTargets.length}
-          </div>
-          <div className="flex justify-center mb-2">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 shadow-sm text-zinc-800 ${
-              isFinalRound 
-                ? "bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 ring-2 ring-amber-400 animate-pulse" 
-                : "bg-white/90 ring-1 ring-brand/20"
-            }`}>
-              <span aria-hidden className="text-lg">{emoji}</span>
-              <span><strong>{role}</strong>, choosie your {targetThisRound === 1 ? "" : `${targetThisRound} `}{itemType}!</span>
-            </div>
-          </div>
-        </div>
-        {/* Keyboard hint */}
-        <div className="text-center text-xs text-zinc-500 mb-4">
-          Pro tip: press 1–9 (and 0 for 10) to select, Enter to confirm{history.length > 0 ? ", Esc to undo" : ""}.
-        </div>
-
-        {/* Items grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {remaining.map((item) => {
-            const selected = selectedIds.includes(item.id);
-            return (
+          <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 gap-4' : 'flex flex-col gap-2 w-full max-w-2xl'}>
+            {remaining.map((item) => (
               <div
                 key={item.id}
-                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
-                  selected
-                    ? isFinalRound
-                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
-                    : "border-transparent hover:scale-[1.02]"
-                }`}
+                className={`border rounded-xl p-4 shadow-sm cursor-pointer transition-all ${selectedIds.includes(item.id) ? 'ring-2 ring-brand' : 'hover:ring-1 hover:ring-brand/50'}`}
+                onClick={() => toggleSelect(item.id)}
               >
-                {/* Info button */}
-                <button
-                  type="button"
-                  aria-label="Learn more"
-                  className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setInfoModalItem(item);
-                  }}
-                >
-                  <span role="img" aria-label="info">ℹ️</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleSelect(item.id)}
-                  className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
-                  style={{ boxShadow: "none" }}
-                >
-                  {selected && isFinalRound && (
-                    <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
+                <div className="flex items-center gap-3">
+                  {item.image && (
+                    <img src={item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
                   )}
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-36 object-cover rounded-md mb-3"
-                    />
-                  ) : (
-                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
-                      📷
-                    </div>
-                  )}
-                  {/* Check mark icon for selected items */}
-                  {selected && (
-                    <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  )}
-                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                  {item.notes && (
-                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-                  )}
-                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                    {selected
-                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                      : `Tap to select`}
+                  <div>
+                    <div className="font-bold text-lg">{item.title}</div>
+                    <button
+                      className="text-xs text-blue-600 underline mt-1"
+                      onClick={e => { e.stopPropagation(); setInfoModalItem(item); }}
+                    >
+                      Info
+                    </button>
                   </div>
-                </button>
+                </div>
               </div>
-            );
-          })}
-        </div>
-        {/* Info Modal */}
-        {infoModalItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
-              <button
-                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
-                onClick={() => setInfoModalItem(null)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              {infoModalItem.image && (
-                <img
-                  src={infoModalItem.image}
-                  alt={infoModalItem.title}
-                  className="w-full h-56 object-cover rounded-xl mb-4"
-                />
-              )}
-              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
-              {infoModalItem.notes && (
-                <div className="text-zinc-600 mb-2">{infoModalItem.notes}</div>
-              )}
-              {/* Add more details here if available */}
-            </div>
+            ))}
           </div>
-        )}
-
-        {/* Actions */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          {history.length > 0 && (
+          <div className="mt-6 flex gap-3">
             <button
+              className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors disabled:opacity-50"
+              onClick={confirmRound}
+              disabled={selectedIds.length !== targetThisRound}
+            >
+              Confirm ({selectedIds.length}/{targetThisRound})
+            </button>
+            <button
+              className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
               onClick={undoLast}
-              className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
+              disabled={history.length === 0}
             >
               Undo
             </button>
-          )}
-          <button
-            onClick={() => setSelectedIds([])}
-            disabled={selectedIds.length === 0}
-            className={`rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white ${selectedIds.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            Deselect all
-          </button>
-          <button
-            onClick={() => router.push(`/list/${list.id}`)}
-            className="rounded-full bg-zinc-100 px-6 py-3 text-zinc-700"
-          >
-            Back to list
-          </button>
-          <button
-            onClick={confirmRound}
-            disabled={selectedIds.length !== targetThisRound}
-            className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
-              selectedIds.length === targetThisRound
-                ? isFinalRound
-                  ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
-                  : "bg-brand hover:opacity-90"
-                : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-            }`}
-          >
-            {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
-          </button>
-        </div>
-
-        <div className="text-center mt-4 text-sm text-zinc-500">
-          {remaining.length} item{remaining.length === 1 ? "" : "s"} available
-        </div>
-
-
-      </div>
-    </main>
-  );
-}
-
-// Server-backed narrowing client for virtual participants
-function ServerNarrowClient({ listId, token }: { listId: string; token: string }) {
-  // Out-of-turn lockout logic
-  const [inviteIndex, setInviteIndex] = useState<number | null>(null);
-  const [participantsCount, setParticipantsCount] = useState<number | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [infoModalItem, setInfoModalItem] = useState<any>(null);
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [moduleType, setModuleType] = useState<string>("movies");
-  const [role, setRole] = useState<string | null>(null);
-  const [items, setItems] = useState<Array<{ id: string; title: string; image?: string | null; notes?: string | null }>>([]);
-  const [remainingIds, setRemainingIds] = useState<string[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [plan, setPlan] = useState<number[]>([]);
-  const [roundIndex, setRoundIndex] = useState<number>(0);
-  const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'live' | 'polling'>('connecting');
-
-  // Compute isMyTurn: first invitee is always active in first round
-  let isMyTurn = false;
-  if (inviteIndex !== null && participantsCount !== null) {
-    if (roundIndex === 0) {
-      isMyTurn = inviteIndex === 0;
-    } else {
-      isMyTurn = (roundIndex % (participantsCount - 1)) === inviteIndex;
-    }
-  }
-
-  const targetThisRound = plan[roundIndex] ?? 1;
-  const participants = plan.length + 1;
-  const { role: computedRole, emoji } = getRoleName(Math.max(participants, 2), roundIndex);
-  const effectiveRole = role || computedRole;
-
-  const remaining = items.filter((i) => remainingIds.includes(i.id));
-  const isFinalRound = roundIndex >= plan.length - 1;
-
-  async function loadInitial() {
-    setLoading(true);
-    setError(null);
-    try {
-      const [stateRes, pubRes] = await Promise.all([
-        fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) }),
-        fetch('/api/choosie/public/getList', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, token }) }),
-      ]);
-      const stateJson = stateRes.ok ? await stateRes.json() : null;
-      const pubJson = pubRes.ok ? await pubRes.json() : null;
-      if (!stateJson?.ok) throw new Error(stateJson?.error || 'Failed to load state');
-      if (!pubJson?.ok) throw new Error(pubJson?.error || 'Failed to load list');
-      setItems(stateJson.items || []);
-      setRemainingIds(stateJson.state?.current?.remainingIds || []);
-      setSelectedIds(stateJson.state?.current?.selectedIds || []);
-      setPlan(stateJson.state?.plan || []);
-      setRoundIndex(stateJson.state?.roundIndex || 0);
-      setWinnerItemId(stateJson.winnerItemId || null);
-      setTitle(pubJson.list?.title || '');
-      setModuleType(pubJson.list?.moduleType || 'movies');
-      setRole(pubJson.list?.participantRole || null);
-      // Find this invitee's index and total participants
-      if (pubJson.list?.event?.invitees && Array.isArray(pubJson.list.event.invitees)) {
-        const idx = pubJson.list.event.invitees.findIndex((i: any) => i.token === token);
-        setInviteIndex(idx);
-        setParticipantsCount(pubJson.list.event.invitees.length + 1);
-      }
-    } catch (e: any) {
-      setError(e?.message || 'Unable to load');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Polling for state updates
-  useEffect(() => {
-    let fallbackTimer: any;
-    let es: EventSource | null = null;
-    (async () => {
-      await loadInitial();
-      if (typeof window !== 'undefined' && 'EventSource' in window) {
-        try {
-          const url = `/api/choosie/narrow/stream?listId=${encodeURIComponent(listId)}`;
-          es = new EventSource(url);
-          es.onopen = () => {
-            setConnectionStatus('live');
-          };
-          es.onmessage = (evt) => {
-            try {
-              const data = JSON.parse(evt.data);
-              if (!data?.ok) return;
-              setConnectionStatus('live');
-              if (data.state) {
-                setRemainingIds(data.state?.current?.remainingIds || []);
-                setSelectedIds(data.state?.current?.selectedIds || []);
-                setPlan(data.state?.plan || []);
-                setRoundIndex(data.state?.roundIndex || 0);
-              }
-              if (typeof data.winnerItemId !== 'undefined') setWinnerItemId(data.winnerItemId);
-              if (Array.isArray(data.items)) setItems(data.items);
-            } catch {}
-          };
-          es.onerror = () => {
-            // Fallback to polling
-            setConnectionStatus('polling');
-            if (es) { es.close(); es = null; }
-            if (!fallbackTimer) {
-              fallbackTimer = setInterval(async () => {
-                try {
-                  const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
-                  if (!res.ok) return;
-                  const data = await res.json();
-                  if (!data?.ok) return;
-                  setItems(data.items || []);
-                  setRemainingIds(data.state?.current?.remainingIds || []);
-                  setSelectedIds(data.state?.current?.selectedIds || []);
-                  setPlan(data.state?.plan || []);
-                  setRoundIndex(data.state?.roundIndex || 0);
-                  setWinnerItemId(data.winnerItemId || null);
-                } catch {}
-              }, 3000);
-            }
-          };
-        } catch {
-          // if EventSource construction fails, start polling
-          setConnectionStatus('polling');
-          fallbackTimer = setInterval(async () => {
-            try {
-              const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
-              if (!res.ok) return;
-              const data = await res.json();
-              if (!data?.ok) return;
-              setItems(data.items || []);
-              setRemainingIds(data.state?.current?.remainingIds || []);
-              setSelectedIds(data.state?.current?.selectedIds || []);
-              setPlan(data.state?.plan || []);
-              setRoundIndex(data.state?.roundIndex || 0);
-              setWinnerItemId(data.winnerItemId || null);
-            } catch {}
-          }, 3000);
-        }
-      } else {
-        // No EventSource support
-        setConnectionStatus('polling');
-        fallbackTimer = setInterval(async () => {
-          try {
-            const res = await fetch('/api/choosie/narrow/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId }) });
-            if (!res.ok) return;
-            const data = await res.json();
-            if (!data?.ok) return;
-            setItems(data.items || []);
-            setRemainingIds(data.state?.current?.remainingIds || []);
-            setSelectedIds(data.state?.current?.selectedIds || []);
-            setPlan(data.state?.plan || []);
-            setRoundIndex(data.state?.roundIndex || 0);
-            setWinnerItemId(data.winnerItemId || null);
-          } catch {}
-        }, 3000);
-      }
-    })();
-
-          {remaining.map((item) => {
-            const selected = selectedIds.includes(item.id);
-            return (
-              <div
-                key={item.id}
-                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
-                  selected
-                    ? isFinalRound
-                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
-                    : "border-transparent hover:scale-[1.02]"
-                }`}
-              >
-                {/* Info button */}
-                <button
-                  type="button"
-                  aria-label="Learn more"
-                  className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setInfoModalItem(item);
-                  }}
-                >
-                  <span role="img" aria-label="info">ℹ️</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleSelect(item.id)}
-                  className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
-                  style={{ boxShadow: "none" }}
-                >
-                  {selected && isFinalRound && (
-                    <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
-                  )}
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-36 object-cover rounded-md mb-3"
-                    />
-                  ) : (
-                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
-                      📷
-                    </div>
-                  )}
-                  {/* Check mark icon for selected items */}
-                  {selected && (
-                    <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  )}
-                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                  {item.notes && (
-                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-                  )}
-                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                    {selected
-                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                      : `Tap to select`}
-                  </div>
-                </button>
-              </div>
-            );
-          })}
+            <button
+              className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
+              onClick={resetAll}
+            >
+              Reset
+            </button>
+          </div>
         </div>
         {/* Info Modal */}
         {infoModalItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full relative">
               <button
-                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
+                className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-700 text-2xl"
                 onClick={() => setInfoModalItem(null)}
                 aria-label="Close"
               >
                 ×
               </button>
               {infoModalItem.image && (
-                <img
-                  src={infoModalItem.image}
-                  alt={infoModalItem.title}
-                  className="w-full h-56 object-cover rounded-xl mb-4"
-                />
+                <img src={infoModalItem.image} alt={infoModalItem.title} className="w-32 h-32 object-cover rounded-lg mx-auto mb-4" />
               )}
-              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
-              {infoModalItem.notes && (
-                <div className="text-zinc-600 mb-2 whitespace-pre-line">{infoModalItem.notes}</div>
-              )}
+              <div className="text-xl font-bold mb-2 text-center">{infoModalItem.title}</div>
+              <div className="text-zinc-700 text-sm whitespace-pre-line mb-2">{infoModalItem.notes}</div>
             </div>
           </div>
         )}
-        setPlan(data.state?.plan || plan);
-        setRoundIndex(data.state?.roundIndex ?? roundIndex);
-        setWinnerItemId(data.winnerItemId || null);
-      } else if (data?.error) {
-        alert(data.error);
-      }
-    } catch {}
-  }
-
-  async function resetProgress() {
-    if (!confirm('Reset this narrowing session? All progress will be lost.')) return;
-    try {
-      const res = await fetch('/api/choosie/narrow/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
-      const data = await res.json();
-      if (data?.ok) {
-        setRemainingIds(data.state?.current?.remainingIds || []);
-        setSelectedIds(data.state?.current?.selectedIds || []);
-        setPlan(data.state?.plan || []);
-        setRoundIndex(data.state?.roundIndex ?? 0);
-        setWinnerItemId(null);
-      } else if (data?.error) {
-        alert(data.error);
-      }
-    } catch {}
-  }
-
-  if (loading) {
-    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
-  }
-  if (error) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center">
-        <h1 className="text-2xl font-bold mb-2">Unable to join</h1>
-        <p className="text-zinc-600 mb-4">{error}</p>
-        <button onClick={() => router.push('/')} className="rounded-full bg-brand px-6 py-3 font-semibold text-white">Return Home</button>
-      </div>
-    );
-  }
-
-  // Winner view
-  if (winnerItemId) {
-    const winner = items.find((i) => i.id === winnerItemId);
-    return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center">
-          <div className="mb-6 text-6xl animate-bounce">🎉</div>
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <div className="mb-3 text-amber-600 font-semibold text-lg">🏆 We have a winner! 🏆</div>
-            <div className="text-3xl font-bold text-zinc-800 mb-3">{winner?.title || 'Chosen'}</div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button onClick={undoRound} className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5">Undo</button>
-              <button onClick={() => router.push(`/list/${listId}`)} className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90">Back to list</button>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <ProcessSection />
-        {/* Connection status indicator */}
-        <div className="fixed top-4 right-4 z-50">
-          {connectionStatus === 'live' && (
-            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full shadow-md border border-green-200 text-sm">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span>Live</span>
-            </div>
-          )}
-          {connectionStatus === 'polling' && (
-            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full shadow-md border border-amber-200 text-sm">
-              <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-              <span>Polling</span>
-            </div>
-          )}
-          {connectionStatus === 'connecting' && (
-            <div className="flex items-center gap-2 bg-zinc-50 text-zinc-600 px-3 py-1.5 rounded-full shadow-md border border-zinc-200 text-sm">
-              <span className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse"></span>
-              <span>Connecting...</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end mb-4">
-          <div className="inline-flex rounded-lg bg-zinc-100 p-1">
-            <button
-              className={`px-3 py-1 rounded-l-lg text-sm font-medium ${viewMode === 'grid' ? 'bg-brand text-white' : 'text-zinc-600'}`}
-              onClick={() => setViewMode('grid')}
-              aria-label="Grid view"
-              type="button"
-            >
-              Grid
-            </button>
-            <button
-              className={`px-3 py-1 rounded-r-lg text-sm font-medium ${viewMode === 'list' ? 'bg-brand text-white' : 'text-zinc-600'}`}
-              onClick={() => setViewMode('list')}
-              aria-label="List view"
-              type="button"
-            >
-              List
-            </button>
-          </div>
-        </div>
-
-        {!isMyTurn && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center font-medium">
-            It’s not your turn yet. Please wait for the previous narrower to finish their round.
-          </div>
-        )}
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {remaining.map((item) => {
-              const selected = selectedIds.includes(item.id);
-              return (
-                <div
-                  key={item.id}
-                  className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
-                    selected
-                      ? isFinalRound
-                        ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                        : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
-                      : "border-transparent hover:scale-[1.02]"
-                  }`}
-                >
-                  {/* Info button */}
-                  <button
-                    type="button"
-                    aria-label="Learn more"
-                    className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInfoModalItem(item);
-                    }}
-                  >
-                    <span role="img" aria-label="info">ℹ️</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => selectItem(item.id)}
-                    disabled={!isMyTurn}
-                    className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
-                    style={{ boxShadow: "none" }}
-                  >
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-36 object-cover rounded-md mb-3"
-                      />
-                    ) : (
-                      <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">📷</div>
-                    )}
-                    <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                    {item.notes && (
-                      <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-                    )}
-                    <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                      {selected
-                        ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                        : `Tap to select`}
-                    </div>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {remaining.map((item) => {
-              const selected = selectedIds.includes(item.id);
-              return (
-                <div
-                  key={item.id}
-                  className={`relative flex flex-row items-center p-3 rounded-xl bg-white/90 shadow border-2 transition-all duration-300 focus:outline-none ${
-                    selected
-                      ? isFinalRound
-                        ? "border-amber-400 shadow-2xl ring-2 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
-                        : "border-brand ring-2 ring-brand/40 bg-brand/5"
-                      : "border-transparent hover:scale-[1.01]"
-                  }`}
-                >
-                  {/* Info button */}
-                  <button
-                    type="button"
-                    aria-label="Learn more"
-                    className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInfoModalItem(item);
-                    }}
-                  >
-                    <span role="img" aria-label="info">ℹ️</span>
-                  </button>
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-20 h-20 object-cover rounded-md mr-4"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 rounded-md bg-white/60 mr-4 flex items-center justify-center text-zinc-400">📷</div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-semibold truncate ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                    {item.notes && (
-                      <div className="text-sm text-zinc-500 line-clamp-2">{item.notes}</div>
-                    )}
-                  </div>
-                  <div className={`ml-4 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                    {selected
-                      ? isFinalRound ? "🏆" : `✔️`
-                      : `Select`}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        {/* Info Modal */}
-        {infoModalItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
-              <button
-                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
-                onClick={() => setInfoModalItem(null)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              {infoModalItem.image && (
-                <img
-                  src={infoModalItem.image}
-                  alt={infoModalItem.title}
-                  className="w-full h-56 object-cover rounded-xl mb-4"
-                />
-              )}
-              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
-              {infoModalItem.notes && (
-                <div className="text-zinc-600 mb-2 whitespace-pre-line">{infoModalItem.notes}</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={resetProgress}
-            className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white border border-zinc-300"
-            disabled={!isMyTurn}
-          >
-            Reset
-          </button>
-          <button
-            onClick={undoRound}
-            className="rounded-full px-6 py-3 text-sm bg-white/70 text-zinc-700 hover:bg-white"
-            disabled={!isMyTurn}
-          >
-            Undo
-          </button>
-          <button
-            onClick={confirmRound}
-            disabled={selectedIds.length !== targetThisRound || !isMyTurn}
-            className={`rounded-full px-6 py-3 font-semibold text-white transition-all duration-300 ${
-              selectedIds.length === targetThisRound && isMyTurn
-                ? isFinalRound
-                  ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:scale-105 hover:shadow-xl animate-pulse"
-                  : "bg-brand hover:opacity-90"
-                : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-            }`}
-          >
-            {isFinalRound ? "🎉 Finalize Winner! 🎉" : "Confirm"} ({selectedIds.length}/{targetThisRound})
-          </button>
-        </div>
-
-        <div className="text-center mt-4 text-sm text-zinc-500">
-          {remaining.length} item{remaining.length === 1 ? "" : "s"} available
-        </div>
       </div>
     </main>
   );

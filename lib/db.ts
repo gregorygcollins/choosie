@@ -1,6 +1,6 @@
 // Database layer for Choosie using Prisma
 // Replaces JSON-based serverStore with Postgres-backed persistence
-import { prisma } from "./prisma";
+import prisma from "./prisma";
 import type { List, Item, Progress, ModuleType } from "@prisma/client";
 
 // Temporary dev user ID — replace with session userId after auth is wired
@@ -96,7 +96,7 @@ export async function addItemToList(
 
   // Check for duplicate by case-insensitive title
   const duplicate = list.items.find(
-    (i) => i.title.toLowerCase() === item.title.trim().toLowerCase()
+    (i: any) => i.title.toLowerCase() === item.title.trim().toLowerCase()
   );
   if (duplicate) return duplicate;
 

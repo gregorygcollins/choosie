@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { validateRequest, getListSchema } from "@/lib/validation";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { computeNarrowingPlan } from "@/lib/planner";
 
 export const runtime = "nodejs";
@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     let state: any = list.progress?.historyJson || null;
     if (!state) {
-      state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map(i => i.id), selectedIds: [], target: plan[0] } };
+      state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
     } else {
-      if (!Array.isArray(state.current?.remainingIds)) state.current = { remainingIds: list.items.map(i => i.id), selectedIds: [], target: plan[0] };
+      if (!Array.isArray(state.current?.remainingIds)) state.current = { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] };
       if (!Array.isArray(state.current?.selectedIds)) state.current.selectedIds = [];
       if (!Array.isArray(state.plan)) state.plan = plan;
       const idx = typeof state.roundIndex === 'number' ? state.roundIndex : 0;
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       state,
       winnerItemId,
-      items: list.items.map(i => ({
+      items: list.items.map((i: any) => ({
         id: i.id,
         title: i.title,
         notes: i.notes,
