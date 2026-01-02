@@ -1,5 +1,7 @@
 /* Fonts are loaded via next/font in layout.tsx */
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Ensure Pacifico font is loaded */
 .font-cursive {
