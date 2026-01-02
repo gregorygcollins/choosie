@@ -315,7 +315,6 @@ export default function VirtualInvitesPage() {
 
         {/* Per-invite links (copy for SMS or individual emails) */}
         {/* Show links for both modes */}
-        {mode === 'number' && invitees && Number(invitees) > 0 && (
           <div className="mt-8 border-t pt-6">
             <h2 className="text-base font-semibold mb-3">Unique narrowing links</h2>
             <p className="text-xs text-zinc-600 mb-3">
@@ -325,7 +324,6 @@ export default function VirtualInvitesPage() {
               {(() => {
                 const participants = Number(invitees) + 1;
                 const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-                // Generate tokens for each narrower
                 const tokens = Array.from({ length: Number(invitees) }, () => {
                   const arr = new Uint8Array(16);
                   if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
@@ -381,7 +379,6 @@ export default function VirtualInvitesPage() {
               })()}
             </ul>
           </div>
-        )}
         {mode === 'email' && invitees && invitees.split(',').filter(e => e.trim()).length > 0 && (
           <div className="mt-8 border-t pt-6">
             <h2 className="text-base font-semibold mb-3">Unique narrowing links</h2>
@@ -472,23 +469,20 @@ export default function VirtualInvitesPage() {
             >
               {saving ? "Preparing…" : "Send email invites"}
             </button>
-            {/* Hide generic link if per-invite links are present */}
-            {!(list?.event?.invitees && Array.isArray(list.event.invitees) && list.event.invitees.length > 0) && (
-              <button
-                onClick={() => {
-                  if (!list) return;
-                  const origin = typeof window !== "undefined" ? window.location.origin : "";
-                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-                  const link = `${origin}${basePath}/narrow/${list.id}`;
-                  navigator.clipboard.writeText(link).then(() => {
-                    alert("Link copied. Paste it into an SMS or chat to text invites.");
-                  });
-                }}
-                className="rounded-full bg-white border border-brand px-5 py-2 text-sm font-semibold text-brand hover:bg-zinc-50"
-              >
-                Copy link for text
-              </button>
-            )}
+            <button
+              onClick={() => {
+                if (!list) return;
+                const origin = typeof window !== "undefined" ? window.location.origin : "";
+                const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+                const link = `${origin}${basePath}/narrow/${list.id}`;
+                navigator.clipboard.writeText(link).then(() => {
+                  alert("Link copied. Paste it into an SMS or chat to text invites.");
+                });
+              }}
+              className="rounded-full bg-white border border-brand px-5 py-2 text-sm font-semibold text-brand hover:bg-zinc-50"
+            >
+              Copy link for text
+            </button>
           </div>
         </div>
       </div>

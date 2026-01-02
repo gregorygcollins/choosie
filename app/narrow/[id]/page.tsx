@@ -16,6 +16,8 @@ type LocalHistoryEntry = {
 };
 
 export default function NarrowPage() {
+  const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
+  
     // Warn if no participant token (i.e., generic link)
     const noTokenWarning = (
       <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-center font-medium">
@@ -475,9 +477,8 @@ export default function NarrowPage() {
           {remaining.map((item) => {
             const selected = selectedIds.includes(item.id);
             return (
-              <button
+              <div
                 key={item.id}
-                onClick={() => toggleSelect(item.id)}
                 className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
                   selected
                     ? isFinalRound
@@ -486,41 +487,86 @@ export default function NarrowPage() {
                     : "border-transparent hover:scale-[1.02]"
                 }`}
               >
-                {selected && isFinalRound && (
-                  <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
-                )}
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-36 object-cover rounded-md mb-3"
-                  />
-                ) : (
-                  <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
-                    📷
+                {/* Info button */}
+                <button
+                  type="button"
+                  aria-label="Learn more"
+                  className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setInfoModalItem(item);
+                  }}
+                >
+                  <span role="img" aria-label="info">ℹ️</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleSelect(item.id)}
+                  className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
+                  style={{ boxShadow: "none" }}
+                >
+                  {selected && isFinalRound && (
+                    <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
+                  )}
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-36 object-cover rounded-md mb-3"
+                    />
+                  ) : (
+                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
+                      📷
+                    </div>
+                  )}
+                  {/* Check mark icon for selected items */}
+                  {selected && (
+                    <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                  {item.notes && (
+                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
+                  )}
+                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                    {selected
+                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                      : `Tap to select`}
                   </div>
-                )}
-                {/* Check mark icon for selected items */}
-                {selected && (
-                  <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                )}
-                <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                {item.notes && (
-                  <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-                )}
-                <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                  {selected
-                    ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                    : `Tap to select`}
-                </div>
-              </button>
+                </button>
+              </div>
             );
           })}
         </div>
+        {/* Info Modal */}
+        {infoModalItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+              <button
+                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
+                onClick={() => setInfoModalItem(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              {infoModalItem.image && (
+                <img
+                  src={infoModalItem.image}
+                  alt={infoModalItem.title}
+                  className="w-full h-56 object-cover rounded-xl mb-4"
+                />
+              )}
+              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
+              {infoModalItem.notes && (
+                <div className="text-zinc-600 mb-2">{infoModalItem.notes}</div>
+              )}
+              {/* Add more details here if available */}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -576,6 +622,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
   const [inviteIndex, setInviteIndex] = useState<number | null>(null);
   const [participantsCount, setParticipantsCount] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [infoModalItem, setInfoModalItem] = useState<any>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -729,54 +776,98 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
       }
     })();
 
-    return () => {
-      if (es) es.close();
-      if (fallbackTimer) clearInterval(fallbackTimer);
-    };
-  }, [listId]);
-
-  async function selectItem(itemId: string) {
-    if (!isMyTurn) return;
-    try {
-      const endpoint = selectedIds.includes(itemId) ? '/api/choosie/narrow/deselect' : '/api/choosie/narrow/select';
-      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, itemId, participantToken: token }) });
-      const data = await res.json();
-      if (data?.ok) {
-        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
-        setSelectedIds(data.state?.current?.selectedIds || selectedIds);
-        setPlan(data.state?.plan || plan);
-        setRoundIndex(data.state?.roundIndex ?? roundIndex);
-      } else if (data?.error) {
-        // Show toast or inline error
-        console.warn('Selection error:', data.error);
-      }
-    } catch {}
-  }
-
-  async function confirmRound() {
-    if (!isMyTurn) return;
-    try {
-      const res = await fetch('/api/choosie/narrow/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
-      const data = await res.json();
-      if (data?.ok) {
-        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
-        setSelectedIds(data.state?.current?.selectedIds || []);
-        setPlan(data.state?.plan || plan);
-        setRoundIndex(data.state?.roundIndex ?? roundIndex);
-        setWinnerItemId(data.winnerItemId || null);
-      } else if (data?.error) {
-        alert(data.error);
-      }
-    } catch {}
-  }
-
-  async function undoRound() {
-    try {
-      const res = await fetch('/api/choosie/narrow/undo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listId, participantToken: token }) });
-      const data = await res.json();
-      if (data?.ok) {
-        setRemainingIds(data.state?.current?.remainingIds || remainingIds);
-        setSelectedIds(data.state?.current?.selectedIds || selectedIds);
+          {remaining.map((item) => {
+            const selected = selectedIds.includes(item.id);
+            return (
+              <div
+                key={item.id}
+                className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
+                  selected
+                    ? isFinalRound
+                      ? "border-amber-400 scale-105 shadow-2xl ring-4 ring-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50"
+                      : "border-brand scale-105 ring-4 ring-brand/40 bg-brand/5"
+                    : "border-transparent hover:scale-[1.02]"
+                }`}
+              >
+                {/* Info button */}
+                <button
+                  type="button"
+                  aria-label="Learn more"
+                  className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setInfoModalItem(item);
+                  }}
+                >
+                  <span role="img" aria-label="info">ℹ️</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleSelect(item.id)}
+                  className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
+                  style={{ boxShadow: "none" }}
+                >
+                  {selected && isFinalRound && (
+                    <div className="absolute -top-3 -right-3 text-3xl animate-bounce">🎉</div>
+                  )}
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-36 object-cover rounded-md mb-3"
+                    />
+                  ) : (
+                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
+                      📷
+                    </div>
+                  )}
+                  {/* Check mark icon for selected items */}
+                  {selected && (
+                    <div className="absolute bottom-3 right-3 text-green-600 bg-white rounded-full shadow p-1">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                  {item.notes && (
+                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
+                  )}
+                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                    {selected
+                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                      : `Tap to select`}
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        {/* Info Modal */}
+        {infoModalItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+              <button
+                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
+                onClick={() => setInfoModalItem(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              {infoModalItem.image && (
+                <img
+                  src={infoModalItem.image}
+                  alt={infoModalItem.title}
+                  className="w-full h-56 object-cover rounded-xl mb-4"
+                />
+              )}
+              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
+              {infoModalItem.notes && (
+                <div className="text-zinc-600 mb-2 whitespace-pre-line">{infoModalItem.notes}</div>
+              )}
+            </div>
+          </div>
+        )}
         setPlan(data.state?.plan || plan);
         setRoundIndex(data.state?.roundIndex ?? roundIndex);
         setWinnerItemId(data.winnerItemId || null);
@@ -893,10 +984,8 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
             {remaining.map((item) => {
               const selected = selectedIds.includes(item.id);
               return (
-                <button
+                <div
                   key={item.id}
-                  onClick={() => selectItem(item.id)}
-                  disabled={!isMyTurn}
                   className={`relative flex flex-col items-start p-4 rounded-2xl bg-white/90 shadow-md border-2 transition-all duration-300 focus:outline-none ${
                     selected
                       ? isFinalRound
@@ -905,27 +994,45 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                       : "border-transparent hover:scale-[1.02]"
                   }`}
                 >
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-36 object-cover rounded-md mb-3"
-                    />
-                  ) : (
-                    <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">
-                      📷
+                  {/* Info button */}
+                  <button
+                    type="button"
+                    aria-label="Learn more"
+                    className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInfoModalItem(item);
+                    }}
+                  >
+                    <span role="img" aria-label="info">ℹ️</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => selectItem(item.id)}
+                    disabled={!isMyTurn}
+                    className="w-full text-left flex flex-col items-start focus:outline-none bg-transparent border-none p-0"
+                    style={{ boxShadow: "none" }}
+                  >
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-36 object-cover rounded-md mb-3"
+                      />
+                    ) : (
+                      <div className="w-full h-36 rounded-md bg-white/60 mb-3 flex items-center justify-center text-zinc-400">📷</div>
+                    )}
+                    <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
+                    {item.notes && (
+                      <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
+                    )}
+                    <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
+                      {selected
+                        ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
+                        : `Tap to select`}
                     </div>
-                  )}
-                  <div className={`font-semibold ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
-                  {item.notes && (
-                    <div className="text-sm text-zinc-500 line-clamp-3">{item.notes}</div>
-                  )}
-                  <div className={`mt-2 text-xs ${selected && isFinalRound ? "text-amber-600 font-semibold" : "text-zinc-500"}`}>
-                    {selected
-                      ? isFinalRound ? "🏆 The Winner!" : `Selected (${selectedIds.indexOf(item.id) + 1})`
-                      : `Tap to select`}
-                  </div>
-                </button>
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -934,10 +1041,8 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
             {remaining.map((item) => {
               const selected = selectedIds.includes(item.id);
               return (
-                <button
+                <div
                   key={item.id}
-                  onClick={() => selectItem(item.id)}
-                  disabled={!isMyTurn}
                   className={`relative flex flex-row items-center p-3 rounded-xl bg-white/90 shadow border-2 transition-all duration-300 focus:outline-none ${
                     selected
                       ? isFinalRound
@@ -946,6 +1051,18 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                       : "border-transparent hover:scale-[1.01]"
                   }`}
                 >
+                  {/* Info button */}
+                  <button
+                    type="button"
+                    aria-label="Learn more"
+                    className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-brand/10 rounded-full p-2 shadow"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInfoModalItem(item);
+                    }}
+                  >
+                    <span role="img" aria-label="info">ℹ️</span>
+                  </button>
                   {item.image ? (
                     <img
                       src={item.image}
@@ -953,9 +1070,7 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                       className="w-20 h-20 object-cover rounded-md mr-4"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-md bg-white/60 mr-4 flex items-center justify-center text-zinc-400">
-                      📷
-                    </div>
+                    <div className="w-20 h-20 rounded-md bg-white/60 mr-4 flex items-center justify-center text-zinc-400">📷</div>
                   )}
                   <div className="flex-1 min-w-0">
                     <div className={`font-semibold truncate ${selected && isFinalRound ? "text-amber-700" : ""}`}>{item.title}</div>
@@ -968,9 +1083,34 @@ function ServerNarrowClient({ listId, token }: { listId: string; token: string }
                       ? isFinalRound ? "🏆" : `✔️`
                       : `Select`}
                   </div>
-                </button>
+                </div>
               );
             })}
+          </div>
+        )}
+        {/* Info Modal */}
+        {infoModalItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+              <button
+                className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl"
+                onClick={() => setInfoModalItem(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              {infoModalItem.image && (
+                <img
+                  src={infoModalItem.image}
+                  alt={infoModalItem.title}
+                  className="w-full h-56 object-cover rounded-xl mb-4"
+                />
+              )}
+              <div className="text-2xl font-bold mb-2">{infoModalItem.title}</div>
+              {infoModalItem.notes && (
+                <div className="text-zinc-600 mb-2 whitespace-pre-line">{infoModalItem.notes}</div>
+              )}
+            </div>
           </div>
         )}
 
