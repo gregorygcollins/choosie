@@ -1,4 +1,5 @@
-// next.config.mjs
+
+// Trigger fresh Vercel build: Jan 2, 2026
 
 const isProd = process.env.NODE_ENV === "production";
 
