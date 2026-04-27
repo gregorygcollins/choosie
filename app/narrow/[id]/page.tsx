@@ -28,6 +28,7 @@ export default function NarrowPage() {
   const [history, setHistory] = useState<LocalHistoryEntry[]>([]);
   const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showThankYou, setShowThankYou] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -120,6 +121,8 @@ export default function NarrowPage() {
     setRemaining(list.items.filter((it) => newRemainingIds.includes(it.id)));
     setSelectedIds([]);
     if (!isFinalRound) {
+      setShowThankYou(true);
+    } else {
       setRoundNumber(nextRound);
       setCurrentNarrower(nextNarrower);
     }
@@ -283,91 +286,145 @@ export default function NarrowPage() {
     );
   }
 
+  // Determine if this is the active narrower for the current round
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const participantToken = urlParams?.get("pt") || "";
+  // For virtual narrowing, the token matches the round index (0-based)
+  const activeNarrowerIndex = roundNumber - 1;
+  // For now, assume tokens are assigned in order
+  // Once a participant has completed their round, they should not be able to act again
+  const tokenIndex = participantToken ? Number(participantToken.split('.')[0]) : -1;
+  const isActiveNarrower = tokenIndex === activeNarrowerIndex;
+  const hasAlreadyNarrowed = tokenIndex > -1 && tokenIndex < activeNarrowerIndex;
+
   return (
     <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <ProcessSection />
         <h1 className="text-2xl font-bold text-center mb-6">{list.title}</h1>
-        {/* Minimal narrowing UI placeholder */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="mb-4">
-            <button
-              className={`px-4 py-2 rounded-full font-semibold mr-2 ${viewMode === 'grid' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
-              onClick={() => setViewMode('grid')}
-            >
-              Grid View
-            </button>
-            <button
-              className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'list' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
-              onClick={() => setViewMode('list')}
-            >
-              List View
-            </button>
-          </div>
-          <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 gap-4' : 'flex flex-col gap-2 w-full max-w-2xl'}>
-            {remaining.map((item) => (
-              <div
-                key={item.id}
-                className={`border rounded-xl p-4 shadow-sm cursor-pointer transition-all ${selectedIds.includes(item.id) ? 'ring-2 ring-brand' : 'hover:ring-1 hover:ring-brand/50'}`}
-                onClick={() => toggleSelect(item.id)}
+        {/* Thank You Modal */}
+        {showThankYou && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center relative">
+              <div className="text-3xl mb-4">🎉</div>
+              <div className="text-xl font-bold mb-2">Thank you for narrowing!</div>
+              <div className="text-zinc-700 mb-4">Please pass the device or link to the next narrower.</div>
+              <button
+                className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
+                onClick={() => {
+                  setShowThankYou(false);
+                  // After confirming, reload the page to update the active narrower state
+                  if (typeof window !== 'undefined') {
+                    window.location.reload();
+                  }
+                }}
               >
-                <div className="flex items-center gap-3">
-                  {item.image && (
-                    <img src={item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
-                  )}
-                  <div>
-                    <div className="font-bold text-lg">{item.title}</div>
-                    <button
-                      className="text-xs text-blue-600 underline mt-1"
-                      onClick={e => { e.stopPropagation(); setInfoModalItem(item); }}
+                OK
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Minimal narrowing UI placeholder */}
+        {!showThankYou && (
+          <div className="flex flex-col items-center gap-4">
+            {/* Only allow selection for the active narrower; show waiting/progress for others */}
+            {isActiveNarrower ? (
+              <>
+                <div className="mb-4">
+                  <button
+                    className={`px-4 py-2 rounded-full font-semibold mr-2 ${viewMode === 'grid' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
+                    onClick={() => setViewMode('grid')}
+                  >
+                    Grid View
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'list' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
+                    onClick={() => setViewMode('list')}
+                  >
+                    List View
+                  </button>
+                </div>
+                <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 gap-4' : 'flex flex-col gap-2 w-full max-w-2xl'}>
+                  {remaining.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`border rounded-xl p-4 shadow-sm cursor-pointer transition-all ${selectedIds.includes(item.id) ? 'ring-2 ring-brand' : 'hover:ring-1 hover:ring-brand/50'}`}
+                      onClick={() => toggleSelect(item.id)}
                     >
-                      Info
-                    </button>
-                  </div>
+                      <div className="flex items-center gap-3">
+                        {item.image && (
+                          <img src={item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
+                        )}
+                        <div>
+                          <div className="font-bold text-lg">{item.title}</div>
+                          <button
+                            className="text-xs text-blue-600 underline mt-1"
+                            onClick={e => { e.stopPropagation(); setInfoModalItem(item); }}
+                          >
+                            Info
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <button
+                    className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors disabled:opacity-50"
+                    onClick={confirmRound}
+                    disabled={selectedIds.length !== targetThisRound}
+                  >
+                    Confirm ({selectedIds.length}/{targetThisRound})
+                  </button>
+                  <button
+                    className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
+                    onClick={undoLast}
+                    disabled={history.length === 0}
+                  >
+                    Undo
+                  </button>
+                  <button
+                    className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
+                    onClick={resetAll}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </>
+            ) : hasAlreadyNarrowed ? (
+              <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center mt-8">
+                <div className="text-3xl mb-4">✅</div>
+                <div className="text-xl font-bold mb-2">Thank you for narrowing!</div>
+                <div className="text-zinc-700 mb-4">You have completed your round. Please wait for the other narrowers to finish. Refresh this page to see progress or the winner.</div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center mt-8">
+                <div className="text-3xl mb-4">😎</div>
+                <div className="text-xl font-bold mb-2">
+                  {roundNumber === 1 ? "You've got great taste! Just hang tight for now!" : roundNumber === 2 ? "Excellent choices! We're almost there!" : "Waiting for the next narrowing..."}
+                </div>
+                <div className="text-zinc-700 mb-4">Refresh this page to see progress as the narrowing continues.</div>
+              </div>
+            )}
+            {/* Info Modal */}
+            {infoModalItem && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full relative">
+                  <button
+                    className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-700 text-2xl"
+                    onClick={() => setInfoModalItem(null)}
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                  {infoModalItem.image && (
+                    <img src={infoModalItem.image} alt={infoModalItem.title} className="w-32 h-32 object-cover rounded-lg mx-auto mb-4" />
+                  )}
+                  <div className="text-xl font-bold mb-2 text-center">{infoModalItem.title}</div>
+                  <div className="text-zinc-700 text-sm whitespace-pre-line mb-2">{infoModalItem.notes}</div>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="mt-6 flex gap-3">
-            <button
-              className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors disabled:opacity-50"
-              onClick={confirmRound}
-              disabled={selectedIds.length !== targetThisRound}
-            >
-              Confirm ({selectedIds.length}/{targetThisRound})
-            </button>
-            <button
-              className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
-              onClick={undoLast}
-              disabled={history.length === 0}
-            >
-              Undo
-            </button>
-            <button
-              className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-brand ring-brand/30 hover:bg-brand/5"
-              onClick={resetAll}
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-        {/* Info Modal */}
-        {infoModalItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full relative">
-              <button
-                className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-700 text-2xl"
-                onClick={() => setInfoModalItem(null)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              {infoModalItem.image && (
-                <img src={infoModalItem.image} alt={infoModalItem.title} className="w-32 h-32 object-cover rounded-lg mx-auto mb-4" />
-              )}
-              <div className="text-xl font-bold mb-2 text-center">{infoModalItem.title}</div>
-              <div className="text-zinc-700 text-sm whitespace-pre-line mb-2">{infoModalItem.notes}</div>
-            </div>
+            )}
           </div>
         )}
       </div>
