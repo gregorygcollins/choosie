@@ -294,8 +294,10 @@ export default function NarrowPage() {
   // For now, assume tokens are assigned in order
   // Once a participant has completed their round, they should not be able to act again
   const tokenIndex = participantToken ? Number(participantToken.split('.')[0]) : -1;
-  const isActiveNarrower = tokenIndex === activeNarrowerIndex;
-  const hasAlreadyNarrowed = tokenIndex > -1 && tokenIndex < activeNarrowerIndex;
+  // In-person: if no pt token, always allow narrowing
+  const isInPerson = !participantToken;
+  const isActiveNarrower = isInPerson || tokenIndex === activeNarrowerIndex;
+  const hasAlreadyNarrowed = !isInPerson && tokenIndex > -1 && tokenIndex < activeNarrowerIndex;
 
   return (
     <main className="min-h-screen">
