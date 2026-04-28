@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-type Item = { id: string; title: string; notes?: string; image?: string | null };
+
+type Participant = {
+  id: string;
+  name: string;
+  role: string;
+  joined: boolean;
+};
 
 type NarrowState = {
   plan: number[];
@@ -12,7 +18,7 @@ type NarrowState = {
   current: { remainingIds: string[]; selectedIds: string[]; target: number };
 };
 
-export default function VirtualInvitesPage() {
+const roleOptions = ["Selector", "Decider", "Programmer", "Short List", "Long List"];
   const { id } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -21,6 +27,49 @@ export default function VirtualInvitesPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<NarrowState | null>(null);
   const [winner, setWinner] = useState<Item | null>(null);
+  // Participants state (simulate for now)
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [myName, setMyName] = useState("");
+  const [myRole, setMyRole] = useState("");
+  const [joined, setJoined] = useState(false);
+  // Fetch participants from backend
+  useEffect(() => {
+    if (!id) return;
+    let interval: NodeJS.Timeout;
+    const fetchParticipants = async () => {
+      const res = await fetch(`/api/choosie/narrow/participants?listId=${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.participants)) {
+          setParticipants(data.participants.map((p: any, idx: number) => ({
+            id: p.id || idx.toString(),
+            name: p.name,
+            role: p.role,
+            joined: p.joined,
+          })));
+        }
+      }
+    };
+    fetchParticipants();
+    interval = setInterval(fetchParticipants, 3000); // Poll every 3s
+    return () => clearInterval(interval);
+  }, [id]);
+
+  // Claim a role (join session)
+  const handleJoin = async () => {
+    if (!myName || !myRole) return;
+    const res = await fetch('/api/choosie/narrow/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listId: id, name: myName, role: myRole }),
+    });
+    if (res.ok) {
+      setJoined(true);
+    } else {
+      const data = await res.json();
+      alert(data.error || 'Failed to join');
+    }
+  };
 
   useEffect(() => {
     if (!id || typeof id !== "string") return;
@@ -159,48 +208,117 @@ export default function VirtualInvitesPage() {
       <div className="bg-white rounded-2xl shadow-lg p-6 max-w-lg w-full text-center">
         <h1 className="text-2xl font-bold mb-2">{listTitle}</h1>
         <div className="mb-4 text-zinc-600 text-sm">Virtual Narrowing – Step {round + 1} of {state.plan.length}</div>
-        {winner ? (
-          <div className="my-8">
-            <h2 className="text-xl font-semibold mb-2 text-green-700">Final Selection</h2>
-            <div className="font-bold text-lg mb-2">{winner.title}</div>
-            {winner.image && <img src={winner.image} alt={winner.title} className="mx-auto rounded-lg max-h-48" />}
-          </div>
-        ) : (
-          <>
-            <div className="mb-4">
-              <div className="font-semibold mb-1">Current Choices ({remainingItems.length}):</div>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {remainingItems.map((item) => (
-                  <li key={item.id} className={`rounded border p-2 flex flex-col items-center cursor-pointer ${mySelections.includes(item.id) ? 'bg-brand/10 border-brand' : ''}`}
-                      onClick={() => handleSelect(item.id)}
-                  >
-                    {item.image && <img src={item.image} alt={item.title} className="w-20 h-28 object-cover rounded mb-1" />}
-                    <div className="font-medium">{item.title}</div>
-                    {item.notes && <div className="text-xs text-zinc-500 mt-1">{item.notes}</div>}
-                    <div className="mt-2">
-                      <input
-                        type="checkbox"
-                        checked={mySelections.includes(item.id)}
-                        readOnly
-                        className="accent-brand"
-                        tabIndex={-1}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="mb-2 text-zinc-500 text-xs">
-              Participant {participantIndex + 1}: Select up to {currentTarget} item(s) for this round.
-            </div>
-            {submitError && <div className="text-red-600 text-sm mb-2">{submitError}</div>}
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 mt-2 disabled:opacity-60"
+
+        {/* Participant join/role claim UI */}
+        {!joined && (
+          <div className="mb-6">
+            <div className="mb-2 font-semibold">Join this session</div>
+            <input
+              type="text"
+              placeholder="Your name"
+              value={myName}
+              onChange={e => setMyName(e.target.value)}
+              className="border rounded px-2 py-1 mr-2"
+            />
+            <select
+              value={myRole}
+              onChange={e => setMyRole(e.target.value)}
+              className="border rounded px-2 py-1 mr-2"
             >
-              {submitting ? "Submitting..." : "Submit Selections"}
+              <option value="">Select role</option>
+              {roleOptions.map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
+            </select>
+            <button
+              onClick={handleJoin}
+              className="rounded bg-brand text-white px-3 py-1 font-semibold"
+              disabled={!myName || !myRole}
+            >
+              Join
             </button>
+          </div>
+        )}
+
+        {/* Participant list */}
+        {participants.length > 0 && (
+          <div className="mb-6">
+            <div className="font-semibold mb-1">Participants:</div>
+            <ul className="flex flex-wrap gap-2 justify-center">
+              {participants.map((p) => (
+                <li key={p.id} className="border rounded px-2 py-1 text-xs flex flex-col items-center">
+                  <span className="font-bold">{p.name}</span>
+                  <span className="text-zinc-500">{p.role}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Existing narrowing UI (show only if joined or winner) */}
+        {(joined || winner) && (
+          <>
+            {winner ? (
+              <div className="my-8">
+                <h2 className="text-xl font-semibold mb-2 text-green-700">Final Selection</h2>
+                <div className="font-bold text-lg mb-2">{winner.title}</div>
+                {winner.image && <img src={winner.image} alt={winner.title} className="mx-auto rounded-lg max-h-48" />}
+              </div>
+            ) : (
+              <>
+                {/* Only allow selection for the active role */}
+                {(() => {
+                  // Determine the active role for this round
+                  const activeRole = participants[state.roundIndex]?.role;
+                  if (myRole === activeRole) {
+                    return (
+                      <>
+                        <div className="mb-4">
+                          <div className="font-semibold mb-1">Current Choices ({remainingItems.length}):</div>
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {remainingItems.map((item) => (
+                              <li key={item.id} className={`rounded border p-2 flex flex-col items-center cursor-pointer ${mySelections.includes(item.id) ? 'bg-brand/10 border-brand' : ''}`}
+                                  onClick={() => handleSelect(item.id)}
+                              >
+                                {item.image && <img src={item.image} alt={item.title} className="w-20 h-28 object-cover rounded mb-1" />}
+                                <div className="font-medium">{item.title}</div>
+                                {item.notes && <div className="text-xs text-zinc-500 mt-1">{item.notes}</div>}
+                                <div className="mt-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={mySelections.includes(item.id)}
+                                    readOnly
+                                    className="accent-brand"
+                                    tabIndex={-1}
+                                  />
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="mb-2 text-zinc-500 text-xs">
+                          Participant: {myName} ({myRole}) — Select up to {currentTarget} item(s) for this round.
+                        </div>
+                        {submitError && <div className="text-red-600 text-sm mb-2">{submitError}</div>}
+                        <button
+                          onClick={handleSubmit}
+                          disabled={submitting}
+                          className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 mt-2 disabled:opacity-60"
+                        >
+                          {submitting ? "Submitting..." : "Submit Selections"}
+                        </button>
+                      </>
+                    );
+                  } else {
+                    return (
+                      <div className="my-8 text-zinc-500 text-sm">
+                        Waiting for <span className="font-semibold">{participants[state.roundIndex]?.name || activeRole}</span> ({activeRole}) to make their selections...
+                      </div>
+                    );
+                  }
+                })()}
+              </>
+            )}
           </>
         )}
         <button

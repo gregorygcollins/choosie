@@ -118,7 +118,7 @@ export default function ViewListPage() {
       });
       router.push(`/narrow/${list.id}`);
     } else {
-      // Virtual: generate links for all but the creator (N-1 links)
+      // Virtual: generate a single group link for all participants
       fetch("/api/choosie/updateList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -131,12 +131,8 @@ export default function ViewListPage() {
         console.error("Failed to sync participants to server:", err);
       });
       const base = typeof window !== 'undefined' ? window.location.origin : '';
-      // Only generate (count - 1) links, for roles[0]...roles[N-2]
-      const links = (roles || []).map((role, idx) => ({
-        url: `${base}/list/${list.id}/virtual?pt=${idx}`,
-        role,
-      }));
-      setGeneratedLinks(links);
+      const groupLink = `${base}/list/${list.id}/virtual`;
+      setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
       setShowLinksModal(true);
     }
   };
@@ -449,33 +445,31 @@ export default function ViewListPage() {
         </div>
       )}
 
-      {/* Show generated narrowing links for each participant (simulate sending) */}
+      {/* Show group narrowing link for all participants */}
       {showLinksModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowLinksModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share these links with participants</h2>
-            <p className="text-sm text-zinc-600 mb-6 text-center">Share each unique link below with the next narrowers. The list creator organizes the process and does not need a link.</p>
-            <ol className="space-y-3 mb-4">
-              {generatedLinks.map((link, i) => (
-                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1">
-                  <span className="font-semibold mb-1">{link.role}</span>
-                  <div className="flex items-center gap-2">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{link.url}</a>
-                    <button
-                      type="button"
-                      title="Copy link"
-                      aria-label="Copy link"
-                      onClick={() => {
-                        navigator.clipboard.writeText(link.url);
-                      }}
-                      className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share this link with all participants</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">Anyone with this link can join the virtual narrowing session and claim a role. The list creator organizes the process and does not need to send new links after each round.</p>
+            <div className="mb-4 flex flex-col items-center">
+              <div className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1 w-full">
+                <span className="font-semibold mb-1">Group Link</span>
+                <div className="flex items-center gap-2">
+                  <a href={generatedLinks[0].url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{generatedLinks[0].url}</a>
+                  <button
+                    type="button"
+                    title="Copy link"
+                    aria-label="Copy link"
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedLinks[0].url);
+                    }}
+                    className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
             <div className="flex gap-2 mt-4">
               <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-full">Done</button>
             </div>
