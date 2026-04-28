@@ -28,10 +28,9 @@ export default function ViewListPage() {
   const [previewItem, setPreviewItem] = useState<any | null>(null);
   const [lastFocusedEl, setLastFocusedEl] = useState<HTMLElement | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
-  // Modal for collecting participant contacts (emails/phones)
-  const [showContactsModal, setShowContactsModal] = useState(false);
-  const [contacts, setContacts] = useState<string[]>([]);
-  const [contactsError, setContactsError] = useState<string | null>(null);
+  // Modal for showing generated narrowing links
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
   // Modal for showing generated narrowing links
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
@@ -104,9 +103,23 @@ export default function ViewListPage() {
       });
       router.push(`/narrow/${list.id}`);
     } else {
-      // Virtual: show contacts modal
-      setContacts(Array(count).fill(""));
-      setShowContactsModal(true);
+      // Virtual: generate links for all but the first narrower (the creator)
+      fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: list.id,
+          participants: count,
+        }),
+      }).catch((err) => {
+        console.error("Failed to sync participants to server:", err);
+      });
+      const base = typeof window !== 'undefined' ? window.location.origin : '';
+      // Only generate (count - 1) links, for participants 2..N
+      const links = Array.from({ length: Math.max(0, count - 1) }, (_, idx) => `${base}/list/${list.id}/virtual?pt=${idx + 1}`);
+      setGeneratedLinks(links);
+      setShowLinksModal(true);
     }
   };
 
@@ -407,7 +420,7 @@ export default function ViewListPage() {
     <main className="min-h-screen p-8">
             {/* Participant Count Modal */}
       {showParticipantModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowParticipantModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowParticipantModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">
               How many participants?
@@ -436,37 +449,23 @@ export default function ViewListPage() {
         </div>
       )}
 
-      {/* Contacts Modal for Virtual Narrowing */}
-      {showContactsModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowContactsModal(false)}>
+      {/* Show generated narrowing links for each participant (simulate sending) */}
+      {showLinksModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowLinksModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Enter participant contacts</h2>
-            <p className="text-sm text-zinc-600 mb-6 text-center">Enter an email or phone for each participant (including yourself).</p>
-            <form onSubmit={e => { e.preventDefault(); handleContactsSubmit(); }}>
-              <div className="space-y-3 mb-4">
-                {contacts.map((c, i) => (
-                  <input
-                    key={i}
-                    type="text"
-                    inputMode="email"
-                    autoComplete="email"
-                    className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-brand/40"
-                    placeholder={`Participant ${i + 1} email or phone`}
-                    value={c}
-                    onChange={e => {
-                      const arr = [...contacts];
-                      arr[i] = e.target.value;
-                      setContacts(arr);
-                    }}
-                  />
-                ))}
-              </div>
-              {contactsError && <div className="text-red-600 text-sm mb-2">{contactsError}</div>}
-              <div className="flex gap-2 mt-4">
-                <button type="button" onClick={() => setShowContactsModal(false)} className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 w-1/2">Cancel</button>
-                <button type="submit" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-1/2">Continue</button>
-              </div>
-            </form>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share these links with participants</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">Share each unique link below with the next narrowers. The list creator is the first narrower and does not need a link.</p>
+            <ol className="space-y-3 mb-4">
+              {generatedLinks.map((link, i) => (
+                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col">
+                  <span className="font-semibold mb-1">Participant {i + 2}</span>
+                  <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
+                </li>
+              ))}
+            </ol>
+            <div className="flex gap-2 mt-4">
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-full">Done</button>
+            </div>
           </div>
         </div>
       )}
