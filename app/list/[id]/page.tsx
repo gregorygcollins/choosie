@@ -123,39 +123,7 @@ export default function ViewListPage() {
     }
   };
 
-  // Validate and submit contacts
-  const handleContactsSubmit = async () => {
-    // Basic validation: require email or phone for each participant
-    const valid = contacts.every(
-      (c) => c.trim() && (/^\S+@\S+\.\S+$/.test(c.trim()) || /^[+]?\d{7,}$/.test(c.trim()))
-    );
-    if (!valid) {
-      setContactsError("Please enter a valid email or phone for each participant.");
-      return;
-    }
-    setContactsError(null);
-    // Save contacts to server (or local for now)
-    if (!list) return;
-    try {
-      await fetch("/api/choosie/updateList", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          listId: list.id,
-          contacts,
-        }),
-      });
-    } catch (err) {
-      // fallback: ignore
-    }
-    setShowContactsModal(false);
-    // Generate unique links for each participant
-    const base = typeof window !== 'undefined' ? window.location.origin : '';
-    const links = contacts.map((_, idx) => `${base}/list/${list.id}/virtual?pt=${idx}`);
-    setGeneratedLinks(links);
-    setShowLinksModal(true);
-  };
+
       {/* Show generated narrowing links for each participant (simulate sending) */}
       {showLinksModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowLinksModal(false)}>
