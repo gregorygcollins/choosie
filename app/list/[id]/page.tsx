@@ -30,7 +30,7 @@ export default function ViewListPage() {
   const [showUpsell, setShowUpsell] = useState(false);
   // Modal for showing generated narrowing links
   const [showLinksModal, setShowLinksModal] = useState(false);
-  const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
+  const [generatedLinks, setGeneratedLinks] = useState<{ url: string; role: string }[]>([]);
   const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
   const [pro, setPro] = useState<boolean>(isPremium(session));
@@ -150,9 +150,22 @@ export default function ViewListPage() {
             <p className="text-sm text-zinc-600 mb-6 text-center">Each participant should use their unique link below to join the narrowing process.</p>
             <ol className="space-y-3 mb-4">
               {generatedLinks.map((link, i) => (
-                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col">
-                  <span className="font-semibold mb-1">Participant {i + 2}</span>
-                  <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
+                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1">
+                  <span className="font-semibold mb-1">{link.role}</span>
+                  <div className="flex items-center gap-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{link.url}</a>
+                    <button
+                      type="button"
+                      title="Copy link"
+                      aria-label="Copy link"
+                      onClick={() => {
+                        navigator.clipboard.writeText(link.url);
+                      }}
+                      className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                    </button>
+                  </div>
                 </li>
               ))}
             </ol>
