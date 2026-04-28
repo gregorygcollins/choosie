@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
         // eslint-disable-next-line no-console
         console.error('[NARROW DEBUG] Prisma error:', prismaErr);
       }
-      return withCORS(NextResponse.json({ ok: false, error: 'Database error: ' + prismaErr?.message }), origin);
+      const errMsg = (prismaErr && typeof prismaErr === 'object' && 'message' in prismaErr) ? (prismaErr as any).message : String(prismaErr);
+      return withCORS(NextResponse.json({ ok: false, error: 'Database error: ' + errMsg }), origin);
     }
     if (!list) {
       if (process.env.NODE_ENV === 'development') {
@@ -99,7 +100,8 @@ export async function POST(req: NextRequest) {
         // eslint-disable-next-line no-console
         console.error('[NARROW DEBUG] Prisma upsert error:', prismaUpsertErr);
       }
-      return withCORS(NextResponse.json({ ok: false, error: 'Database upsert error: ' + prismaUpsertErr?.message }), origin);
+      const upsertErrMsg = (prismaUpsertErr && typeof prismaUpsertErr === 'object' && 'message' in prismaUpsertErr) ? (prismaUpsertErr as any).message : String(prismaUpsertErr);
+      return withCORS(NextResponse.json({ ok: false, error: 'Database upsert error: ' + upsertErrMsg }), origin);
     }
 
     const winnerItemId = list.progress?.winnerItemId || null;
