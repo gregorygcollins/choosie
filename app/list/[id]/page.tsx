@@ -31,9 +31,6 @@ export default function ViewListPage() {
   // Modal for showing generated narrowing links
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
-  // Modal for showing generated narrowing links
-  const [showLinksModal, setShowLinksModal] = useState(false);
-  const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
   const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
   const [pro, setPro] = useState<boolean>(isPremium(session));
@@ -133,7 +130,7 @@ export default function ViewListPage() {
             <ol className="space-y-3 mb-4">
               {generatedLinks.map((link, i) => (
                 <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col">
-                  <span className="font-semibold mb-1">Participant {i + 1} ({contacts[i]})</span>
+                  <span className="font-semibold mb-1">Participant {i + 2}</span>
                   <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
                 </li>
               ))}
