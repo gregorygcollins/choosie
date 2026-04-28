@@ -24,6 +24,11 @@ const roleOptions = ["Selector", "Decider", "Programmer", "Short List", "Long Li
 export default function VirtualInvitesPage() {
   const { id } = useParams();
   const router = useRouter();
+  // Diagnostic logging
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log('[NARROW DEBUG] route param id:', id);
+  }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [listTitle, setListTitle] = useState("");
@@ -80,6 +85,10 @@ export default function VirtualInvitesPage() {
     if (!id || typeof id !== "string") return;
     setLoading(true);
     setError(null);
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('[NARROW DEBUG] Fetching /api/choosie/narrow/state with listId:', id);
+    }
     fetch(`/api/choosie/narrow/state`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -88,6 +97,10 @@ export default function VirtualInvitesPage() {
     })
       .then(async (res) => {
         const data = await res.json();
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NARROW DEBUG] /api/choosie/narrow/state response:', data);
+        }
         if (!res.ok || !data.ok) {
           // Show backend error message if available
           throw new Error(data.error || `HTTP ${res.status}`);
@@ -101,7 +114,11 @@ export default function VirtualInvitesPage() {
         setLoading(false);
       })
       .catch((e) => {
-        setError(e.message || "Failed to load session");
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.error('[NARROW DEBUG] Error fetching /api/choosie/narrow/state:', e);
+        }
+        setError(e.stack || e.message || "Failed to load session");
         setLoading(false);
       });
   }, [id]);
@@ -119,7 +136,13 @@ export default function VirtualInvitesPage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center text-rose-700">
-          <p className="text-xl mb-4">{error}</p>
+          <p className="text-xl mb-4">
+            {process.env.NODE_ENV === 'development' ? (
+              <span style={{ whiteSpace: 'pre-wrap' }}>{error}</span>
+            ) : (
+              "Something went wrong. Please try again."
+            )}
+          </p>
           <button
             onClick={() => router.push("/lists")}
             className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors"
