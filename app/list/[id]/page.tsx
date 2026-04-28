@@ -79,8 +79,26 @@ export default function ViewListPage() {
     setShowParticipantModal(true);
   };
 
+  const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
     if (!list) return;
+    // Role definitions and minimums
+    const roleSets = [
+      [],
+      ["Decider"],
+      ["Selector", "Decider"],
+      ["Programmer", "Selector", "Decider"],
+      ["Short List", "Programmer", "Selector", "Decider"],
+      ["Long List", "Short List", "Programmer", "Selector", "Decider"],
+    ];
+    const minSizes = [0, 2, 4, 6, 8, 11];
+    const roles = roleSets[count - 1] || [];
+    const minSize = minSizes[count - 1] || 0;
+    if ((list.items?.length || 0) < minSize) {
+      setParticipantError(`You need at least ${minSize} items for ${count} narrowers.`);
+      return;
+    }
+    setParticipantError(null);
     const updated = { ...list, participants: count };
     upsertList(updated);
     setList(updated);
@@ -100,7 +118,7 @@ export default function ViewListPage() {
       });
       router.push(`/narrow/${list.id}`);
     } else {
-      // Virtual: generate links for all but the first narrower (the creator)
+      // Virtual: generate links for all but the creator (N-1 links)
       fetch("/api/choosie/updateList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,8 +131,11 @@ export default function ViewListPage() {
         console.error("Failed to sync participants to server:", err);
       });
       const base = typeof window !== 'undefined' ? window.location.origin : '';
-      // Only generate (count - 1) links, for participants 2..N
-      const links = Array.from({ length: Math.max(0, count - 1) }, (_, idx) => `${base}/list/${list.id}/virtual?pt=${idx + 1}`);
+      // Only generate (count - 1) links, for roles[0]...roles[N-2]
+      const links = (roles || []).map((role, idx) => ({
+        url: `${base}/list/${list.id}/virtual?pt=${idx}`,
+        role,
+      }));
       setGeneratedLinks(links);
       setShowLinksModal(true);
     }
@@ -393,6 +414,7 @@ export default function ViewListPage() {
             <p className="text-sm text-zinc-600 mb-6 text-center">
               Select the total number of people (including you as the Organizer)
             </p>
+            {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
             <div className="grid grid-cols-5 gap-3 mb-6">
               {[2, 3, 4, 5, 6].map((n) => (
                 <button
@@ -419,12 +441,25 @@ export default function ViewListPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowLinksModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share these links with participants</h2>
-            <p className="text-sm text-zinc-600 mb-6 text-center">Share each unique link below with the next narrowers. The list creator is the first narrower and does not need a link.</p>
+            <p className="text-sm text-zinc-600 mb-6 text-center">Share each unique link below with the next narrowers. The list creator organizes the process and does not need a link.</p>
             <ol className="space-y-3 mb-4">
               {generatedLinks.map((link, i) => (
-                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col">
-                  <span className="font-semibold mb-1">Participant {i + 2}</span>
-                  <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
+                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1">
+                  <span className="font-semibold mb-1">{link.role}</span>
+                  <div className="flex items-center gap-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{link.url}</a>
+                    <button
+                      type="button"
+                      title="Copy link"
+                      aria-label="Copy link"
+                      onClick={() => {
+                        navigator.clipboard.writeText(link.url);
+                      }}
+                      className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                    </button>
+                  </div>
                 </li>
               ))}
             </ol>
