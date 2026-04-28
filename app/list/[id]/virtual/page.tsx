@@ -19,6 +19,8 @@ type NarrowState = {
 };
 
 const roleOptions = ["Selector", "Decider", "Programmer", "Short List", "Long List"];
+
+export default function VirtualInvitesPage() {
   const { id } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,6 @@ const roleOptions = ["Selector", "Decider", "Programmer", "Short List", "Long Li
   const [items, setItems] = useState<Item[]>([]);
   const [state, setState] = useState<NarrowState | null>(null);
   const [winner, setWinner] = useState<Item | null>(null);
-  // Participants state (simulate for now)
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [myName, setMyName] = useState("");
   const [myRole, setMyRole] = useState("");
