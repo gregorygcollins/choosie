@@ -40,8 +40,7 @@ export default function VirtualInvitesPage() {
   const [myRole, setMyRole] = useState("");
   const [joined, setJoined] = useState(false);
   console.log("VirtualInvitesPage loaded", id);
-  try {
-    // Fetch participants from backend
+  // Fetch participants from backend
   useEffect(() => {
     if (!id) return;
     let interval: NodeJS.Timeout;
@@ -211,16 +210,6 @@ export default function VirtualInvitesPage() {
     }
     setSubmitError(null);
     setSubmitting(true);
-  } catch (err) {
-    console.error("VirtualInvitesPage top-level error", err);
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-rose-700">
-          <p className="text-xl mb-4">A fatal error occurred: {String(err)}</p>
-        </div>
-      </main>
-    );
-  }
     try {
       const res = await fetch("/api/choosie/narrow/submit", {
         method: "POST",
