@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ChoosieItem } from "@/components/ListForm";
 import { useParams, useRouter } from "next/navigation";
 
 
@@ -26,9 +27,9 @@ export default function VirtualInvitesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [listTitle, setListTitle] = useState("");
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<ChoosieItem[]>([]);
   const [state, setState] = useState<NarrowState | null>(null);
-  const [winner, setWinner] = useState<Item | null>(null);
+  const [winner, setWinner] = useState<ChoosieItem | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [myName, setMyName] = useState("");
   const [myRole, setMyRole] = useState("");
