@@ -99,12 +99,27 @@ export default function ViewListPage() {
       return;
     }
     setParticipantError(null);
-    const updated = { ...list, participants: count };
+    // Compute narrowing plan and initialize progress for in-person narrowing
+    let updated = { ...list, participants: count };
+    if (narrowingMode === "in-person") {
+      const { computeNarrowingPlan } = require("@/lib/planner");
+      const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
+      updated = {
+        ...updated,
+        narrowingPlan: plan,
+        progress: {
+          remainingIds: list.items.map((i: any) => i.id),
+          currentNarrower: 1,
+          round: 1,
+          totalRounds: plan.length,
+          history: [],
+        },
+      };
+    }
     upsertList(updated);
     setList(updated);
     setShowParticipantModal(false);
     if (narrowingMode === "in-person") {
-      // In-person: go straight to narrowing
       fetch("/api/choosie/updateList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,6 +127,8 @@ export default function ViewListPage() {
         body: JSON.stringify({
           listId: list.id,
           participants: count,
+          narrowingPlan: updated.narrowingPlan,
+          progress: updated.progress,
         }),
       }).catch((err) => {
         console.error("Failed to sync participants to server:", err);
