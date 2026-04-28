@@ -369,7 +369,7 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+              <div className="absolute z-[1050] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in bg-white shadow-2xl rounded-xl border border-zinc-200" style={{ pointerEvents: 'auto' }}>
                 {sugsLoading && (
                   <div className="px-3 py-2 text-sm text-neutral-300">Searching…</div>
                 )}

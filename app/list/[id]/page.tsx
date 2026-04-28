@@ -568,11 +568,10 @@ export default function ViewListPage() {
               Narrow in person
             </button>
             <button
-              disabled
-              className="rounded-full px-4 py-2 text-sm font-semibold bg-zinc-200 text-zinc-600 cursor-not-allowed opacity-60"
-              title="Coming soon"
+              onClick={() => handleNarrowClick("virtual")}
+              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
-              Narrow Virtually (coming soon)
+              Narrow virtually
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
