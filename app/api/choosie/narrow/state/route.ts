@@ -10,15 +10,36 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   try {
+    // Log incoming request for debugging
+    const rawBody = await req.text();
+    console.log('narrow/state POST raw body:', rawBody);
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch (parseErr) {
+      console.error('narrow/state JSON parse error:', parseErr);
+      return withCORS(NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 }), origin);
+    }
+    console.log('narrow/state parsed body:', body);
+
     const rl = await rateLimit(req, { scope: 'narrowState', limit: 240, windowMs: 60_000 });
     if (!rl.ok) return withCORS(rl.res, origin);
 
-    const body = await req.json();
-    const data = validateRequest(getListSchema, body);
+    let data;
+    try {
+      data = validateRequest(getListSchema, body);
+    } catch (validationErr) {
+      console.error('narrow/state validation error:', validationErr);
+      return withCORS(NextResponse.json({ ok: false, error: 'Invalid or missing listId' }, { status: 400 }), origin);
+    }
+    console.log('narrow/state validated data:', data);
     const list = await prisma.list.findUnique({
       where: { id: data.listId },
       include: { items: { orderBy: { rank: 'asc' } }, progress: true },
     });
+    if (!list) {
+      console.error('narrow/state: List not found for id', data.listId);
+    }
     if (!list) {
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }

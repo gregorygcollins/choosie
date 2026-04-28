@@ -84,9 +84,11 @@ export default function VirtualInvitesPage() {
       credentials: "include",
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error("List not found or unauthorized");
         const data = await res.json();
-        if (!data.ok) throw new Error(data.error || "Unknown error");
+        if (!res.ok || !data.ok) {
+          // Show backend error message if available
+          throw new Error(data.error || `HTTP ${res.status}`);
+        }
         setListTitle(data.state?.title || data.title || "List");
         setItems(data.items || []);
         setState(data.state || null);
