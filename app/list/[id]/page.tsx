@@ -135,7 +135,7 @@ export default function ViewListPage() {
       });
       router.push(`/narrow/${list.id}`);
     } else {
-      // Virtual: generate a single group link for all participants
+      // Virtual: generate a single group link for all participants to the role selection page
       fetch("/api/choosie/updateList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +148,7 @@ export default function ViewListPage() {
         console.error("Failed to sync participants to server:", err);
       });
       const base = typeof window !== 'undefined' ? window.location.origin : '';
-      const groupLink = `${base}/list/${list.id}/virtual`;
+      const groupLink = `${base}/list/${list.id}/virtual/roles`;
       setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
       setShowLinksModal(true);
     }
