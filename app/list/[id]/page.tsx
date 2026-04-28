@@ -449,8 +449,10 @@ export default function ViewListPage() {
       {showLinksModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowLinksModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share this link with all participants</h2>
-            <p className="text-sm text-zinc-600 mb-6 text-center">Anyone with this link can join the virtual narrowing session and claim a role. The list creator organizes the process and does not need to send new links after each round.</p>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share this link with your group!</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">
+              When they join, each person will claim a role and take a turn narrowing the list—until one final choice remains.
+            </p>
             <div className="mb-4 flex flex-col items-center">
               <div className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1 w-full">
                 <span className="font-semibold mb-1">Group Link</span>
