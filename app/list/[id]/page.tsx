@@ -28,6 +28,13 @@ export default function ViewListPage() {
   const [previewItem, setPreviewItem] = useState<any | null>(null);
   const [lastFocusedEl, setLastFocusedEl] = useState<HTMLElement | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
+  // Modal for collecting participant contacts (emails/phones)
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [contacts, setContacts] = useState<string[]>([]);
+  const [contactsError, setContactsError] = useState<string | null>(null);
+  // Modal for showing generated narrowing links
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [generatedLinks, setGeneratedLinks] = useState<string[]>([]);
   const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
   const [pro, setPro] = useState<boolean>(isPremium(session));
@@ -82,26 +89,80 @@ export default function ViewListPage() {
     upsertList(updated);
     setList(updated);
     setShowParticipantModal(false);
-    
-    // Sync to server in background
-    fetch("/api/choosie/updateList", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        listId: list.id,
-        participants: count,
-      }),
-    }).catch((err) => {
-      console.error("Failed to sync participants to server:", err);
-    });
-    
     if (narrowingMode === "in-person") {
+      // In-person: go straight to narrowing
+      fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: list.id,
+          participants: count,
+        }),
+      }).catch((err) => {
+        console.error("Failed to sync participants to server:", err);
+      });
       router.push(`/narrow/${list.id}`);
     } else {
-      router.push(`/list/${list.id}/virtual`);
+      // Virtual: show contacts modal
+      setContacts(Array(count).fill(""));
+      setShowContactsModal(true);
     }
   };
+
+  // Validate and submit contacts
+  const handleContactsSubmit = async () => {
+    // Basic validation: require email or phone for each participant
+    const valid = contacts.every(
+      (c) => c.trim() && (/^\S+@\S+\.\S+$/.test(c.trim()) || /^[+]?\d{7,}$/.test(c.trim()))
+    );
+    if (!valid) {
+      setContactsError("Please enter a valid email or phone for each participant.");
+      return;
+    }
+    setContactsError(null);
+    // Save contacts to server (or local for now)
+    if (!list) return;
+    try {
+      await fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: list.id,
+          contacts,
+        }),
+      });
+    } catch (err) {
+      // fallback: ignore
+    }
+    setShowContactsModal(false);
+    // Generate unique links for each participant
+    const base = typeof window !== 'undefined' ? window.location.origin : '';
+    const links = contacts.map((_, idx) => `${base}/list/${list.id}/virtual?pt=${idx}`);
+    setGeneratedLinks(links);
+    setShowLinksModal(true);
+  };
+      {/* Show generated narrowing links for each participant (simulate sending) */}
+      {showLinksModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowLinksModal(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share these links with participants</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">Each participant should use their unique link below to join the narrowing process.</p>
+            <ol className="space-y-3 mb-4">
+              {generatedLinks.map((link, i) => (
+                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col">
+                  <span className="font-semibold mb-1">Participant {i + 1} ({contacts[i]})</span>
+                  <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link}</a>
+                </li>
+              ))}
+            </ol>
+            <div className="flex gap-2 mt-4">
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-full">Done</button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
   useEffect(() => {
@@ -371,6 +432,41 @@ export default function ViewListPage() {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Contacts Modal for Virtual Narrowing */}
+      {showContactsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowContactsModal(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Enter participant contacts</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">Enter an email or phone for each participant (including yourself).</p>
+            <form onSubmit={e => { e.preventDefault(); handleContactsSubmit(); }}>
+              <div className="space-y-3 mb-4">
+                {contacts.map((c, i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    inputMode="email"
+                    autoComplete="email"
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-brand/40"
+                    placeholder={`Participant ${i + 1} email or phone`}
+                    value={c}
+                    onChange={e => {
+                      const arr = [...contacts];
+                      arr[i] = e.target.value;
+                      setContacts(arr);
+                    }}
+                  />
+                ))}
+              </div>
+              {contactsError && <div className="text-red-600 text-sm mb-2">{contactsError}</div>}
+              <div className="flex gap-2 mt-4">
+                <button type="button" onClick={() => setShowContactsModal(false)} className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 w-1/2">Cancel</button>
+                <button type="submit" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-1/2">Continue</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
