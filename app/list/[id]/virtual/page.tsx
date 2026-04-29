@@ -56,9 +56,6 @@ export default function VirtualNarrowingSession() {
         });
         const data = await res.json();
         // Log the API response for diagnostics
-        if (typeof window !== "undefined") {
-          window.__choosieLastNarrowApi = data;
-        }
         console.log("[Narrow] API response", data);
         if (!cancelled) {
           if (!data || !data.ok || !data.list) {
