@@ -30,10 +30,7 @@ export default function VirtualInvitesPage() {
       const data = await res.json();
       setApi(data);
       setSelected(data.state?.current?.selectedIds || []);
-      // Redirect to winner page if winnerItemId is present
-      if (data.winnerItemId && listId) {
-        router.replace(`/final/${listId}?winner=${data.winnerItemId}`);
-      }
+      // No redirect; winner UI is rendered inline to match In Person experience
     } catch (e: any) {
       setError("Failed to load narrowing session");
     } finally {
