@@ -10,6 +10,7 @@ export default function VirtualInvitesPage() {
   const searchParams = useSearchParams();
   const listId = String(params?.id ?? "");
   const participantToken = searchParams.get("pt") || "";
+  const participantTokenValid = participantToken.length >= 16;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [api, setApi] = useState<any>(null);
@@ -83,6 +84,10 @@ export default function VirtualInvitesPage() {
   // Submit selection
   async function submitSelection() {
     if (!api) return;
+    if (!participantTokenValid) {
+      setError("Missing or invalid participant token. Please use your invite link.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     isActiveRef.current = true;
@@ -207,13 +212,18 @@ export default function VirtualInvitesPage() {
               <rect x="14" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
               <rect x="3" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
             </svg>
-          </button>
           <button
-            aria-label="List View"
-            className={`p-2 rounded-full ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
-            onClick={() => setViewMode('list')}
+            className="px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-60"
+            disabled={selected.length!==target||submitting||!participantTokenValid}
+            onClick={submitSelection}
           >
-            {/* Sleek list icon (matches In Person) */}
+            {submitting?"Submitting...":`Confirm (${selected.length}/${target})`}
+          </button>
+          {!participantTokenValid && (
+            <div className="text-red-500 mt-2 text-center">
+              Missing or invalid participant token. Please use your invite link.
+            </div>
+          )}
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
               <rect x="4" y="5" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
               <rect x="4" y="11" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />

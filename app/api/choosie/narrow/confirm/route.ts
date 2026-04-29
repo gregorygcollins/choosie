@@ -42,9 +42,11 @@ export async function POST(req: NextRequest) {
     if (!rl.ok) return withCORS(rl.res, origin);
 
     const body = await req.json();
+    console.log('[narrow/confirm] Incoming body:', body);
     const data = validateRequest(narrowingConfirmRoundSchema, body);
     const list = await getList(data.listId);
     if (!list) {
+      console.log('[narrow/confirm] List not found:', data.listId);
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     const invitees = extractInvitees(list);
@@ -68,27 +70,9 @@ export async function POST(req: NextRequest) {
     const target = state.plan[state.roundIndex];
     const selected = state.current.selectedIds as string[];
     if (!Array.isArray(selected) || selected.length !== target) {
+      console.log('[narrow/confirm] Selection count mismatch:', { selected, target });
       return withCORS(NextResponse.json({ ok: false, error: 'Selection count does not match target' }, { status: 400 }), origin);
     }
-
-    // Commit round
-    console.log('[narrow/confirm] BEFORE', {
-      listId: data.listId,
-      participantToken: data.participantToken,
-      roundIndex: state.roundIndex,
-      selectedIds: state.current.selectedIds,
-      remainingIds: state.current.remainingIds,
-    });
-    // No activeIndex in no-token mode; set role/participant to null or default
-    const roundEntry = {
-      round: state.roundIndex,
-      role: null, // or e.g. `"Virtual"` or `"N/A"`
-      participant: "Virtual participant",
-      chosenIds: [...selected],
-      prevRemaining: [...state.current.remainingIds],
-    };
-    state.rounds = Array.isArray(state.rounds) ? state.rounds : [];
-    state.rounds.push(roundEntry);
 
     // Advance: new remaining = selectedIds; reset selectedIds; inc round
     state.current.remainingIds = [...selected];
@@ -101,6 +85,27 @@ export async function POST(req: NextRequest) {
       const winner = state.current.remainingIds[0] || null;
       winnerItemId = winner;
     }
+    // Commit round
+    console.log('[narrow/confirm] BEFORE', {
+      listId: data.listId,
+      participantToken: data.participantToken,
+      roundIndex: state.roundIndex,
+      selectedIds: state.current.selectedIds,
+      remainingIds: state.current.remainingIds,
+      plan: state.plan,
+      finished,
+      winnerItemId,
+    });
+    // No activeIndex in no-token mode; set role/participant to null or default
+    const roundEntry = {
+      round: state.roundIndex,
+      role: null, // or e.g. `"Virtual"` or `"N/A"`
+      participant: "Virtual participant",
+      chosenIds: [...selected],
+      prevRemaining: [...state.current.remainingIds],
+    };
+    state.rounds = Array.isArray(state.rounds) ? state.rounds : [];
+    state.rounds.push(roundEntry);
     // Debug log
     console.log('[narrow/confirm] FINALIZE', {
       listId: data.listId,
@@ -115,6 +120,16 @@ export async function POST(req: NextRequest) {
       where: { listId: list.id },
       update: { historyJson: state, winnerItemId },
       create: { listId: list.id, historyJson: state, winnerItemId },
+    });
+    console.log('[narrow/confirm] UPSERT', {
+      listId: list.id,
+      winnerItemId,
+      roundIndex: state.roundIndex,
+      remainingIds: state.current.remainingIds,
+      selectedIds: state.current.selectedIds,
+      plan: state.plan,
+      finished,
+      state,
     });
 
     console.log('[narrow/confirm] AFTER', {
