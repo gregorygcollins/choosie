@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getListById } from "@/lib/db";
 import { auth } from "@/lib/auth.server";
