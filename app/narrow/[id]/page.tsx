@@ -66,7 +66,7 @@ export default function NarrowPage() {
           if (l.progress && l.narrowingPlan) {
             setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
             setList(l);
-            setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
+            setRemaining(l.items.filter((i: any) => l.progress?.remainingIds?.includes(i.id)));
             setRoundTargets(l.narrowingPlan || []);
             setRoundNumber(l.progress?.round || 1);
             setCurrentNarrower(l.progress?.currentNarrower || 1);
