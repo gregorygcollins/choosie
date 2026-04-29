@@ -44,6 +44,7 @@ export default function VirtualNarrowingSession() {
   // Poll for backend state, but only update selection if not user's turn or round changes
   useEffect(() => {
     let cancelled = false;
+    let timeoutId: NodeJS.Timeout | null = null;
     async function fetchState() {
       setLoading(true);
       try {
@@ -54,7 +55,20 @@ export default function VirtualNarrowingSession() {
           credentials: "include",
         });
         const data = await res.json();
-        if (!cancelled && data.ok) {
+        // Log the API response for diagnostics
+        if (typeof window !== "undefined") {
+          window.__choosieLastNarrowApi = data;
+        }
+        console.log("[Narrow] API response", data);
+        if (!cancelled) {
+          if (!data || !data.ok || !data.list) {
+            setList(null);
+            setState(undefined);
+            setItems([]);
+            setWinner(null);
+            setLoading(false);
+            return;
+          }
           setList(data.list);
           setItems(Array.isArray(data.list.items) ? data.list.items : []);
           setWinner(data.list.winnerId || null);
@@ -68,6 +82,7 @@ export default function VirtualNarrowingSession() {
               setLastBackendSelected([...backendSelected]);
               setLastRoundIndex(backendRound);
               isFirstLoad.current = false;
+              setLoading(false);
               return;
             }
             // If round changed, sync selection
@@ -75,6 +90,7 @@ export default function VirtualNarrowingSession() {
               setSelected([...backendSelected]);
               setLastBackendSelected([...backendSelected]);
               setLastRoundIndex(backendRound);
+              setLoading(false);
               return;
             }
             // If not user's turn, always sync selection
@@ -83,19 +99,37 @@ export default function VirtualNarrowingSession() {
               setSelected([...backendSelected]);
               setLastBackendSelected([...backendSelected]);
             }
+            setLoading(false);
           } else {
             setState(undefined);
             setSelected([]);
             setLastBackendSelected([]);
             setLastRoundIndex(-1);
+            setLoading(false);
           }
         }
-      } catch {}
-      setLoading(false);
+      } catch (e) {
+        console.error("[Narrow] API error", e);
+        setList(null);
+        setState(undefined);
+        setItems([]);
+        setWinner(null);
+        setLoading(false);
+      }
     }
+    // Timeout fallback: if loading > 3s, stop loading and show fallback
+    timeoutId = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+      }
+    }, 3000);
     fetchState();
     const interval = setInterval(fetchState, 2000);
-    return () => { cancelled = true; clearInterval(interval); };
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [params.id]);
 
   // No additional selection syncing needed; handled in polling above
