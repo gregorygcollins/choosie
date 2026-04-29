@@ -295,7 +295,7 @@ export default function NarrowPage() {
     </div>
   );
 
-  if (!mounted || loading) {
+  if (loading) {
     return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…<DebugPanel /></div>;
   }
   if (loadError) {
