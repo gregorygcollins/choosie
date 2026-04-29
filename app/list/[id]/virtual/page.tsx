@@ -173,6 +173,7 @@ export default function VirtualInvitesPage() {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold mb-6">{listTitle}</h1>
           <div className="mb-6 text-6xl animate-bounce">🎉</div>
           <div className="bg-white rounded-2xl shadow-lg p-8">
             {winner.image && (

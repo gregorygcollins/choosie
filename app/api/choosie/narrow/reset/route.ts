@@ -8,9 +8,21 @@ import { z } from "zod";
 
 export const runtime = "nodejs";
 
+// Accept either a long token (invitee) or a short numeric string (virtual narrowing role index)
+const participantTokenSchema = z.string().refine(
+  (val) => {
+    if (!val) return false;
+    if (/^\d+$/.test(val)) return true; // allow numeric string (e.g., "0", "1", "2")
+    return val.length >= 16 && val.length <= 128;
+  },
+  {
+    message: "Invalid participant token",
+  }
+);
+
 const resetSchema = z.object({
   listId: z.string().min(1).max(50),
-  participantToken: z.string().min(16).max(128).optional(),
+  participantToken: participantTokenSchema.optional(),
 });
 
 async function getList(listId: string) {
