@@ -24,13 +24,18 @@ export default function VirtualNarrowingSession() {
     async function fetchState() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/choosie/narrow/stream?listId=${params.id}`);
+        const res = await fetch("/api/choosie/getList", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ listId: params.id }),
+          credentials: "include",
+        });
         const data = await res.json();
         if (!cancelled && data.ok) {
-          setList(data);
-          setState(data.state);
-          setItems(data.items || []);
-          setWinner(data.winnerItemId || null);
+          setList(data.list);
+          setState(data.list.progress || {});
+          setItems(data.list.items || []);
+          setWinner(data.list.winnerId || null);
         }
       } catch {}
       setLoading(false);
