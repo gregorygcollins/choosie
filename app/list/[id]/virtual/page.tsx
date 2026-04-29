@@ -83,21 +83,14 @@ export default function VirtualNarrowingSession() {
 
     // If round changed, sync selection and reset local selection
     if (currentRound !== lastRoundIndex) {
-      if (!arraysEqual(selected, backendSelected)) {
-        setSelected([...backendSelected]);
-      }
+      setSelected([...backendSelected]);
       setLastRoundIndex(currentRound);
       return;
     }
 
-    // If it's user's turn and local selection is empty, sync from backend
-    if (selected.length === 0 && backendSelected.length > 0) {
-      setSelected([...backendSelected]);
-      return;
-    }
-
-    // Otherwise, preserve local selection during user's turn
-    // Do not update selected from backend if user has already made a selection
+    // During user's turn, do NOT update selection from backend at all (preserve local selection)
+    // This prevents pulsing/reset and allows user to submit
+    // No setSelected here
   }, [state, isActive]);
 
   if (loading) {
