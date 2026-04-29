@@ -45,8 +45,9 @@ export default function VirtualNarrowingSession() {
   useEffect(() => {
     let cancelled = false;
     let timeoutId: NodeJS.Timeout | null = null;
+    // Only set loading true on initial mount
+    if (isFirstLoad.current) setLoading(true);
     async function fetchState() {
-      setLoading(true);
       try {
         const res = await fetch("/api/choosie/getList", {
           method: "POST",
@@ -66,11 +67,12 @@ export default function VirtualNarrowingSession() {
             setLoading(false);
             return;
           }
-          setList(data.list);
-          setItems(Array.isArray(data.list.items) ? data.list.items : []);
-          setWinner(data.list.winnerId || null);
+          // Only update state if changed (shallow compare for main objects)
+          setList((prev: any) => (prev !== data.list ? data.list : prev));
+          setItems((prev: Item[]) => (JSON.stringify(prev) !== JSON.stringify(data.list.items) ? (Array.isArray(data.list.items) ? data.list.items : []) : prev));
+          setWinner((prev: string | null) => (prev !== (data.list.winnerId || null) ? (data.list.winnerId || null) : prev));
           if (data.list.progress) {
-            setState(data.list.progress);
+            setState((prev: any) => (JSON.stringify(prev) !== JSON.stringify(data.list.progress) ? data.list.progress : prev));
             const backendSelected = (data.list.progress.current?.selectedIds ?? []) as string[];
             const backendRound = data.list.progress.roundIndex ?? 0;
             // On first load, always sync selection
