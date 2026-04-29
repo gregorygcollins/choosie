@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useSearchParams, useParams } from "next/navigation";
+import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
 // Utility: shallow array equality
@@ -13,12 +13,14 @@ function arraysEqual(a: string[], b: string[]) {
   return true;
 }
 
+
 type Item = { id: string; title: string; notes?: string; image?: string | null };
 
 export default function VirtualNarrowingSession() {
   const params = useParams();
   const search = useSearchParams();
   const pt = Number(search.get("pt") || 0);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState<any>(null);
   const [state, setState] = useState<any>(undefined); // progress/state may be missing
@@ -33,6 +35,13 @@ export default function VirtualNarrowingSession() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
+  // Redirect to winner page when winner is set
+  useEffect(() => {
+    if (winner && params.id) {
+      router.push(`/final/${params.id}`);
+    }
+  }, [winner, params.id, router]);
+
   // Defensive: Only compute turn logic if state/progress exists
   const participants = list?.participants || 1;
   const roundIndex = state?.roundIndex ?? 0;
@@ -40,6 +49,23 @@ export default function VirtualNarrowingSession() {
   const target = plan[roundIndex] ?? 1;
   const remainingIds: string[] = state?.current?.remainingIds ?? [];
   const isActive = state ? pt === ((roundIndex) % (participants - 1)) : false;
+
+
+  // Early returns must be at the top, before any hooks or functions
+  if (loading) {
+    return <div className="p-8 text-center">Loading narrowing session…</div>;
+  }
+
+  if (!list) {
+    return <div className="p-8 text-center text-red-600">Failed to load narrowing session.</div>;
+  }
+
+  // If progress/state is missing, session not started
+  if (!state) {
+    return <div className="p-8 text-center text-zinc-600">Virtual narrowing has not started yet.</div>;
+  }
+
+  // Winner UI block removed; handled by redirect above
 
   // Poll for backend state, but only update selection if not user's turn or round changes
   useEffect(() => {
@@ -146,19 +172,6 @@ export default function VirtualNarrowingSession() {
     return <div className="p-8 text-center text-zinc-600">Virtual narrowing has not started yet.</div>;
   }
 
-  // Winner
-  if (winner) {
-    const winnerItem = items.find(i => i.id === winner);
-    return (
-      <div className="max-w-xl mx-auto p-8">
-        <h1 className="text-2xl font-bold mb-4">Narrowing Complete!</h1>
-        <div className="mb-4">Winner:</div>
-        <div className="p-4 bg-green-50 border border-green-200 rounded text-xl font-semibold">
-          {winnerItem ? winnerItem.title : winner}
-        </div>
-      </div>
-    );
-  }
 
   // Selection handler
   function handleSelect(id: string) {
