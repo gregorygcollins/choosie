@@ -37,26 +37,38 @@ export const finalizeWatchlistSchema = z.object({
 });
 
 // Narrowing action schemas (server canonical state management)
+// Accept either a long token (invitee) or a short numeric string (virtual narrowing role index)
+const participantTokenSchema = z.string().refine(
+  (val) => {
+    if (!val) return false;
+    if (/^\d+$/.test(val)) return true; // allow numeric string (e.g., "0", "1", "2")
+    return val.length >= 16 && val.length <= 128;
+  },
+  {
+    message: "Invalid participant token",
+  }
+);
+
 export const narrowingSelectSchema = z.object({
   listId: z.string().min(1).max(50),
   itemId: z.string().min(1).max(50),
-  participantToken: z.string().min(16).max(128),
+  participantToken: participantTokenSchema,
 });
 
 export const narrowingDeselectSchema = z.object({
   listId: z.string().min(1).max(50),
   itemId: z.string().min(1).max(50),
-  participantToken: z.string().min(16).max(128),
+  participantToken: participantTokenSchema,
 });
 
 export const narrowingConfirmRoundSchema = z.object({
   listId: z.string().min(1).max(50),
-  participantToken: z.string().min(16).max(128),
+  participantToken: participantTokenSchema,
 });
 
 export const narrowingUndoRoundSchema = z.object({
   listId: z.string().min(1).max(50),
-  participantToken: z.string().min(16).max(128),
+  participantToken: participantTokenSchema,
 });
 
 export const getOverlapSchema = z.object({
