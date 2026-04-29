@@ -12,13 +12,8 @@ const ROLE_META: Record<string, { choosie: number; emoji: string }> = {
 };
 
 function RoleSelectionContent() {
-    useEffect(() => {
-      // Diagnostic logging for debugging participant count and roles
-      // eslint-disable-next-line no-console
-      console.log("[RoleSelection] participantCount:", participantCount);
-      // eslint-disable-next-line no-console
-      console.log("[RoleSelection] rolesToShow:", rolesToShow.map(r => r.role));
-    }, [participantCount, rolesToShow]);
+
+
   const { id } = useParams();
   const router = useRouter();
   const [participants, setParticipants] = useState<any[]>([]);
@@ -100,6 +95,14 @@ function RoleSelectionContent() {
       { role: "Decider", ...ROLE_META["Decider"] },
     ];
   }
+
+  useEffect(() => {
+    // Diagnostic logging for debugging participant count and roles
+    // eslint-disable-next-line no-console
+    console.log("[RoleSelection] participantCount:", participantCount);
+    // eslint-disable-next-line no-console
+    console.log("[RoleSelection] rolesToShow:", rolesToShow.map(r => r.role));
+  }, [participantCount, rolesToShow]);
 
   return (
     <div className="max-w-xl mx-auto p-6">
