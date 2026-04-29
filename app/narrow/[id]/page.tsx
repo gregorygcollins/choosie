@@ -30,7 +30,6 @@ export default function NarrowPage() {
   const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showThankYou, setShowThankYou] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   // Debug panel state
   const [debug, setDebug] = useState({
@@ -97,9 +96,10 @@ export default function NarrowPage() {
     }
   }, [params]);
 
+
   useEffect(() => {
+    console.log('[NarrowPage] useEffect running, calling fetchLatestList');
     fetchLatestList();
-    // eslint-disable-next-line
   }, [fetchLatestList]);
 
   // After every narrowing action, always fetch the latest list
