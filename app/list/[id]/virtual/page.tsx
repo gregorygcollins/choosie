@@ -118,6 +118,9 @@ export default function VirtualNarrowingSession() {
     setSubmitting(false);
   }
 
+  // Show remaining items in the order they appear in the original list
+  const remainingItems = items.filter((item) => remainingIds.includes(item.id));
+
   return (
     <div className="max-w-xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-4">Virtual Narrowing Session</h1>
@@ -125,21 +128,18 @@ export default function VirtualNarrowingSession() {
       <div className="mb-2">Your participant index: <span className="font-mono">{pt}</span></div>
       <div className="mb-2">Select <b>{target}</b> item{target > 1 ? 's' : ''} from the remaining list:</div>
       <ul className="mb-6">
-        {remainingIds.map((id) => {
-          const item = items.find((i) => i.id === id);
-          return (
-            <li key={id} className="flex items-center mb-2">
-              <input
-                type="checkbox"
-                checked={selected.includes(id)}
-                disabled={!isActive || submitting}
-                onChange={() => handleSelect(id)}
-                className="mr-2"
-              />
-              <span>{item ? item.title : id}</span>
-            </li>
-          );
-        })}
+        {remainingItems.map((item) => (
+          <li key={item.id} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              checked={selected.includes(item.id)}
+              disabled={!isActive || submitting}
+              onChange={() => handleSelect(item.id)}
+              className="mr-2"
+            />
+            <span>{item.title}</span>
+          </li>
+        ))}
       </ul>
       {isActive ? (
         <button
