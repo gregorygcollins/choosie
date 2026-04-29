@@ -21,6 +21,14 @@ export default function VirtualNarrowingSession() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
+  // Determine turn logic (must be above hooks that use isActive)
+  const participants = list?.participants || 1;
+  const roundIndex = state?.roundIndex || 0;
+  const plan = state?.plan || [1];
+  const target = plan[roundIndex] || 1;
+  const remainingIds: string[] = state?.current?.remainingIds || [];
+  const isActive = pt === ((roundIndex) % (participants - 1));
+
   // Fetch session state (polling for simplicity)
   useEffect(() => {
     let cancelled = false;
@@ -75,14 +83,6 @@ export default function VirtualNarrowingSession() {
   if (!list || !state) {
     return <div className="p-8 text-center text-red-600">Failed to load narrowing session.</div>;
   }
-
-  // Determine turn logic
-  const participants = list.participants || 1;
-  const roundIndex = state.roundIndex || 0;
-  const plan = state.plan || [1];
-  const target = plan[roundIndex] || 1;
-  const remainingIds: string[] = state.current?.remainingIds || [];
-  const isActive = pt === ((roundIndex) % (participants - 1));
 
   // Winner
   if (winner) {
