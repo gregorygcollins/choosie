@@ -43,11 +43,11 @@ export default function VirtualInvitesPage() {
       if (!isActiveRef.current || force) {
         setSelected(data.state?.current?.selectedIds || []);
       }
-      // Always get the latest list title from storage (if present)
-      let latestTitle = data?.list?.title || "Narrow Virtually";
-      const localList = getList(listId);
-      if (localList && localList.title && localList.title !== latestTitle) {
-        latestTitle = localList.title;
+      // Always use the backend list title if available
+      let latestTitle = data?.list?.title;
+      if (!latestTitle) {
+        const localList = getList(listId);
+        latestTitle = localList?.title || "Narrow Virtually";
       }
       setListTitle(latestTitle);
     } catch (e: any) {
