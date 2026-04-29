@@ -83,6 +83,7 @@ export default function VirtualInvitesPage() {
 
   // Submit selection
   async function submitSelection() {
+    console.log("[VirtualNarrowing] Confirm clicked", { selected, participantToken, participantTokenValid });
     if (!api) return;
     if (!participantTokenValid) {
       setError("Missing or invalid participant token. Please use your invite link.");
