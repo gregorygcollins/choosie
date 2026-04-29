@@ -48,12 +48,25 @@ export default function VirtualNarrowingSession() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [params.id]);
 
-  // Update selectedIds from state
+  // Update selectedIds from state, but preserve local selection if it's the user's turn and they have made a change
   useEffect(() => {
-    if (state && Array.isArray(state.current?.selectedIds)) {
+    if (!state || !Array.isArray(state.current?.selectedIds)) return;
+    // If it's not the user's turn, always sync selection from backend
+    if (!isActive) {
+      setSelected([...state.current.selectedIds]);
+      return;
+    }
+    // If it's the user's turn, only sync if backend selection changed (e.g., round advanced)
+    // If local selection is empty or doesn't match backend, update
+    if (
+      selected.length === 0 ||
+      selected.some((id) => !state.current.selectedIds.includes(id)) ||
+      state.current.selectedIds.some((id: string) => !selected.includes(id))
+    ) {
       setSelected([...state.current.selectedIds]);
     }
-  }, [state]);
+    // Otherwise, preserve local selection
+  }, [state, isActive]);
 
   if (loading) {
     return <div className="p-8 text-center">Loading narrowing session…</div>;
@@ -275,6 +288,20 @@ export default function VirtualNarrowingSession() {
                 <p className="text-sm text-zinc-400 italic">No notes provided.</p>
               )}
               <div className="flex justify-end gap-3">
+                {isActive && (
+                  <button
+                    onClick={() => {
+                      handleSelect(previewItem.id);
+                      setPreviewItem(null);
+                    }}
+                    className={`rounded-full px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand/40 ${selected.includes(previewItem.id)
+                      ? 'bg-red-100 border border-red-300 text-red-700 hover:bg-red-200'
+                      : 'bg-brand text-white hover:bg-brand/90'}`}
+                    disabled={submitting}
+                  >
+                    {selected.includes(previewItem.id) ? 'Deselect' : 'Select'}
+                  </button>
+                )}
                 <button
                   onClick={() => setPreviewItem(null)}
                   className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
