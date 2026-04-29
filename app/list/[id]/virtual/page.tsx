@@ -1,3 +1,5 @@
+  // Store last API response for debug panel
+  const [debugApiResponse, setDebugApiResponse] = useState<any>(null);
 "use client";
 
 
@@ -82,8 +84,9 @@ export default function VirtualNarrowingSession() {
           credentials: "include",
         });
         const data = await res.json();
-        // Log the API response for diagnostics
+        // Log and store the API response for diagnostics
         console.log("[Narrow] API response", data);
+        setDebugApiResponse(data);
         if (!cancelled) {
           if (!data || !data.ok || !data.list) {
             setList(null);
@@ -159,17 +162,60 @@ export default function VirtualNarrowingSession() {
 
   // No additional selection syncing needed; handled in polling above
 
+
+  // Show debug panel always for now
+  const showDebugPanel = true;
+
+  // Error if participant count drops below 2
+  let participantError = null;
+  if (list && list.participants !== undefined && list.participants < 2) {
+    participantError = `Error: Participant count dropped to ${list.participants}. Session cannot proceed.`;
+  }
+
   if (loading) {
-    return <div className="p-8 text-center">Loading narrowing session…</div>;
+    return <div className="p-8 text-center">Loading narrowing session…
+      {showDebugPanel && debugApiResponse && (
+        <div className="mt-6 p-4 bg-zinc-100 border border-zinc-300 rounded text-left text-xs max-w-2xl mx-auto overflow-x-auto">
+          <div className="font-bold mb-1">Debug API Response</div>
+          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugApiResponse, null, 2)}</pre>
+        </div>
+      )}
+    </div>;
   }
 
   if (!list) {
-    return <div className="p-8 text-center text-red-600">Failed to load narrowing session.</div>;
+    return <div className="p-8 text-center text-red-600">Failed to load narrowing session.
+      {showDebugPanel && debugApiResponse && (
+        <div className="mt-6 p-4 bg-zinc-100 border border-zinc-300 rounded text-left text-xs max-w-2xl mx-auto overflow-x-auto">
+          <div className="font-bold mb-1">Debug API Response</div>
+          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugApiResponse, null, 2)}</pre>
+        </div>
+      )}
+    </div>;
   }
 
   // If progress/state is missing, session not started
   if (!state) {
-    return <div className="p-8 text-center text-zinc-600">Virtual narrowing has not started yet.</div>;
+    return <div className="p-8 text-center text-zinc-600">Virtual narrowing has not started yet.
+      {showDebugPanel && debugApiResponse && (
+        <div className="mt-6 p-4 bg-zinc-100 border border-zinc-300 rounded text-left text-xs max-w-2xl mx-auto overflow-x-auto">
+          <div className="font-bold mb-1">Debug API Response</div>
+          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugApiResponse, null, 2)}</pre>
+        </div>
+      )}
+    </div>;
+  }
+
+  // Show participant error if present
+  if (participantError) {
+    return <div className="p-8 text-center text-red-600">{participantError}
+      {showDebugPanel && debugApiResponse && (
+        <div className="mt-6 p-4 bg-zinc-100 border border-zinc-300 rounded text-left text-xs max-w-2xl mx-auto overflow-x-auto">
+          <div className="font-bold mb-1">Debug API Response</div>
+          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugApiResponse, null, 2)}</pre>
+        </div>
+      )}
+    </div>;
   }
 
 
