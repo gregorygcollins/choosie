@@ -2,7 +2,7 @@
 
 
 import { useSearchParams, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 // Utility: shallow array equality
 function arraysEqual(a: string[], b: string[]) {
@@ -24,6 +24,9 @@ export default function VirtualNarrowingSession() {
   const [state, setState] = useState<any>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [lastBackendSelected, setLastBackendSelected] = useState<string[]>([]);
+  const [lastRoundIndex, setLastRoundIndex] = useState<number>(-1);
+  const isFirstLoad = useRef(true);
   const [error, setError] = useState<string | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -38,7 +41,7 @@ export default function VirtualNarrowingSession() {
   const remainingIds: string[] = state?.current?.remainingIds || [];
   const isActive = pt === ((roundIndex) % (participants - 1));
 
-  // Fetch session state (polling for simplicity)
+  // Poll for backend state, but only update selection if not user's turn or round changes
   useEffect(() => {
     let cancelled = false;
     async function fetchState() {
@@ -56,6 +59,29 @@ export default function VirtualNarrowingSession() {
           setState(data.list.progress || {});
           setItems(data.list.items || []);
           setWinner(data.list.winnerId || null);
+          const backendSelected = (data.list.progress?.current?.selectedIds || []) as string[];
+          const backendRound = data.list.progress?.roundIndex || 0;
+          // On first load, always sync selection
+          if (isFirstLoad.current) {
+            setSelected([...backendSelected]);
+            setLastBackendSelected([...backendSelected]);
+            setLastRoundIndex(backendRound);
+            isFirstLoad.current = false;
+            return;
+          }
+          // If round changed, sync selection
+          if (backendRound !== lastRoundIndex) {
+            setSelected([...backendSelected]);
+            setLastBackendSelected([...backendSelected]);
+            setLastRoundIndex(backendRound);
+            return;
+          }
+          // If not user's turn, always sync selection
+          const active = pt === (backendRound % ((data.list.participants || 1) - 1));
+          if (!active) {
+            setSelected([...backendSelected]);
+            setLastBackendSelected([...backendSelected]);
+          }
         }
       } catch {}
       setLoading(false);
@@ -65,33 +91,7 @@ export default function VirtualNarrowingSession() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [params.id]);
 
-  // Update selectedIds from state, but preserve local selection during user's turn unless round or backend selection changes
-  const [lastRoundIndex, setLastRoundIndex] = useState<number>(-1);
-  useEffect(() => {
-    if (!state || !Array.isArray(state.current?.selectedIds)) return;
-    const backendSelected = state.current.selectedIds as string[];
-    const currentRound = state.roundIndex || 0;
-
-    // Always sync if it's not the user's turn
-    if (!isActive) {
-      if (!arraysEqual(selected, backendSelected)) {
-        setSelected([...backendSelected]);
-      }
-      setLastRoundIndex(currentRound);
-      return;
-    }
-
-    // If round changed, sync selection and reset local selection
-    if (currentRound !== lastRoundIndex) {
-      setSelected([...backendSelected]);
-      setLastRoundIndex(currentRound);
-      return;
-    }
-
-    // During user's turn, do NOT update selection from backend at all (preserve local selection)
-    // This prevents pulsing/reset and allows user to submit
-    // No setSelected here
-  }, [state, isActive]);
+  // No additional selection syncing needed; handled in polling above
 
   if (loading) {
     return <div className="p-8 text-center">Loading narrowing session…</div>;
@@ -117,7 +117,7 @@ export default function VirtualNarrowingSession() {
 
   // Selection handler
   function handleSelect(id: string) {
-    if (!isActive) return;
+    if (!isActive || submitting) return;
     let next = selected.includes(id)
       ? selected.filter((x) => x !== id)
       : [...selected, id];
@@ -130,6 +130,7 @@ export default function VirtualNarrowingSession() {
     setSubmitting(true);
     setError(null);
     try {
+      // Submit all selected IDs
       for (const id of selected) {
         await fetch("/api/choosie/narrow/select", {
           method: "POST",
@@ -145,10 +146,12 @@ export default function VirtualNarrowingSession() {
           body: JSON.stringify({ listId: params.id, participantToken: "virtual" }),
         });
       }
+      // Optimistically disable input until backend confirms
+      setSubmitting(false);
     } catch (e: any) {
       setError("Failed to submit selection");
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   // Show remaining items in the order they appear in the original list
