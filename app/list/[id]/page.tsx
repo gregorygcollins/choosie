@@ -699,7 +699,22 @@ export default function ViewListPage() {
               Narrow in person
             </button>
             <button
-              onClick={() => handleNarrowClick("virtual")}
+              onClick={async () => {
+                // Always reset the narrowing session before generating the link
+                if (!list) return;
+                try {
+                  await fetch("/api/choosie/narrow/reset", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ listId: list.id }),
+                  });
+                } catch (e) {
+                  // Ignore errors, fallback to old behavior
+                  console.error("Failed to reset narrowing session", e);
+                }
+                handleNarrowClick("virtual");
+              }}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
               Narrow virtually
