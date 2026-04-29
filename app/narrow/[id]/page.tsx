@@ -31,6 +31,7 @@ export default function NarrowPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showThankYou, setShowThankYou] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -40,8 +41,39 @@ export default function NarrowPage() {
     if (!mounted) return;
     async function load() {
       setLoading(true);
+      setLoadError(null);
       const id = params?.id as string;
-      const l = await getList(id);
+      let l = await getList(id);
+      if (!l) {
+        // Try to fetch from server if not found in localStorage
+        try {
+          const res = await fetch("/api/choosie/getList", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ listId: id }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.ok && data.list) {
+              l = data.list;
+              if (l) upsertList(l);
+            } else {
+              setLoadError("Could not load this list.");
+              setLoading(false);
+              return;
+            }
+          } else {
+            setLoadError("Could not load this list.");
+            setLoading(false);
+            return;
+          }
+        } catch {
+          setLoadError("Could not load this list.");
+          setLoading(false);
+          return;
+        }
+      }
       if (l) {
         setList(l);
         setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
@@ -236,6 +268,14 @@ export default function NarrowPage() {
 
   if (!mounted || loading) {
     return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
+  }
+  if (loadError) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">{loadError}</h1>
+        <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
+      </div>
+    );
   }
   if (!list) {
     return (
