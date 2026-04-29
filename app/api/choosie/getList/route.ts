@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
 
     const res = NextResponse.json({
       ok: true,
+      debug: "getList-logging-test-443d7e6",
       list: {
         id: list.id,
         title: list.title,
