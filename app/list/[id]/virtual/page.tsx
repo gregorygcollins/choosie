@@ -65,21 +65,17 @@ export default function VirtualInvitesPage() {
 
   // Remove winner redirect effect; handled in fetchState
 
-  // Handle item selection
-  function handleSelect(id: string) {
+  // Selection logic copied from In Person UI
+  const toggleSelect = (id: string) => {
     if (submitting) return;
-    isActiveRef.current = true;
-    let next = selected.includes(id)
-      ? selected.filter((x) => x !== id)
-      : [...selected, id];
-    const target = api?.state?.current?.target || 1;
-    if (next.length > target) next = next.slice(0, target);
-    setSelected(next);
-    // If user deselects all, mark as inactive
-    if (next.length === 0) {
-      isActiveRef.current = false;
-    }
-  }
+    setSelected((prev) => {
+      const exists = prev.includes(id);
+      const targetCount = api?.state?.current?.target || 1;
+      if (exists) return prev.filter((x) => x !== id);
+      if (prev.length >= targetCount) return prev;
+      return [...prev, id];
+    });
+  };
 
   // Submit selection
   async function submitSelection() {
@@ -213,18 +209,13 @@ export default function VirtualInvitesPage() {
               <rect x="14" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
               <rect x="3" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
             </svg>
-          <button
-            className="px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-60"
-            disabled={selected.length!==target||submitting||!participantTokenValid}
-            onClick={submitSelection}
-          >
-            {submitting?"Submitting...":`Confirm (${selected.length}/${target})`}
           </button>
-          {!participantTokenValid && (
-            <div className="text-red-500 mt-2 text-center">
-              Missing or invalid participant token. Please use your invite link.
-            </div>
-          )}
+          <button
+            aria-label="List View"
+            className={`p-2 rounded-full ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
+            onClick={() => setViewMode('list')}
+          >
+            {/* Sleek list icon (matches In Person) */}
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
               <rect x="4" y="5" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
               <rect x="4" y="11" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
@@ -237,7 +228,7 @@ export default function VirtualInvitesPage() {
             <div
               key={item.id}
               className={`border rounded-xl p-4 shadow-sm cursor-pointer transition-all ${selected.includes(item.id) ? 'ring-2 ring-blue-600' : 'hover:ring-1 hover:ring-blue-400/50'}`}
-              onClick={() => handleSelect(item.id)}
+              onClick={() => toggleSelect(item.id)}
             >
               <div className="flex items-center gap-3">
                 {item.image && (
@@ -259,11 +250,16 @@ export default function VirtualInvitesPage() {
         </div>
         <button
           className="px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-60"
-          disabled={selected.length !== target || submitting}
+          disabled={selected.length !== target || submitting || !participantTokenValid}
           onClick={submitSelection}
         >
           {submitting ? 'Submitting...' : `Confirm (${selected.length}/${target})`}
         </button>
+        {!participantTokenValid && (
+          <div className="text-red-500 mt-2 text-center">
+            Missing or invalid participant token. Please use your invite link.
+          </div>
+        )}
         {infoModalItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setInfoModalItem(null)}>
             <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center relative" onClick={e => e.stopPropagation()}>
