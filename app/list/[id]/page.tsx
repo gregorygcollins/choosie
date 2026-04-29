@@ -441,7 +441,7 @@ export default function ViewListPage() {
             </p>
             {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
             <div className="grid grid-cols-3 gap-3 mb-6">
-              {[2, 3].map((n) => (
+              {[1, 2, 3].map((n) => (
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}
