@@ -42,96 +42,71 @@ export default function NarrowPage() {
     error: '',
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    let didTimeout = false;
-    let timeoutId: NodeJS.Timeout | null = null;
-    async function load() {
-      setLoading(true);
-      setLoadError(null);
-      setDebug((d) => ({ ...d, loading: true, error: '', listId: '', hasLocalList: false, serverFetchStatus: '', narrowStateFetchStatus: '' }));
-      const id = params?.id as string;
-      setDebug((d) => ({ ...d, listId: id }));
-      let l = await getList(id);
-      setDebug((d) => ({ ...d, hasLocalList: !!l }));
-      if (!l) {
-        setDebug((d) => ({ ...d, serverFetchStatus: 'fetching' }));
-        try {
-          const res = await fetch("/api/choosie/getList", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ listId: id }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data?.ok && data.list) {
-              l = data.list;
-              if (l) upsertList(l);
-              setDebug((d) => ({ ...d, serverFetchStatus: 'success' }));
-            } else {
-              setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response missing list' }));
-              setLoadError("Could not load this list.");
-              setLoading(false);
-              return;
-            }
+  // Always fetch the latest list (including title) from the backend
+  const fetchLatestList = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    setDebug((d) => ({ ...d, loading: true, error: '', listId: '', hasLocalList: false, serverFetchStatus: '', narrowStateFetchStatus: '' }));
+    const id = params?.id as string;
+    setDebug((d) => ({ ...d, listId: id }));
+    try {
+      const res = await fetch("/api/choosie/getList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: id }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.ok && data.list) {
+          const l = data.list;
+          upsertList(l);
+          setDebug((d) => ({ ...d, serverFetchStatus: 'success' }));
+          if (l.progress && l.narrowingPlan) {
+            setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
+            setList(l);
+            setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
+            setRoundTargets(l.narrowingPlan || []);
+            setRoundNumber(l.progress?.round || 1);
+            setCurrentNarrower(l.progress?.currentNarrower || 1);
+            setSelectedIds((l.progress as any)?.selectedIds || []);
+            setHistory(
+              (l.progress?.history || []).map((h: any) => ({
+                ...h,
+                selectedIds: h.selectedIds || [],
+              }))
+            );
           } else {
-            setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response not ok' }));
-            setLoadError("Could not load this list.");
-            setLoading(false);
-            return;
+            setDebug((d) => ({ ...d, narrowStateFetchStatus: 'missing' }));
+            setList(l);
           }
-        } catch (e) {
-          setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'fetch threw' }));
+        } else {
+          setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response missing list' }));
           setLoadError("Could not load this list.");
-          setLoading(false);
-          return;
         }
       } else {
-        setDebug((d) => ({ ...d, serverFetchStatus: 'skipped-local-hit' }));
+        setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response not ok' }));
+        setLoadError("Could not load this list.");
       }
-      // Check for narrowing state
-      if (l && l.progress && l.narrowingPlan) {
-        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
-        setList(l);
-        setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
-        setRoundTargets(l.narrowingPlan || []);
-        setRoundNumber(l.progress?.round || 1);
-        setCurrentNarrower(l.progress?.currentNarrower || 1);
-        setSelectedIds((l.progress as any)?.selectedIds || []);
-        setHistory(
-          (l.progress?.history || []).map((h: any) => ({
-            ...h,
-            selectedIds: h.selectedIds || [],
-          }))
-        );
-        setLoading(false);
-      } else if (l && (!l.progress || !l.narrowingPlan)) {
-        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'missing' }));
-        setList(l);
-        setLoading(false);
-      } else {
-        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'fail', error: 'no list' }));
-        setLoading(false);
-      }
-      // Timeout fallback (should never hit)
-      if (timeoutId) clearTimeout(timeoutId);
-    }
-    // Timeout fallback
-    timeoutId = setTimeout(() => {
-      didTimeout = true;
-      setDebug((d) => ({ ...d, error: 'timeout' }));
+    } catch (e) {
+      setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'fetch threw' }));
+      setLoadError("Could not load this list.");
+    } finally {
       setLoading(false);
-    }, 15000);
-    load();
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [mounted, params]);
+    }
+  }, [params]);
+
+  useEffect(() => {
+    fetchLatestList();
+    // eslint-disable-next-line
+  }, [fetchLatestList]);
+
+  // After every narrowing action, always fetch the latest list
+  const refetchAfterAction = async () => {
+    await fetchLatestList();
+  };
+
 
   const targetThisRound = roundTargets[roundNumber - 1] || 1;
   const isFinalRound = roundNumber === roundTargets.length;
@@ -148,7 +123,8 @@ export default function NarrowPage() {
     [targetThisRound]
   );
 
-  const confirmRound = useCallback(() => {
+
+  const confirmRound = useCallback(async () => {
     if (selectedIds.length !== targetThisRound || !list) return;
     const narrowers = list.narrowers || 3;
     const tail = list.narrowingTail || [5, 3, 1];
@@ -205,7 +181,8 @@ export default function NarrowPage() {
       setRoundNumber(nextRound);
       setCurrentNarrower(nextNarrower);
     }
-  }, [selectedIds, targetThisRound, list, remaining, currentNarrower, roundNumber, isFinalRound, roundTargets]);
+    await refetchAfterAction();
+  }, [selectedIds, targetThisRound, list, remaining, currentNarrower, roundNumber, isFinalRound, roundTargets, refetchAfterAction]);
 
   const undoLast = useCallback(() => {
     if (!history.length || !list) return;
