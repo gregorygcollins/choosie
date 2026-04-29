@@ -82,16 +82,15 @@ export default function ViewListPage() {
   const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
     if (!list) return;
-    // Role definitions and minimums
+    // Only allow up to 3 participants (Programmer, Selector, Decider)
     const roleSets = [
       [],
       ["Decider"],
       ["Selector", "Decider"],
       ["Programmer", "Selector", "Decider"],
-      ["Short List", "Programmer", "Selector", "Decider"],
-      ["Long List", "Short List", "Programmer", "Selector", "Decider"],
     ];
-    const minSizes = [0, 2, 4, 6, 8, 11];
+    const minSizes = [0, 2, 4, 6];
+    if (count > 3) return; // Defensive: ignore higher counts
     const roles = roleSets[count - 1] || [];
     const minSize = minSizes[count - 1] || 0;
     if ((list.items?.length || 0) < minSize) {
@@ -441,8 +440,8 @@ export default function ViewListPage() {
               Select the total number of people (including you as the Organizer)
             </p>
             {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
-            <div className="grid grid-cols-5 gap-3 mb-6">
-              {[2, 3, 4, 5, 6].map((n) => (
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[2, 3].map((n) => (
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}

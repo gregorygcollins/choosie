@@ -3,36 +3,48 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { getRoleName } from "@/lib/planner";
 
-const ROLES = [
-  { role: "Programmer", choosie: 10, emoji: "💻" },
-  { role: "Sorter", choosie: 7, emoji: "📊" },
-  { role: "Curator", choosie: 5, emoji: "🎨" },
-  { role: "Selector", choosie: 3, emoji: "🎯" },
-  { role: "Decider", choosie: 1, emoji: "🏆" },
-];
+const ROLE_META: Record<string, { choosie: number; emoji: string }> = {
+  Programmer: { choosie: 5, emoji: "💻" },
+  Selector: { choosie: 3, emoji: "🎯" },
+  Decider: { choosie: 1, emoji: "🏆" },
+};
 
 function RoleSelectionContent() {
   const { id } = useParams();
   const router = useRouter();
   const [participants, setParticipants] = useState<any[]>([]);
+  const [participantCount, setParticipantCount] = useState<number>(3);
   const [name, setName] = useState("");
   const [claiming, setClaiming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch participants
+  // Fetch participants and participant count
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    async function fetchParticipants() {
+    async function fetchParticipantsAndCount() {
       try {
         const res = await fetch(`/api/choosie/narrow/participants?listId=${id}`);
         const data = await res.json();
         if (!cancelled && data.ok) setParticipants(data.participants);
       } catch {}
+      try {
+        const res2 = await fetch("/api/choosie/getList", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ listId: id }),
+          credentials: "include",
+        });
+        const data2 = await res2.json();
+        if (!cancelled && data2.ok && typeof data2.list?.participants === "number") {
+          setParticipantCount(data2.list.participants);
+        }
+      } catch {}
     }
-    fetchParticipants();
-    const interval = setInterval(fetchParticipants, 2000);
+    fetchParticipantsAndCount();
+    const interval = setInterval(fetchParticipantsAndCount, 2000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [id]);
 
@@ -60,6 +72,12 @@ function RoleSelectionContent() {
     setClaiming(null);
   }
 
+  // Compute roles to show
+  const rolesToShow = Array.from({ length: Math.max(2, participantCount) - 1 }).map((_, i) => {
+    const { role, emoji } = getRoleName(Math.max(2, participantCount), i);
+    return { role, ...ROLE_META[role], emoji };
+  });
+
   return (
     <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Choose Your Role</h1>
@@ -72,7 +90,7 @@ function RoleSelectionContent() {
         disabled={!!claiming}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        {ROLES.map(({ role, choosie, emoji }) => {
+        {rolesToShow.map(({ role, choosie, emoji }) => {
           const taken = participants.find((p) => p.role === role);
           return (
             <div key={role} className={`rounded border p-4 flex flex-col items-center ${taken ? "bg-zinc-100 border-zinc-300" : "bg-white border-brand"}`}>
