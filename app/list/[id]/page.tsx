@@ -121,20 +121,24 @@ export default function ViewListPage() {
     setList(updated);
     setShowParticipantModal(false);
     if (narrowingMode === "in-person") {
-      fetch("/api/choosie/updateList", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          listId: list.id,
-          participants: count,
-          narrowingPlan: updated.narrowingPlan,
-          progress: updated.progress,
-        }),
-      }).catch((err) => {
-        console.error("Failed to sync participants to server:", err);
-      });
-      router.push(`/narrow/${list.id}`);
+      (async () => {
+        try {
+          await fetch("/api/choosie/updateList", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              listId: list.id,
+              participants: count,
+              narrowingPlan: updated.narrowingPlan,
+              progress: updated.progress,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to sync participants to server:", err);
+        }
+        router.push(`/narrow/${list.id}`);
+      })();
     } else {
       // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
       fetch("/api/choosie/updateList", {
