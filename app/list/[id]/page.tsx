@@ -103,7 +103,8 @@ export default function ViewListPage() {
     setParticipantError(null);
     // Compute narrowing plan and initialize progress for both in-person and virtual narrowing
     const { computeNarrowingPlan } = require("@/lib/planner");
-    const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
+    // Pass count+1 to include organizer for correct plan
+    const plan = computeNarrowingPlan(list.items.length, count + 1, { participants: count + 1 });
     let updated = {
       ...list,
       participants: count,
