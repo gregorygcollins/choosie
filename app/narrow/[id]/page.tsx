@@ -32,6 +32,15 @@ export default function NarrowPage() {
   const [showThankYou, setShowThankYou] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // Debug panel state
+  const [debug, setDebug] = useState({
+    listId: '',
+    hasLocalList: false,
+    serverFetchStatus: '',
+    narrowStateFetchStatus: '',
+    loading: true,
+    error: '',
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -39,13 +48,18 @@ export default function NarrowPage() {
 
   useEffect(() => {
     if (!mounted) return;
+    let didTimeout = false;
+    let timeoutId: NodeJS.Timeout | null = null;
     async function load() {
       setLoading(true);
       setLoadError(null);
+      setDebug((d) => ({ ...d, loading: true, error: '', listId: '', hasLocalList: false, serverFetchStatus: '', narrowStateFetchStatus: '' }));
       const id = params?.id as string;
+      setDebug((d) => ({ ...d, listId: id }));
       let l = await getList(id);
+      setDebug((d) => ({ ...d, hasLocalList: !!l }));
       if (!l) {
-        // Try to fetch from server if not found in localStorage
+        setDebug((d) => ({ ...d, serverFetchStatus: 'fetching' }));
         try {
           const res = await fetch("/api/choosie/getList", {
             method: "POST",
@@ -58,23 +72,31 @@ export default function NarrowPage() {
             if (data?.ok && data.list) {
               l = data.list;
               if (l) upsertList(l);
+              setDebug((d) => ({ ...d, serverFetchStatus: 'success' }));
             } else {
+              setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response missing list' }));
               setLoadError("Could not load this list.");
               setLoading(false);
               return;
             }
           } else {
+            setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response not ok' }));
             setLoadError("Could not load this list.");
             setLoading(false);
             return;
           }
-        } catch {
+        } catch (e) {
+          setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'fetch threw' }));
           setLoadError("Could not load this list.");
           setLoading(false);
           return;
         }
+      } else {
+        setDebug((d) => ({ ...d, serverFetchStatus: 'skipped-local-hit' }));
       }
-      if (l) {
+      // Check for narrowing state
+      if (l && l.progress && l.narrowingPlan) {
+        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
         setList(l);
         setRemaining(l.items.filter((i) => l.progress?.remainingIds?.includes(i.id)));
         setRoundTargets(l.narrowingPlan || []);
@@ -87,10 +109,28 @@ export default function NarrowPage() {
             selectedIds: h.selectedIds || [],
           }))
         );
+        setLoading(false);
+      } else if (l && (!l.progress || !l.narrowingPlan)) {
+        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'missing' }));
+        setList(l);
+        setLoading(false);
+      } else {
+        setDebug((d) => ({ ...d, narrowStateFetchStatus: 'fail', error: 'no list' }));
+        setLoading(false);
       }
-      setLoading(false);
+      // Timeout fallback (should never hit)
+      if (timeoutId) clearTimeout(timeoutId);
     }
+    // Timeout fallback
+    timeoutId = setTimeout(() => {
+      didTimeout = true;
+      setDebug((d) => ({ ...d, error: 'timeout' }));
+      setLoading(false);
+    }, 15000);
     load();
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [mounted, params]);
 
   const targetThisRound = roundTargets[roundNumber - 1] || 1;
@@ -266,14 +306,27 @@ export default function NarrowPage() {
     }
   }, [resetAll, router, list]);
 
+  // Debug panel
+  const DebugPanel = () => (
+    <div style={{ position: 'fixed', bottom: 0, left: 0, background: '#fff', color: '#222', fontSize: 12, padding: 8, border: '1px solid #ccc', zIndex: 9999 }}>
+      <div><b>listId:</b> {debug.listId}</div>
+      <div><b>hasLocalList:</b> {String(debug.hasLocalList)}</div>
+      <div><b>serverFetchStatus:</b> {debug.serverFetchStatus}</div>
+      <div><b>narrowStateFetchStatus:</b> {debug.narrowStateFetchStatus}</div>
+      <div><b>loading:</b> {String(loading)}</div>
+      <div><b>error:</b> {debug.error || loadError || ''}</div>
+    </div>
+  );
+
   if (!mounted || loading) {
-    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
+    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…<DebugPanel /></div>;
   }
   if (loadError) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">{loadError}</h1>
         <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
+        <DebugPanel />
       </div>
     );
   }
@@ -282,6 +335,16 @@ export default function NarrowPage() {
       <div className="max-w-xl mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">List not found</h1>
         <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
+        <DebugPanel />
+      </div>
+    );
+  }
+  if (!list.progress || !list.narrowingPlan) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Virtual narrowing has not started yet.</h1>
+        <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
+        <DebugPanel />
       </div>
     );
   }
