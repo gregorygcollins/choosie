@@ -4,6 +4,15 @@
 import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Utility: shallow array equality
+function arraysEqual(a: string[], b: string[]) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 type Item = { id: string; title: string; notes?: string; image?: string | null };
 
 export default function VirtualNarrowingSession() {
@@ -65,14 +74,18 @@ export default function VirtualNarrowingSession() {
 
     // Always sync if it's not the user's turn
     if (!isActive) {
-      setSelected([...backendSelected]);
+      if (!arraysEqual(selected, backendSelected)) {
+        setSelected([...backendSelected]);
+      }
       setLastRoundIndex(currentRound);
       return;
     }
 
     // If round changed, sync selection and reset local selection
     if (currentRound !== lastRoundIndex) {
-      setSelected([...backendSelected]);
+      if (!arraysEqual(selected, backendSelected)) {
+        setSelected([...backendSelected]);
+      }
       setLastRoundIndex(currentRound);
       return;
     }
