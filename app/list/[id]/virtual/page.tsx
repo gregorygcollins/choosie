@@ -1,62 +1,60 @@
 
 
+
 "use client";
+import { useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 
-import { useSearchParams, useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
-
-// Utility: shallow array equality
-function arraysEqual(a: string[], b: string[]) {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
-type Item = { id: string; title: string; notes?: string; image?: string | null };
-
-export default function VirtualNarrowingSession() {
+export default function VirtualNarrowingDiagnosticPage() {
   const params = useParams();
-  const search = useSearchParams();
-    // Store last API response for debug panel
-    const [debugApiResponse, setDebugApiResponse] = useState<any>(null);
-  const pt = Number(search.get("pt") || 0);
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [list, setList] = useState<any>(null);
-  const [state, setState] = useState<any>(undefined); // progress/state may be missing
-  const [items, setItems] = useState<Item[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [lastBackendSelected, setLastBackendSelected] = useState<string[]>([]);
-  const [lastRoundIndex, setLastRoundIndex] = useState<number>(-1);
-  const isFirstLoad = useRef(true);
-  const [error, setError] = useState<string | null>(null);
-  const [winner, setWinner] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [previewItem, setPreviewItem] = useState<Item | null>(null);
+  const searchParams = useSearchParams();
+  const [apiResult, setApiResult] = useState<any>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const listId = params?.id as string;
 
-  // Redirect to winner page when winner is set
-  useEffect(() => {
-    if (winner && params.id) {
-      router.push(`/final/${params.id}`);
+  const handleTestApi = async () => {
+    setApiResult(null);
+    setApiError(null);
+    try {
+      const url = new URL(`/api/choosie/narrow/state`, window.location.origin);
+      url.searchParams.set("listId", listId);
+      // Copy all search params from the URL
+      for (const [key, value] of searchParams.entries()) {
+        url.searchParams.set(key, value);
+      }
+      const res = await fetch(url.toString(), { credentials: "include" });
+      const data = await res.json();
+      setApiResult(data);
+    } catch (e: any) {
+      setApiError(e?.message || String(e));
     }
-  }, [winner, params.id, router]);
+  };
 
-  // Defensive: Only compute turn logic if state/progress exists
-  const participants = list?.participants || 1;
-  const roundIndex = state?.roundIndex ?? 0;
-  const plan = state?.plan ?? [1];
-  const target = plan[roundIndex] ?? 1;
-  const remainingIds: string[] = state?.current?.remainingIds ?? [];
-  const isActive = state ? pt === ((roundIndex) % (participants - 1)) : false;
-
-
-  // Early returns must be at the top, before any hooks or functions
-  if (loading) {
-    return <div className="p-8 text-center">Loading narrowing session…</div>;
-  }
+  return (
+    <div style={{ padding: 32 }}>
+      <h1 style={{ fontWeight: 700, fontSize: 24 }}>Virtual narrowing diagnostic page</h1>
+      <div style={{ margin: "16px 0" }}>
+        <b>listId:</b> {listId}
+      </div>
+      <div style={{ margin: "16px 0" }}>
+        <b>URL search params:</b> {searchParams.toString()}
+      </div>
+      <button onClick={handleTestApi} style={{ padding: "8px 16px", fontWeight: 600, fontSize: 16 }}>
+        Test API
+      </button>
+      <div style={{ marginTop: 24 }}>
+        {apiResult && (
+          <pre style={{ background: "#f5f5f5", padding: 16, borderRadius: 8, fontSize: 14 }}>
+            {JSON.stringify(apiResult, null, 2)}
+          </pre>
+        )}
+        {apiError && (
+          <div style={{ color: "red", marginTop: 8 }}>Error: {apiError}</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
   if (!list) {
     return <div className="p-8 text-center text-red-600">Failed to load narrowing session.</div>;
