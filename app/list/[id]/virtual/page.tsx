@@ -84,6 +84,8 @@ export default function VirtualInvitesPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ listId, participantToken: "virtual" }),
         });
+        // Wait briefly to ensure backend persists winner
+        await new Promise((resolve) => setTimeout(resolve, 350));
       }
       setResult("Selection submitted.");
       await fetchState();
