@@ -105,6 +105,15 @@ export async function POST(req: NextRequest) {
     }
 
     const winnerItemId = list.progress?.winnerItemId || null;
+    // Debug log
+    console.log('[narrow/state] RESPONSE', {
+      listId: list.id,
+      selectedIds: state.current?.selectedIds,
+      target: state.current?.target,
+      roundIndex: state.roundIndex,
+      plan: state.plan,
+      winnerItemId,
+    });
     return withCORS(NextResponse.json({
       ok: true,
       state,

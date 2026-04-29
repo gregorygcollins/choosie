@@ -28,6 +28,12 @@ export default function VirtualInvitesPage() {
       const data = await res.json();
       setApi(data);
       setSelected(data.state?.current?.selectedIds || []);
+      // Log winnerItemId for debugging
+      console.log('[VirtualNarrowing] fetchState winnerItemId:', data.winnerItemId);
+      // Redirect if winnerItemId is present
+      if (data.winnerItemId && listId) {
+        router.replace(`/final/${listId}?winner=${data.winnerItemId}`);
+      }
     } catch (e: any) {
       setError("Failed to load narrowing session");
     } finally {
@@ -40,12 +46,7 @@ export default function VirtualInvitesPage() {
     // eslint-disable-next-line
   }, [listId]);
 
-  // Redirect to winner page if winnerItemId is present
-  useEffect(() => {
-    if (api?.winnerItemId && listId) {
-      router.replace(`/final/${listId}?winner=${api.winnerItemId}`);
-    }
-  }, [api?.winnerItemId, listId, router]);
+  // Remove winner redirect effect; handled in fetchState
 
   // Handle item selection
   function handleSelect(id: string) {
@@ -81,7 +82,7 @@ export default function VirtualInvitesPage() {
         });
         await new Promise((resolve) => setTimeout(resolve, 350));
       }
-      await fetchState();
+      await fetchState(); // This will log winnerItemId and redirect if present
     } catch (e: any) {
       setError("Failed to submit selection");
     } finally {

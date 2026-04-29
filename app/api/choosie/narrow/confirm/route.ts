@@ -99,6 +99,15 @@ export async function POST(req: NextRequest) {
       const winner = state.current.remainingIds[0] || null;
       winnerItemId = winner;
     }
+    // Debug log
+    console.log('[narrow/confirm] FINALIZE', {
+      listId: data.listId,
+      selectedIds: selected,
+      target: state.current.target,
+      roundIndex: state.roundIndex,
+      plan: state.plan,
+      winnerItemId,
+    });
 
     await prisma.progress.upsert({
       where: { listId: list.id },
