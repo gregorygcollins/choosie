@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { getList } from "@/lib/storage";
 import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
 
@@ -12,12 +13,14 @@ export default function VirtualInvitesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [api, setApi] = useState<any>(null);
+  const [listTitle, setListTitle] = useState<string>("");
   const [selected, setSelected] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [infoModalItem, setInfoModalItem] = useState<any>(null);
 
   // Fetch narrowing state on mount and after submit
+  // Fetch narrowing state and latest list title
   async function fetchState() {
     setLoading(true);
     setError("");
@@ -30,7 +33,13 @@ export default function VirtualInvitesPage() {
       const data = await res.json();
       setApi(data);
       setSelected(data.state?.current?.selectedIds || []);
-      // No redirect; winner UI is rendered inline to match In Person experience
+      // Always get the latest list title from storage (if present)
+      let latestTitle = data?.list?.title || "Narrow Virtually";
+      const localList = getList(listId);
+      if (localList && localList.title && localList.title !== latestTitle) {
+        latestTitle = localList.title;
+      }
+      setListTitle(latestTitle);
     } catch (e: any) {
       setError("Failed to load narrowing session");
     } finally {
@@ -40,6 +49,9 @@ export default function VirtualInvitesPage() {
 
   useEffect(() => {
     fetchState();
+    // Poll for list name changes every 2 seconds
+    const interval = setInterval(fetchState, 2000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line
   }, [listId]);
 
@@ -94,7 +106,7 @@ export default function VirtualInvitesPage() {
   const target = state?.current?.target || 1;
   const remainingIds = state?.current?.remainingIds || [];
   const remainingItems = items.filter((item: any) => remainingIds.includes(item.id));
-  const listTitle = api?.list?.title || "Narrow Virtually";
+  // listTitle is now always up-to-date
   const winnerId = api?.winnerItemId;
   const winner = items.find((i: any) => i.id === winnerId);
 
@@ -174,11 +186,12 @@ export default function VirtualInvitesPage() {
             className={`p-2 rounded-full ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
             onClick={() => setViewMode('grid')}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <rect x="3" y="3" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
-              <rect x="14" y="3" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
-              <rect x="14" y="14" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
-              <rect x="3" y="14" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
+            {/* Sleek grid icon (matches In Person) */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+              <rect x="3" y="3" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="2" fill={viewMode === 'grid' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
           <button
@@ -186,10 +199,11 @@ export default function VirtualInvitesPage() {
             className={`p-2 rounded-full ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
             onClick={() => setViewMode('list')}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <rect x="4" y="5" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
-              <rect x="4" y="11" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
-              <rect x="4" y="17" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
+            {/* Sleek list icon (matches In Person) */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+              <rect x="4" y="5" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+              <rect x="4" y="11" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+              <rect x="4" y="17" width="16" height="2" rx="1" fill={viewMode === 'list' ? '#fff' : 'none'} stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
         </div>
