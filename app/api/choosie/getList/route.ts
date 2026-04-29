@@ -37,26 +37,7 @@ export async function POST(req: NextRequest) {
 
     // Read participants from tasteJson for virtual narrowing
     const tasteJson = (list as any).tasteJson || {};
-    const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
-    const participants = tasteJson.participants || (Array.isArray(invitees) ? invitees.filter((x: any) => typeof x !== 'string').length + 1 : undefined) || 2;
-
-    // Ensure narrowing state is initialized
-    let progress = list.progress;
-    let winnerId = progress?.winnerItemId || null;
-    let state = progress?.historyJson || null;
-    const { computeNarrowingPlan } = await import("@/lib/planner");
-    if (!state) {
-      const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-      state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
-      // Persist initial state
-      progress = await prisma.progress.upsert({
-        where: { listId: list.id },
-        update: { historyJson: state, winnerItemId: null },
-        create: { listId: list.id, historyJson: state, winnerItemId: null },
-      });
-      winnerId = null;
-    }
-
+    const participants = typeof tasteJson.participants === 'number' ? tasteJson.participants : 3;
     const res = NextResponse.json({
       ok: true,
       list: {
@@ -79,8 +60,8 @@ export async function POST(req: NextRequest) {
               ? "music"
               : "anything"
             : "movies",
-        winnerId,
-        progress: state,
+        winnerId: list.progress?.winnerItemId,
+        progress: list.progress?.historyJson,
         participants,
       },
     });
