@@ -71,6 +71,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Commit round
+    console.log('[narrow/confirm] BEFORE', {
+      listId: data.listId,
+      participantToken: data.participantToken,
+      roundIndex: state.roundIndex,
+      selectedIds: state.current.selectedIds,
+      remainingIds: state.current.remainingIds,
+    });
     const roundEntry = {
       round: state.roundIndex,
       role: invitees[activeIndex]?.role || null,
@@ -97,6 +104,15 @@ export async function POST(req: NextRequest) {
       where: { listId: list.id },
       update: { historyJson: state, winnerItemId },
       create: { listId: list.id, historyJson: state, winnerItemId },
+    });
+
+    console.log('[narrow/confirm] AFTER', {
+      listId: data.listId,
+      participantToken: data.participantToken,
+      roundIndex: state.roundIndex,
+      selectedIds: state.current.selectedIds,
+      remainingIds: state.current.remainingIds,
+      winnerItemId,
     });
 
     publish(list.id, { ok: true, event: 'state', state, winnerItemId });

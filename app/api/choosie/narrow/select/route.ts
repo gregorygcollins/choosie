@@ -59,6 +59,13 @@ export async function POST(req: NextRequest) {
     // Load canonical state
     const historyState = buildCanonical(list);
     ensureSelectionSet(historyState);
+    console.log('[narrow/select] BEFORE', {
+      listId: data.listId,
+      participantToken: data.participantToken,
+      roundIndex: historyState.roundIndex,
+      selectedIds: historyState.current.selectedIds,
+      remainingIds: historyState.current.remainingIds,
+    });
 
     // Basic rule: item must be in remainingIds and not already selected
     const remaining = historyState.current.remainingIds as string[];
@@ -86,6 +93,14 @@ export async function POST(req: NextRequest) {
       where: { listId: list.id },
       update: { historyJson: historyState },
       create: { listId: list.id, historyJson: historyState },
+    });
+
+    console.log('[narrow/select] AFTER', {
+      listId: data.listId,
+      participantToken: data.participantToken,
+      roundIndex: historyState.roundIndex,
+      selectedIds: historyState.current.selectedIds,
+      remainingIds: historyState.current.remainingIds,
     });
 
     publish(list.id, { ok: true, event: 'state', state: historyState, winnerItemId: list.progress?.winnerItemId || null });
