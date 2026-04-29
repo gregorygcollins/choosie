@@ -62,7 +62,12 @@ function RoleSelectionContent() {
       if (data.ok) {
         // Go to narrowing session with role index as pt
         const idx = rolesToShow.findIndex((r) => r.role === role);
-        router.push(`/list/${id}/virtual?pt=${idx}`);
+        // If this is the first narrower (lowest idx), allow immediate narrowing
+        if (idx === 0) {
+          router.push(`/list/${id}/virtual?pt=${idx}&start=1`);
+        } else {
+          router.push(`/list/${id}/virtual?pt=${idx}`);
+        }
       } else {
         setError(data.error || "Failed to claim role");
       }

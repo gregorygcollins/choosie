@@ -82,75 +82,75 @@ export default function ViewListPage() {
   const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
     if (!list) return;
-    // Only allow up to 3 participants (Programmer, Selector, Decider)
-    const roleSets = [
-      [],
-      ["Decider"],
-      ["Selector", "Decider"],
-      ["Programmer", "Selector", "Decider"],
-    ];
-    const minSizes = [0, 2, 4, 6];
-    if (count > 3) return; // Defensive: ignore higher counts
-    const roles = roleSets[count - 1] || [];
-    const minSize = minSizes[count - 1] || 0;
-    if ((list.items?.length || 0) < minSize) {
-      setParticipantError(`You need at least ${minSize} items for ${count} narrowers.`);
-      return;
-    }
-    setParticipantError(null);
-    // Compute narrowing plan and initialize progress for in-person narrowing
-    let updated = { ...list, participants: count };
-    if (narrowingMode === "in-person") {
-      const { computeNarrowingPlan } = require("@/lib/planner");
-      const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
-      updated = {
-        ...updated,
-        narrowingPlan: plan,
-        progress: {
-          remainingIds: list.items.map((i: any) => i.id),
-          currentNarrower: 1,
-          round: 1,
-          totalRounds: plan.length,
-          history: [],
-        },
-      };
-    }
-    upsertList(updated);
-    setList(updated);
-    setShowParticipantModal(false);
-    if (narrowingMode === "in-person") {
-      fetch("/api/choosie/updateList", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          listId: list.id,
-          participants: count,
-          narrowingPlan: updated.narrowingPlan,
-          progress: updated.progress,
-        }),
-      }).catch((err) => {
-        console.error("Failed to sync participants to server:", err);
-      });
-      router.push(`/narrow/${list.id}`);
-    } else {
-      // Virtual: generate a single group link for all participants to the role selection page
-      fetch("/api/choosie/updateList", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          listId: list.id,
-          participants: count,
-        }),
-      }).catch((err) => {
-        console.error("Failed to sync participants to server:", err);
-      });
-      const base = typeof window !== 'undefined' ? window.location.origin : '';
-      const groupLink = `${base}/list/${list.id}/virtual/roles`;
-      setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
-      setShowLinksModal(true);
-    }
+        // Only allow up to 3 narrowers (excluding Organizer)
+        const roleSets = [
+          [],
+          ["Decider"],
+          ["Selector", "Decider"],
+          ["Programmer", "Selector", "Decider"],
+        ];
+        const minSizes = [0, 1, 2, 4];
+        if (count > 3 || count < 1) return; // Defensive: ignore out of range
+        const roles = roleSets[count] || [];
+        const minSize = minSizes[count] || 0;
+        if ((list.items?.length || 0) < minSize) {
+          setParticipantError(`You need at least ${minSize} items for ${count} narrower${count === 1 ? '' : 's'}.`);
+          return;
+        }
+        setParticipantError(null);
+        // Compute narrowing plan and initialize progress for in-person narrowing
+        let updated = { ...list, participants: count };
+        if (narrowingMode === "in-person") {
+          const { computeNarrowingPlan } = require("@/lib/planner");
+          const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
+          updated = {
+            ...updated,
+            narrowingPlan: plan,
+            progress: {
+              remainingIds: list.items.map((i: any) => i.id),
+              currentNarrower: 1,
+              round: 1,
+              totalRounds: plan.length,
+              history: [],
+            },
+          };
+        }
+        upsertList(updated);
+        setList(updated);
+        setShowParticipantModal(false);
+        if (narrowingMode === "in-person") {
+          fetch("/api/choosie/updateList", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              listId: list.id,
+              participants: count,
+              narrowingPlan: updated.narrowingPlan,
+              progress: updated.progress,
+            }),
+          }).catch((err) => {
+            console.error("Failed to sync participants to server:", err);
+          });
+          router.push(`/narrow/${list.id}`);
+        } else {
+          // Virtual: generate a single group link for all participants to the role selection page
+          fetch("/api/choosie/updateList", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              listId: list.id,
+              participants: count,
+            }),
+          }).catch((err) => {
+            console.error("Failed to sync participants to server:", err);
+          });
+          const base = typeof window !== 'undefined' ? window.location.origin : '';
+          const groupLink = `${base}/list/${list.id}/virtual/roles`;
+          setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+          setShowLinksModal(true);
+        }
   };
 
 
@@ -437,7 +437,7 @@ export default function ViewListPage() {
               How many participants?
             </h2>
             <p className="text-sm text-zinc-600 mb-6 text-center">
-              Select the total number of people (including you as the Organizer)
+              Select the total number of people (excluding you as the Organizer)
             </p>
             {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
             <div className="grid grid-cols-3 gap-3 mb-6">
