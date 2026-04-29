@@ -22,10 +22,22 @@ export function computeNarrowingPlan(
   opts?: PlanOptions
 ): number[] {
   const participants = opts?.participants ?? numPlayers;
-  
+
   if (listLength <= 1) return [1];
-  // If the list is very small (<= participants or <= 4), just jump straight to 1.
-  // This matches expectation that tiny lists don't need intermediate narrowing.
+
+  // Custom logic for 2 or 3 narrowers (excluding organizer)
+  if (participants - 1 === 3) {
+    // Programmer (5), Selector (3), Decider (1)
+    if (listLength < 6) throw new Error("List must include at least 6 movies for 3 narrowers");
+    return [5, 3, 1];
+  }
+  if (participants - 1 === 2) {
+    // Selector (3), Decider (1)
+    if (listLength < 4) throw new Error("List must include at least 4 movies for 2 narrowers");
+    return [3, 1];
+  }
+
+  // Fallback to old logic for other participant counts
   if (listLength <= Math.max(4, participants)) {
     return [1];
   }
