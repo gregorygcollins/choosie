@@ -79,7 +79,8 @@ function RoleSelectionContent() {
     setClaiming(null);
   }
 
-  // Compute roles to show based on participantCount (number of narrowers)
+  // Always show exactly participantCount roles (1=Decider, 2=Selector+Decider, 3=Programmer+Selector+Decider)
+  const roleOrder = ["Programmer", "Selector", "Decider"];
   let rolesToShow: { role: string; choosie: number; emoji: string }[] = [];
   if (participantCount === 1) {
     rolesToShow = [{ role: "Decider", ...ROLE_META["Decider"] }];
@@ -140,6 +141,10 @@ function RoleSelectionContent() {
       </div>
       {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
       <div className="text-zinc-500 text-xs">You can join as any available role. The narrowing session begins as soon as a role is claimed.</div>
+      {/* DEBUG: Show participantCount and rolesToShow */}
+      <div className="mb-4 p-2 bg-yellow-100 text-xs rounded border border-yellow-300">
+        <strong>DEBUG:</strong> participantCount = {participantCount} | rolesToShow = [{rolesToShow.map(r => r.role).join(', ')}]
+      </div>
     </div>
   );
 }

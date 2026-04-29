@@ -25,12 +25,10 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     const list = await getListById(validated.listId);
 
-    if (!list) {
-      return withCORS(
-        NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }),
-        origin
-      );
-    }
+      if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
+      // Diagnostic logging for participants value
+      // eslint-disable-next-line no-console
+      console.log('[API/getList] Returning participants:', list.participants);
 
     // Ownership check
     const authCheck = requireAuth(session, list.userId);

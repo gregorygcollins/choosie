@@ -81,23 +81,26 @@ export default function ViewListPage() {
 
   const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
+    // Diagnostic log for participant selection
+    // eslint-disable-next-line no-console
+    console.log('[ParticipantModal] Selected count (narrowers):', count);
     if (!list) return;
-        // Only allow up to 3 narrowers (excluding Organizer)
-        const roleSets = [
-          [],
-          ["Decider"],
-          ["Selector", "Decider"],
-          ["Programmer", "Selector", "Decider"],
-        ];
-        const minSizes = [0, 1, 2, 4];
-        if (count > 3 || count < 1) return; // Defensive: ignore out of range
-        const roles = roleSets[count] || [];
-        const minSize = minSizes[count] || 0;
-        if ((list.items?.length || 0) < minSize) {
-          setParticipantError(`You need at least ${minSize} items for ${count} narrower${count === 1 ? '' : 's'}.`);
-          return;
-        }
-        setParticipantError(null);
+    // Only allow up to 3 narrowers (excluding Organizer)
+    const roleSets = [
+      [],
+      ["Decider"],
+      ["Selector", "Decider"],
+      ["Programmer", "Selector", "Decider"],
+    ];
+    const minSizes = [0, 1, 2, 4];
+    if (count > 3 || count < 1) return; // Defensive: ignore out of range
+    const roles = roleSets[count] || [];
+    const minSize = minSizes[count] || 0;
+    if ((list.items?.length || 0) < minSize) {
+      setParticipantError(`You need at least ${minSize} items for ${count} narrower${count === 1 ? '' : 's'}.`);
+      return;
+    }
+    setParticipantError(null);
         // Compute narrowing plan and initialize progress for in-person narrowing
         let updated = { ...list, participants: count };
         if (narrowingMode === "in-person") {
