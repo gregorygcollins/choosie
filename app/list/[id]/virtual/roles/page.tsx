@@ -77,11 +77,22 @@ function RoleSelectionContent() {
     setClaiming(null);
   }
 
-  // Compute roles to show
-  const rolesToShow = Array.from({ length: Math.max(2, participantCount) - 1 }).map((_, i) => {
-    const { role, emoji } = getRoleName(Math.max(2, participantCount), i);
-    return { role, ...ROLE_META[role], emoji };
-  });
+  // Compute roles to show based on participantCount (number of narrowers)
+  let rolesToShow: { role: string; choosie: number; emoji: string }[] = [];
+  if (participantCount === 1) {
+    rolesToShow = [{ role: "Decider", ...ROLE_META["Decider"] }];
+  } else if (participantCount === 2) {
+    rolesToShow = [
+      { role: "Selector", ...ROLE_META["Selector"] },
+      { role: "Decider", ...ROLE_META["Decider"] },
+    ];
+  } else if (participantCount === 3) {
+    rolesToShow = [
+      { role: "Programmer", ...ROLE_META["Programmer"] },
+      { role: "Selector", ...ROLE_META["Selector"] },
+      { role: "Decider", ...ROLE_META["Decider"] },
+    ];
+  }
 
   return (
     <div className="max-w-xl mx-auto p-6">
