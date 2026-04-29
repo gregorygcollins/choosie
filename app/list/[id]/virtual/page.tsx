@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
 
 export default function VirtualInvitesPage() {
+  const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const listId = String(params?.id ?? "");
@@ -16,11 +18,19 @@ export default function VirtualInvitesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<string>("");
 
+
   // Fetch narrowing state on mount
   useEffect(() => {
     fetchState();
     // eslint-disable-next-line
   }, [listId]);
+
+  // Redirect to winner page if winnerItemId is present
+  useEffect(() => {
+    if (session?.winnerItemId && listId) {
+      router.replace(`/final/${listId}?winner=${session.winnerItemId}`);
+    }
+  }, [session?.winnerItemId, listId, router]);
 
   async function fetchState() {
     setLoading(true);
@@ -85,22 +95,18 @@ export default function VirtualInvitesPage() {
   }
 
   // Render
+
   const items = session?.items || [];
   const current = session?.state?.current;
   const target = current?.target || 1;
-  const roundIndex = session?.state?.roundIndex ?? 0;
+  // Try to get the list name from the first item, fallback to generic if not found
+  const listName = session?.list?.name || items[0]?.listName || "Narrowing Session";
 
   return (
     <main className="min-h-screen px-6 py-12">
-      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow">
-        <h1 className="mb-4 text-3xl font-bold">Virtual narrowing session</h1>
 
-        <div className="space-y-2 text-sm mb-4">
-          <p><strong>List ID:</strong> {listId || "Missing"}</p>
-          <p><strong>Search params:</strong> {queryString || "None"}</p>
-          <p><strong>Round:</strong> {roundIndex + 1}</p>
-          <p><strong>Target:</strong> {target}</p>
-        </div>
+      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow">
+        <h1 className="mb-4 text-3xl font-bold">{listName}</h1>
 
         {error && <div className="text-red-600 mb-4">{error}</div>}
         {loading && <div className="text-zinc-500 mb-4">Loading narrowing session…</div>}
