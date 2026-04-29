@@ -79,10 +79,11 @@ export async function POST(req: NextRequest) {
       selectedIds: state.current.selectedIds,
       remainingIds: state.current.remainingIds,
     });
+    // No activeIndex in no-token mode; set role/participant to null or default
     const roundEntry = {
       round: state.roundIndex,
-      role: invitees[activeIndex]?.role || null,
-      participant: invitees[activeIndex]?.email || null,
+      role: null, // or e.g. `"Virtual"` or `"N/A"`
+      participant: "Virtual participant",
       chosenIds: [...selected],
       prevRemaining: [...state.current.remainingIds],
     };
