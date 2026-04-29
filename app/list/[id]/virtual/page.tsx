@@ -56,24 +56,35 @@ export default function VirtualNarrowingSession() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [params.id]);
 
-  // Update selectedIds from state, but preserve local selection if it's the user's turn and they have made a change
+  // Update selectedIds from state, but preserve local selection during user's turn unless round or backend selection changes
+  const [lastRoundIndex, setLastRoundIndex] = useState<number>(-1);
   useEffect(() => {
     if (!state || !Array.isArray(state.current?.selectedIds)) return;
-    // If it's not the user's turn, always sync selection from backend
+    const backendSelected = state.current.selectedIds as string[];
+    const currentRound = state.roundIndex || 0;
+
+    // Always sync if it's not the user's turn
     if (!isActive) {
-      setSelected([...state.current.selectedIds]);
+      setSelected([...backendSelected]);
+      setLastRoundIndex(currentRound);
       return;
     }
-    // If it's the user's turn, only sync if backend selection changed (e.g., round advanced)
-    // If local selection is empty or doesn't match backend, update
-    if (
-      selected.length === 0 ||
-      selected.some((id) => !state.current.selectedIds.includes(id)) ||
-      state.current.selectedIds.some((id: string) => !selected.includes(id))
-    ) {
-      setSelected([...state.current.selectedIds]);
+
+    // If round changed, sync selection and reset local selection
+    if (currentRound !== lastRoundIndex) {
+      setSelected([...backendSelected]);
+      setLastRoundIndex(currentRound);
+      return;
     }
-    // Otherwise, preserve local selection
+
+    // If it's user's turn and local selection is empty, sync from backend
+    if (selected.length === 0 && backendSelected.length > 0) {
+      setSelected([...backendSelected]);
+      return;
+    }
+
+    // Otherwise, preserve local selection during user's turn
+    // Do not update selected from backend if user has already made a selection
   }, [state, isActive]);
 
   if (loading) {
