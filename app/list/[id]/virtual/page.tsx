@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getList } from "@/lib/storage";
 import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
@@ -20,8 +20,11 @@ export default function VirtualInvitesPage() {
   const [infoModalItem, setInfoModalItem] = useState<any>(null);
 
   // Fetch narrowing state on mount and after submit
+  // Track if user is actively selecting or submitting
+  const isActiveRef = useRef(false);
+
   // Fetch narrowing state and latest list title
-  async function fetchState() {
+  async function fetchState(force = false) {
     setLoading(true);
     setError("");
     try {
@@ -32,7 +35,10 @@ export default function VirtualInvitesPage() {
       });
       const data = await res.json();
       setApi(data);
-      setSelected(data.state?.current?.selectedIds || []);
+      // Only update selection from server if not actively selecting/submitting or forced
+      if (!isActiveRef.current || force) {
+        setSelected(data.state?.current?.selectedIds || []);
+      }
       // Always get the latest list title from storage (if present)
       let latestTitle = data?.list?.title || "Narrow Virtually";
       const localList = getList(listId);
@@ -48,9 +54,10 @@ export default function VirtualInvitesPage() {
   }
 
   useEffect(() => {
-    fetchState();
-    // Poll for list name changes every 2 seconds
-    const interval = setInterval(fetchState, 2000);
+    fetchState(true); // force initial fetch
+    let interval = setInterval(() => {
+      if (!isActiveRef.current) fetchState();
+    }, 2000);
     return () => clearInterval(interval);
     // eslint-disable-next-line
   }, [listId]);
@@ -60,12 +67,17 @@ export default function VirtualInvitesPage() {
   // Handle item selection
   function handleSelect(id: string) {
     if (submitting) return;
+    isActiveRef.current = true;
     let next = selected.includes(id)
       ? selected.filter((x) => x !== id)
       : [...selected, id];
     const target = api?.state?.current?.target || 1;
     if (next.length > target) next = next.slice(0, target);
     setSelected(next);
+    // If user deselects all, mark as inactive
+    if (next.length === 0) {
+      isActiveRef.current = false;
+    }
   }
 
   // Submit selection
@@ -73,6 +85,7 @@ export default function VirtualInvitesPage() {
     if (!api) return;
     setSubmitting(true);
     setError("");
+    isActiveRef.current = true;
     try {
       // Submit all selected IDs
       for (const id of selected) {
@@ -91,11 +104,12 @@ export default function VirtualInvitesPage() {
         });
         await new Promise((resolve) => setTimeout(resolve, 350));
       }
-      await fetchState(); // This will log winnerItemId and redirect if present
+      await fetchState(true); // Force update after submit
     } catch (e: any) {
       setError("Failed to submit selection");
     } finally {
       setSubmitting(false);
+      isActiveRef.current = false;
     }
   }
 
@@ -249,6 +263,24 @@ export default function VirtualInvitesPage() {
             </div>
           </div>
         )}
+
+        {/* Undo and Reset list buttons at the bottom, matching In Person UI */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+          <button
+            onClick={handleUndo}
+            disabled={submitting}
+            className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-blue-600 ring-blue-200 hover:bg-blue-50 disabled:opacity-60"
+          >
+            Undo
+          </button>
+          <button
+            onClick={handleReset}
+            disabled={submitting}
+            className="rounded-full bg-blue-600 px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors disabled:opacity-60"
+          >
+            Reset list
+          </button>
+        </div>
       </div>
     </main>
   );
