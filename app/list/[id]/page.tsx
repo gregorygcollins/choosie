@@ -101,59 +101,59 @@ export default function ViewListPage() {
       return;
     }
     setParticipantError(null);
-        // Compute narrowing plan and initialize progress for in-person narrowing
-        let updated = { ...list, participants: count };
-        if (narrowingMode === "in-person") {
-          const { computeNarrowingPlan } = require("@/lib/planner");
-          const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
-          updated = {
-            ...updated,
-            narrowingPlan: plan,
-            progress: {
-              remainingIds: list.items.map((i: any) => i.id),
-              currentNarrower: 1,
-              round: 1,
-              totalRounds: plan.length,
-              history: [],
-            },
-          };
-        }
-        upsertList(updated);
-        setList(updated);
-        setShowParticipantModal(false);
-        if (narrowingMode === "in-person") {
-          fetch("/api/choosie/updateList", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              listId: list.id,
-              participants: count,
-              narrowingPlan: updated.narrowingPlan,
-              progress: updated.progress,
-            }),
-          }).catch((err) => {
-            console.error("Failed to sync participants to server:", err);
-          });
-          router.push(`/narrow/${list.id}`);
-        } else {
-          // Virtual: generate a single group link for all participants to the role selection page
-          fetch("/api/choosie/updateList", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              listId: list.id,
-              participants: count,
-            }),
-          }).catch((err) => {
-            console.error("Failed to sync participants to server:", err);
-          });
-          const base = typeof window !== 'undefined' ? window.location.origin : '';
-          const groupLink = `${base}/list/${list.id}/virtual/roles`;
-          setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
-          setShowLinksModal(true);
-        }
+    // Compute narrowing plan and initialize progress for both in-person and virtual narrowing
+    const { computeNarrowingPlan } = require("@/lib/planner");
+    const plan = computeNarrowingPlan(list.items.length, count, { participants: count });
+    let updated = {
+      ...list,
+      participants: count,
+      narrowingPlan: plan,
+      progress: {
+        remainingIds: list.items.map((i: any) => i.id),
+        currentNarrower: 1,
+        round: 1,
+        totalRounds: plan.length,
+        history: [],
+      },
+    };
+    upsertList(updated);
+    setList(updated);
+    setShowParticipantModal(false);
+    if (narrowingMode === "in-person") {
+      fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: list.id,
+          participants: count,
+          narrowingPlan: updated.narrowingPlan,
+          progress: updated.progress,
+        }),
+      }).catch((err) => {
+        console.error("Failed to sync participants to server:", err);
+      });
+      router.push(`/narrow/${list.id}`);
+    } else {
+      // Virtual: generate a single group link for all participants to the role selection page
+      fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: list.id,
+          participants: count,
+          narrowingPlan: updated.narrowingPlan,
+          progress: updated.progress,
+        }),
+      }).catch((err) => {
+        console.error("Failed to sync participants to server:", err);
+      });
+      const base = typeof window !== 'undefined' ? window.location.origin : '';
+      const groupLink = `${base}/list/${list.id}/virtual/roles`;
+      setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+      setShowLinksModal(true);
+    }
   };
 
 
