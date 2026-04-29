@@ -61,7 +61,7 @@ function RoleSelectionContent() {
       const data = await res.json();
       if (data.ok) {
         // Go to narrowing session with role index as pt
-        const idx = ROLES.findIndex((r) => r.role === role);
+        const idx = rolesToShow.findIndex((r) => r.role === role);
         router.push(`/list/${id}/virtual?pt=${idx}`);
       } else {
         setError(data.error || "Failed to claim role");
