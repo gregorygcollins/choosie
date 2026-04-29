@@ -15,6 +15,7 @@ type LocalHistoryEntry = {
   selectedIds: string[];
 };
 
+
 export default function NarrowPage() {
   const params = useParams();
   const router = useRouter();
@@ -29,8 +30,14 @@ export default function NarrowPage() {
   const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showThankYou, setShowThankYou] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     async function load() {
       setLoading(true);
       const id = params?.id as string;
@@ -52,7 +59,7 @@ export default function NarrowPage() {
       setLoading(false);
     }
     load();
-  }, [params]);
+  }, [mounted, params]);
 
   const targetThisRound = roundTargets[roundNumber - 1] || 1;
   const isFinalRound = roundNumber === roundTargets.length;
@@ -227,7 +234,7 @@ export default function NarrowPage() {
     }
   }, [resetAll, router, list]);
 
-  if (loading) {
+  if (!mounted || loading) {
     return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Loading…</div>;
   }
   if (!list) {
