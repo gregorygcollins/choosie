@@ -30,12 +30,10 @@ export default function VirtualInvitesPage() {
       const data = await res.json();
       setApi(data);
       setSelected(data.state?.current?.selectedIds || []);
-      // Log winnerItemId for debugging
-      console.log('[VirtualNarrowing] fetchState winnerItemId:', data.winnerItemId);
-      // Do not redirect; winner UI is rendered inline below
-      // if (data.winnerItemId && listId) {
-      //   router.replace(`/final/${listId}?winner=${data.winnerItemId}`);
-      // }
+      // Redirect to winner page if winnerItemId is present
+      if (data.winnerItemId && listId) {
+        router.replace(`/final/${listId}?winner=${data.winnerItemId}`);
+      }
     } catch (e: any) {
       setError("Failed to load narrowing session");
     } finally {
