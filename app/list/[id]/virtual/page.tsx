@@ -1,7 +1,6 @@
-  // Store last API response for debug panel
-  const [debugApiResponse, setDebugApiResponse] = useState<any>(null);
-"use client";
 
+
+"use client";
 
 import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
@@ -15,12 +14,13 @@ function arraysEqual(a: string[], b: string[]) {
   return true;
 }
 
-
 type Item = { id: string; title: string; notes?: string; image?: string | null };
 
 export default function VirtualNarrowingSession() {
   const params = useParams();
   const search = useSearchParams();
+    // Store last API response for debug panel
+    const [debugApiResponse, setDebugApiResponse] = useState<any>(null);
   const pt = Number(search.get("pt") || 0);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
