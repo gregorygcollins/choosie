@@ -9,6 +9,8 @@ export default function VirtualInvitesPage() {
   const searchParams = useSearchParams();
   const listId = String(params?.id ?? "");
   const queryString = searchParams.toString();
+  // Read participantToken from ?pt=... in the URL
+  const participantToken = searchParams.get("pt") || "";
 
   // State for narrowing session
   const [loading, setLoading] = useState(false);
@@ -75,7 +77,7 @@ export default function VirtualInvitesPage() {
         await fetch("/api/choosie/narrow/select", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listId, itemId: id, participantToken: "virtual" }),
+          body: JSON.stringify({ listId, itemId: id, participantToken }),
         });
       }
       // Confirm round if selection count matches target
@@ -83,7 +85,7 @@ export default function VirtualInvitesPage() {
         await fetch("/api/choosie/narrow/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listId, participantToken: "virtual" }),
+          body: JSON.stringify({ listId, participantToken }),
         });
         // Wait briefly to ensure backend persists winner
         await new Promise((resolve) => setTimeout(resolve, 350));
