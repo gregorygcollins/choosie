@@ -113,6 +113,7 @@ export async function POST(req: NextRequest) {
       selectedIds: state.current.selectedIds,
       remainingIds: state.current.remainingIds,
       winnerItemId,
+      state,
     });
 
     publish(list.id, { ok: true, event: 'state', state, winnerItemId });

@@ -42,6 +42,7 @@ export default function VirtualInvitesPage() {
         body: JSON.stringify({ listId, query: queryString }),
       });
       const data = await res.json();
+      console.log('[Virtual Narrowing] fetchState result:', data);
       if (!data.ok) throw new Error(data.body || "Unknown error");
       setSession(data);
       setSelected(data.state?.current?.selectedIds || []);
