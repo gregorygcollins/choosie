@@ -40,21 +40,27 @@ export async function POST(req: NextRequest) {
     const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
     const participants = tasteJson.participants || (Array.isArray(invitees) ? invitees.filter((x: any) => typeof x !== 'string').length + 1 : undefined) || 2;
 
+
     // Ensure narrowing state is initialized
     let progress = list.progress;
     let winnerId = progress?.winnerItemId || null;
     let state = progress?.historyJson || null;
     const { computeNarrowingPlan } = await import("@/lib/planner");
     if (!state) {
+      console.log('[getList] Initializing narrowing state for list', list.id);
       const plan = computeNarrowingPlan(list.items.length, participants, { participants });
       state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
-      // Persist initial state
-      progress = await prisma.progress.upsert({
-        where: { listId: list.id },
-        update: { historyJson: state, winnerItemId: null },
-        create: { listId: list.id, historyJson: state, winnerItemId: null },
-      });
-      winnerId = null;
+      try {
+        progress = await prisma.progress.upsert({
+          where: { listId: list.id },
+          update: { historyJson: state, winnerItemId: null },
+          create: { listId: list.id, historyJson: state, winnerItemId: null },
+        });
+        winnerId = null;
+        console.log('[getList] State after upsert', state);
+      } catch (e) {
+        console.error('[getList] Error during upsert', e);
+      }
     }
 
     const res = NextResponse.json({
