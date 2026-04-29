@@ -21,7 +21,7 @@ export default function VirtualNarrowingSession() {
   const pt = Number(search.get("pt") || 0);
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState<any>(null);
-  const [state, setState] = useState<any>(null);
+  const [state, setState] = useState<any>(undefined); // progress/state may be missing
   const [items, setItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [lastBackendSelected, setLastBackendSelected] = useState<string[]>([]);
@@ -33,13 +33,13 @@ export default function VirtualNarrowingSession() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
-  // Determine turn logic (must be above hooks that use isActive)
+  // Defensive: Only compute turn logic if state/progress exists
   const participants = list?.participants || 1;
-  const roundIndex = state?.roundIndex || 0;
-  const plan = state?.plan || [1];
-  const target = plan[roundIndex] || 1;
-  const remainingIds: string[] = state?.current?.remainingIds || [];
-  const isActive = pt === ((roundIndex) % (participants - 1));
+  const roundIndex = state?.roundIndex ?? 0;
+  const plan = state?.plan ?? [1];
+  const target = plan[roundIndex] ?? 1;
+  const remainingIds: string[] = state?.current?.remainingIds ?? [];
+  const isActive = state ? pt === ((roundIndex) % (participants - 1)) : false;
 
   // Poll for backend state, but only update selection if not user's turn or round changes
   useEffect(() => {
@@ -56,31 +56,38 @@ export default function VirtualNarrowingSession() {
         const data = await res.json();
         if (!cancelled && data.ok) {
           setList(data.list);
-          setState(data.list.progress || {});
-          setItems(data.list.items || []);
+          setItems(Array.isArray(data.list.items) ? data.list.items : []);
           setWinner(data.list.winnerId || null);
-          const backendSelected = (data.list.progress?.current?.selectedIds || []) as string[];
-          const backendRound = data.list.progress?.roundIndex || 0;
-          // On first load, always sync selection
-          if (isFirstLoad.current) {
-            setSelected([...backendSelected]);
-            setLastBackendSelected([...backendSelected]);
-            setLastRoundIndex(backendRound);
-            isFirstLoad.current = false;
-            return;
-          }
-          // If round changed, sync selection
-          if (backendRound !== lastRoundIndex) {
-            setSelected([...backendSelected]);
-            setLastBackendSelected([...backendSelected]);
-            setLastRoundIndex(backendRound);
-            return;
-          }
-          // If not user's turn, always sync selection
-          const active = pt === (backendRound % ((data.list.participants || 1) - 1));
-          if (!active) {
-            setSelected([...backendSelected]);
-            setLastBackendSelected([...backendSelected]);
+          if (data.list.progress) {
+            setState(data.list.progress);
+            const backendSelected = (data.list.progress.current?.selectedIds ?? []) as string[];
+            const backendRound = data.list.progress.roundIndex ?? 0;
+            // On first load, always sync selection
+            if (isFirstLoad.current) {
+              setSelected([...backendSelected]);
+              setLastBackendSelected([...backendSelected]);
+              setLastRoundIndex(backendRound);
+              isFirstLoad.current = false;
+              return;
+            }
+            // If round changed, sync selection
+            if (backendRound !== lastRoundIndex) {
+              setSelected([...backendSelected]);
+              setLastBackendSelected([...backendSelected]);
+              setLastRoundIndex(backendRound);
+              return;
+            }
+            // If not user's turn, always sync selection
+            const active = pt === (backendRound % ((data.list.participants || 1) - 1));
+            if (!active) {
+              setSelected([...backendSelected]);
+              setLastBackendSelected([...backendSelected]);
+            }
+          } else {
+            setState(undefined);
+            setSelected([]);
+            setLastBackendSelected([]);
+            setLastRoundIndex(-1);
           }
         }
       } catch {}
@@ -97,8 +104,13 @@ export default function VirtualNarrowingSession() {
     return <div className="p-8 text-center">Loading narrowing session…</div>;
   }
 
-  if (!list || !state) {
+  if (!list) {
     return <div className="p-8 text-center text-red-600">Failed to load narrowing session.</div>;
+  }
+
+  // If progress/state is missing, session not started
+  if (!state) {
+    return <div className="p-8 text-center text-zinc-600">Virtual narrowing has not started yet.</div>;
   }
 
   // Winner
