@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
     const authCheck = requireAuth(session, list.userId);
     if (!authCheck.ok) return withCORS(authCheck.response, origin);
 
+    // Read participants from tasteJson for virtual narrowing
+    const tasteJson = (list as any).tasteJson || {};
+    const participants = typeof tasteJson.participants === 'number' ? tasteJson.participants : 3;
     const res = NextResponse.json({
       ok: true,
       list: {
@@ -52,12 +55,13 @@ export async function POST(req: NextRequest) {
             : list.module === "RECIPES"
             ? "food"
             : list.module === "ANYTHING"
-            ? (list as any).tasteJson?.module === "music"
+            ? tasteJson?.module === "music"
               ? "music"
               : "anything"
             : "movies",
         winnerId: list.progress?.winnerItemId,
         progress: list.progress?.historyJson,
+        participants,
       },
     });
 
