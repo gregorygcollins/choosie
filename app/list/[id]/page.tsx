@@ -136,7 +136,7 @@ export default function ViewListPage() {
       });
       router.push(`/narrow/${list.id}`);
     } else {
-      // Virtual: generate a single group link for all participants to the role selection page
+      // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
       fetch("/api/choosie/updateList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,8 +151,15 @@ export default function ViewListPage() {
         console.error("Failed to sync participants to server:", err);
       });
       const base = typeof window !== 'undefined' ? window.location.origin : '';
-      const groupLink = `${base}/list/${list.id}/virtual/roles`;
-      setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+      if (count === 1) {
+        // Only Decider: direct link, no role claim needed
+        const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1`;
+        setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
+      } else {
+        // 2 or 3 narrowers: group roles link
+        const groupLink = `${base}/list/${list.id}/virtual/roles`;
+        setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+      }
       setShowLinksModal(true);
     }
   };

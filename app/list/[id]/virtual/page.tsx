@@ -10,7 +10,10 @@ export default function VirtualInvitesPage() {
   const searchParams = useSearchParams();
   const listId = String(params?.id ?? "");
   const participantToken = searchParams.get("pt") || "";
-  const participantTokenValid = participantToken.length >= 16;
+  // Accept numeric pt for virtual narrowing (Decider/roles), or strong token for invitee flows
+  const participantTokenValid =
+    participantToken.length >= 16 ||
+    (/^\d+$/.test(participantToken) && Number(participantToken) >= 0 && Number.isFinite(Number(participantToken)));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [api, setApi] = useState<any>(null);
@@ -55,13 +58,18 @@ export default function VirtualInvitesPage() {
   }
 
   useEffect(() => {
+    // If no valid pt, redirect to roles page (for multi-narrower virtual)
+    if (!participantTokenValid) {
+      router.replace(`/list/${listId}/virtual/roles`);
+      return;
+    }
     fetchState(true); // force initial fetch
     let interval = setInterval(() => {
       if (!isActiveRef.current) fetchState();
     }, 2000);
     return () => clearInterval(interval);
     // eslint-disable-next-line
-  }, [listId]);
+  }, [listId, participantTokenValid]);
 
   // Remove winner redirect effect; handled in fetchState
 
@@ -79,10 +87,9 @@ export default function VirtualInvitesPage() {
 
   // Submit selection
   async function submitSelection() {
-    console.log("[VirtualNarrowing] Confirm clicked", { selected, participantToken, participantTokenValid });
     if (!api) return;
     if (!participantTokenValid) {
-      setError("Missing or invalid participant token. Please use your invite link.");
+      setError("Missing or invalid participant token. Please claim a role or use your invite link.");
       return;
     }
     setSubmitting(true);
@@ -257,7 +264,7 @@ export default function VirtualInvitesPage() {
         </button>
         {!participantTokenValid && (
           <div className="text-red-500 mt-2 text-center">
-            Missing or invalid participant token. Please use your invite link.
+            Missing or invalid participant token. Please claim a role or use your invite link.
           </div>
         )}
         {infoModalItem && (
