@@ -101,6 +101,42 @@ export default function VirtualInvitesPage() {
   const winnerId = api?.winnerItemId;
   const winner = items.find((i: any) => i.id === winnerId);
 
+  // Undo last narrowing action
+  async function handleUndo() {
+    setSubmitting(true);
+    setError("");
+    try {
+      await fetch("/api/choosie/narrow/undo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listId, participantToken }),
+      });
+      await fetchState();
+    } catch (e: any) {
+      setError("Failed to undo");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // Reset the narrowing session
+  async function handleReset() {
+    setSubmitting(true);
+    setError("");
+    try {
+      await fetch(`/api/choosie/narrow/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listId, participantToken }),
+      });
+      await fetchState();
+    } catch (e: any) {
+      setError("Failed to reset list");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   if (winnerId && winner) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
@@ -121,9 +157,10 @@ export default function VirtualInvitesPage() {
               <span className="text-2xl">⭐</span>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button onClick={() => window.location.reload()} className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-blue-600 ring-blue-200 hover:bg-blue-50">Undo</button>
-              <button onClick={() => window.location.href = `/list/${listId}`} className="rounded-full bg-blue-600 px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors">Reset list</button>
+              <button onClick={handleUndo} disabled={submitting} className="rounded-full px-6 py-3 font-semibold transition-colors ring-1 bg-white text-blue-600 ring-blue-200 hover:bg-blue-50 disabled:opacity-60">Undo</button>
+              <button onClick={handleReset} disabled={submitting} className="rounded-full bg-blue-600 px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors disabled:opacity-60">Reset list</button>
             </div>
+            {error && <div className="text-red-500 mt-4">{error}</div>}
           </div>
         </div>
       </main>
@@ -136,16 +173,27 @@ export default function VirtualInvitesPage() {
         <h1 className="text-2xl font-bold text-center mb-6">{listTitle}</h1>
         <div className="mb-4 flex justify-center gap-2">
           <button
-            className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
+            aria-label="Grid View"
+            className={`p-2 rounded-full ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
             onClick={() => setViewMode('grid')}
           >
-            Grid View
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <rect x="3" y="3" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
+              <rect x="14" y="3" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
+              <rect x="14" y="14" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
+              <rect x="3" y="14" width="7" height="7" rx="2" className={viewMode === 'grid' ? 'fill-white' : ''}/>
+            </svg>
           </button>
           <button
-            className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
+            aria-label="List View"
+            className={`p-2 rounded-full ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-700'}`}
             onClick={() => setViewMode('list')}
           >
-            List View
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <rect x="4" y="5" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
+              <rect x="4" y="11" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
+              <rect x="4" y="17" width="16" height="2" rx="1" className={viewMode === 'list' ? 'fill-white' : ''}/>
+            </svg>
           </button>
         </div>
         <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 gap-4 mb-6' : 'flex flex-col gap-2 w-full max-w-2xl mx-auto mb-6'}>
