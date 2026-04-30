@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getList, upsertList } from "@/lib/storage";
@@ -19,6 +18,13 @@ type LocalHistoryEntry = {
 export default function NarrowPage() {
   const params = useParams();
   const router = useRouter();
+  // Determine if this is the active narrower for the current round (declare urlParams/participantToken here)
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const participantToken = urlParams?.get("pt") || "";
+
+  // ...state declarations...
+
+
   const [list, setList] = useState<ChoosieList | null>(null);
   const [remaining, setRemaining] = useState<ChoosieItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -26,6 +32,13 @@ export default function NarrowPage() {
   const [currentNarrower, setCurrentNarrower] = useState(1);
   const [roundTargets, setRoundTargets] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Now that roundNumber is declared, compute narrowing mode and roles
+  const activeNarrowerIndex = roundNumber - 1;
+  const tokenIndex = participantToken ? Number(participantToken.split('.')[0]) : -1;
+  const isInPerson = !participantToken;
+  const isActiveNarrower = isInPerson || tokenIndex === activeNarrowerIndex;
+  const hasAlreadyNarrowed = !isInPerson && tokenIndex > -1 && tokenIndex < activeNarrowerIndex;
   const [history, setHistory] = useState<LocalHistoryEntry[]>([]);
   const [infoModalItem, setInfoModalItem] = useState<ChoosieItem | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -316,14 +329,45 @@ export default function NarrowPage() {
       </div>
     );
   }
-  if (!list.progress || !list.narrowingPlan) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Virtual narrowing has not started yet.</h1>
-        <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
-        <DebugPanel />
-      </div>
-    );
+  // Determine if this is in-person or virtual mode (no pt param = in-person)
+  // (urlParams, participantToken, isInPerson already declared at the top of the component)
+  // If in-person and narrowing not started, auto-initialize narrowing and proceed
+  const [autoInitDone, setAutoInitDone] = useState(false);
+  if (isInPerson && (!list.progress || !list.narrowingPlan) && !autoInitDone) {
+    useEffect(() => {
+      if (!list || autoInitDone) return;
+      const participants = (list as any).participants || 4;
+      const plan = computeNarrowingPlan(list.items.length, participants, { participants });
+      const updated = {
+        ...list,
+        winnerId: undefined,
+        narrowingPlan: plan,
+        progress: {
+          remainingIds: list.items.map((i) => i.id),
+          currentNarrower: 1,
+          round: 1,
+          totalRounds: plan.length,
+          history: [],
+        },
+      };
+      upsertList(updated);
+      setList(updated);
+      setRemaining(list.items.slice());
+      setRoundTargets(plan);
+      setRoundNumber(1);
+      setCurrentNarrower(1);
+      setSelectedIds([]);
+      setHistory([]);
+      setAutoInitDone(true);
+    }, [list, autoInitDone]);
+    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Initializing narrowing…<DebugPanel /></div>;
+  }
+  if (!isInPerson && (!list.progress || !list.narrowingPlan)) {
+    useEffect(() => {
+      if (!list) return;
+      router.replace(`/list/${list.id}/virtual/roles`);
+    }, [list, router]);
+    return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Redirecting to role selection…<DebugPanel /></div>;
   }
 
   const participants = (list as any).participants || 4;
@@ -373,18 +417,8 @@ export default function NarrowPage() {
     );
   }
 
-  // Determine if this is the active narrower for the current round
-  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-  const participantToken = urlParams?.get("pt") || "";
-  // For virtual narrowing, the token matches the round index (0-based)
-  const activeNarrowerIndex = roundNumber - 1;
-  // For now, assume tokens are assigned in order
-  // Once a participant has completed their round, they should not be able to act again
-  const tokenIndex = participantToken ? Number(participantToken.split('.')[0]) : -1;
-  // In-person: if no pt token, always allow narrowing
-  const isInPerson = !participantToken;
-  const isActiveNarrower = isInPerson || tokenIndex === activeNarrowerIndex;
-  const hasAlreadyNarrowed = !isInPerson && tokenIndex > -1 && tokenIndex < activeNarrowerIndex;
+  // Determine if this is the active narrower for the current round (declare only once at the top)
+  // (Moved to top of component to avoid duplicate declaration)
 
   return (
     <main className="min-h-screen">
