@@ -15,7 +15,11 @@ export async function GET(req: NextRequest) {
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
     const tasteJson: any = list.tasteJson || {};
-    const participants = Array.isArray(tasteJson.participants) ? tasteJson.participants : [];
+    const participants = Array.isArray(tasteJson.participantClaims)
+      ? tasteJson.participantClaims
+      : Array.isArray(tasteJson.participants)
+      ? tasteJson.participants
+      : [];
     return withCORS(NextResponse.json({ ok: true, participants }), origin);
   } catch (e: any) {
     return withCORS(NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 }), origin);
@@ -34,13 +38,17 @@ export async function POST(req: NextRequest) {
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
     const tasteJson: any = list.tasteJson || {};
-    let participants = Array.isArray(tasteJson.participants) ? tasteJson.participants : [];
+    let participants = Array.isArray(tasteJson.participantClaims)
+      ? tasteJson.participantClaims
+      : Array.isArray(tasteJson.participants)
+      ? tasteJson.participants
+      : [];
     // Prevent duplicate names/roles
     if (participants.some((p: any) => p.name === name || p.role === role)) {
       return withCORS(NextResponse.json({ ok: false, error: "Name or role already taken" }, { status: 409 }), origin);
     }
     participants.push({ name, role, joined: true });
-    tasteJson.participants = participants;
+    tasteJson.participantClaims = participants;
     await prisma.list.update({ where: { id: listId }, data: { tasteJson } });
     return withCORS(NextResponse.json({ ok: true, participants }), origin);
   } catch (e: any) {

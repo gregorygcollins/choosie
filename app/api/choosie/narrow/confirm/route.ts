@@ -56,7 +56,11 @@ export async function POST(req: NextRequest) {
     //   return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
     // }
 
-    const participants = (list as any).tasteJson?.participants || (invitees.length + 1) || 2;
+    const participantCount =
+      typeof (list as any).tasteJson?.participants === "number"
+        ? (list as any).tasteJson.participants
+        : invitees.length || 1;
+    const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     const state = buildCanonical(list);
     if (!state.plan) state.plan = plan;
@@ -74,10 +78,13 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'Selection count does not match target' }, { status: 400 }), origin);
     }
 
+    const prevRemaining = [...state.current.remainingIds];
+
     // Advance: new remaining = selectedIds; reset selectedIds; inc round
     state.current.remainingIds = [...selected];
     state.current.selectedIds = [];
     state.roundIndex += 1;
+    state.current.target = state.plan[state.roundIndex] ?? 1;
 
     let winnerItemId: string | null = null;
     const finished = state.roundIndex >= state.plan.length || state.current.remainingIds.length <= 1;
@@ -102,7 +109,7 @@ export async function POST(req: NextRequest) {
       role: null, // or e.g. `"Virtual"` or `"N/A"`
       participant: "Virtual participant",
       chosenIds: [...selected],
-      prevRemaining: [...state.current.remainingIds],
+      prevRemaining,
     };
     state.rounds = Array.isArray(state.rounds) ? state.rounds : [];
     state.rounds.push(roundEntry);

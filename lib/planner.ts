@@ -25,23 +25,21 @@ export function computeNarrowingPlan(
 
   if (listLength <= 1) return [1];
 
-  // Custom logic for 2 or 3 narrowers (excluding organizer)
-  if (participants - 1 === 3) {
-    // Programmer (5), Selector (3), Decider (1)
-    if (listLength < 6) throw new Error("List must include at least 6 movies for 3 narrowers");
-    return [5, 3, 1];
-  }
-  if (participants - 1 === 2) {
-    // Selector (3), Decider (1)
-    if (listLength < 4) throw new Error("List must include at least 4 movies for 2 narrowers");
-    return [3, 1];
-  }
-
-  // Fallback to old logic for other participant counts
   if (listLength <= Math.max(4, participants)) {
     return [1];
   }
 
+  // Custom logic for 2 or 3 narrowers (excluding organizer)
+  if (participants - 1 === 3) {
+    // Programmer (5), Selector (3), Decider (1)
+    return [5, 3, 1].filter((target) => target < listLength);
+  }
+  if (participants - 1 === 2) {
+    // Selector (3), Decider (1)
+    return [3, 1].filter((target) => target < listLength);
+  }
+
+  // Fallback to old logic for other participant counts
   // Number of narrowing phases = participants - 1 (Organizer doesn't narrow)
   const phaseCount = Math.max(1, participants - 1);
 

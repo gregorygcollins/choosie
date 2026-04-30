@@ -48,18 +48,22 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     const invitees = extractInvitees(list);
+    const isRoleToken = /^\d+$/.test(data.participantToken);
     const participant = invitees.find((i: any) => i.token === data.participantToken);
-    if (!participant) {
+    if (!isRoleToken && !participant) {
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
     }
     const state = ensureSelectionSet(buildCanonical(list));
     // Turn enforcement
     const tj: any = list.tasteJson || {};
     const inviteCount = extractInvitees(list).length;
-    const participants = tj.participants || (inviteCount + 1) || 2;
+    const participantCount = typeof tj.participants === "number" ? tj.participants : inviteCount || 1;
+    const participants = participantCount + 1;
     state.plan = Array.isArray(state.plan) ? state.plan : computeNarrowingPlan(list.items.length, participants, { participants });
     const activeIndex = (state.roundIndex || 0) % (participants - 1);
-    const participantIndex = extractInvitees(list).findIndex((i: any) => i.token === data.participantToken);
+    const participantIndex = isRoleToken
+      ? Number(data.participantToken)
+      : extractInvitees(list).findIndex((i: any) => i.token === data.participantToken);
     if (participantIndex !== activeIndex) {
       return withCORS(NextResponse.json({ ok: false, error: 'Out of turn' }, { status: 409 }), origin);
     }

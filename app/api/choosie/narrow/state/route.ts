@@ -76,7 +76,13 @@ export async function POST(req: NextRequest) {
     // Build/normalize state and ensure plan/target are present
     const tasteJson: any = list.tasteJson || {};
     const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
-    const participants = tasteJson.participants || (Array.isArray(invitees) ? invitees.filter((x: any) => typeof x !== 'string').length + 1 : undefined) || 2;
+    const participantCount =
+      typeof tasteJson.participants === "number"
+        ? tasteJson.participants
+        : Array.isArray(invitees)
+        ? invitees.filter((x: any) => typeof x !== "string").length || 1
+        : 1;
+    const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     let state: any = list.progress?.historyJson || null;
     if (!state) {
@@ -118,6 +124,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       state,
       winnerItemId,
+      participantCount,
       items: list.items.map((i: any) => ({
         id: i.id,
         title: i.title,

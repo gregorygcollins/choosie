@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     // Reset progress to initial state
     const tj: any = list.tasteJson || {};
     const invitees = extractInvitees(list);
-    const participants = tj.participants || (invitees.length + 1) || 2;
+    const participantCount = typeof tj.participants === "number" ? tj.participants : invitees.length || 1;
+    const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     const initialState = {
       plan,

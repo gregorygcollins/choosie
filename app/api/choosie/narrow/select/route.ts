@@ -77,7 +77,8 @@ export async function POST(req: NextRequest) {
 
     // Turn enforcement: only active participant may modify selection
     const tj: any = list.tasteJson || {};
-    const participants = tj.participants || (invitees.length + 1) || 2;
+    const participantCount = typeof tj.participants === "number" ? tj.participants : invitees.length || 1;
+    const participants = participantCount + 1;
     historyState.plan = Array.isArray(historyState.plan) ? historyState.plan : computeNarrowingPlan(list.items.length, participants, { participants });
     // TEMP: Always allow action as single participant
     // const activeIndex = (historyState.roundIndex || 0) % (participants - 1);
