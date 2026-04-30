@@ -92,7 +92,7 @@ export default function ViewListPage() {
       ["Selector", "Decider"],
       ["Programmer", "Selector", "Decider"],
     ];
-    const minSizes = [0, 1, 2, 4];
+    const minSizes = [0, 1, 4, 6];
     if (count > 3 || count < 1) return; // Defensive: ignore out of range
     const roles = roleSets[count] || [];
     const minSize = minSizes[count] || 0;

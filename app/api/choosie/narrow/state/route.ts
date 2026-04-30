@@ -125,6 +125,8 @@ export async function POST(req: NextRequest) {
       state,
       winnerItemId,
       participantCount,
+      listTitle: list.title,
+      listDescription: list.description || null,
       items: list.items.map((i: any) => ({
         id: i.id,
         title: i.title,

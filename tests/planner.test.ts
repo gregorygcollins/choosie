@@ -4,8 +4,12 @@ import { computeNarrowingPlan } from '../lib/planner';
 describe('computeNarrowingPlan', () => {
   it('handles tiny lists by going straight to 1', () => {
     expect(computeNarrowingPlan(1, 2)).toEqual([1]);
-    expect(computeNarrowingPlan(3, 3)).toEqual([1]);
-    expect(computeNarrowingPlan(4, 4)).toEqual([1]);
+    expect(computeNarrowingPlan(3, 2)).toEqual([1]);
+  });
+
+  it('enforces minimum list sizes for multi-narrower flows', () => {
+    expect(() => computeNarrowingPlan(3, 3)).toThrow("at least 4 movies");
+    expect(() => computeNarrowingPlan(5, 4)).toThrow("at least 6 movies");
   });
 
   it('matches tail for 50 items with 4 players (rounds=3)', () => {

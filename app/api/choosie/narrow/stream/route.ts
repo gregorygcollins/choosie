@@ -13,7 +13,11 @@ async function buildInitialState(listId: string) {
   if (!list) return null;
   const tasteJson: any = list.tasteJson || {};
   const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
-  const participants = tasteJson.participants || (invitees.filter((x: any) => typeof x !== 'string').length + 1) || 2;
+  const participantCount =
+    typeof tasteJson.participants === "number"
+      ? tasteJson.participants
+      : invitees.filter((x: any) => typeof x !== "string").length || 1;
+  const participants = participantCount + 1;
   const plan = computeNarrowingPlan(list.items.length, participants, { participants });
   let state: any = list.progress?.historyJson || null;
   if (!state) {

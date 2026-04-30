@@ -9,6 +9,8 @@ type NarrowingItem = {
 };
 
 type NarrowingPanelProps = {
+  listTitle: string;
+  listDescription?: string | null;
   items: NarrowingItem[];
   mode: "in-person" | "virtual";
   roundIndex: number;
@@ -21,9 +23,11 @@ type NarrowingPanelProps = {
   busy?: boolean;
   error?: string | null;
   onToggleItem: (id: string) => void;
+  onReorderItems: (from: number, to: number) => void;
   onConfirm: () => void;
   onUndo: () => void;
   onReset: () => void;
+  onReturnToList: () => void;
 };
 
 function GridIcon() {
@@ -78,7 +82,31 @@ function ResetIcon() {
   );
 }
 
+function GripIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="9" cy="6" r="1" />
+      <circle cx="9" cy="12" r="1" />
+      <circle cx="9" cy="18" r="1" />
+      <circle cx="15" cy="6" r="1" />
+      <circle cx="15" cy="12" r="1" />
+      <circle cx="15" cy="18" r="1" />
+    </svg>
+  );
+}
+
+function ReturnIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </svg>
+  );
+}
+
 export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
+  listTitle,
+  listDescription,
   items,
   mode,
   roundIndex,
@@ -91,12 +119,15 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   busy = false,
   error,
   onToggleItem,
+  onReorderItems,
   onConfirm,
   onUndo,
   onReset,
+  onReturnToList,
 }) => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const role = getRoleName(participantCount + 1, roundIndex);
   const activeParticipantIndex = roundIndex % Math.max(1, participantCount);
   const isVirtualWaiting = mode === "virtual" && participantIndex !== activeParticipantIndex && !winnerId;
@@ -108,6 +139,31 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
   const itemGridClass = view === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
+  const actionText = role.role === "Decider" ? "Choosie your movie" : `Choosie ${target} movies`;
+
+  function onDragStart(event: React.DragEvent, index: number) {
+    setDragIndex(index);
+    event.dataTransfer.effectAllowed = "move";
+    try {
+      event.dataTransfer.setData("text/plain", String(index));
+    } catch {}
+  }
+
+  function onDragOver(event: React.DragEvent) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }
+
+  function onDrop(event: React.DragEvent, index: number) {
+    event.preventDefault();
+    let from = dragIndex;
+    try {
+      const raw = event.dataTransfer.getData("text/plain");
+      if (raw) from = Number(raw);
+    } catch {}
+    setDragIndex(null);
+    if (from != null && Number.isFinite(from)) onReorderItems(from, index);
+  }
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -115,12 +171,20 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         <div className="border-b border-zinc-200 px-5 py-4 sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-sm font-semibold text-zinc-500">
+                {listTitle}
+              </p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
               </p>
-              <h1 className="mt-1 text-2xl font-semibold text-zinc-950">
-                {winner ? "Final Choice" : `${role.emoji} ${role.role}'s turn`}
+              <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
+                {winner ? "Final Choice" : actionText}
               </h1>
+              {!winner && (
+                <p className="mt-1 text-sm text-zinc-500">
+                  {role.emoji} {role.role}'s turn
+                </p>
+              )}
             </div>
             <div className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700">
               Round {Math.min(roundIndex + 1, plan.length)} of {plan.length}
@@ -131,7 +195,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <p className="text-sm text-zinc-600">
                 {isVirtualWaiting
                   ? `Waiting for ${role.role} to choose ${target}.`
-                  : `Choose ${target} ${target === 1 ? "option" : "options"} to keep moving.`}
+                  : "Drag to reorder options, then choose what stays."}
               </p>
             )}
             {!winner && (
@@ -180,17 +244,25 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         ) : (
           <div className="px-5 py-5 sm:px-6">
             <div className={`grid gap-3 ${itemGridClass}`}>
-              {items.map((item) => {
+              {items.map((item, index) => {
                 const checked = selectedIds.includes(item.id);
                 return (
                   <div
                     key={item.id}
+                    draggable={!busy && !isVirtualWaiting}
+                    onDragStart={(event) => onDragStart(event, index)}
+                    onDragOver={onDragOver}
+                    onDrop={(event) => onDrop(event, index)}
+                    onDragEnd={() => setDragIndex(null)}
                     className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-colors ${
                       checked
                         ? "border-brand bg-brand/10"
                         : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
                     }`}
                   >
+                    <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden="true">
+                      <GripIcon />
+                    </div>
                     <button
                       type="button"
                       onClick={() => onToggleItem(item.id)}
@@ -204,9 +276,6 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                       )}
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-semibold text-zinc-950">{item.name}</span>
-                        {item.notes && (
-                          <span className="mt-1 block line-clamp-2 text-xs text-zinc-500">{item.notes}</span>
-                        )}
                       </span>
                     </button>
                     <button
@@ -250,6 +319,16 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         )}
 
         <div className="flex flex-col gap-3 border-t border-zinc-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          {mode === "in-person" && (
+            <button
+              type="button"
+              onClick={onReturnToList}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50"
+            >
+              <ReturnIcon />
+              Return to list
+            </button>
+          )}
           <button
             type="button"
             onClick={onUndo}
@@ -292,6 +371,12 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-zinc-600">
               {infoItem.notes || "No extra details have been added for this option yet."}
             </p>
+            {listDescription && (
+              <div className="mt-4 rounded-md bg-zinc-50 p-3 text-sm leading-6 text-zinc-600">
+                <div className="mb-1 font-semibold text-zinc-800">List note</div>
+                {listDescription}
+              </div>
+            )}
             <div className="mt-5 flex justify-end">
               <button
                 type="button"

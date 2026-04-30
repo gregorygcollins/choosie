@@ -9,7 +9,7 @@ const PHASE_ROLES: Record<number, string[]> = {
   6: ["Programmer", "Sorter", "Curator", "Selector", "Decider"],
   5: ["Programmer", "Curator", "Selector", "Decider"],
   4: ["Programmer", "Selector", "Decider"],
-  3: ["Programmer", "Decider"],
+  3: ["Selector", "Decider"],
   2: ["Decider"],
 };
 
@@ -25,18 +25,24 @@ export function computeNarrowingPlan(
 
   if (listLength <= 1) return [1];
 
-  if (listLength <= Math.max(4, participants)) {
-    return [1];
-  }
-
   // Custom logic for 2 or 3 narrowers (excluding organizer)
   if (participants - 1 === 3) {
     // Programmer (5), Selector (3), Decider (1)
-    return [5, 3, 1].filter((target) => target < listLength);
+    if (listLength < 6) throw new Error("List must include at least 6 movies for 3 narrowers");
+    return [5, 3, 1];
   }
   if (participants - 1 === 2) {
     // Selector (3), Decider (1)
-    return [3, 1].filter((target) => target < listLength);
+    if (listLength < 4) throw new Error("List must include at least 4 movies for 2 narrowers");
+    return [3, 1];
+  }
+  if (participants - 1 === 1) {
+    // Decider only
+    return [1];
+  }
+
+  if (listLength <= Math.max(4, participants)) {
+    return [1];
   }
 
   // Fallback to old logic for other participant counts

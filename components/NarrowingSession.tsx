@@ -29,6 +29,8 @@ type NarrowingResponse = {
   winnerItemId?: string | null;
   items?: ApiItem[];
   participantCount?: number;
+  listTitle?: string;
+  listDescription?: string | null;
 };
 
 type NarrowingSessionProps = {
@@ -52,8 +54,23 @@ function normalizeState(state: NarrowingState): NarrowingState {
   };
 }
 
+function mergeItemsByCurrentOrder(nextItems: ApiItem[], currentItems: ApiItem[]) {
+  if (currentItems.length === 0) return nextItems;
+
+  const nextById = new Map(nextItems.map((item) => [item.id, item]));
+  const ordered = currentItems
+    .map((item) => nextById.get(item.id))
+    .filter((item): item is ApiItem => Boolean(item));
+  const orderedIds = new Set(ordered.map((item) => item.id));
+  const added = nextItems.filter((item) => !orderedIds.has(item.id));
+
+  return [...ordered, ...added];
+}
+
 export function NarrowingSession({ listId, mode, participantIndex = 0 }: NarrowingSessionProps) {
   const [items, setItems] = useState<ApiItem[]>([]);
+  const [listTitle, setListTitle] = useState("");
+  const [listDescription, setListDescription] = useState<string | null>(null);
   const [state, setState] = useState<NarrowingState | null>(null);
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(1);
@@ -87,7 +104,9 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
         throw new Error(json.error || "Failed to load narrowing state");
       }
 
-      setItems(json.items);
+      setItems((prev) => mergeItemsByCurrentOrder(json.items!, prev));
+      setListTitle(json.listTitle || "Untitled list");
+      setListDescription(json.listDescription || null);
       setState(normalizeState(json.state));
       setWinnerItemId(json.winnerItemId || null);
       setParticipantCount(Math.max(1, json.participantCount || json.state.plan.length || 1));
@@ -122,6 +141,27 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
         image: item.image,
       }));
   }, [items, state]);
+
+  function handleReorderItems(from: number, to: number) {
+    const ids = visibleItems.map((item) => item.id);
+    if (from < 0 || to < 0 || from >= ids.length || to >= ids.length || from === to) return;
+
+    const nextIds = [...ids];
+    const [moved] = nextIds.splice(from, 1);
+    nextIds.splice(to, 0, moved);
+    const rank = new Map(nextIds.map((id, index) => [id, index]));
+
+    setItems((prev) =>
+      [...prev].sort((a, b) => {
+        const aRank = rank.get(a.id);
+        const bRank = rank.get(b.id);
+        if (aRank !== undefined && bRank !== undefined) return aRank - bRank;
+        if (aRank !== undefined) return -1;
+        if (bRank !== undefined) return 1;
+        return 0;
+      })
+    );
+  }
 
   async function postAction(endpoint: string, body: Record<string, string>) {
     setBusy(true);
@@ -185,6 +225,8 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
 
   return (
     <NarrowingPanel
+      listTitle={listTitle}
+      listDescription={listDescription}
       items={visibleItems}
       mode={mode}
       roundIndex={state.roundIndex}
@@ -197,9 +239,13 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       busy={busy}
       error={error}
       onToggleItem={handleToggleItem}
+      onReorderItems={handleReorderItems}
       onConfirm={handleConfirm}
       onUndo={handleUndo}
       onReset={handleReset}
+      onReturnToList={() => {
+        window.location.href = `/list/${listId}`;
+      }}
     />
   );
 }

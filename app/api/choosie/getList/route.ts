@@ -38,7 +38,13 @@ export async function POST(req: NextRequest) {
     // Read participants from tasteJson for virtual narrowing
     const tasteJson = (list as any).tasteJson || {};
     const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
-    const participants = tasteJson.participants || (Array.isArray(invitees) ? invitees.filter((x: any) => typeof x !== 'string').length + 1 : undefined) || 2;
+    const participantCount =
+      typeof tasteJson.participants === "number"
+        ? tasteJson.participants
+        : Array.isArray(invitees)
+        ? invitees.filter((x: any) => typeof x !== "string").length || 1
+        : 1;
+    const participants = participantCount + 1;
 
 
     // Ensure narrowing state is initialized
@@ -88,7 +94,7 @@ export async function POST(req: NextRequest) {
             : "movies",
         winnerId,
         progress: state,
-        participants,
+        participants: participantCount,
       },
     });
 
