@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     });
 
     publish(list.id, { ok: true, event: 'state', state: initialState, winnerItemId: null });
-    return withCORS(NextResponse.json({ ok: true, state: initialState }), origin);
+    return withCORS(NextResponse.json({ ok: true, state: initialState, winnerItemId: null }), origin);
   } catch (e: any) {
     console.error('narrow/reset error', e);
     return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);

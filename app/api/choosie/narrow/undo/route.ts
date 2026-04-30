@@ -47,11 +47,18 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     const invitees = extractInvitees(list);
-    const participantIndex = invitees.findIndex((i: any) => i.token === data.participantToken);
-    if (participantIndex < 0) {
+    const isRoleToken = /^\d+$/.test(data.participantToken);
+    const participantIndex = isRoleToken
+      ? Number(data.participantToken)
+      : invitees.findIndex((i: any) => i.token === data.participantToken);
+    if (!isRoleToken && participantIndex < 0) {
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
     }
-    const participants = (list as any).tasteJson?.participants || (invitees.length + 1) || 2;
+    const participantCount =
+      typeof (list as any).tasteJson?.participants === "number"
+        ? (list as any).tasteJson.participants
+        : invitees.length || 1;
+    const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     const state = buildCanonical(list);
     if (!state.plan) state.plan = plan;
@@ -70,6 +77,7 @@ export async function POST(req: NextRequest) {
     state.roundIndex -= 1;
     state.current.remainingIds = [...lastRound.prevRemaining];
     state.current.selectedIds = [...lastRound.chosenIds]; // restore selection set so user can adjust
+    state.current.target = state.plan[state.roundIndex] ?? 1;
     let winnerItemId: string | null = null;
     if (state.roundIndex >= state.plan.length) {
       winnerItemId = state.current.remainingIds[0] || null;

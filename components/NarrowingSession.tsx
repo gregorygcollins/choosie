@@ -63,6 +63,13 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
 
   const participantToken = String(participantIndex);
 
+  function getActionToken(action: "current" | "previous" = "current") {
+    if (mode === "virtual") return participantToken;
+    const count = Math.max(1, participantCount);
+    const index = state?.roundIndex || 0;
+    return String(action === "previous" ? Math.max(0, index - 1) % count : index % count);
+  }
+
   const loadState = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
     if (!listId) return;
     if (!silent) setLoading(true);
@@ -147,11 +154,20 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       ? "/api/choosie/narrow/deselect"
       : "/api/choosie/narrow/select";
 
-    postAction(endpoint, { listId, itemId, participantToken });
+    postAction(endpoint, { listId, itemId, participantToken: getActionToken() });
   }
 
   function handleConfirm() {
-    postAction("/api/choosie/narrow/confirm", { listId, participantToken });
+    postAction("/api/choosie/narrow/confirm", { listId, participantToken: getActionToken() });
+  }
+
+  function handleUndo() {
+    postAction("/api/choosie/narrow/undo", { listId, participantToken: getActionToken("previous") });
+  }
+
+  function handleReset() {
+    if (!window.confirm("Reset this narrowing session back to the full list?")) return;
+    postAction("/api/choosie/narrow/reset", { listId });
   }
 
   if (loading) {
@@ -182,6 +198,8 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       error={error}
       onToggleItem={handleToggleItem}
       onConfirm={handleConfirm}
+      onUndo={handleUndo}
+      onReset={handleReset}
     />
   );
 }
