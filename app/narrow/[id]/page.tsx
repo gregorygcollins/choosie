@@ -233,7 +233,12 @@ export default function NarrowPage() {
         if (idx >= 0 && idx < remaining.length) {
           e.preventDefault();
           const item = remaining[idx];
-          toggleSelect(item.id);
+          // Simulate checkbox toggle using handleSelect
+          if (selectedIds.includes(item.id)) {
+            handleSelect(selectedIds.filter((x) => x !== item.id));
+          } else if (selectedIds.length < targetThisRound) {
+            handleSelect([...selectedIds, item.id]);
+          }
         }
         return;
       }
@@ -241,7 +246,12 @@ export default function NarrowPage() {
         const idx = 9;
         if (idx < remaining.length) {
           e.preventDefault();
-          toggleSelect(remaining[idx].id);
+          const itemId = remaining[idx].id;
+          if (selectedIds.includes(itemId)) {
+            handleSelect(selectedIds.filter((x) => x !== itemId));
+          } else if (selectedIds.length < targetThisRound) {
+            handleSelect([...selectedIds, itemId]);
+          }
         }
         return;
       }
@@ -260,7 +270,7 @@ export default function NarrowPage() {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [remaining, selectedIds, targetThisRound, toggleSelect, confirmRound, undoLast, list]);
+  }, [remaining, selectedIds, targetThisRound, confirmRound, undoLast, list]);
 
   const resetAll = useCallback(() => {
     if (!list) return;
