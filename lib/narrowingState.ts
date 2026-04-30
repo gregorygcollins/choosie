@@ -2,7 +2,17 @@
 // This module centralizes narrowing state, transitions, and winner calculation logic
 
 import { z } from "zod";
-import { NarrowingStep, NarrowingState, WinnerResult } from "./types";
+
+// Minimal type definitions for narrowing state logic
+export interface NarrowingStep {
+  title?: string;
+  items: Array<{ id: string; name: string }>;
+}
+
+export interface WinnerResult {
+  id: string;
+  name: string;
+}
 
 // Define the narrowing state shape (can be extended as needed)
 export interface SharedNarrowingState {
