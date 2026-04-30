@@ -104,6 +104,32 @@ function ReturnIcon() {
   );
 }
 
+function ConfettiBurst() {
+  const pieces = [
+    "left-[8%] top-[14%] rotate-12 bg-brand",
+    "left-[18%] top-[30%] -rotate-12 bg-yellow-300",
+    "left-[30%] top-[10%] rotate-45 bg-pink-400",
+    "left-[42%] top-[24%] -rotate-45 bg-sky-400",
+    "right-[8%] top-[16%] -rotate-12 bg-brand",
+    "right-[20%] top-[32%] rotate-12 bg-yellow-300",
+    "right-[32%] top-[12%] -rotate-45 bg-pink-400",
+    "right-[44%] top-[26%] rotate-45 bg-sky-400",
+  ];
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      {pieces.map((className, index) => (
+        <span
+          key={className}
+          className={`absolute h-3 w-1.5 rounded-full shadow-sm ${className}`}
+          style={{ transform: `translateY(${index % 2 === 0 ? 0 : 12}px)` }}
+        />
+      ))}
+      <div className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-yellow-200/50 blur-2xl" />
+    </div>
+  );
+}
+
 export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   listTitle,
   listDescription,
@@ -178,7 +204,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
               </p>
               <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
-                {winner ? "Final Choice" : actionText}
+                {winner ? "And the winner is..." : actionText}
               </h1>
               {!winner && (
                 <p className="mt-1 text-sm text-zinc-500">
@@ -230,16 +256,19 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         </div>
 
         {winner ? (
-          <div className="px-5 py-10 text-center sm:px-6">
+          <div className="relative overflow-hidden px-5 py-12 text-center sm:px-6">
+            <ConfettiBurst />
             {winner?.image && (
               <img
                 src={winner.image}
                 alt=""
-                className="mx-auto mb-5 h-32 w-32 rounded-lg object-cover"
+                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-yellow-200"
               />
             )}
-            <div className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Winner</div>
-            <div className="mt-2 text-3xl font-semibold text-zinc-950">{winner?.name || "Winner"}</div>
+            <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-yellow-300 text-2xl shadow-sm">
+              ★
+            </div>
+            <div className="relative mt-2 text-4xl font-semibold text-zinc-950">{winner?.name || "Winner"}</div>
           </div>
         ) : (
           <div className="px-5 py-5 sm:px-6">
