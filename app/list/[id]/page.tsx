@@ -120,51 +120,51 @@ export default function ViewListPage() {
     upsertList(updated);
     setList(updated);
     setShowParticipantModal(false);
+    const syncParticipantsAndReset = async () => {
+      try {
+        await fetch("/api/choosie/updateList", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            listId: list.id,
+            participants: count,
+            narrowingPlan: updated.narrowingPlan,
+            progress: updated.progress,
+          }),
+        });
+        await fetch("/api/choosie/narrow/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ listId: list.id }),
+        });
+      } catch (err) {
+        console.error("Failed to sync narrowing setup to server:", err);
+      }
+    };
+
     if (narrowingMode === "in-person") {
       (async () => {
-        try {
-          await fetch("/api/choosie/updateList", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              listId: list.id,
-              participants: count,
-              narrowingPlan: updated.narrowingPlan,
-              progress: updated.progress,
-            }),
-          });
-        } catch (err) {
-          console.error("Failed to sync participants to server:", err);
-        }
+        await syncParticipantsAndReset();
         router.push(`/narrow/${list.id}`);
       })();
     } else {
-      // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
-      fetch("/api/choosie/updateList", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          listId: list.id,
-          participants: count,
-          narrowingPlan: updated.narrowingPlan,
-          progress: updated.progress,
-        }),
-      }).catch((err) => {
-        console.error("Failed to sync participants to server:", err);
-      });
-      const base = typeof window !== 'undefined' ? window.location.origin : '';
-      if (count === 1) {
-        // Only Decider: direct link, no role claim needed
-        const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1`;
-        setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
-      } else {
-        // 2 or 3 narrowers: group roles link
-        const groupLink = `${base}/list/${list.id}/virtual/roles`;
-        setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
-      }
-      setShowLinksModal(true);
+      (async () => {
+        // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
+        await syncParticipantsAndReset();
+        const base = typeof window !== 'undefined' ? window.location.origin : '';
+        if (count === 1) {
+          // Only Decider: direct link, no role claim needed
+          const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1`;
+          setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
+        } else {
+          // 2 or 3 narrowers: group roles link
+          const groupLink = `${base}/list/${list.id}/virtual/roles`;
+          setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+        }
+        setShowLinksModal(true);
+      })();
     }
   };
 
@@ -697,43 +697,13 @@ export default function ViewListPage() {
         <div className="mt-8 flex justify-between items-center">
           <div className="flex gap-3">
             <button
-              onClick={async () => {
-                // Always reset the narrowing session before generating the link
-                if (!list) return;
-                try {
-                  await fetch("/api/choosie/narrow/reset", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ listId: list.id }),
-                  });
-                } catch (e) {
-                  // Ignore errors, fallback to old behavior
-                  console.error("Failed to reset narrowing session", e);
-                }
-                handleNarrowClick("in-person");
-              }}
+              onClick={() => handleNarrowClick("in-person")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
               Narrow in person
             </button>
             <button
-              onClick={async () => {
-                // Always reset the narrowing session before generating the link
-                if (!list) return;
-                try {
-                  await fetch("/api/choosie/narrow/reset", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ listId: list.id }),
-                  });
-                } catch (e) {
-                  // Ignore errors, fallback to old behavior
-                  console.error("Failed to reset narrowing session", e);
-                }
-                handleNarrowClick("virtual");
-              }}
+              onClick={() => handleNarrowClick("virtual")}
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
             >
               Narrow virtually

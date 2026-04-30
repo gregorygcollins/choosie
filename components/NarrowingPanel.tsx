@@ -139,7 +139,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
   const itemGridClass = view === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
-  const actionText = role.role === "Decider" ? "Choosie your movie" : `Choosie ${target} movies`;
+  const actionText = role.role === "Decider" ? "Choosie your movie." : `Choosie ${target} movies.`;
 
   function onDragStart(event: React.DragEvent, index: number) {
     setDragIndex(index);

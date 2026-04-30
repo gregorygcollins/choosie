@@ -85,9 +85,24 @@ export async function POST(req: NextRequest) {
     const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     let state: any = list.progress?.historyJson || null;
+    const initialState = {
+      plan,
+      roundIndex: 0,
+      rounds: [],
+      current: {
+        remainingIds: list.items.map((i: any) => i.id),
+        selectedIds: [],
+        target: plan[0],
+      },
+    };
     if (!state) {
-      state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
+      state = initialState;
     } else {
+      const hasCompletedRounds = Array.isArray(state.rounds) && state.rounds.length > 0;
+      const hasStalePlan = JSON.stringify(state.plan || []) !== JSON.stringify(plan);
+      if (hasStalePlan && !hasCompletedRounds) {
+        state = initialState;
+      }
       if (!Array.isArray(state.current?.remainingIds)) state.current = { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] };
       if (!Array.isArray(state.current?.selectedIds)) state.current.selectedIds = [];
       if (!Array.isArray(state.plan)) state.plan = plan;
