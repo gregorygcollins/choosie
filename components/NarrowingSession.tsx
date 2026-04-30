@@ -214,7 +214,8 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
     const winner = items.find((item) => item.id === winnerItemId);
     const winnerName = winner?.title || "the winner";
     const text = `${winnerName} won "${listTitle || "our Choosie list"}".`;
-    const url = `${window.location.origin}/list/${listId}`;
+    const path = mode === "virtual" ? `/list/${listId}/virtual` : `/narrow/${listId}`;
+    const url = `${window.location.origin}${path}`;
 
     try {
       if (navigator.share) {

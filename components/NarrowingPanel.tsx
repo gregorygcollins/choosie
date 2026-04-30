@@ -394,10 +394,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <button
               type="button"
               onClick={onShareWinner}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+              title="Share winner"
+              aria-label="Share winner"
+              className="inline-grid h-10 w-10 place-items-center rounded-full bg-brand text-white transition-colors hover:opacity-90"
             >
               <ShareIcon />
-              Share winner
             </button>
           )}
           {mode === "in-person" && (
