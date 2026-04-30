@@ -1,4 +1,10 @@
-// ...existing code...
+
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { NarrowingPanel } from "@/components/NarrowingPanel";
+import { initializeNarrowing } from "@/lib/narrowing";
+
 function DiagnosticPanel({ id, endpoint, apiResponse, error }: { id: string, endpoint: string, apiResponse: any, error: string | null }) {
 	return (
 		<div style={{ background: '#fffbe6', color: '#222', fontSize: 13, padding: 12, border: '2px solid #eab308', borderRadius: 8, margin: 16, maxWidth: 600 }}>
@@ -12,11 +18,6 @@ function DiagnosticPanel({ id, endpoint, apiResponse, error }: { id: string, end
 		</div>
 	);
 }
-"use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { NarrowingPanel } from "@/components/NarrowingPanel";
-import { initializeNarrowing } from "@/lib/narrowing";
 
 export default function VirtualNarrowPage() {
 	const { id } = useParams();
