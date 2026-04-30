@@ -31,10 +31,10 @@ export default function NarrowPage() {
 	}, [id]);
 
 	if (loading) return <div className="p-8 text-center">Loading...</div>;
-	if (error || !data?.list || !data?.items) return <div className="p-8 text-center">Not found</div>;
+	if (error || !data?.state || !data?.items) return <div className="p-8 text-center">Not found</div>;
 
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
-	const narrowing = initializeNarrowing(data.items, data.list.narrowingPlan);
+	const narrowing = initializeNarrowing(data.items, data.state.plan);
 
 	const handleToggleItem = (itemId: string) => {
 		setSelectedIds((prev) =>
