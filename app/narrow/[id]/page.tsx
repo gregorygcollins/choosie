@@ -52,6 +52,9 @@ export default function NarrowPage() {
     narrowStateFetchStatus: '',
     loading: true,
     error: '',
+    apiError: '',
+    apiResponse: null as any,
+    listState: null as any,
   });
 
 
@@ -59,7 +62,7 @@ export default function NarrowPage() {
   const fetchLatestList = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
-    setDebug((d) => ({ ...d, loading: true, error: '', listId: '', hasLocalList: false, serverFetchStatus: '', narrowStateFetchStatus: '' }));
+    setDebug((d) => ({ ...d, loading: true, error: '', listId: '', hasLocalList: false, serverFetchStatus: '', narrowStateFetchStatus: '', apiError: '', apiResponse: null, listState: null }));
     const id = params?.id as string;
     setDebug((d) => ({ ...d, listId: id }));
     try {
@@ -69,40 +72,41 @@ export default function NarrowPage() {
         credentials: "include",
         body: JSON.stringify({ listId: id }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.ok && data.list) {
-          const l = data.list;
-          upsertList(l);
-          setDebug((d) => ({ ...d, serverFetchStatus: 'success' }));
-          if (l.progress && l.narrowingPlan) {
-            setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
-            setList(l);
-            setRemaining(l.items.filter((i: any) => l.progress?.remainingIds?.includes(i.id)));
-            setRoundTargets(l.narrowingPlan || []);
-            setRoundNumber(l.progress?.round || 1);
-            setCurrentNarrower(l.progress?.currentNarrower || 1);
-            setSelectedIds((l.progress as any)?.selectedIds || []);
-            setHistory(
-              (l.progress?.history || []).map((h: any) => ({
-                ...h,
-                selectedIds: h.selectedIds || [],
-              }))
-            );
-          } else {
-            setDebug((d) => ({ ...d, narrowStateFetchStatus: 'missing' }));
-            setList(l);
-          }
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        setDebug((d) => ({ ...d, apiError: 'JSON parse error', apiResponse: null }));
+      }
+      setDebug((d) => ({ ...d, apiResponse: data }));
+      if (res.ok && data?.ok && data.list) {
+        const l = data.list;
+        upsertList(l);
+        setDebug((d) => ({ ...d, serverFetchStatus: 'success', listState: l }));
+        if (l.progress && l.narrowingPlan) {
+          setDebug((d) => ({ ...d, narrowStateFetchStatus: 'present' }));
+          setList(l);
+          setRemaining(l.items.filter((i: any) => l.progress?.remainingIds?.includes(i.id)));
+          setRoundTargets(l.narrowingPlan || []);
+          setRoundNumber(l.progress?.round || 1);
+          setCurrentNarrower(l.progress?.currentNarrower || 1);
+          setSelectedIds((l.progress as any)?.selectedIds || []);
+          setHistory(
+            (l.progress?.history || []).map((h: any) => ({
+              ...h,
+              selectedIds: h.selectedIds || [],
+            }))
+          );
         } else {
-          setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response missing list' }));
-          setLoadError("Could not load this list.");
+          setDebug((d) => ({ ...d, narrowStateFetchStatus: 'missing' }));
+          setList(l);
         }
       } else {
-        setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response not ok' }));
-        setLoadError("Could not load this list.");
+        setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'API response not ok', apiError: data?.error || 'Unknown error' }));
+        setLoadError(data?.error || "Could not load this list.");
       }
-    } catch (e) {
-      setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'fetch threw' }));
+    } catch (e: any) {
+      setDebug((d) => ({ ...d, serverFetchStatus: 'fail', error: 'fetch threw', apiError: e?.message || String(e) }));
       setLoadError("Could not load this list.");
     } finally {
       setLoading(false);
@@ -296,15 +300,19 @@ export default function NarrowPage() {
     }
   }, [resetAll, router, list]);
 
-  // Debug panel
+  // Enhanced Debug/Error Panel
   const DebugPanel = () => (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, background: '#fff', color: '#222', fontSize: 12, padding: 8, border: '1px solid #ccc', zIndex: 9999 }}>
+    <div style={{ position: 'fixed', bottom: 0, left: 0, background: '#fff', color: '#222', fontSize: 12, padding: 8, border: '2px solid #e11d48', zIndex: 9999, maxWidth: 480, maxHeight: 400, overflow: 'auto' }}>
+      <div style={{ fontWeight: 'bold', color: '#e11d48' }}>DEBUG PANEL</div>
       <div><b>listId:</b> {debug.listId}</div>
       <div><b>hasLocalList:</b> {String(debug.hasLocalList)}</div>
       <div><b>serverFetchStatus:</b> {debug.serverFetchStatus}</div>
       <div><b>narrowStateFetchStatus:</b> {debug.narrowStateFetchStatus}</div>
       <div><b>loading:</b> {String(loading)}</div>
       <div><b>error:</b> {debug.error || loadError || ''}</div>
+      <div><b>apiError:</b> {debug.apiError}</div>
+      <div><b>apiResponse:</b> <pre style={{ whiteSpace: 'pre-wrap', fontSize: 11, maxHeight: 80, overflow: 'auto', background: '#f3f4f6', padding: 4 }}>{JSON.stringify(debug.apiResponse, null, 2)}</pre></div>
+      <div><b>listState:</b> <pre style={{ whiteSpace: 'pre-wrap', fontSize: 11, maxHeight: 80, overflow: 'auto', background: '#f3f4f6', padding: 4 }}>{JSON.stringify(debug.listState, null, 2)}</pre></div>
     </div>
   );
 
