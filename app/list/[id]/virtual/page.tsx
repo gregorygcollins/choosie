@@ -74,11 +74,12 @@ export default function VirtualNarrowPage() {
 		setSelectedIds([]);
 	};
 
+	const itemsForPanel = data.items.map((item: any) => ({ ...item, name: item.title }));
 	return (
 		<>
 			<DiagnosticPanel id={id as string} endpoint={endpoint} apiResponse={rawApiResponse} error={error} />
 			<NarrowingPanel
-				items={data.items}
+				items={itemsForPanel}
 				state={narrowing}
 				selectedIds={selectedIds}
 				onToggleItem={handleToggleItem}
