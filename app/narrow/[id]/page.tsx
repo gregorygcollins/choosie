@@ -328,7 +328,19 @@ export default function NarrowPage() {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">{loadError}</h1>
-        <Link href="/" className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors">Return Home</Link>
+        <div className="flex flex-col gap-4 items-center justify-center mt-6">
+          <button
+            className="rounded-full bg-brand px-6 py-3 text-white font-semibold hover:opacity-90 transition-colors"
+            onClick={() => {
+              setLoadError(null);
+              setAutoInitDone(false);
+              fetchLatestList();
+            }}
+          >
+            Retry
+          </button>
+          <Link href="/" className="rounded-full bg-zinc-200 px-6 py-3 font-semibold text-zinc-700 hover:bg-zinc-300 transition-colors">Return Home</Link>
+        </div>
         <DebugPanel />
       </div>
     );
