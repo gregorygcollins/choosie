@@ -210,6 +210,31 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
     postAction("/api/choosie/narrow/reset", { listId });
   }
 
+  async function handleShareWinner() {
+    const winner = items.find((item) => item.id === winnerItemId);
+    const winnerName = winner?.title || "the winner";
+    const text = `${winnerName} won "${listTitle || "our Choosie list"}".`;
+    const url = `${window.location.origin}/list/${listId}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Choosie winner",
+          text,
+          url,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      window.alert("Winner copied to clipboard.");
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        setError("Failed to share winner");
+      }
+    }
+  }
+
   if (loading) {
     return <div className="px-4 py-12 text-center text-zinc-600">Loading narrowing session...</div>;
   }
@@ -246,6 +271,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       onReturnToList={() => {
         window.location.href = `/list/${listId}`;
       }}
+      onShareWinner={handleShareWinner}
     />
   );
 }

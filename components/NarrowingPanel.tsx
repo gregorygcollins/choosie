@@ -28,6 +28,7 @@ type NarrowingPanelProps = {
   onUndo: () => void;
   onReset: () => void;
   onReturnToList: () => void;
+  onShareWinner: () => void;
 };
 
 function GridIcon() {
@@ -104,28 +105,68 @@ function ReturnIcon() {
   );
 }
 
+function ShareIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.6 10.6 6.8-4.2" />
+      <path d="m8.6 13.4 6.8 4.2" />
+    </svg>
+  );
+}
+
 function ConfettiBurst() {
   const pieces = [
-    "left-[8%] top-[14%] rotate-12 bg-brand",
-    "left-[18%] top-[30%] -rotate-12 bg-yellow-300",
-    "left-[30%] top-[10%] rotate-45 bg-pink-400",
-    "left-[42%] top-[24%] -rotate-45 bg-sky-400",
-    "right-[8%] top-[16%] -rotate-12 bg-brand",
-    "right-[20%] top-[32%] rotate-12 bg-yellow-300",
-    "right-[32%] top-[12%] -rotate-45 bg-pink-400",
-    "right-[44%] top-[26%] rotate-45 bg-sky-400",
+    { className: "left-[8%] top-[14%] bg-brand", x: -12, delay: 0 },
+    { className: "left-[18%] top-[30%] bg-yellow-300", x: 10, delay: 90 },
+    { className: "left-[30%] top-[10%] bg-pink-400", x: -6, delay: 180 },
+    { className: "left-[42%] top-[24%] bg-sky-400", x: 14, delay: 270 },
+    { className: "right-[8%] top-[16%] bg-brand", x: 12, delay: 45 },
+    { className: "right-[20%] top-[32%] bg-yellow-300", x: -10, delay: 135 },
+    { className: "right-[32%] top-[12%] bg-pink-400", x: 8, delay: 225 },
+    { className: "right-[44%] top-[26%] bg-sky-400", x: -14, delay: 315 },
   ];
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {pieces.map((className, index) => (
+      <style>
+        {`
+          @keyframes choosie-confetti-pop {
+            0% { opacity: 0; transform: translate3d(0, -18px, 0) rotate(0deg) scale(.7); }
+            18% { opacity: 1; }
+            62% { opacity: 1; transform: translate3d(var(--confetti-x), 36px, 0) rotate(170deg) scale(1); }
+            100% { opacity: 0; transform: translate3d(calc(var(--confetti-x) * 1.8), 78px, 0) rotate(310deg) scale(.9); }
+          }
+
+          @keyframes choosie-winner-glow {
+            0%, 100% { opacity: .42; transform: translateX(-50%) scale(.95); }
+            50% { opacity: .82; transform: translateX(-50%) scale(1.12); }
+          }
+        `}
+      </style>
+      {pieces.map((piece) => (
         <span
-          key={className}
-          className={`absolute h-3 w-1.5 rounded-full shadow-sm ${className}`}
-          style={{ transform: `translateY(${index % 2 === 0 ? 0 : 12}px)` }}
+          key={`${piece.className}-${piece.delay}`}
+          className={`absolute h-3 w-1.5 rounded-full shadow-sm ${piece.className}`}
+          style={{
+            animation: "choosie-confetti-pop 1500ms ease-out infinite",
+            animationDelay: `${piece.delay}ms`,
+            ["--confetti-x" as string]: `${piece.x}px`,
+          }}
         />
       ))}
-      <div className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-yellow-200/50 blur-2xl" />
+      <span className="absolute left-[12%] top-[48%] text-2xl" style={{ animation: "choosie-confetti-pop 1800ms ease-out infinite" }}>
+        🎉
+      </span>
+      <span className="absolute right-[12%] top-[48%] text-2xl" style={{ animation: "choosie-confetti-pop 1800ms ease-out 220ms infinite" }}>
+        ✨
+      </span>
+      <div
+        className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-yellow-200/50 blur-2xl"
+        style={{ animation: "choosie-winner-glow 1800ms ease-in-out infinite" }}
+      />
     </div>
   );
 }
@@ -150,6 +191,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   onUndo,
   onReset,
   onReturnToList,
+  onShareWinner,
 }) => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
@@ -266,7 +308,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               />
             )}
             <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-yellow-300 text-2xl shadow-sm">
-              ★
+              🎉
             </div>
             <div className="relative mt-2 text-4xl font-semibold text-zinc-950">{winner?.name || "Winner"}</div>
           </div>
@@ -348,6 +390,16 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         )}
 
         <div className="flex flex-col gap-3 border-t border-zinc-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          {winner && (
+            <button
+              type="button"
+              onClick={onShareWinner}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+            >
+              <ShareIcon />
+              Share winner
+            </button>
+          )}
           {mode === "in-person" && (
             <button
               type="button"
