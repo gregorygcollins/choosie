@@ -6,6 +6,7 @@ import { getList, upsertList } from "@/lib/storage";
 import { computeNarrowingPlan, getRoleName } from "@/lib/planner";
 import type { ChoosieList, ChoosieItem } from "@/components/ListForm";
 import ProcessSection from "@/components/ProcessSection";
+import { NarrowingSelector } from "@/components/NarrowingSelector";
 
 type LocalHistoryEntry = {
   remainingIds: string[];
@@ -128,17 +129,11 @@ export default function NarrowPage() {
   const targetThisRound = roundTargets[roundNumber - 1] || 1;
   const isFinalRound = roundNumber === roundTargets.length;
 
-  const toggleSelect = useCallback(
-    (id: string) => {
-      setSelectedIds((prev) => {
-        const exists = prev.includes(id);
-        if (exists) return prev.filter((x) => x !== id);
-        if (prev.length >= targetThisRound) return prev;
-        return [...prev, id];
-      });
-    },
-    [targetThisRound]
-  );
+
+  // Use shared NarrowingSelector logic
+  const handleSelect = (itemIds: string[]) => {
+    setSelectedIds(itemIds);
+  };
 
 
   const confirmRound = useCallback(async () => {
@@ -466,22 +461,16 @@ export default function NarrowPage() {
           <div className="flex flex-col items-center gap-4">
             {/* Only allow selection for the active narrower; show waiting/progress for others */}
             {isActiveNarrower ? (
-              <>
-                <div className="mb-4">
-                  <button
-                    className={`px-4 py-2 rounded-full font-semibold mr-2 ${viewMode === 'grid' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
-                    onClick={() => setViewMode('grid')}
-                  >
-                    Grid View
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-full font-semibold ${viewMode === 'list' ? 'bg-brand text-white' : 'bg-zinc-200 text-zinc-700'}`}
-                    onClick={() => setViewMode('list')}
-                  >
-                    List View
-                  </button>
-                </div>
-              </>
+              <NarrowingSelector
+                step={{
+                  title: `Select ${targetThisRound} ${itemType}`,
+                  items: remaining.map((item) => ({ id: item.id, name: item.title })),
+                }}
+                selections={{ ["localNarrower"]: selectedIds }}
+                participantId="localNarrower"
+                onSelect={handleSelect}
+                disabled={selectedIds.length >= targetThisRound}
+              />
             ) : (
               <div className="text-zinc-500 text-center py-8">
                 Waiting for your turn…

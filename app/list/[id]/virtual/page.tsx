@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { NarrowingSelector } from "@/components/NarrowingSelector";
 import { getList } from "@/lib/storage";
 import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
@@ -73,16 +74,9 @@ export default function VirtualInvitesPage() {
 
   // Remove winner redirect effect; handled in fetchState
 
-  // Selection logic copied from In Person UI
-  const toggleSelect = (id: string) => {
-    if (submitting) return;
-    setSelected((prev) => {
-      const exists = prev.includes(id);
-      const targetCount = api?.state?.current?.target || 1;
-      if (exists) return prev.filter((x) => x !== id);
-      if (prev.length >= targetCount) return prev;
-      return [...prev, id];
-    });
+  // Use shared NarrowingSelector logic
+  const handleSelect = (itemIds: string[]) => {
+    setSelected(itemIds);
   };
 
   // Submit selection
@@ -231,31 +225,16 @@ export default function VirtualInvitesPage() {
             </svg>
           </button>
         </div>
-        <div className={viewMode === 'grid' ? 'grid grid-cols-2 md:grid-cols-3 gap-4 mb-6' : 'flex flex-col gap-2 w-full max-w-2xl mx-auto mb-6'}>
-          {remainingItems.map((item: any) => (
-            <div
-              key={item.id}
-              className={`border rounded-xl p-4 shadow-sm cursor-pointer transition-all ${selected.includes(item.id) ? 'ring-2 ring-blue-600' : 'hover:ring-1 hover:ring-blue-400/50'}`}
-              onClick={() => toggleSelect(item.id)}
-            >
-              <div className="flex items-center gap-3">
-                {item.image && (
-                  <img src={item.image} alt={item.title} className="w-16 h-16 object-cover rounded-lg" />
-                )}
-                <div>
-                  <div className="font-bold text-lg">{item.title}</div>
-                  <button
-                    className="text-xs text-blue-600 underline mt-1"
-                    onClick={e => { e.stopPropagation(); setInfoModalItem(item); }}
-                  >
-                    Info
-                  </button>
-                  {item.notes && <div className="text-xs text-zinc-600 mt-1">{item.notes}</div>}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <NarrowingSelector
+          step={{
+            title: `Select ${target} item(s)`,
+            items: remainingItems.map((item: any) => ({ id: item.id, name: item.title })),
+          }}
+          selections={{ ["virtualNarrower"]: selected }}
+          participantId="virtualNarrower"
+          onSelect={handleSelect}
+          disabled={selected.length >= target}
+        />
         <button
           className="px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-60"
           disabled={selected.length !== target || submitting || !participantTokenValid}
