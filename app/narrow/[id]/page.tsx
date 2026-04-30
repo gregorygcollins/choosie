@@ -332,34 +332,40 @@ export default function NarrowPage() {
   // Determine if this is in-person or virtual mode (no pt param = in-person)
   // (urlParams, participantToken, isInPerson already declared at the top of the component)
   // If in-person and narrowing not started, auto-initialize narrowing and proceed
+
   const [autoInitDone, setAutoInitDone] = useState(false);
-  if (isInPerson && (!list.progress || !list.narrowingPlan) && !autoInitDone) {
-    useEffect(() => {
-      if (!list || autoInitDone) return;
-      const participants = (list as any).participants || 4;
-      const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-      const updated = {
-        ...list,
-        winnerId: undefined,
-        narrowingPlan: plan,
-        progress: {
-          remainingIds: list.items.map((i) => i.id),
-          currentNarrower: 1,
-          round: 1,
-          totalRounds: plan.length,
-          history: [],
-        },
+  useEffect(() => {
+    if (
+      isInPerson &&
+      list &&
+      (!list.progress || !list.narrowingPlan) &&
+      !autoInitDone
+    ) {
+      // Call backend reset API to persist narrowing state
+      const doInit = async () => {
+        try {
+          const res = await fetch("/api/choosie/narrow/reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ listId: list.id }),
+          });
+          if (res.ok) {
+            // Refetch list to get updated narrowing state
+            await fetchLatestList();
+            setAutoInitDone(true);
+          } else {
+            setLoadError("Failed to initialize narrowing session.");
+          }
+        } catch (e) {
+          setLoadError("Failed to initialize narrowing session.");
+        }
       };
-      upsertList(updated);
-      setList(updated);
-      setRemaining(list.items.slice());
-      setRoundTargets(plan);
-      setRoundNumber(1);
-      setCurrentNarrower(1);
-      setSelectedIds([]);
-      setHistory([]);
-      setAutoInitDone(true);
-    }, [list, autoInitDone]);
+      doInit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInPerson, list, autoInitDone]);
+  if (isInPerson && (!list.progress || !list.narrowingPlan)) {
     return <div className="max-w-xl mx-auto py-16 text-center text-zinc-500">Initializing narrowing…<DebugPanel /></div>;
   }
   if (!isInPerson && (!list.progress || !list.narrowingPlan)) {
