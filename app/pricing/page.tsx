@@ -1,18 +1,44 @@
+import Link from "next/link";
+
 export default function PricingPage() {
   return (
-    <main className="min-h-screen p-8">
-      <div className="mx-auto max-w-3xl rounded-xl bg-white/80 p-6">
-        <h1 className="text-3xl font-bold">Choosie Pro</h1>
-        <p className="mt-2 text-zinc-700">Upgrade for premium modules and smarter suggestions.</p>
-        <ul className="mt-4 list-disc list-inside text-zinc-800">
-          <li>Books, Recipes, and Anything modules</li>
-          <li>Advanced suggestions and filtering</li>
-          <li>Priority improvements</li>
-        </ul>
-        <div className="mt-6">
-          <a href="/account" className="rounded-full bg-brand px-4 py-2 font-semibold text-white hover:bg-brand-dark">Upgrade on Account</a>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <section className="text-center">
+        <div className="mx-auto mb-5 grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-brand-light ring-1 ring-brand/10">
+          <img src="/choosie-logo-badge.png" alt="" aria-hidden="true" className="h-full w-full object-contain" />
         </div>
-      </div>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pro</p>
+        <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">Upgrade to Choosie Pro</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+          Unlock virtual narrowing and premium list types for every group decision.
+        </p>
+      </section>
+
+      <section className="mx-auto mt-8 max-w-xl">
+        <article className="rounded-2xl border border-consensus bg-white p-6 shadow-soft ring-2 ring-consensus/30">
+          <div className="mb-4 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
+            Pro
+          </div>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-bold text-brand">$2.99</span>
+            <span className="pb-1 text-sm font-semibold text-slate-500">/mo</span>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Built for groups who want to decide without compromise, bickering, or endless scrolling.
+          </p>
+          <ul className="mt-5 space-y-2 text-sm text-slate-700">
+            <li>Virtual narrowing links for remote groups</li>
+            <li>Book lists, food lists, music lists, and anything lists</li>
+            <li>Newer modules and early features</li>
+          </ul>
+          <Link
+            href="/signup?plan=pro"
+            className="mt-6 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
+          >
+            Upgrade
+          </Link>
+        </article>
+      </section>
     </main>
   );
 }

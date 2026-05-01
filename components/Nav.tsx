@@ -99,10 +99,7 @@ export default function Nav() {
             <Link href={`/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-700 hover:text-brand">
               Sign in
             </Link>
-            <Link href={`/demo?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-500 hover:text-brand">
-              Demo
-            </Link>
-            <Link href={`/demo?plan=pro&callbackUrl=${encodeURIComponent(pathname || '/')}`} className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white hover:bg-brand-dark">
+            <Link href="/pricing" className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white hover:bg-brand-dark">
               Try Pro
             </Link>
           </div>

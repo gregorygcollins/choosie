@@ -1,26 +1,16 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { signInDemo } from "../../../lib/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { toast } from "@/components/Toast";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 function LoginForm() {
-  const [name, setName] = useState("");
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-
-  function startDemo(isPro = false) {
-    signInDemo(name || (isPro ? "Pro Demo" : "Demo User"), isPro);
-    toast(isPro ? "Pro demo enabled" : "Demo mode enabled", "success");
-    router.push(callbackUrl);
-  }
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
@@ -46,39 +36,21 @@ function LoginForm() {
 
             <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
               <span className="h-px flex-1 bg-zinc-200" />
-              or try it first
+              or upgrade
               <span className="h-px flex-1 bg-zinc-200" />
             </div>
 
-            <label className="block text-sm font-semibold text-brand" htmlFor="demo-name">
-              Demo name
-            </label>
-            <input
-              id="demo-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Name optional"
-              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
-            />
             <p className="mt-3 text-xs leading-5 text-slate-500">
-              Demo mode lets you try Choosie on this device without creating an account. Demo lists may not sync across devices.
+              Pro is $2.99/mo and unlocks virtual narrowing plus premium list types.
             </p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => startDemo(false)}
-                className="rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+            <div className="mt-5">
+              <Link
+                href="/signup?plan=pro"
+                className="inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
               >
-                Try Choosie Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => startDemo(true)}
-                className="rounded-full border border-brand/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-zinc-50"
-              >
-                Try Pro Demo
-              </button>
+                Upgrade
+              </Link>
             </div>
           </div>
 

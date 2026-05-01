@@ -10,6 +10,7 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [upgradeIntent, setUpgradeIntent] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +32,9 @@ export default function AccountPage() {
     // Read checkout status from the URL on mount to avoid Suspense requirement
     try {
       const params = new URLSearchParams(window.location.search);
+      if (params.get("intent") === "upgrade") {
+        setUpgradeIntent(true);
+      }
       if (params.get("checkout") === "success") {
         setShowSuccessBanner(true);
         // Poll for user.isPro update for up to 10 seconds after checkout success
@@ -132,11 +136,19 @@ export default function AccountPage() {
           </div>
         )}
 
+        {upgradeIntent && !user.isPro && (
+          <div className="mt-2 rounded-lg border border-consensus/40 bg-consensus/10 p-3 text-sm text-brand">
+            You’re signed in. Complete your Pro upgrade to unlock virtual narrowing and premium list types.
+          </div>
+        )}
+
         <div className="mt-4 flex items-center gap-3">
           {user.isPro ? (
             <button disabled={busy} onClick={openPortal} className="rounded-full bg-brand text-white px-3 py-2 hover:bg-brand-dark disabled:opacity-50">Manage subscription</button>
           ) : (
-            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-brand px-3 py-2 text-white hover:bg-brand-dark disabled:opacity-50">Upgrade to Pro</button>
+            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-brand px-3 py-2 text-white hover:bg-brand-dark disabled:opacity-50">
+              {upgradeIntent ? "Complete Pro upgrade" : "Upgrade to Pro"}
+            </button>
           )}
         </div>
 
