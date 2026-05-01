@@ -1,8 +1,10 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma";
+import { verifyPassword } from "./password";
 import "./auth.types"; // Import type augmentation
 
 // Build providers conditionally based on available env vars
@@ -11,6 +13,31 @@ const providers: any[] = [];
 const databaseUrl = process.env.DATABASE_URL || "";
 const looksLocalDb = /localhost|127\.0\.0\.1/i.test(databaseUrl);
 const usePrismaAdapter = !!databaseUrl && !looksLocalDb;
+
+providers.push(
+  Credentials({
+    name: "Email and password",
+    credentials: {
+      email: { label: "Email", type: "email" },
+      password: { label: "Password", type: "password" },
+    },
+    async authorize(credentials) {
+      const email = String(credentials?.email || "").trim().toLowerCase();
+      const password = String(credentials?.password || "");
+      if (!email || !password) return null;
+
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user || !verifyPassword(password, (user as any).passwordHash)) return null;
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+      };
+    },
+  })
+);
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   providers.push(
