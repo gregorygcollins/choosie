@@ -1,66 +1,109 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import auth, { signInDemo, getSession } from "../../../lib/auth";
+import { Suspense, useState } from "react";
+import { signInDemo } from "../../../lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { toast } from "@/components/Toast";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function LoginForm() {
   const [name, setName] = useState("");
-  const [pro, setPro] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  function handleSignIn(e: React.FormEvent) {
-    e.preventDefault();
-    signInDemo(name || "Demo User", pro);
-    // quick client-side navigation back to home (or previous page)
+  function startDemo(isPro = false) {
+    signInDemo(name || (isPro ? "Pro Demo" : "Demo User"), isPro);
+    toast(isPro ? "Pro demo enabled" : "Demo mode enabled", "success");
     router.push(callbackUrl);
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-6 rounded-xl bg-white/80 mt-6">
-      <h2 className="text-2xl font-bold mb-6">Sign in</h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <p className="text-sm text-zinc-600 mb-4">Use Google (NextAuth) or try the local demo sign-in. The demo stores a local session in your browser.</p>
-          <form onSubmit={handleSignIn} className="flex flex-col gap-3">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (optional)" className="rounded-lg border px-3 py-2" />
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={pro} onChange={(e) => setPro(e.target.checked)} />
-              Sign in as Pro (demo)
-            </label>
-            <div className="flex items-center gap-2">
-              <button className="rounded-full bg-brand px-4 py-2 text-white hover:bg-brand-dark transition-colors">Sign in</button>
-              <button type="button" onClick={() => { signInDemo("Demo User", false); router.push(callbackUrl); }} className="text-sm text-zinc-500">Quick demo</button>
-            </div>
-          </form>
-          <div className="mt-6 border-t pt-4">
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <section className="rounded-2xl bg-white p-6 shadow-soft sm:p-8">
+        <div className="mx-auto mb-6 grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-brand-light ring-1 ring-brand/10">
+          <img src="/choosie-logo-badge.png" alt="" aria-hidden="true" className="h-full w-full object-contain" />
+        </div>
+        <div className="mx-auto max-w-xl text-center">
+          <h1 className="text-3xl font-bold text-brand">Welcome to Choosie</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Sign in to save lists, share links, and keep narrowing across devices.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-[1.1fr_.9fr]">
+          <div className="rounded-2xl border border-zinc-200 bg-brand-light/50 p-5">
             <button
               onClick={() => signIn("google", { callbackUrl })}
-              className="w-full rounded-full bg-brand px-4 py-2 text-white transition-colors hover:bg-brand-dark"
+              className="w-full rounded-full bg-consensus px-5 py-3 text-sm font-bold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark"
             >
               Continue with Google
             </button>
+
+            <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <span className="h-px flex-1 bg-zinc-200" />
+              or try it first
+              <span className="h-px flex-1 bg-zinc-200" />
+            </div>
+
+            <label className="block text-sm font-semibold text-brand" htmlFor="demo-name">
+              Demo name
+            </label>
+            <input
+              id="demo-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Name optional"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <p className="mt-3 text-xs leading-5 text-slate-500">
+              Demo mode lets you try Choosie on this device without creating an account. Demo lists may not sync across devices.
+            </p>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => startDemo(false)}
+                className="rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                Try Choosie Demo
+              </button>
+              <button
+                type="button"
+                onClick={() => startDemo(true)}
+                className="rounded-full border border-brand/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-zinc-50"
+              >
+                Try Pro Demo
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
+            <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
+              Pro
+            </div>
+            <h2 className="text-xl font-bold text-brand">More ways to choosie</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Pro unlocks virtual narrowing, book lists, food lists, music lists, and anything lists.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
+              <li>Share virtual narrowing links with your group</li>
+              <li>Create lists beyond movies</li>
+              <li>Try newer modules and early features</li>
+            </ul>
+            <Link
+              href="/pricing"
+              className="mt-5 inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+            >
+              Explore Pro
+            </Link>
           </div>
         </div>
-        <div className="rounded-xl border-2 border-brand/30 p-5 bg-gradient-to-br from-brand/5 via-white to-brand/10 shadow-lg">
-          <h3 className="font-bold text-lg mb-3 text-brand">Choosie Pro includes</h3>
-          <ul className="list-disc pl-5 text-sm text-zinc-800 space-y-2">
-            <li>Virtual narrowing: invite friends by email or text, no account needed</li>
-            <li>Premium modules: <strong>Book</strong>lists, <strong>Music</strong>lists, <strong>Food</strong>lists, and <strong>Anything</strong>lists</li>
-            <li>Smarter suggestions and overlap tools</li>
-            <li>Priority features and early access</li>
-          </ul>
-          <div className="mt-4">
-            <a href="/pricing" className="inline-block w-full text-center rounded-full bg-brand px-4 py-2.5 text-white font-semibold hover:bg-brand-dark transition-colors shadow-md">Try Pro</a>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import auth, { getSession, signInDemo, signOut } from "../lib/auth";
+import auth, { getSession, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Pacifico } from "next/font/google";
 
@@ -27,11 +27,6 @@ export default function Nav() {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
-
-  function handleDemoSignIn(pro = false) {
-    signInDemo(pro ? "Pro Demo" : "Demo User", pro);
-    setLocalSession(getSession());
-  }
 
   function handleSignOut() {
     if (nextSession?.user) {
@@ -104,12 +99,12 @@ export default function Nav() {
             <Link href={`/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-700 hover:text-brand">
               Sign in
             </Link>
-            <button onClick={() => handleDemoSignIn(false)} className="text-sm text-zinc-500">
+            <Link href={`/demo?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-500 hover:text-brand">
               Demo
-            </button>
-            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white">
+            </Link>
+            <Link href={`/demo?plan=pro&callbackUrl=${encodeURIComponent(pathname || '/')}`} className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white hover:bg-brand-dark">
               Try Pro
-            </button>
+            </Link>
           </div>
         )}
       </div>
