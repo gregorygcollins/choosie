@@ -24,7 +24,7 @@ const walkthrough = [
   },
   {
     eyebrow: "Decide",
-    title: "Uncover your shared passion.",
+    title: "Uncover your shared interest.",
     body: "Choosie celebrates the final pick and gives the Decider a simple way to share it with the group.",
     phone: <WinnerPhone />,
   },
