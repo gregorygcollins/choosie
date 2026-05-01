@@ -6,7 +6,7 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 const walkthrough = [
   {
     eyebrow: "Build",
-    title: "What do YOU want to watch?",
+    title: "If you're into it, so are other people.",
     body: "Make a list of the movies you want to watch with your group.",
     phone: <BuildPhone />,
   },
@@ -18,13 +18,13 @@ const walkthrough = [
   },
   {
     eyebrow: "Narrow",
-    title: "Roles keep the decision moving.",
+    title: "Take turns narrowing.",
     body: "Programmer, Selector, and Decider steps prevent endless debate and make each round clear.",
     phone: <NarrowPhone />,
   },
   {
     eyebrow: "Decide",
-    title: "Land on the shared winner.",
+    title: "Uncover your shared passion.",
     body: "Choosie celebrates the final pick and gives the Decider a simple way to share it with the group.",
     phone: <WinnerPhone />,
   },
@@ -56,7 +56,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl pb-20">
         <div className="mb-10 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-consensus">How it works</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">How it works</p>
           <h2 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
             Turning reluctant consensus into <span className="text-consensus-dark">passionate overlap.</span>
           </h2>
@@ -115,7 +115,7 @@ function BuildPhone() {
       <PhoneHeader title="Create list" />
       <div className="space-y-2 p-3">
         <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Movie night</div>
-        {["Past Lives", "Arrival", "Chef"].map((item, index) => (
+        {["City of God", "Under the Skin", "Out of Africa"].map((item, index) => (
           <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-2 py-2 shadow-sm">
             <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[0.62rem] font-semibold text-white">{index + 1}</span>
             <span className="text-[0.68rem] font-semibold text-brand">{item}</span>
@@ -155,7 +155,7 @@ function NarrowPhone() {
       <PhoneHeader title="Selector's turn" />
       <div className="space-y-2 p-3">
         <div className="text-[0.82rem] font-bold text-brand">Choosie 3 movies.</div>
-        {["Arrival", "Chef", "Past Lives", "Moonstruck"].map((item, index) => {
+        {["City of God", "Under the Skin", "Out of Africa", "Moonstruck"].map((item, index) => {
           const selected = index < 3;
           return (
             <div
@@ -183,7 +183,7 @@ function WinnerPhone() {
         <div className="absolute right-5 top-12 text-sm text-sky-400">✦</div>
         <div className="mx-auto mt-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-lg shadow-sm">🎉</div>
         <div className="mt-4 text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
-        <div className="mt-2 text-lg font-bold leading-tight text-brand">Past Lives</div>
+        <div className="mt-2 text-lg font-bold leading-tight text-brand">City of God</div>
         <div className="mx-auto mt-5 w-fit rounded-full bg-consensus px-3 py-2 text-[0.66rem] font-bold text-brand-dark">Share</div>
       </div>
     </PhoneFrame>
