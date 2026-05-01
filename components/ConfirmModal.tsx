@@ -68,7 +68,7 @@ export function ConfirmModal({
               ${
                 variant === 'danger'
                   ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-zinc-950 text-white hover:bg-zinc-800'
+                  : 'bg-zinc-700 text-white hover:bg-zinc-800'
               }
             `}
           >

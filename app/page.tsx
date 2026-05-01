@@ -22,7 +22,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           <Link
             href="/new"
-            className="flex h-14 items-center justify-center rounded-full bg-zinc-950 px-8 font-semibold text-white shadow-lg shadow-zinc-950/20 transition hover:scale-105 hover:bg-zinc-800 active:scale-100"
+            className="flex h-14 items-center justify-center rounded-full bg-zinc-700 px-8 font-semibold text-white shadow-lg shadow-zinc-700/20 transition hover:scale-105 hover:bg-zinc-800 active:scale-100"
           >
             Be Choosie!
           </Link>

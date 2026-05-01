@@ -281,7 +281,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   aria-pressed={view === "grid"}
                   onClick={() => setView("grid")}
                   className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "grid" ? "bg-zinc-950 text-white" : "text-zinc-600 hover:bg-zinc-100"
+                    view === "grid" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <GridIcon />
@@ -293,7 +293,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   aria-pressed={view === "list"}
                   onClick={() => setView("list")}
                   className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "list" ? "bg-zinc-950 text-white" : "text-zinc-600 hover:bg-zinc-100"
+                    view === "list" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <ListIcon />
@@ -379,62 +379,68 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
 
             {error && <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm text-zinc-600">
-                Selected {selectedIds.length} of {target}
-              </div>
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={!canConfirm}
-                className="rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
-              >
-                Confirm
-              </button>
+            <div className="mt-5 text-sm text-zinc-600">
+              Selected {selectedIds.length} of {target}
             </div>
           </div>
         )}
 
-        <div className="flex flex-col gap-3 border-t border-zinc-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
-          {winner && (
-            <button
-              type="button"
-              onClick={onShareWinner}
-              title="Share winner"
-              aria-label="Share winner"
-              className="inline-grid h-10 w-10 place-items-center rounded-full bg-zinc-950 text-white transition-colors hover:bg-zinc-800"
-            >
-              <ShareIcon />
-            </button>
-          )}
-          {mode === "in-person" && (
+        <div className="flex flex-row flex-nowrap items-center justify-between gap-3 overflow-x-auto border-t border-zinc-200 px-5 py-4 sm:px-6">
+          <div className="flex shrink-0 items-center gap-3">
+            {!winner && (
+              <button
+                type="button"
+                onClick={onConfirm}
+                disabled={!canConfirm}
+                className="rounded-full bg-zinc-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+              >
+                Confirm
+              </button>
+            )}
+            {winner && (
+              <button
+                type="button"
+                onClick={onShareWinner}
+                title="Share winner"
+                aria-label="Share winner"
+                className="inline-grid h-10 w-10 place-items-center rounded-full bg-zinc-700 text-white transition-colors hover:bg-zinc-800"
+              >
+                <ShareIcon />
+              </button>
+            )}
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={onReturnToList}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
             >
               <ReturnIcon />
               Return to list
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onUndo}
-            disabled={!canUndo}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
-          >
-            <UndoIcon />
-            Undo
-          </button>
-          <button
-            type="button"
-            onClick={onReset}
-            disabled={busy}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
-          >
-            <ResetIcon />
-            Reset list
-          </button>
+            {mode === "in-person" && (
+              <>
+                <button
+                  type="button"
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+                >
+                  <UndoIcon />
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  onClick={onReset}
+                  disabled={busy}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+                >
+                  <ResetIcon />
+                  Reset list
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
@@ -469,7 +475,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <button
                 type="button"
                 onClick={() => setInfoItem(null)}
-                className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white"
               >
                 Close
               </button>

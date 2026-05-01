@@ -132,7 +132,7 @@ function RoleSelectionContent() {
                 <div className="text-zinc-400 text-sm">Claimed by {taken.name}</div>
               ) : (
                 <button
-                  className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 mt-2 disabled:opacity-60"
+                  className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 mt-2 disabled:opacity-60"
                   disabled={!name || !!claiming}
                   onClick={() => claimRole(role)}
                 >

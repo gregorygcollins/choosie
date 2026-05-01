@@ -136,7 +136,7 @@ export default function AccountPage() {
           {user.isPro ? (
             <button disabled={busy} onClick={openPortal} className="rounded-full bg-zinc-900 text-white px-3 py-2 disabled:opacity-50">Manage subscription</button>
           ) : (
-            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-zinc-950 px-3 py-2 text-white disabled:opacity-50">Upgrade to Pro</button>
+            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-zinc-700 px-3 py-2 text-white hover:bg-zinc-800 disabled:opacity-50">Upgrade to Pro</button>
           )}
         </div>
 
