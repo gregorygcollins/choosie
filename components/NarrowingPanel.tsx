@@ -241,7 +241,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
       <section className="rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div className="border-b border-zinc-200 px-5 py-4 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className={`flex flex-col gap-3 ${winner ? "items-center text-center" : "sm:flex-row sm:items-start sm:justify-between"}`}>
             <div>
               <p className="text-sm font-semibold text-zinc-500">
                 {listTitle}
@@ -258,9 +258,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 </p>
               )}
             </div>
-            <div className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700">
-              Round {Math.min(displayedRound + 1, plan.length)} of {plan.length}
-            </div>
+            {!winner && (
+              <div className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700">
+                Round {Math.min(displayedRound + 1, plan.length)} of {plan.length}
+              </div>
+            )}
           </div>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {!winner && (
@@ -385,7 +387,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 type="button"
                 onClick={onConfirm}
                 disabled={!canConfirm}
-                className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50"
+                className="rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
               >
                 Confirm
               </button>
@@ -400,7 +402,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               onClick={onShareWinner}
               title="Share winner"
               aria-label="Share winner"
-              className="inline-grid h-10 w-10 place-items-center rounded-full bg-brand text-white transition-colors hover:opacity-90"
+              className="inline-grid h-10 w-10 place-items-center rounded-full bg-zinc-950 text-white transition-colors hover:bg-zinc-800"
             >
               <ShareIcon />
             </button>
@@ -409,7 +411,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <button
               type="button"
               onClick={onReturnToList}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
             >
               <ReturnIcon />
               Return to list
@@ -419,7 +421,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             type="button"
             onClick={onUndo}
             disabled={!canUndo}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
           >
             <UndoIcon />
             Undo
@@ -428,7 +430,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             type="button"
             onClick={onReset}
             disabled={busy}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
           >
             <ResetIcon />
             Reset list

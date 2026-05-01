@@ -120,7 +120,7 @@ export default function ViewListPage() {
     upsertList(updated);
     setList(updated);
     setShowParticipantModal(false);
-    const syncParticipantsAndReset = async () => {
+    const syncParticipantsAndReset = async (sessionId?: string) => {
       try {
         await fetch("/api/choosie/updateList", {
           method: "POST",
@@ -137,7 +137,7 @@ export default function ViewListPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ listId: list.id }),
+          body: JSON.stringify({ listId: list.id, sessionId }),
         });
       } catch (err) {
         console.error("Failed to sync narrowing setup to server:", err);
@@ -152,15 +152,20 @@ export default function ViewListPage() {
     } else {
       (async () => {
         // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
-        await syncParticipantsAndReset();
+        const sessionId =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        await syncParticipantsAndReset(sessionId);
         const base = typeof window !== 'undefined' ? window.location.origin : '';
+        const sessionQuery = `session=${encodeURIComponent(sessionId)}`;
         if (count === 1) {
           // Only Decider: direct link, no role claim needed
-          const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1`;
+          const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1&${sessionQuery}`;
           setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
         } else {
           // 2 or 3 narrowers: group roles link
-          const groupLink = `${base}/list/${list.id}/virtual/roles`;
+          const groupLink = `${base}/list/${list.id}/virtual/roles?${sessionQuery}`;
           setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
         }
         setShowLinksModal(true);
@@ -197,7 +202,7 @@ export default function ViewListPage() {
               ))}
             </ol>
             <div className="flex gap-2 mt-4">
-              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-full">Done</button>
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 w-full">Done</button>
             </div>
           </div>
         </div>
@@ -433,7 +438,7 @@ export default function ViewListPage() {
           <p className="text-xl mb-4">List not found 😢</p>
           <button
             onClick={() => router.push("/new")}
-            className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:opacity-90 transition-colors"
+            className="rounded-full bg-zinc-950 px-5 py-2 font-semibold text-white hover:bg-zinc-800 transition-colors"
           >
             Create a new one
           </button>
@@ -460,7 +465,7 @@ export default function ViewListPage() {
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}
-                  className="aspect-square rounded-xl bg-brand text-white font-semibold text-lg hover:opacity-90 transition-all hover:scale-105 shadow-md"
+                  className="aspect-square rounded-xl bg-zinc-950 text-white font-semibold text-lg hover:bg-zinc-800 transition-all hover:scale-105 shadow-md"
                 >
                   {n}
                 </button>
@@ -468,7 +473,7 @@ export default function ViewListPage() {
             </div>
             <button
               onClick={() => setShowParticipantModal(false)}
-              className="w-full rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
+              className="w-full rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
             >
               Cancel
             </button>
@@ -504,7 +509,7 @@ export default function ViewListPage() {
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 w-full">Done</button>
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 w-full">Done</button>
             </div>
           </div>
         </div>
@@ -698,19 +703,19 @@ export default function ViewListPage() {
           <div className="flex gap-3">
             <button
               onClick={() => handleNarrowClick("in-person")}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
+              className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
             >
               Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors"
+              className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
             >
               Narrow virtually
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
-              className="rounded-full bg-white border border-brand px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-50 transition-colors"
+              className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
             >
               Edit list
             </button>
@@ -788,7 +793,7 @@ export default function ViewListPage() {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={closePreview}
-                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-brand/40"
                 >
                   Close
                 </button>

@@ -35,7 +35,7 @@ function LoginForm() {
               Sign in as Pro (demo)
             </label>
             <div className="flex items-center gap-2">
-              <button className="rounded-full bg-brand px-4 py-2 text-white hover:opacity-90 transition-colors">Sign in</button>
+              <button className="rounded-full bg-zinc-950 px-4 py-2 text-white hover:bg-zinc-800 transition-colors">Sign in</button>
               <button type="button" onClick={() => { signInDemo("Demo User", false); router.push(callbackUrl); }} className="text-sm text-zinc-500">Quick demo</button>
             </div>
           </form>
@@ -57,7 +57,7 @@ function LoginForm() {
             <li>Priority features and early access</li>
           </ul>
           <div className="mt-4">
-            <a href="/pricing" className="inline-block w-full text-center rounded-full bg-brand px-4 py-2.5 text-white font-semibold hover:opacity-90 transition-colors shadow-md">Try Pro</a>
+            <a href="/pricing" className="inline-block w-full text-center rounded-full bg-zinc-950 px-4 py-2.5 text-white font-semibold hover:bg-zinc-800 transition-colors shadow-md">Try Pro</a>
           </div>
         </div>
       </div>

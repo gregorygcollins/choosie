@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { getRoleName } from "@/lib/planner";
 
@@ -16,6 +16,8 @@ function RoleSelectionContent() {
 
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session") || "";
   const [participants, setParticipants] = useState<any[]>([]);
   const [participantCount, setParticipantCount] = useState<number>(3);
   const [name, setName] = useState("");
@@ -28,7 +30,9 @@ function RoleSelectionContent() {
     let cancelled = false;
     async function fetchParticipantsAndCount() {
       try {
-        const res = await fetch(`/api/choosie/narrow/participants?listId=${id}`);
+        const query = new URLSearchParams({ listId: String(id) });
+        if (sessionId) query.set("sessionId", sessionId);
+        const res = await fetch(`/api/choosie/narrow/participants?${query.toString()}`);
         const data = await res.json();
         if (!cancelled && data.ok) setParticipants(data.participants);
       } catch {}
@@ -58,7 +62,7 @@ function RoleSelectionContent() {
       const res = await fetch("/api/choosie/narrow/participants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId: id, name, role }),
+        body: JSON.stringify({ listId: id, name, role, sessionId }),
       });
       const data = await res.json();
       if (data.ok) {
@@ -66,9 +70,9 @@ function RoleSelectionContent() {
         const idx = rolesToShow.findIndex((r) => r.role === role);
         // If this is the first narrower (lowest idx), allow immediate narrowing
         if (idx === 0) {
-          router.push(`/list/${id}/virtual?pt=${idx}&start=1`);
+          router.push(`/list/${id}/virtual?pt=${idx}&start=1${sessionId ? `&session=${encodeURIComponent(sessionId)}` : ""}`);
         } else {
-          router.push(`/list/${id}/virtual?pt=${idx}`);
+          router.push(`/list/${id}/virtual?pt=${idx}${sessionId ? `&session=${encodeURIComponent(sessionId)}` : ""}`);
         }
       } else {
         setError(data.error || "Failed to claim role");
@@ -128,7 +132,7 @@ function RoleSelectionContent() {
                 <div className="text-zinc-400 text-sm">Claimed by {taken.name}</div>
               ) : (
                 <button
-                  className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 mt-2 disabled:opacity-60"
+                  className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 mt-2 disabled:opacity-60"
                   disabled={!name || !!claiming}
                   onClick={() => claimRole(role)}
                 >
@@ -148,7 +152,9 @@ function RoleSelectionContent() {
 export default function RoleSelectionPage() {
   return (
     <ErrorBoundary>
-      <RoleSelectionContent />
+      <Suspense fallback={<div className="mx-auto max-w-xl p-6 text-zinc-600">Loading roles...</div>}>
+        <RoleSelectionContent />
+      </Suspense>
     </ErrorBoundary>
   );
 }

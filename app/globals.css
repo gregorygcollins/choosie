@@ -66,15 +66,15 @@ body {
 
 /* Buttons */
 .btn-lilac {
-  background: #E6D7FF;
-  color: #2B2B2B;
+  background: #2B2B2B;
+  color: #FFFFFF;
   font-weight: 600;
   border-radius: 9999px;
   padding: 0.55rem 1rem;
   box-shadow: 0 2px 4px rgba(43, 43, 43, 0.15);
   transition: all .18s ease;
 }
-.btn-lilac:hover { background: #D8C3FF; box-shadow: 0 4px 10px rgba(75, 46, 131, 0.20); transform: translateY(-1px); color:#2B2B2B; }
+.btn-lilac:hover { background: #373737; box-shadow: 0 4px 10px rgba(43, 43, 43, 0.20); transform: translateY(-1px); color:#FFFFFF; }
 .btn-lilac:active { transform: translateY(1px); }
 
 .btn-charcoal {

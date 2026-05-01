@@ -34,7 +34,7 @@ export default function FinalPage() {
         <p className="mb-6 text-zinc-600">We couldn't find the list you're looking for.</p>
         <Link
           href="/"
-          className="rounded-full bg-brand px-6 py-3 font-semibold text-white hover:opacity-90 transition-colors"
+          className="rounded-full bg-zinc-950 px-6 py-3 font-semibold text-white hover:bg-zinc-800 transition-colors"
         >
           Return Home
         </Link>
@@ -75,13 +75,13 @@ export default function FinalPage() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link
           href={`/narrow/${list.id}`}
-          className="inline-block rounded-full bg-white/70 px-6 py-3 text-zinc-700 hover:bg-white transition-colors"
+          className="inline-block rounded-full bg-zinc-950 px-6 py-3 text-white hover:bg-zinc-800 transition-colors"
         >
           ← Back
         </Link>
         <Link
           href="/new"
-          className="inline-block rounded-full bg-brand px-8 py-4 font-semibold text-white hover:opacity-90 transition-colors"
+          className="inline-block rounded-full bg-zinc-950 px-8 py-4 font-semibold text-white hover:bg-zinc-800 transition-colors"
         >
           Create another {getListTypeName()}
         </Link>

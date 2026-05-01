@@ -23,6 +23,7 @@ const participantTokenSchema = z.string().refine(
 const resetSchema = z.object({
   listId: z.string().min(1).max(50),
   participantToken: participantTokenSchema.optional(),
+  sessionId: z.string().min(1).max(80).optional(),
 });
 
 async function getList(listId: string) {
@@ -87,6 +88,18 @@ export async function POST(req: NextRequest) {
       update: { historyJson: initialState, winnerItemId: null },
       create: { listId: list.id, historyJson: initialState, winnerItemId: null },
     });
+    if (data.sessionId) {
+      await prisma.list.update({
+        where: { id: list.id },
+        data: {
+          tasteJson: {
+            ...tj,
+            participantClaims: [],
+            activeVirtualSessionId: data.sessionId,
+          },
+        },
+      });
+    }
 
     publish(list.id, { ok: true, event: 'state', state: initialState, winnerItemId: null });
     return withCORS(NextResponse.json({ ok: true, state: initialState, winnerItemId: null }), origin);

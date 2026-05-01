@@ -78,7 +78,7 @@ export default function Nav() {
         ) : activeUser ? (
           <>
             {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
-              <span className="rounded-full bg-brand-light px-2 py-1 text-xs font-semibold text-brand-dark">
+              <span className="rounded-full bg-zinc-950 px-2 py-1 text-xs font-semibold text-white">
                 Pro
               </span>
             )}
@@ -97,7 +97,7 @@ export default function Nav() {
             <button onClick={() => handleDemoSignIn(false)} className="text-sm text-zinc-500">
               Demo
             </button>
-            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-brand-light px-2 py-1 text-xs font-semibold text-brand-dark">
+            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-zinc-950 px-2 py-1 text-xs font-semibold text-white">
               Try Pro
             </button>
           </div>
