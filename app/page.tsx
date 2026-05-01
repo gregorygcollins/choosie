@@ -13,13 +13,13 @@ const walkthrough = [
   {
     eyebrow: "Invite",
     title: "Start narrowing.",
-    body: "Narrow your list in person, or share a virtual link.",
+    body: "Narrow your list in person, or share a virtual link with your group.",
     phone: <InvitePhone />,
   },
   {
     eyebrow: "Narrow",
     title: "Everyone takes a turn.",
-    body: "Eliminate compromise, scrolling, and endless debate.",
+    body: "Eliminate compromise, bickering, and endless scrolling.",
     phone: <NarrowPhone />,
   },
   {
@@ -58,7 +58,7 @@ export default function Home() {
         <div className="mb-10 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">How it works</p>
           <h2 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
-            Turning reluctant consensus into <span className="text-consensus-dark">passionate overlap.</span>
+            Turn reluctant consensus into <span className="text-consensus-dark">passionate overlap.</span>
           </h2>
         </div>
 
