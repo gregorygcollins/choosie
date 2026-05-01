@@ -134,9 +134,9 @@ export default function AccountPage() {
 
         <div className="mt-4 flex items-center gap-3">
           {user.isPro ? (
-            <button disabled={busy} onClick={openPortal} className="rounded-full bg-zinc-900 text-white px-3 py-2 disabled:opacity-50">Manage subscription</button>
+            <button disabled={busy} onClick={openPortal} className="rounded-full bg-brand text-white px-3 py-2 hover:bg-brand-dark disabled:opacity-50">Manage subscription</button>
           ) : (
-            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-zinc-700 px-3 py-2 text-white hover:bg-zinc-800 disabled:opacity-50">Upgrade to Pro</button>
+            <button disabled={busy} onClick={startCheckout} className="rounded-full bg-brand px-3 py-2 text-white hover:bg-brand-dark disabled:opacity-50">Upgrade to Pro</button>
           )}
         </div>
 

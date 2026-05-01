@@ -48,7 +48,14 @@ export default function Nav() {
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/choosie-mark.svg" alt="" aria-hidden="true" className="h-7 w-7 rounded-md shadow-sm" />
+          <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-full">
+            <img
+              src="/choosie-logo-badge.png"
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-contain"
+            />
+          </span>
           <span className={`${pacifico.className} text-lg font-semibold text-brand`}>
             Choosie
           </span>
@@ -81,7 +88,7 @@ export default function Nav() {
         ) : activeUser ? (
           <>
             {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
-              <span className="rounded-full bg-zinc-700 px-2 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white">
                 Pro
               </span>
             )}
@@ -100,7 +107,7 @@ export default function Nav() {
             <button onClick={() => handleDemoSignIn(false)} className="text-sm text-zinc-500">
               Demo
             </button>
-            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-zinc-700 px-2 py-1 text-xs font-semibold text-white">
+            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white">
               Try Pro
             </button>
           </div>

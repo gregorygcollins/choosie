@@ -44,10 +44,10 @@ export function ToastContainer() {
             animate-in slide-in-from-top-2 fade-in duration-300
             ${
               t.type === 'success'
-                ? 'bg-green-600 text-white'
+                ? 'bg-consensus text-brand-dark'
                 : t.type === 'error'
                 ? 'bg-red-600 text-white'
-                : 'bg-zinc-800 text-white'
+                : 'bg-brand text-white'
             }
           `}
         >

@@ -120,11 +120,11 @@ function ShareIcon() {
 function ConfettiBurst() {
   const pieces = [
     { className: "left-[8%] top-[14%] bg-brand", x: -12, delay: 0 },
-    { className: "left-[18%] top-[30%] bg-brand-light", x: 10, delay: 90 },
+    { className: "left-[18%] top-[30%] bg-consensus", x: 10, delay: 90 },
     { className: "left-[30%] top-[10%] bg-pink-400", x: -6, delay: 180 },
     { className: "left-[42%] top-[24%] bg-sky-400", x: 14, delay: 270 },
     { className: "right-[8%] top-[16%] bg-brand", x: 12, delay: 45 },
-    { className: "right-[20%] top-[32%] bg-brand-light", x: -10, delay: 135 },
+    { className: "right-[20%] top-[32%] bg-consensus", x: -10, delay: 135 },
     { className: "right-[32%] top-[12%] bg-pink-400", x: 8, delay: 225 },
     { className: "right-[44%] top-[26%] bg-sky-400", x: -14, delay: 315 },
   ];
@@ -164,7 +164,7 @@ function ConfettiBurst() {
         ✨
       </span>
       <div
-        className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-brand-light/60 blur-2xl"
+        className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-consensus/40 blur-2xl"
         style={{ animation: "choosie-winner-glow 1800ms ease-in-out infinite" }}
       />
     </div>
@@ -249,7 +249,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
               </p>
-              <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
+              <h1 className="mt-1 text-3xl font-semibold text-brand">
                 {winner ? "And the winner is..." : actionText}
               </h1>
               {!winner && (
@@ -281,7 +281,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   aria-pressed={view === "grid"}
                   onClick={() => setView("grid")}
                   className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "grid" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:bg-zinc-100"
+                    view === "grid" ? "bg-brand text-white" : "text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <GridIcon />
@@ -293,7 +293,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   aria-pressed={view === "list"}
                   onClick={() => setView("list")}
                   className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "list" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:bg-zinc-100"
+                    view === "list" ? "bg-brand text-white" : "text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
                   <ListIcon />
@@ -310,13 +310,13 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <img
                 src={winner.image}
                 alt=""
-                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-brand-light"
+                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-consensus/50"
               />
             )}
-            <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-brand-light text-2xl shadow-sm">
+            <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-2xl shadow-sm">
               🎉
             </div>
-            <div className="relative mt-2 text-4xl font-semibold text-zinc-950">{winner?.name || "Winner"}</div>
+            <div className="relative mt-2 text-4xl font-semibold text-brand">{winner?.name || "Winner"}</div>
           </div>
         ) : (
           <div className="px-5 py-5 sm:px-6">
@@ -333,7 +333,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                     onDragEnd={() => setDragIndex(null)}
                     className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-colors ${
                       checked
-                        ? "border-brand bg-brand/10"
+                        ? "border-consensus bg-consensus/10"
                         : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
                     }`}
                   >
@@ -392,7 +392,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 type="button"
                 onClick={onConfirm}
                 disabled={!canConfirm}
-                className="rounded-full bg-zinc-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+                className="rounded-full bg-consensus px-5 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50 glow-consensus"
               >
                 Confirm
               </button>
@@ -403,7 +403,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 onClick={onShareWinner}
                 title="Share winner"
                 aria-label="Share winner"
-                className="inline-grid h-10 w-10 place-items-center rounded-full bg-zinc-700 text-white transition-colors hover:bg-zinc-800"
+                className="inline-grid h-10 w-10 place-items-center rounded-full bg-consensus text-brand-dark transition-colors hover:bg-consensus-dark glow-consensus"
               >
                 <ShareIcon />
               </button>
@@ -413,7 +413,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <button
               type="button"
               onClick={onReturnToList}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               <ReturnIcon />
               Return to list
@@ -424,7 +424,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   type="button"
                   onClick={onUndo}
                   disabled={!canUndo}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                 >
                   <UndoIcon />
                   Undo
@@ -433,7 +433,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   type="button"
                   onClick={onReset}
                   disabled={busy}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                 >
                   <ResetIcon />
                   Reset list
@@ -475,7 +475,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <button
                 type="button"
                 onClick={() => setInfoItem(null)}
-                className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"
               >
                 Close
               </button>

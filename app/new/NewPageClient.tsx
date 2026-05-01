@@ -885,7 +885,7 @@ export default function NewPageClient() {
                         <img src={book.thumbnail} alt={book.title} className="w-10 h-14 object-cover rounded" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-[#F8F4FF] truncate">{book.title}</div>
+                        <div className="font-medium text-[#F8F9FF] truncate">{book.title}</div>
                         {book.authors && book.authors.length > 0 && <div className="text-xs text-neutral-300 truncate">{book.authors.join(", ")}</div>}
                       </div>
                     </button>
@@ -1026,7 +1026,7 @@ export default function NewPageClient() {
                       <img src={track.albumArt} alt={track.name} className="w-10 h-10 object-cover rounded" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-[#F8F4FF] truncate">{track.name}</div>
+                      <div className="font-medium text-[#F8F9FF] truncate">{track.name}</div>
                       {track.artists && track.artists.length > 0 && <div className="text-xs text-neutral-300 truncate">{track.artists.join(", ")}</div>}
                     </div>
                   </button>

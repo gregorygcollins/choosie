@@ -16,7 +16,7 @@ export async function GET() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#E6D7FF',
+          background: '#F8F9FF',
         }}
       >
         {/* Logo - dark rounded square with custom checkmark */}
@@ -42,7 +42,7 @@ export async function GET() {
           >
             <path
               d="M40 85 L68 113 L120 60"
-              stroke="#E6D7FF"
+              stroke="#F8F9FF"
               strokeWidth={18}
               strokeLinecap="round"
               strokeLinejoin="round"

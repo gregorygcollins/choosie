@@ -202,7 +202,7 @@ export default function ViewListPage() {
               ))}
             </ol>
             <div className="flex gap-2 mt-4">
-              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 w-full">Done</button>
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark w-full">Done</button>
             </div>
           </div>
         </div>
@@ -438,7 +438,7 @@ export default function ViewListPage() {
           <p className="text-xl mb-4">List not found 😢</p>
           <button
             onClick={() => router.push("/new")}
-            className="rounded-full bg-zinc-700 px-5 py-2 font-semibold text-white hover:bg-zinc-800 transition-colors"
+            className="rounded-full bg-brand px-5 py-2 font-semibold text-white hover:bg-brand-dark transition-colors"
           >
             Create a new one
           </button>
@@ -465,7 +465,7 @@ export default function ViewListPage() {
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}
-                  className="aspect-square rounded-xl bg-zinc-700 text-white font-semibold text-lg hover:bg-zinc-800 transition-all hover:scale-105 shadow-md"
+                  className="aspect-square rounded-xl bg-brand text-white font-semibold text-lg hover:bg-brand-dark transition-all hover:scale-105 shadow-md"
                 >
                   {n}
                 </button>
@@ -473,7 +473,7 @@ export default function ViewListPage() {
             </div>
             <button
               onClick={() => setShowParticipantModal(false)}
-              className="w-full rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
+              className="w-full rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
             >
               Cancel
             </button>
@@ -509,7 +509,7 @@ export default function ViewListPage() {
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 w-full">Done</button>
+              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark w-full">Done</button>
             </div>
           </div>
         </div>
@@ -703,19 +703,19 @@ export default function ViewListPage() {
           <div className="flex gap-3">
             <button
               onClick={() => handleNarrowClick("in-person")}
-              className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
+              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
             >
               Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
+              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
             >
               Narrow virtually
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
-              className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
+              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
             >
               Edit list
             </button>
@@ -793,7 +793,7 @@ export default function ViewListPage() {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={closePreview}
-                  className="rounded-full bg-zinc-700 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/40"
                 >
                   Close
                 </button>

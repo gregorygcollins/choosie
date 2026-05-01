@@ -95,7 +95,7 @@ export default function ListsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center p-8">
         <div className="text-center">
-          <h1 className="mb-4 text-2xl font-semibold text-black dark:text-white">
+          <h1 className="mb-4 text-2xl font-semibold text-brand">
             No lists yet
           </h1>
           <p className="mb-8 text-zinc-600 dark:text-zinc-400">
@@ -127,12 +127,12 @@ export default function ListsPage() {
       
       <div className="mx-auto max-w-3xl">
         {usedLocalFallback && (
-          <div className="mb-4 rounded-lg border border-[#C9B3FF] bg-[#F4EDFF] text-brand-dark px-4 py-3 text-sm">
+          <div className="mb-4 rounded-lg border border-[#DDE6F3] bg-[#F8F9FF] text-brand-dark px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
           </div>
         )}
         <div className="mb-8 flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold text-black dark:text-white">
+          <h1 className="text-2xl font-semibold text-brand">
             My Lists
           </h1>
           <Link
@@ -172,7 +172,7 @@ export default function ListsPage() {
               }}
             >
               <div>
-                <h2 className="font-medium text-black dark:text-white">
+                <h2 className="font-medium text-brand">
                   {list.title}
                 </h2>
                 <div className="mt-1 flex gap-4 text-sm text-zinc-500">

@@ -392,7 +392,7 @@ export default function ListForm({
                       <div className="w-10 h-14 rounded bg-[#373737] flex items-center justify-center text-neutral-200 text-xs">🎬</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-[#F8F4FF] truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                      <div className="font-medium text-[#F8F9FF] truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
                       {m.overview && <div className="text-xs text-neutral-300 truncate">{m.overview}</div>}
                     </div>
                   </button>

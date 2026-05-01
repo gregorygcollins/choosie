@@ -29,7 +29,7 @@ export const metadata = {
         url: "https://choosie-seven.vercel.app/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Choosie logo on lilac background",
+        alt: "Choosie logo",
       },
     ],
     locale: "en_US",
@@ -43,12 +43,13 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon-v4.ico", sizes: "16x16 32x32 48x48 64x64 128x128 256x256", type: "image/x-icon" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48 64x64", type: "image/x-icon" },
+      { url: "/choosie-icon-512.png", sizes: "512x512", type: "image/png" },
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
     ]
   },
   manifest: "/site.webmanifest",
-  themeColor: "#E6D7FF"
+  themeColor: "#1A365D"
 };
 
 export default function RootLayout({

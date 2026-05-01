@@ -10,7 +10,7 @@ export default function PricingPage() {
           <li>Priority improvements</li>
         </ul>
         <div className="mt-6">
-          <a href="/account" className="rounded-full bg-zinc-700 px-4 py-2 font-semibold text-white hover:bg-zinc-800">Upgrade on Account</a>
+          <a href="/account" className="rounded-full bg-brand px-4 py-2 font-semibold text-white hover:bg-brand-dark">Upgrade on Account</a>
         </div>
       </div>
     </main>

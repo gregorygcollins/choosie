@@ -36,7 +36,7 @@ export default function NewPage() {
       <div className="mx-auto max-w-3xl">
         {/* Hero invitation */}
   <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
-          <h1 className="text-3xl font-bold text-black sm:text-4xl">
+          <h1 className="text-3xl font-bold text-brand sm:text-4xl">
             Build your{" "}
             <span
               className={`${current.color} transition-all duration-700 ease-in-out inline-block ${
