@@ -6,26 +6,26 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 const walkthrough = [
   {
     eyebrow: "Build",
-    title: "If you're into it, so are other people.",
+    title: "If you're into it, so others are too.",
     body: "Make a list of the movies you want to watch with your group.",
     phone: <BuildPhone />,
   },
   {
     eyebrow: "Invite",
-    title: "Choose how your group narrows.",
-    body: "Run it in person, or share a virtual link so everyone can claim a role and take their turn.",
+    title: "Start narrowing.",
+    body: "Narrow your list in person, or share a virtual link.",
     phone: <InvitePhone />,
   },
   {
     eyebrow: "Narrow",
-    title: "Take turns narrowing.",
-    body: "Programmer, Selector, and Decider steps prevent endless debate and make each round clear.",
+    title: "Everyone takes a turn.",
+    body: "Eliminate compromise, scrolling, and endless debate.",
     phone: <NarrowPhone />,
   },
   {
     eyebrow: "Decide",
     title: "Uncover your shared interest.",
-    body: "Choosie celebrates the final pick and gives the Decider a simple way to share it with the group.",
+    body: "Choosie reveals the group's decision. Enjoy!",
     phone: <WinnerPhone />,
   },
 ];
