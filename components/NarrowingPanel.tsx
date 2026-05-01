@@ -197,6 +197,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const role = getRoleName(participantCount + 1, roundIndex);
+  const participantRole = getRoleName(participantCount + 1, participantIndex);
   const activeParticipantIndex = roundIndex % Math.max(1, participantCount);
   const isVirtualWaiting = mode === "virtual" && participantIndex !== activeParticipantIndex && !winnerId;
   const winner = winnerId ? items.find((item) => item.id === winnerId) : null;
@@ -207,7 +208,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
   const itemGridClass = view === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
-  const actionText = role.role === "Decider" ? "Choosie your movie." : `Choosie ${target} movies.`;
+  const displayedRole = isVirtualWaiting ? participantRole : role;
+  const displayedTarget = isVirtualWaiting ? plan[participantIndex] ?? target : target;
+  const displayedRound = isVirtualWaiting ? participantIndex : roundIndex;
+  const actionText = displayedRole.role === "Decider" ? "Choosie your movie." : `Choosie ${displayedTarget} movies.`;
 
   function onDragStart(event: React.DragEvent, index: number) {
     setDragIndex(index);
@@ -250,12 +254,12 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               </h1>
               {!winner && (
                 <p className="mt-1 text-sm text-zinc-500">
-                  {role.emoji} {role.role}'s turn
+                  {displayedRole.emoji} {displayedRole.role}'s turn
                 </p>
               )}
             </div>
             <div className="rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-700">
-              Round {Math.min(roundIndex + 1, plan.length)} of {plan.length}
+              Round {Math.min(displayedRound + 1, plan.length)} of {plan.length}
             </div>
           </div>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
