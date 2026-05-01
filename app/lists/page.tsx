@@ -16,6 +16,78 @@ function formatDate(isoString: string) {
   });
 }
 
+function ModuleIcon({ module }: { module: string }) {
+  const commonProps = {
+    className: "h-4 w-4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    viewBox: "0 0 24 24",
+    "aria-hidden": true,
+  };
+
+  if (module === "books") {
+    return (
+      <svg {...commonProps}>
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+      </svg>
+    );
+  }
+
+  if (module === "food") {
+    return (
+      <svg {...commonProps}>
+        <path d="M4 3v7" />
+        <path d="M8 3v7" />
+        <path d="M4 7h4" />
+        <path d="M6 10v11" />
+        <path d="M17 3c1.7 1.7 2.5 3.7 2.5 6 0 2.2-.8 4-2.5 5.5V21" />
+      </svg>
+    );
+  }
+
+  if (module === "music") {
+    return (
+      <svg {...commonProps}>
+        <path d="M9 18V5l12-2v13" />
+        <circle cx="6" cy="18" r="3" />
+        <circle cx="18" cy="16" r="3" />
+      </svg>
+    );
+  }
+
+  if (module === "anything") {
+    return (
+      <svg {...commonProps}>
+        <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M7 5v14" />
+      <path d="M17 5v14" />
+      <path d="M3 9h4" />
+      <path d="M17 9h4" />
+      <path d="M3 15h4" />
+      <path d="M17 15h4" />
+    </svg>
+  );
+}
+
+function getModuleLabel(module: string) {
+  if (module === "books") return "Books";
+  if (module === "food") return "Food";
+  if (module === "music") return "Music";
+  if (module === "anything") return "Anything";
+  return "Movies";
+}
+
 export default function ListsPage() {
   const router = useRouter();
   const [lists, setLists] = useState<ChoosieList[]>([]);
@@ -152,10 +224,7 @@ export default function ListsPage() {
                   : list.id?.startsWith("food-") ? "food"
                   : list.id?.startsWith("anything-") ? "anything"
                   : "movies");
-            const listTypeName = derivedModule === "books" ? "booklist" :
-                                 derivedModule === "food" ? "foodlist" :
-                                 derivedModule === "music" ? "musiclist" :
-                                   derivedModule === "anything" ? "anythinglist" : "watchlist";
+            const moduleLabel = getModuleLabel(derivedModule);
             
             return (
             <div
@@ -172,9 +241,23 @@ export default function ListsPage() {
               }}
             >
               <div>
-                <h2 className="font-medium text-brand">
-                  {list.title}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10"
+                    title={`${moduleLabel} list`}
+                    aria-label={`${moduleLabel} list`}
+                  >
+                    <ModuleIcon module={derivedModule} />
+                  </span>
+                  <div>
+                    <h2 className="font-medium text-brand">
+                      {list.title}
+                    </h2>
+                    <span className="mt-1 inline-flex rounded-full bg-consensus/10 px-2 py-0.5 text-xs font-semibold text-brand">
+                      {moduleLabel}
+                    </span>
+                  </div>
+                </div>
                 <div className="mt-1 flex gap-4 text-sm text-zinc-500">
                   <span>{list.items.length} items</span>
                   <span>Created {formatDate(list.createdAt)}</span>
