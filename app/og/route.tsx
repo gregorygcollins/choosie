@@ -2,9 +2,11 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-export async function GET() {
+export async function GET(req: Request) {
   const width = 1200;
   const height = 630;
+  const origin = new URL(req.url).origin;
+  const logoUrl = `${origin}/choosie-logo-badge.png`;
 
   return new ImageResponse(
     (
@@ -13,61 +15,32 @@ export async function GET() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          gap: 56,
+          padding: '72px 88px',
           background: '#F8F9FF',
         }}
       >
-        {/* Logo - dark rounded square with custom checkmark */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 280,
-          height: 280,
-          background: '#12130F',
-          borderRadius: 70,
-          marginBottom: 40,
-          position: 'relative',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.15)'
-        }}>
-          {/* Inline SVG checkmark for reliable rendering in next/og */}
-          <svg
-            width={160}
-            height={160}
-            viewBox="0 0 160 160"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M40 85 L68 113 L120 60"
-              stroke="#F8F9FF"
-              strokeWidth={18}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div style={{
-          fontSize: 72,
-          color: '#12130F',
-          fontWeight: 700,
-          letterSpacing: -2,
-          marginBottom: 16,
-        }}>
-          Choosie
-        </div>
-        <div style={{
-          fontSize: 36,
-          color: '#3A3A38',
-          fontWeight: 400,
-          maxWidth: 900,
-          textAlign: 'center',
-          lineHeight: 1.3,
-        }}>
-          Do Only What You Love—Together.
+        <img
+          src={logoUrl}
+          width={300}
+          height={312}
+          alt="Choosie"
+          style={{
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 14px 36px rgba(26, 54, 93, 0.18))',
+          }}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 680 }}>
+          <div style={{ fontSize: 76, color: '#1A365D', fontWeight: 800, lineHeight: 1 }}>
+            Choosie
+          </div>
+          <div style={{ marginTop: 22, fontSize: 38, color: '#31445F', fontWeight: 500, lineHeight: 1.25 }}>
+            Do Only What You Love, Together.
+          </div>
+          <div style={{ marginTop: 28, fontSize: 28, color: '#00AFA3', fontWeight: 700 }}>
+            Turn reluctant consensus into passionate overlap.
+          </div>
         </div>
       </div>
     ),
