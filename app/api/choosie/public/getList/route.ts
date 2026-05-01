@@ -21,7 +21,7 @@ function validateToken(token: string): { valid: boolean; expired: boolean } {
   return { valid: true, expired };
 }
 
-// Public list fetch via participant token OR share token (future)
+// Public list fetch via participant token OR share token.
 // Body: { listId: string, token?: string }
 
 async function findList(listId: string) {
@@ -66,6 +66,13 @@ export async function POST(req: NextRequest) {
     const tasteJson: any = list.tasteJson || {};
     const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
 
+    const share = tasteJson.share || {};
+    const hasShareAccess =
+      Boolean(token) &&
+      share.visibility === "link" &&
+      typeof share.token === "string" &&
+      share.token === token;
+
     let matched: any = null;
     if (token && invitees.length) {
       for (const inv of invitees) {
@@ -79,6 +86,13 @@ export async function POST(req: NextRequest) {
           break;
         }
       }
+    }
+
+    if (!matched && !hasShareAccess) {
+      return withCORS(
+        NextResponse.json({ ok: false, error: "Invalid or missing share token" }, { status: 403 }),
+        origin
+      );
     }
 
     const payload = {

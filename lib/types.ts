@@ -10,6 +10,9 @@ export type ChoosieList = {
   title: string;
   items: ChoosieItem[];
   createdAt: string;
+  share?: {
+    visibility: "private" | "link";
+  };
   winnerId?: string;
   // (Preferences removed in v1 cleanup)
   narrowers?: number;

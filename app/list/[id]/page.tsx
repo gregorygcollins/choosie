@@ -31,6 +31,9 @@ export default function ViewListPage() {
   // Modal for showing generated narrowing links
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [generatedLinks, setGeneratedLinks] = useState<{ url: string; role: string }[]>([]);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const [shareLoading, setShareLoading] = useState(false);
   const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
   const [pro, setPro] = useState<boolean>(isPremium(session));
@@ -172,41 +175,6 @@ export default function ViewListPage() {
       })();
     }
   };
-
-
-      {/* Show generated narrowing links for each participant (simulate sending) */}
-      {showLinksModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowLinksModal(false)}>
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">Share these links with participants</h2>
-            <p className="text-sm text-zinc-600 mb-6 text-center">Each participant should use their unique link below to join the narrowing process.</p>
-            <ol className="space-y-3 mb-4">
-              {generatedLinks.map((link, i) => (
-                <li key={i} className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1">
-                  <span className="font-semibold mb-1">{link.role}</span>
-                  <div className="flex items-center gap-2">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{link.url}</a>
-                    <button
-                      type="button"
-                      title="Copy link"
-                      aria-label="Copy link"
-                      onClick={() => {
-                        navigator.clipboard.writeText(link.url);
-                      }}
-                      className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="flex gap-2 mt-4">
-              <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark w-full">Done</button>
-            </div>
-          </div>
-        </div>
-      )}
 
 
   useEffect(() => {
@@ -421,6 +389,41 @@ export default function ViewListPage() {
     }
   }
 
+  async function handleShareList() {
+    if (!list) return;
+    setShareLoading(true);
+
+    try {
+      const res = await fetch("/api/choosie/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: list.id, action: "enable" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok || !data?.share?.url) {
+        throw new Error(data?.error || "Unable to create share link");
+      }
+
+      setShareUrl(data.share.url);
+      setShowShareModal(true);
+      try {
+        await navigator.clipboard.writeText(data.share.url);
+        toast("Share link copied", "success");
+      } catch {
+        toast("Share link ready", "success");
+      }
+    } catch (error: any) {
+      const message =
+        error?.message === "Authentication required"
+          ? "Sign in to share this list."
+          : error?.message || "Could not create a share link.";
+      toast(message, "error");
+    } finally {
+      setShareLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -510,6 +513,45 @@ export default function ViewListPage() {
             </div>
             <div className="flex gap-2 mt-4">
               <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark w-full">Done</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowShareModal(false)}>
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-semibold mb-2 text-center text-brand">Share this list</h2>
+            <p className="text-sm text-zinc-600 mb-6 text-center">
+              Anyone with this link can view a read-only copy of your list.
+            </p>
+            <div className="rounded-xl border border-zinc-200 bg-brand-light p-3">
+              <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-brand underline">
+                {shareUrl}
+              </a>
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast("Share link copied", "success");
+                  } catch {
+                    toast("Copy failed", "error");
+                  }
+                }}
+                className="flex-1 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+              >
+                Copy link
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowShareModal(false)}
+                className="flex-1 rounded-full bg-zinc-100 px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-200"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
@@ -718,6 +760,20 @@ export default function ViewListPage() {
               className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
             >
               Edit list
+            </button>
+            <button
+              onClick={handleShareList}
+              disabled={shareLoading}
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="m8.59 13.51 6.83 3.98" />
+                <path d="m15.41 6.51-6.82 3.98" />
+              </svg>
+              {shareLoading ? "Sharing..." : "Share"}
             </button>
           </div>
 

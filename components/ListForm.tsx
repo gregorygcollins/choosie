@@ -22,6 +22,9 @@ export type ChoosieList = {
   createdAt: string;
   // Module type for different list types (movies, books, recipes, etc.)
   moduleType?: string;
+  share?: {
+    visibility: "private" | "link";
+  };
   // final outcome (optional)
   winnerId?: string;
   // Optional taste preferences (MVP for movies)
@@ -341,7 +344,7 @@ export default function ListForm({
       </div>
 
       {/* Add items panel */}
-      <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+      <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${sugsOpen ? "z-[80]" : "z-10"}`}>
         <label className="block text-sm font-medium text-neutral-700 mb-2">Add movies</label>
         <div className="relative">
           <div className="flex gap-3">
@@ -369,7 +372,7 @@ export default function ListForm({
           {/* suggestions dropdown */}
           <div ref={sugsRef} className="relative">
             {sugsOpen && (sugs.length > 0 || sugsLoading) && (
-              <div className="absolute z-[1050] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in bg-white shadow-2xl rounded-xl border border-zinc-200" style={{ pointerEvents: 'auto' }}>
+              <div className="absolute z-[9999] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in bg-white shadow-2xl rounded-xl border border-zinc-200" style={{ pointerEvents: 'auto' }}>
                 {sugsLoading && (
                   <div className="px-3 py-2 text-sm text-neutral-300">Searching…</div>
                 )}

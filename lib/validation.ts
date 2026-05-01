@@ -30,6 +30,11 @@ export const getListSchema = z.object({
   listId: z.string().min(1).max(50),
 });
 
+export const shareListSchema = z.object({
+  listId: z.string().min(1).max(50),
+  action: z.enum(["enable", "disable"]).default("enable"),
+});
+
 export const finalizeWatchlistSchema = z.object({
   listId: z.string().min(1).max(50),
   winnerId: z.string().min(1).max(50).optional(),

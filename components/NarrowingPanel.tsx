@@ -241,17 +241,17 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
       <section className="rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div className="border-b border-zinc-200 px-5 py-4 sm:px-6">
-          <div className={`flex flex-col gap-3 ${winner ? "items-center text-center" : "sm:flex-row sm:items-start sm:justify-between"}`}>
+          <div className="flex flex-col items-center gap-3 text-center">
             <div>
-              <p className="text-sm font-semibold text-zinc-500">
-                {listTitle}
-              </p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
               </p>
-              <h1 className="mt-1 text-3xl font-semibold text-brand">
-                {winner ? "And the winner is..." : actionText}
+              <h1 className="mt-1 text-3xl font-semibold text-brand sm:text-4xl">
+                {listTitle}
               </h1>
+              <p className="mt-2 text-lg font-semibold text-zinc-700 sm:text-xl">
+                {winner ? "And the winner is..." : actionText}
+              </p>
               {!winner && (
                 <p className="mt-1 text-sm text-zinc-500">
                   {displayedRole.emoji} {displayedRole.role}'s turn

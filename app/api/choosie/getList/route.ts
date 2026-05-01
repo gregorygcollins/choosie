@@ -95,6 +95,10 @@ export async function POST(req: NextRequest) {
         winnerId,
         progress: state,
         participants: participantCount,
+        share:
+          tasteJson.share?.visibility === "link"
+            ? { visibility: "link" }
+            : { visibility: "private" },
       },
     });
 

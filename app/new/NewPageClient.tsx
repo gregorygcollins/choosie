@@ -850,7 +850,7 @@ export default function NewPageClient() {
             />
           </div>
           {/* Add items panel */}
-          <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${bookSugs.length > 0 || bookSugsLoading ? "z-[80]" : "z-10"}`}>
             <label className="block text-sm font-medium text-neutral-700 mb-2">Add books</label>
             <div className="relative">
               <div className="flex gap-3">
@@ -872,7 +872,7 @@ export default function NewPageClient() {
               </div>
               {/* Book suggestions dropdown */}
               {bookSugs.length > 0 && (
-                <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+                <div className="absolute z-[9999] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                   {bookSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                   {bookSugs.map((book) => (
                     <button
@@ -991,7 +991,7 @@ export default function NewPageClient() {
           />
         </div>
         {/* Add items panel */}
-        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${musicSugs.length > 0 || musicSugsLoading ? "z-[80]" : "z-10"}`}>
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add songs</label>
           <div className="relative">
             <div className="flex gap-3">
@@ -1013,7 +1013,7 @@ export default function NewPageClient() {
             </div>
             {/* Music suggestions dropdown */}
             {musicSugs.length > 0 && (
-              <div className="absolute z-50 mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
+              <div className="absolute z-[9999] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                 {musicSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                 {musicSugs.map((track) => (
                   <button
