@@ -134,7 +134,7 @@
 
 ## Notes
 
-- Database migrations run automatically on each Vercel deployment via build script
+- Database migrations are run explicitly with `npm run prisma:deploy`; Vercel builds only run `next build` to avoid Prisma advisory-lock timeouts.
 - Authentication currently works on https://choosie-seven.vercel.app
 - Preview deployments redirect to canonical domain to prevent auth issues
 - Free tier users get basic features, Pro users get unlimited lists + advanced features
