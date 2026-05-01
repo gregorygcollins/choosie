@@ -7,7 +7,7 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: "If you're into it, others are too.",
-    body: "Make a list of the movies you'd love to want to watch with your group.",
+    body: "Make a list of the movies you want to watch with your group.",
     phone: <BuildPhone />,
   },
   {
@@ -83,6 +83,22 @@ export default function Home() {
               </div>
             </article>
           ))}
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-brand/10 bg-white p-6 text-center shadow-soft">
+          <div className="mx-auto mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
+            Pro
+          </div>
+          <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
+            Upgrade to Pro to unlock book lists, food lists, music lists, and anything lists.
+          </p>
+          <Link
+            href="/pricing"
+            className="mt-5 inline-flex rounded-full bg-consensus px-5 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark"
+          >
+            Explore Pro
+          </Link>
         </div>
       </section>
     </main>
