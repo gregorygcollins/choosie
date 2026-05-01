@@ -10,27 +10,27 @@
 
 /* Direct color overrides for Tailwind classes */
 .bg-brand {
-  background-color: #4a5568 !important;
+  background-color: #7C5BB8 !important;
 }
 
 .bg-brand:hover {
-  background-color: #2d3748 !important;
+  background-color: #4B2E83 !important;
 }
 
 /* Base styles */
 :root {
-  --charcoal: #4a5568;
-  --charcoal-light: #cbd5e0;
-  --charcoal-dark: #2d3748;
+  --charcoal: #7C5BB8;
+  --charcoal-light: #E6D7FF;
+  --charcoal-dark: #4B2E83;
 }
 
 body {
   min-height: 100vh;
   font-family: 'Inter', 'Nunito', system-ui, Arial, Helvetica, sans-serif;
-  /* Warm airy neutral background */
+  /* Airy lilac background */
   background:
-    radial-gradient(circle at 30% 20%, rgba(250, 248, 242, 0.9), rgba(248, 245, 238, 0.6) 40%, rgba(245, 240, 232, 0.3) 70%),
-    linear-gradient(180deg, #F8F5EE 0%, #EDE9E3 100%);
+    radial-gradient(circle at 30% 20%, rgba(246, 240, 255, 0.95), rgba(230, 215, 255, 0.62) 42%, rgba(216, 195, 255, 0.28) 72%),
+    linear-gradient(180deg, #F8F4FF 0%, #E6D7FF 100%);
   color: #2B2B2B;
 }
 
@@ -65,8 +65,8 @@ body {
 .panel-tier-3 { box-shadow: 0 4px 10px rgba(43,43,43,0.07), 0 14px 36px rgba(43,43,43,0.14); }
 
 /* Buttons */
-.btn-amber {
-  background: #F8F5EE;
+.btn-lilac {
+  background: #E6D7FF;
   color: #2B2B2B;
   font-weight: 600;
   border-radius: 9999px;
@@ -74,12 +74,12 @@ body {
   box-shadow: 0 2px 4px rgba(43, 43, 43, 0.15);
   transition: all .18s ease;
 }
-.btn-amber:hover { background: #EFEBE5; box-shadow: 0 4px 10px rgba(43, 43, 43, 0.20); transform: translateY(-1px); color:#2B2B2B; }
-.btn-amber:active { transform: translateY(1px); }
+.btn-lilac:hover { background: #D8C3FF; box-shadow: 0 4px 10px rgba(75, 46, 131, 0.20); transform: translateY(-1px); color:#2B2B2B; }
+.btn-lilac:active { transform: translateY(1px); }
 
 .btn-charcoal {
   background: #2B2B2B;
-  color: #F8F5EE;
+  color: #F8F4FF;
   font-weight: 600;
   border-radius: 12px;
   padding: 0.65rem 1.15rem;
@@ -99,12 +99,12 @@ body {
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .input-soft::placeholder { color: #7A7A7A; }
-.input-soft:focus { outline: none; border-color: #E6B85C; box-shadow: 0 0 0 3px rgba(230, 184, 92, 0.35); }
+.input-soft:focus { outline: none; border-color: #A78BFA; box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.35); }
 
 /* Suggestion dropdown */
 .suggestion-menu {
   background: #2B2B2B;
-  color: #F8F5EE;
+  color: #F8F4FF;
   border: 1px solid #3C3C3C;
   border-radius: 14px;
   box-shadow: 0 6px 24px -4px rgba(43,43,43,0.5);

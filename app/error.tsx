@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { LogoMark } from '../components/LogoMark'
 
 export default function Error({
   error,
@@ -20,6 +21,7 @@ export default function Error({
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-brand-light p-4">
       <div className="max-w-md w-full text-center space-y-6">
+        <LogoMark decorative className="mx-auto h-16 w-16 rounded-2xl opacity-70 shadow-sm" />
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-zinc-900">Something went wrong</h1>
           <p className="text-lg text-zinc-600">

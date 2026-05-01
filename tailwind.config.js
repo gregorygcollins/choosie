@@ -8,9 +8,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: '#4a5568', // smoky charcoal
-        'brand-light': '#cbd5e0', // light charcoal
-        'brand-dark': '#2d3748', // darker charcoal
+        brand: '#7C5BB8', // lilac purple
+        'brand-light': '#E6D7FF', // lilac
+        'brand-dark': '#4B2E83', // deep lilac
       },
       fontFamily: {
         cursive: ['Pacifico', 'cursive'],

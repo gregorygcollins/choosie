@@ -63,7 +63,7 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
             ))}
           </select>
           {/* Custom chevron */}
-          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-neutral-500 peer-focus:text-amber-400">
+          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-neutral-500 peer-focus:text-brand">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

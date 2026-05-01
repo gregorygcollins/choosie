@@ -8,7 +8,7 @@ const LIST_TYPES = [
   { word: "book", color: "text-blue-500" },
   { word: "music", color: "text-purple-500" },
   { word: "food", color: "text-emerald-500" },
-  { word: "anything", color: "text-amber-500" },
+  { word: "anything", color: "text-brand" },
 ];
 
 // Calculate the maximum word length for consistent spacing

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import auth, { getSession, signInDemo, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Pacifico } from "next/font/google";
+import { LogoMark } from "./LogoMark";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
@@ -47,8 +48,11 @@ export default function Nav() {
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-4">
-        <Link href="/" className={`${pacifico.className} text-lg font-semibold text-brand`}>
-          Choosie
+        <Link href="/" className="flex items-center gap-2">
+          <LogoMark decorative className="h-7 w-7 rounded-md shadow-sm" />
+          <span className={`${pacifico.className} text-lg font-semibold text-brand`}>
+            Choosie
+          </span>
         </Link>
 
         {/* Mobile quick nav */}
@@ -78,7 +82,7 @@ export default function Nav() {
         ) : activeUser ? (
           <>
             {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
-              <span className="rounded-full bg-amber-300 px-2 py-1 text-xs font-semibold text-black">
+              <span className="rounded-full bg-brand-light px-2 py-1 text-xs font-semibold text-brand-dark">
                 Pro
               </span>
             )}
@@ -97,7 +101,7 @@ export default function Nav() {
             <button onClick={() => handleDemoSignIn(false)} className="text-sm text-zinc-500">
               Demo
             </button>
-            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-amber-300 px-2 py-1 text-xs font-semibold text-black">
+            <button onClick={() => handleDemoSignIn(true)} className="rounded-full bg-brand-light px-2 py-1 text-xs font-semibold text-brand-dark">
               Try Pro
             </button>
           </div>

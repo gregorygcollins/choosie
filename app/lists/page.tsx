@@ -7,6 +7,7 @@ import { loadLists, removeList } from "@/lib/storage";
 import type { ChoosieList } from "@/components/ListForm";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { toast } from "@/components/Toast";
+import { LogoMark } from "@/components/LogoMark";
 
 function formatDate(isoString: string) {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -95,6 +96,7 @@ export default function ListsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center p-8">
         <div className="text-center">
+          <LogoMark decorative className="mx-auto mb-5 h-16 w-16 rounded-2xl opacity-70 shadow-sm" />
           <h1 className="mb-4 text-2xl font-semibold text-black dark:text-white">
             No lists yet
           </h1>
@@ -127,7 +129,7 @@ export default function ListsPage() {
       
       <div className="mx-auto max-w-3xl">
         {usedLocalFallback && (
-          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm">
+          <div className="mb-4 rounded-lg border border-[#C9B3FF] bg-[#F4EDFF] text-brand-dark px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
           </div>
         )}

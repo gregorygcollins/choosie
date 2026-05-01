@@ -3,8 +3,8 @@
   "short_name": "Choosie",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F6EEE5",
-  "theme_color": "#12130F",
+  "background_color": "#E6D7FF",
+  "theme_color": "#E6D7FF",
   "icons": [
     {
       "src": "/og-image.png",

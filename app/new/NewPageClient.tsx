@@ -863,7 +863,7 @@ export default function NewPageClient() {
                 />
                 <button
                   onClick={addBookItem}
-                  className="btn-amber px-5 py-2"
+                  className="btn-lilac px-5 py-2"
                   title="Add book"
                   aria-label="Add book"
                 >
@@ -885,7 +885,7 @@ export default function NewPageClient() {
                         <img src={book.thumbnail} alt={book.title} className="w-10 h-14 object-cover rounded" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-[#F8F5EE] truncate">{book.title}</div>
+                        <div className="font-medium text-[#F8F4FF] truncate">{book.title}</div>
                         {book.authors && book.authors.length > 0 && <div className="text-xs text-neutral-300 truncate">{book.authors.join(", ")}</div>}
                       </div>
                     </button>
@@ -914,7 +914,7 @@ export default function NewPageClient() {
                     onDragOver={onBookDragOver}
                     onDrop={(e) => onBookDrop(e, idx)}
                   >
-                    <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                     {it.image ? (
                       <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                     ) : (
@@ -1004,7 +1004,7 @@ export default function NewPageClient() {
               />
               <button
                 onClick={addMusicItem}
-                className="btn-amber px-5 py-2"
+                className="btn-lilac px-5 py-2"
                 title="Add song"
                 aria-label="Add song"
               >
@@ -1026,7 +1026,7 @@ export default function NewPageClient() {
                       <img src={track.albumArt} alt={track.name} className="w-10 h-10 object-cover rounded" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-[#F8F5EE] truncate">{track.name}</div>
+                      <div className="font-medium text-[#F8F4FF] truncate">{track.name}</div>
                       {track.artists && track.artists.length > 0 && <div className="text-xs text-neutral-300 truncate">{track.artists.join(", ")}</div>}
                     </div>
                   </button>
@@ -1055,7 +1055,7 @@ export default function NewPageClient() {
                   onDragOver={onMusicDragOver}
                   onDrop={(e) => onMusicDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                   {it.image ? (
                     <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                   ) : (
@@ -1135,7 +1135,7 @@ export default function NewPageClient() {
             />
             <button
               onClick={addFoodItem}
-              className="btn-amber px-5 py-2"
+              className="btn-lilac px-5 py-2"
               title="Add dish"
               aria-label="Add dish"
             >
@@ -1163,7 +1163,7 @@ export default function NewPageClient() {
                   onDragOver={onFoodDragOver}
                   onDrop={(e) => onFoodDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                   {it.image ? (
                     <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                   ) : (
@@ -1243,7 +1243,7 @@ export default function NewPageClient() {
             />
             <button
               onClick={addAnythingItem}
-              className="btn-amber px-5 py-2"
+              className="btn-lilac px-5 py-2"
               title="Add item"
               aria-label="Add item"
             >
@@ -1271,7 +1271,7 @@ export default function NewPageClient() {
                   onDragOver={onAnythingDragOver}
                   onDrop={(e) => onAnythingDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                   <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
                   <div className="flex-1">
                     <div className="font-medium text-neutral-800">{it.title}</div>

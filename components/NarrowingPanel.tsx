@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getRoleName } from "@/lib/planner";
+import { LogoMark } from "@/components/LogoMark";
 
 type NarrowingItem = {
   id: string;
@@ -120,11 +121,11 @@ function ShareIcon() {
 function ConfettiBurst() {
   const pieces = [
     { className: "left-[8%] top-[14%] bg-brand", x: -12, delay: 0 },
-    { className: "left-[18%] top-[30%] bg-yellow-300", x: 10, delay: 90 },
+    { className: "left-[18%] top-[30%] bg-brand-light", x: 10, delay: 90 },
     { className: "left-[30%] top-[10%] bg-pink-400", x: -6, delay: 180 },
     { className: "left-[42%] top-[24%] bg-sky-400", x: 14, delay: 270 },
     { className: "right-[8%] top-[16%] bg-brand", x: 12, delay: 45 },
-    { className: "right-[20%] top-[32%] bg-yellow-300", x: -10, delay: 135 },
+    { className: "right-[20%] top-[32%] bg-brand-light", x: -10, delay: 135 },
     { className: "right-[32%] top-[12%] bg-pink-400", x: 8, delay: 225 },
     { className: "right-[44%] top-[26%] bg-sky-400", x: -14, delay: 315 },
   ];
@@ -164,7 +165,7 @@ function ConfettiBurst() {
         ✨
       </span>
       <div
-        className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-yellow-200/50 blur-2xl"
+        className="absolute left-1/2 top-8 h-16 w-16 -translate-x-1/2 rounded-full bg-brand-light/60 blur-2xl"
         style={{ animation: "choosie-winner-glow 1800ms ease-in-out infinite" }}
       />
     </div>
@@ -264,11 +265,16 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
           </div>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {!winner && (
-              <p className="text-sm text-zinc-600">
-                {isVirtualWaiting
-                  ? `Waiting for ${role.role} to choose ${target}.`
-                  : "Drag to reorder options, then choose what stays."}
-              </p>
+              <div className="flex items-center gap-2 text-sm text-zinc-600">
+                {isVirtualWaiting && (
+                  <LogoMark decorative className="h-7 w-7 rounded-md opacity-55 shadow-sm" />
+                )}
+                <p>
+                  {isVirtualWaiting
+                    ? `Waiting for ${role.role} to choose ${target}.`
+                    : "Drag to reorder options, then choose what stays."}
+                </p>
+              </div>
             )}
             {!winner && (
               <div className="inline-flex w-fit rounded-md border border-zinc-200 bg-white p-1">
@@ -308,10 +314,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <img
                 src={winner.image}
                 alt=""
-                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-yellow-200"
+                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-brand-light"
               />
             )}
-            <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-yellow-300 text-2xl shadow-sm">
+            <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-brand-light text-2xl shadow-sm">
               🎉
             </div>
             <div className="relative mt-2 text-4xl font-semibold text-zinc-950">{winner?.name || "Winner"}</div>

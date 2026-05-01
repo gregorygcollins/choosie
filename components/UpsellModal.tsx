@@ -51,7 +51,7 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
           <button
             disabled={busy}
             onClick={startCheckout}
-            className="rounded-full bg-amber-300 px-4 py-2 text-sm font-semibold text-black disabled:opacity-50"
+            className="rounded-full bg-brand-light px-4 py-2 text-sm font-semibold text-brand-dark disabled:opacity-50"
           >
             {busy ? "Starting…" : "Upgrade to Pro"}
           </button>

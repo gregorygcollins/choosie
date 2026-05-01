@@ -29,7 +29,7 @@ export const metadata = {
         url: "https://choosie-seven.vercel.app/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Choosie logo on warm ivory background",
+        alt: "Choosie logo on lilac background",
       },
     ],
     locale: "en_US",
@@ -48,7 +48,7 @@ export const metadata = {
     ]
   },
   manifest: "/site.webmanifest",
-  themeColor: "#12130F"
+  themeColor: "#E6D7FF"
 };
 
 export default function RootLayout({

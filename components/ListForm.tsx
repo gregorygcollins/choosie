@@ -359,7 +359,7 @@ export default function ListForm({
             />
             <button
               onClick={addItem}
-              className="btn-amber px-5 py-2"
+              className="btn-lilac px-5 py-2"
               title="Add movie"
               aria-label="Add movie"
             >
@@ -392,7 +392,7 @@ export default function ListForm({
                       <div className="w-10 h-14 rounded bg-[#373737] flex items-center justify-center text-neutral-200 text-xs">🎬</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-[#F8F5EE] truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
+                      <div className="font-medium text-[#F8F4FF] truncate">{m.title}{m.year ? ` (${m.year})` : ""}</div>
                       {m.overview && <div className="text-xs text-neutral-300 truncate">{m.overview}</div>}
                     </div>
                   </button>
@@ -423,7 +423,7 @@ export default function ListForm({
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
               >
-                <div className="w-7 h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
                 {it.image ? (
                   <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                 ) : (
