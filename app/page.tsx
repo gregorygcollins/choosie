@@ -6,8 +6,8 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 const walkthrough = [
   {
     eyebrow: "Build",
-    title: "Start with anything worth choosing.",
-    body: "Add the options your group is actually considering, then keep the list tidy before anyone votes.",
+    title: "What do YOU want to watch?",
+    body: "Make a list of the movies you want to watch with your group.",
     phone: <BuildPhone />,
   },
   {
@@ -57,7 +57,9 @@ export default function Home() {
       <section className="mx-auto max-w-6xl pb-20">
         <div className="mb-10 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-consensus">How it works</p>
-          <h2 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">A cleaner path to a group decision.</h2>
+          <h2 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
+            Turning reluctant consensus into <span className="text-consensus-dark">passionate overlap.</span>
+          </h2>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-4">
