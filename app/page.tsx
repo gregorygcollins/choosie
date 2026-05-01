@@ -7,13 +7,13 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: "If you're into it, others are too.",
-    body: "Make a list of the movies you want to watch with your group.",
+    body: "Make a list of the movies you'd love to want to watch with your group.",
     phone: <BuildPhone />,
   },
   {
     eyebrow: "Invite",
     title: "Start narrowing.",
-    body: "Narrow your list in person, or share a virtual link with your group.",
+    body: "Narrow your list in person or share a virtual link with your group.",
     phone: <InvitePhone />,
   },
   {
@@ -25,7 +25,7 @@ const walkthrough = [
   {
     eyebrow: "Decide",
     title: "Uncover your shared interest.",
-    body: "Choosie reveals the winner. Enjoy!",
+    body: "Enjoy the show!",
     phone: <WinnerPhone />,
   },
 ];
@@ -115,12 +115,13 @@ function BuildPhone() {
       <PhoneHeader title="Create list" />
       <div className="space-y-2 p-3">
         <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Film club</div>
-        {["City of God", "Under the Skin", "Out of Africa"].map((item, index) => (
+        {["The Odyssey", "Under the Skin", "Out of Africa"].map((item, index) => (
           <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-2 py-2 shadow-sm">
             <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[0.62rem] font-semibold text-white">{index + 1}</span>
             <span className="text-[0.68rem] font-semibold text-brand">{item}</span>
           </div>
         ))}
+        <div className="rounded-lg border border-dashed border-[#DDE6F3] bg-white/70 px-2 py-1.5 text-center text-[0.62rem] font-semibold text-slate-500">+ 9 more films</div>
         <div className="rounded-full bg-brand px-3 py-2 text-center text-[0.68rem] font-semibold text-white">Create list</div>
       </div>
     </PhoneFrame>
@@ -133,10 +134,10 @@ function InvitePhone() {
       <PhoneHeader title="Narrowing" />
       <div className="space-y-3 p-3">
         <div className="rounded-xl bg-white p-3 shadow-sm">
-          <div className="text-[0.72rem] font-bold text-brand">How are you choosing?</div>
+          <div className="text-[0.72rem] font-bold text-brand">How are you narrowing?</div>
           <div className="mt-3 space-y-2">
             <div className="rounded-full bg-brand px-3 py-2 text-center text-[0.65rem] font-semibold text-white">In person</div>
-            <div className="rounded-full bg-brand px-3 py-2 text-center text-[0.65rem] font-semibold text-white">Narrow virtually</div>
+            <div className="rounded-full bg-brand px-3 py-2 text-center text-[0.65rem] font-semibold text-white">Virtually</div>
           </div>
         </div>
         <div className="rounded-xl border border-[#DDE6F3] bg-white p-3">
@@ -155,7 +156,7 @@ function NarrowPhone() {
       <PhoneHeader title="Selector's turn" />
       <div className="space-y-2 p-3">
         <div className="text-[0.82rem] font-bold text-brand">Choosie 3 movies.</div>
-        {["City of God", "Under the Skin", "Out of Africa", "Moonstruck"].map((item, index) => {
+        {["Out of Africa", "City of God", "Focker-in-Law", "Moonstruck"].map((item, index) => {
           const selected = index < 3;
           return (
             <div
