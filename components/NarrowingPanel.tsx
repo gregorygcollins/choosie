@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { getRoleName } from "@/lib/planner";
-import { LogoMark } from "@/components/LogoMark";
 
 type NarrowingItem = {
   id: string;
@@ -265,16 +264,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
           </div>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {!winner && (
-              <div className="flex items-center gap-2 text-sm text-zinc-600">
-                {isVirtualWaiting && (
-                  <LogoMark decorative className="h-7 w-7 rounded-md opacity-55 shadow-sm" />
-                )}
-                <p>
-                  {isVirtualWaiting
-                    ? `Waiting for ${role.role} to choose ${target}.`
-                    : "Drag to reorder options, then choose what stays."}
-                </p>
-              </div>
+              <p className="text-sm text-zinc-600">
+                {isVirtualWaiting
+                  ? `Waiting for ${role.role} to choose ${target}.`
+                  : "Drag to reorder options, then choose what stays."}
+              </p>
             )}
             {!winner && (
               <div className="inline-flex w-fit rounded-md border border-zinc-200 bg-white p-1">

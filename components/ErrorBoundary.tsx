@@ -1,5 +1,4 @@
 import React from "react";
-import { LogoMark } from "./LogoMark";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -29,7 +28,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       return (
         <div className="p-6 text-center text-red-700">
-          <LogoMark decorative className="mx-auto mb-4 h-14 w-14 rounded-xl opacity-75" />
           <h2 className="text-xl font-bold mb-2">Something went wrong.</h2>
           <pre className="bg-red-50 p-2 rounded text-xs max-w-xl mx-auto overflow-x-auto" style={{ whiteSpace: 'pre-wrap' }}>{String(this.state.error?.stack || this.state.error?.message || this.state.error)}</pre>
         </div>

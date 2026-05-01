@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import auth, { getSession, signInDemo, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { Pacifico } from "next/font/google";
-import { LogoMark } from "./LogoMark";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
@@ -48,11 +47,8 @@ export default function Nav() {
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-4">
-        <Link href="/" className="flex items-center gap-2">
-          <LogoMark decorative className="h-7 w-7 rounded-md shadow-sm" />
-          <span className={`${pacifico.className} text-lg font-semibold text-brand`}>
-            Choosie
-          </span>
+        <Link href="/" className={`${pacifico.className} text-lg font-semibold text-brand`}>
+          Choosie
         </Link>
 
         {/* Mobile quick nav */}

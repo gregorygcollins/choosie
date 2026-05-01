@@ -7,7 +7,6 @@ import { loadLists, removeList } from "@/lib/storage";
 import type { ChoosieList } from "@/components/ListForm";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { toast } from "@/components/Toast";
-import { LogoMark } from "@/components/LogoMark";
 
 function formatDate(isoString: string) {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -96,7 +95,6 @@ export default function ListsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center p-8">
         <div className="text-center">
-          <LogoMark decorative className="mx-auto mb-5 h-16 w-16 rounded-2xl opacity-70 shadow-sm" />
           <h1 className="mb-4 text-2xl font-semibold text-black dark:text-white">
             No lists yet
           </h1>

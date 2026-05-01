@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NarrowingPanel } from "@/components/NarrowingPanel";
-import { LogoMark } from "@/components/LogoMark";
 
 type SessionMode = "in-person" | "virtual";
 
@@ -240,7 +239,6 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   if (loading) {
     return (
       <div className="px-4 py-12 text-center text-zinc-600">
-        <LogoMark decorative className="mx-auto mb-4 h-14 w-14 rounded-xl opacity-60 shadow-sm" />
         Loading narrowing session...
       </div>
     );
@@ -249,7 +247,6 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   if (!state) {
     return (
       <div className="mx-auto max-w-lg px-4 py-12 text-center">
-        <LogoMark decorative className="mx-auto mb-4 h-14 w-14 rounded-xl opacity-60 shadow-sm" />
         <h1 className="text-2xl font-semibold text-zinc-950">Narrowing unavailable</h1>
         <p className="mt-2 text-zinc-600">{error || "This narrowing session could not be loaded."}</p>
       </div>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Pacifico } from "next/font/google";
-import { LogoMark } from "../components/LogoMark";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
@@ -10,7 +9,6 @@ export default function Home() {
       <main className="flex flex-col items-center gap-12 text-center">
         {/* Brand and taglines */}
         <div className="flex flex-col items-center gap-6">
-          <LogoMark className="h-28 w-28 rounded-[1.75rem] shadow-lg shadow-brand/15" />
           <h1 className={`${pacifico.className} text-6xl leading-relaxed tracking-normal text-brand [text-shadow:_2px_2px_8px_rgba(124,91,184,0.28)] sm:text-7xl`}>
             Choosie
           </h1>
