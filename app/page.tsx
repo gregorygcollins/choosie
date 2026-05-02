@@ -174,22 +174,24 @@ function NarrowPhone() {
   return (
     <PhoneFrame>
       <PhoneHeader title="Selector's turn" />
-      <div className="space-y-2 p-3">
+      <div className="p-3">
         <div className="text-[0.82rem] font-bold text-brand">Choosie 3 movies.</div>
-        {["Out of Africa", "City of God", "Focker-in-Law", "Moonstruck"].map((item, index) => {
-          const selected = index < 3;
-          return (
-            <div
-              key={item}
-              className={`rounded-lg border px-2 py-2 text-[0.66rem] font-semibold ${
-                selected ? "border-consensus bg-consensus/10 text-brand" : "border-[#DDE6F3] bg-white text-slate-500"
-              }`}
-            >
-              {item}
-            </div>
-          );
-        })}
-        <div className="rounded-full bg-consensus px-3 py-2 text-center text-[0.68rem] font-bold text-brand-dark">Confirm</div>
+        <div className="mt-2 h-[6.9rem] space-y-2 overflow-hidden">
+          {["Out of Africa", "City of God", "Moonstruck", "The Godfather"].map((item, index) => {
+            const selected = index < 3;
+            return (
+              <div
+                key={item}
+                className={`rounded-lg border px-2 py-1.5 text-[0.66rem] font-semibold ${
+                  selected ? "border-consensus bg-consensus/10 text-brand" : "border-[#DDE6F3] bg-white text-slate-500"
+                }`}
+              >
+                {item}
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 rounded-full bg-consensus px-3 py-2 text-center text-[0.68rem] font-bold text-brand-dark">Confirm</div>
       </div>
     </PhoneFrame>
   );
