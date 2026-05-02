@@ -67,8 +67,8 @@ function SignupContent() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
           {isPro
-            ? "Sign up to save your lists, then complete your $2.99/mo Pro subscription from your account."
-            : "Sign up to save lists, share links, and keep narrowing across devices."}
+            ? "Sign up, then complete your $2.99/mo Pro upgrade to save unlimited lists across every module."
+            : "Sign up to save your movie list, share links, and keep narrowing across devices."}
         </p>
 
         <div className="mx-auto mt-8 grid max-w-2xl gap-6 md:grid-cols-2">

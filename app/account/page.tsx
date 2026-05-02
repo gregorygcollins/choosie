@@ -121,7 +121,7 @@ export default function AccountPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Account</p>
           <h1 className="mt-3 text-3xl font-bold text-brand">Sign in to manage Choosie</h1>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
-            Save your lists, manage Pro, and keep narrowing across devices.
+            Save your movie list, manage Pro, and keep narrowing across devices.
           </p>
           <button
             onClick={() => signIn("google")}
@@ -185,7 +185,7 @@ export default function AccountPage() {
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {user.isPro
                 ? "Manage your subscription and billing details through Stripe."
-                : "Unlock virtual narrowing plus book lists, food lists, music lists, and anything lists."}
+                : "Save unlimited lists across movies, books, music, food, and anything else you want to choose together."}
             </p>
 
             {error && (
@@ -202,7 +202,7 @@ export default function AccountPage() {
 
             {upgradeIntent && !user.isPro && (
               <div className="mt-4 rounded-lg border border-consensus/40 bg-consensus/10 p-3 text-sm text-brand">
-                You’re signed in. Complete your Pro upgrade to unlock virtual narrowing and premium list types.
+                You’re signed in. Complete your Pro upgrade to save unlimited lists across every module.
               </div>
             )}
 

@@ -463,12 +463,12 @@ export default function ViewListPage() {
               Select the total number of people (excluding you as the Organizer)
             </p>
             {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="mx-auto mb-6 grid max-w-[13rem] grid-cols-3 gap-2">
               {[1, 2, 3].map((n) => (
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}
-                  className="aspect-square rounded-xl bg-brand text-white font-semibold text-lg hover:bg-brand-dark transition-all hover:scale-105 shadow-md"
+                  className="grid h-14 w-14 place-items-center rounded-xl bg-consensus text-base font-semibold text-brand-dark shadow-md shadow-consensus/20 transition-all hover:scale-105 hover:bg-consensus-dark"
                 >
                   {n}
                 </button>

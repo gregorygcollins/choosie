@@ -95,7 +95,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
-            Upgrade to Pro to unlock book lists, food lists, music lists, and anything lists.
+            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists for every group plan.
           </p>
           <Link
             href="/pricing"

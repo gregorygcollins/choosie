@@ -150,14 +150,10 @@ function ListThumbnail({
 }) {
   const image = list.items?.[0]?.image;
   const firstTitle = list.items?.[0]?.title;
-  const isGrid = variant === "grid";
 
   return (
     <span
-      className={[
-        "relative shrink-0 overflow-hidden bg-brand-light text-brand ring-1 ring-brand/10",
-        isGrid ? "block aspect-[16/10] w-full rounded-xl" : "inline-flex h-14 w-14 items-center justify-center rounded-xl",
-      ].join(" ")}
+      className="relative inline-flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand-light text-brand ring-1 ring-brand/10"
       title={firstTitle || `${moduleLabel} list`}
       aria-label={firstTitle ? `First item: ${firstTitle}` : `${moduleLabel} list`}
     >
@@ -169,7 +165,7 @@ function ListThumbnail({
           className="h-full w-full object-cover"
         />
       ) : (
-        <span className={isGrid ? "flex h-full w-full items-center justify-center" : ""}>
+        <span>
           <ModuleIcon module={module} />
         </span>
       )}
@@ -353,7 +349,7 @@ export default function ListsPage() {
               onClick={() => router.push(`/list/${list.id}`)}
               className={[
                 "card cursor-pointer rounded-2xl p-6 transition-transform hover:translate-y-[-2px]",
-                viewMode === "grid" ? "flex min-h-[18rem] flex-col gap-4" : "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+                viewMode === "grid" ? "flex min-h-[10rem] flex-col gap-4" : "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
               ].join(" ")}
               role="button"
               tabIndex={0}
@@ -365,13 +361,8 @@ export default function ListsPage() {
               }}
             >
               <div className={viewMode === "grid" ? "flex flex-1 flex-col gap-4" : ""}>
-                {viewMode === "grid" && (
-                  <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant="grid" />
-                )}
                 <div className="flex items-center gap-3">
-                  {viewMode === "list" && (
-                    <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant="list" />
-                  )}
+                  <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant={viewMode} />
                   <div>
                     <h2 className="font-medium text-brand">
                       {list.title}

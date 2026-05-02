@@ -10,7 +10,7 @@ export default function PricingPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pro</p>
         <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">Upgrade to Choosie Pro</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Unlock virtual narrowing and premium list types for every group decision.
+          Free is perfect for making and using a movie list. Pro is for saving every list your group wants to build.
         </p>
       </section>
 
@@ -24,11 +24,12 @@ export default function PricingPage() {
             <span className="pb-1 text-sm font-semibold text-slate-500">/mo</span>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Built for groups who want to decide without compromise, bickering, or endless scrolling.
+            Build a library of saved lists for movies, books, music, meals, trips, gifts, and anything else your group keeps choosing together.
           </p>
           <ul className="mt-5 space-y-2 text-sm text-slate-700">
+            <li>Unlimited saved lists across every module</li>
+            <li>Movie, book, food, music, and anything lists</li>
             <li>Virtual narrowing links for remote groups</li>
-            <li>Book lists, food lists, music lists, and anything lists</li>
             <li>Newer modules and early features</li>
           </ul>
           <Link

@@ -35,11 +35,12 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
           <button disabled={busy} onClick={onClose} className="text-zinc-500 hover:text-black disabled:opacity-40">✕</button>
         </div>
         <p className="mt-2 text-sm text-zinc-700">
-          Unlock virtual narrowing plus more ways to choosie with your group.
+          Free lets you make and use a movie list. Pro lets you keep building and saving every list your group needs.
         </p>
         <ul className="mt-3 space-y-1 text-sm text-zinc-700 list-disc list-inside">
+          <li>Unlimited saved lists</li>
+          <li>Movie, book, food, music, and anything lists</li>
           <li>Virtual narrowing (remote invites via email or text)</li>
-          <li>Book lists, food lists, music lists, and anything lists</li>
           <li>Newer modules and early features</li>
         </ul>
         {error && (
