@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Pacifico } from "next/font/google";
+import ChoosieLogo from "@/components/ChoosieLogo";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
@@ -35,9 +36,8 @@ export default function Home() {
     <main className="px-6">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col items-center justify-center gap-10 py-16 text-center">
         <div className="flex flex-col items-center gap-6">
-          <h1 className={`${pacifico.className} text-6xl leading-relaxed tracking-normal text-brand [text-shadow:_2px_2px_8px_rgba(26,54,93,0.18)] sm:text-7xl`}>
-            Choosie
-          </h1>
+          <h1 className="sr-only">Choosie</h1>
+          <ChoosieLogo size="hero" />
           <div className="flex max-w-xl flex-col gap-4 text-lg font-normal text-slate-600 sm:text-xl">
             <p className="text-lg"><strong>Do only what you love, together.</strong></p>
             <p className="mt-2 text-sm italic text-slate-500"><strong>No scrolling. No bickering. No compromise.</strong></p>

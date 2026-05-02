@@ -5,9 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import auth, { getSession, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
-import { Pacifico } from "next/font/google";
-
-const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
+import ChoosieLogo from "./ChoosieLogo";
 
 export default function Nav() {
   const { data: nextSession } = useSession();
@@ -42,18 +40,8 @@ export default function Nav() {
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-full">
-            <img
-              src="/choosie-logo-badge.png"
-              alt=""
-              aria-hidden="true"
-              className="h-full w-full object-contain"
-            />
-          </span>
-          <span className={`${pacifico.className} text-lg font-semibold text-brand`}>
-            Choosie
-          </span>
+        <Link href="/" className="flex items-center">
+          <ChoosieLogo size="nav" />
         </Link>
 
         {/* Mobile quick nav */}
