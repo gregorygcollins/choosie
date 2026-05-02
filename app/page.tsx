@@ -135,7 +135,7 @@ function BuildPhone() {
       <PhoneHeader title="Create list" />
       <div className="space-y-2 p-3">
         <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Thanksgiving 2026</div>
-        {["The Odyssey", "Under the Skin", "Out of Africa"].map((item, index) => (
+        {["The Odyssey", "Toy Story 5", "Out of Africa"].map((item, index) => (
           <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-2 py-2 shadow-sm">
             <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[0.62rem] font-semibold text-white">{index + 1}</span>
             <span className="text-[0.68rem] font-semibold text-brand">{item}</span>
