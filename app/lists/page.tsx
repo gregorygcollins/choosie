@@ -8,6 +8,8 @@ import type { ChoosieList } from "@/components/ListForm";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { toast } from "@/components/Toast";
 
+type ViewMode = "list" | "grid";
+
 function formatDate(isoString: string) {
   return new Date(isoString).toLocaleDateString(undefined, {
     year: "numeric",
@@ -80,6 +82,48 @@ function ModuleIcon({ module }: { module: string }) {
   );
 }
 
+function GridIcon() {
+  return (
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <path d="M8 6h13" />
+      <path d="M8 12h13" />
+      <path d="M8 18h13" />
+      <path d="M3 6h.01" />
+      <path d="M3 12h.01" />
+      <path d="M3 18h.01" />
+    </svg>
+  );
+}
+
 function getModuleLabel(module: string) {
   if (module === "books") return "Books";
   if (module === "food") return "Food";
@@ -93,6 +137,46 @@ function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
   return [...serverLists, ...localLists.filter((list) => !seen.has(list.id))];
 }
 
+function ListThumbnail({
+  list,
+  module,
+  moduleLabel,
+  variant,
+}: {
+  list: ChoosieList;
+  module: string;
+  moduleLabel: string;
+  variant: ViewMode;
+}) {
+  const image = list.items?.[0]?.image;
+  const firstTitle = list.items?.[0]?.title;
+  const isGrid = variant === "grid";
+
+  return (
+    <span
+      className={[
+        "relative shrink-0 overflow-hidden bg-brand-light text-brand ring-1 ring-brand/10",
+        isGrid ? "block aspect-[16/10] w-full rounded-xl" : "inline-flex h-14 w-14 items-center justify-center rounded-xl",
+      ].join(" ")}
+      title={firstTitle || `${moduleLabel} list`}
+      aria-label={firstTitle ? `First item: ${firstTitle}` : `${moduleLabel} list`}
+    >
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className={isGrid ? "flex h-full w-full items-center justify-center" : ""}>
+          <ModuleIcon module={module} />
+        </span>
+      )}
+    </span>
+  );
+}
+
 export default function ListsPage() {
   const router = useRouter();
   const [lists, setLists] = useState<ChoosieList[]>([]);
@@ -100,6 +184,7 @@ export default function ListsPage() {
   const [usedLocalFallback, setUsedLocalFallback] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ChoosieList | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   useEffect(() => {
     let cancelled = false;
@@ -181,7 +266,7 @@ export default function ListsPage() {
           </p>
           <Link
             href="/new"
-            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-consensus px-6 text-base font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
           >
             Create your first list
           </Link>
@@ -203,25 +288,55 @@ export default function ListsPage() {
         onCancel={() => setDeleteTarget(null)}
       />
       
-      <div className="mx-auto max-w-3xl">
+      <div className={["mx-auto", viewMode === "grid" ? "max-w-5xl" : "max-w-3xl"].join(" ")}>
         {usedLocalFallback && (
           <div className="mb-4 rounded-lg border border-[#DDE6F3] bg-[#F8F9FF] text-brand-dark px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
           </div>
         )}
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold text-brand">
             My Lists
           </h1>
-          <Link
-            href="/new"
-            className="btn-charcoal rounded-full inline-flex h-12 items-center justify-center px-6 text-base"
-          >
-            Create new list
-          </Link>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex h-10 rounded-full border border-brand/10 bg-white p-1 shadow-soft" aria-label="Choose view">
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={[
+                  "inline-flex h-8 w-8 items-center justify-center rounded-full transition",
+                  viewMode === "list" ? "bg-brand text-white" : "text-brand hover:bg-brand-light",
+                ].join(" ")}
+                title="List view"
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
+              >
+                <ListIcon />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={[
+                  "inline-flex h-8 w-8 items-center justify-center rounded-full transition",
+                  viewMode === "grid" ? "bg-brand text-white" : "text-brand hover:bg-brand-light",
+                ].join(" ")}
+                title="Grid view"
+                aria-label="Grid view"
+                aria-pressed={viewMode === "grid"}
+              >
+                <GridIcon />
+              </button>
+            </div>
+            <Link
+              href="/new"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-consensus px-6 text-base font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+            >
+              Create new list
+            </Link>
+          </div>
         </div>
 
-        <div className="grid gap-4">
+        <div className={viewMode === "grid" ? "grid gap-4 sm:grid-cols-2" : "grid gap-4"}>
           {lists.map((list) => {
             // Derive module if missing from server/local legacy data
             const derivedModule = (list as any).moduleType
@@ -236,7 +351,10 @@ export default function ListsPage() {
             <div
               key={list.id}
               onClick={() => router.push(`/list/${list.id}`)}
-              className="card flex flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between cursor-pointer"
+              className={[
+                "card cursor-pointer rounded-2xl p-6 transition-transform hover:translate-y-[-2px]",
+                viewMode === "grid" ? "flex min-h-[18rem] flex-col gap-4" : "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+              ].join(" ")}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -246,15 +364,14 @@ export default function ListsPage() {
                 }
               }}
             >
-              <div>
+              <div className={viewMode === "grid" ? "flex flex-1 flex-col gap-4" : ""}>
+                {viewMode === "grid" && (
+                  <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant="grid" />
+                )}
                 <div className="flex items-center gap-3">
-                  <span
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10"
-                    title={`${moduleLabel} list`}
-                    aria-label={`${moduleLabel} list`}
-                  >
-                    <ModuleIcon module={derivedModule} />
-                  </span>
+                  {viewMode === "list" && (
+                    <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant="list" />
+                  )}
                   <div>
                     <h2 className="font-medium text-brand">
                       {list.title}
@@ -269,7 +386,7 @@ export default function ListsPage() {
                   <span>Created {formatDate(list.createdAt)}</span>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className={viewMode === "grid" ? "mt-auto flex justify-end gap-3" : "flex gap-3"}>
                 {list.narrowers && (
                   <Link
                     href={`/narrow/${list.id}`}

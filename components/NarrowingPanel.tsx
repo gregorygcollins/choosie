@@ -413,10 +413,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <button
               type="button"
               onClick={onReturnToList}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+              title="Return to list"
+              aria-label="Return to list"
+              className="inline-grid h-10 w-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand-light hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
             >
               <ReturnIcon />
-              Return to list
             </button>
             {mode === "in-person" && (
               <>
@@ -424,19 +425,21 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   type="button"
                   onClick={onUndo}
                   disabled={!canUndo}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+                  title="Undo"
+                  aria-label="Undo"
+                  className="inline-grid h-10 w-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand-light hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <UndoIcon />
-                  Undo
                 </button>
                 <button
                   type="button"
                   onClick={onReset}
                   disabled={busy}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+                  title="Reset list"
+                  aria-label="Reset list"
+                  className="inline-grid h-10 w-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand-light hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ResetIcon />
-                  Reset list
                 </button>
               </>
             )}

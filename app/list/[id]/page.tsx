@@ -741,30 +741,51 @@ export default function ViewListPage() {
 
         {/* Suggestions panel removed as requested */}
 
-        <div className="mt-8 flex justify-between items-center">
-          <div className="flex gap-3">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => handleNarrowClick("in-person")}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
+              className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
             >
               Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
+              className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
             >
               Narrow virtually
             </button>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
-              className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
+              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+              title="Edit list"
+              aria-label="Edit list"
             >
-              Edit list
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
             </button>
             <button
               onClick={handleShareList}
               disabled={shareLoading}
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              title={shareLoading ? "Sharing..." : "Share list"}
+              aria-label={shareLoading ? "Sharing list" : "Share list"}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <circle cx="18" cy="5" r="3" />
@@ -773,36 +794,34 @@ export default function ViewListPage() {
                 <path d="m8.59 13.51 6.83 3.98" />
                 <path d="m15.41 6.51-6.82 3.98" />
               </svg>
-              {shareLoading ? "Sharing..." : "Share"}
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              disabled={isDeleting}
+              className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Delete list"
+              aria-label="Delete list"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+              </svg>
             </button>
           </div>
-
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            disabled={isDeleting}
-            className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Delete list"
-            aria-label="Delete list"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M3 6h18" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <path d="M10 11v6" />
-              <path d="M14 11v6" />
-            </svg>
-          </button>
         </div>
       </div>
 

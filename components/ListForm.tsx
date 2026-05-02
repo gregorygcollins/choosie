@@ -471,7 +471,7 @@ export default function ListForm({
       <div className="flex justify-center">
         <button
           onClick={handleSave}
-          className="btn-charcoal px-8 py-3 text-[1.05rem]"
+          className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
         >
           {existingList ? "Update Watchlist" : "Create Watchlist"}
         </button>

@@ -980,7 +980,7 @@ export default function NewPageClient() {
           <div className="flex justify-center">
             <button
               onClick={handleSaveBookList}
-              className="btn-charcoal px-8 py-3 text-[1.05rem]"
+              className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
             >
               {existingList ? "Update Booklist" : "Create Booklist"}
             </button>
@@ -1121,7 +1121,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveMusicList}
-            className="btn-charcoal px-8 py-3 text-[1.05rem]"
+            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
           >
             {existingList ? "Update Music List" : "Create Musiclist"}
           </button>
@@ -1229,7 +1229,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveFoodList}
-            className="btn-charcoal px-8 py-3 text-[1.05rem]"
+            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
           >
             {existingList ? "Update Food List" : "Create Foodlist"}
           </button>
@@ -1333,7 +1333,7 @@ export default function NewPageClient() {
         <div className="flex justify-center">
           <button
             onClick={handleSaveAnythingList}
-            className="btn-charcoal px-8 py-3 text-[1.05rem]"
+            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
           >
             {existingList ? "Update List" : "Create Anythinglist"}
           </button>
