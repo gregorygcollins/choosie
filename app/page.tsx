@@ -6,20 +6,20 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 const walkthrough = [
   {
     eyebrow: "Build",
-    title: "If you're into it, others are too.",
+    title: "A list for every occasion.",
     body: <>Make a list of movies <strong>you</strong> want to watch with a group or person.</>,
     phone: <BuildPhone />,
   },
   {
     eyebrow: "Invite",
     title: "Start narrowing.",
-    body: "Pass the phone around or send out a link.",
+    body: "Pass the phone around the room or send out a link.",
     phone: <InvitePhone />,
   },
   {
     eyebrow: "Narrow",
-    title: "Everyone takes a turn.",
-    body: "Each person narrows the list further: to 5, to 3, to 1.",
+    title: "Take turns narrowing.",
+    body: <>Each person narrows toward what <strong>they</strong> want to watch.</>,
     phone: <NarrowPhone />,
   },
   {
