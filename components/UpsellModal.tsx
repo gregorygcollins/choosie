@@ -8,26 +8,10 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
 
   if (!open) return null;
 
-  async function startCheckout() {
+  function startCheckout() {
     setBusy(true);
     setError(null);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ billing: "monthly" }),
-      });
-      const data = await res.json();
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data?.error || "Failed to start checkout");
-      }
-    } catch (e: any) {
-      setError(e?.message || "Network error");
-    } finally {
-      setBusy(false);
-    }
+    window.location.href = "/api/stripe/checkout?billing=monthly";
   }
 
   return (

@@ -15,6 +15,7 @@ function SignupContent() {
   const billing = searchParams.get("billing") === "annual" ? "annual" : "monthly";
   const isPro = plan === "pro";
   const callbackUrl = isPro ? `/api/stripe/checkout?billing=${billing}` : "/new";
+  const loginHref = isPro ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/auth/login";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -136,7 +137,7 @@ function SignupContent() {
           </div>
         </div>
 
-        <Link href="/auth/login" className="mt-6 inline-flex text-sm font-semibold text-brand hover:text-brand-dark">
+        <Link href={loginHref} className="mt-6 inline-flex text-sm font-semibold text-brand hover:text-brand-dark">
           Already have an account? Sign in
         </Link>
       </section>

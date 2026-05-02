@@ -12,9 +12,9 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const callbackBilling = callbackUrl.includes("billing=annual") ? "annual" : "monthly";
-  const proCheckoutHref = `/api/stripe/checkout?billing=${callbackBilling}`;
+  const proSignupHref = `/signup?plan=pro&billing=${callbackBilling}`;
   const signupHref = callbackUrl.startsWith("/api/stripe/checkout")
-    ? `/signup?plan=pro&billing=${callbackBilling}`
+    ? proSignupHref
     : "/signup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -124,10 +124,10 @@ function LoginForm() {
               <li>Look back at winners, dinners, places, and who narrowed last time</li>
             </ul>
             <Link
-              href={proCheckoutHref}
+              href={proSignupHref}
               className="mt-5 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark"
             >
-              {callbackBilling === "annual" ? "Continue annual upgrade" : "Continue monthly upgrade"}
+              Create account to upgrade
             </Link>
           </div>
         </div>

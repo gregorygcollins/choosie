@@ -34,12 +34,14 @@ export default function PricingPage() {
               <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
             </ul>
           </div>
-          <Link
-            href="/api/stripe/checkout?billing=monthly"
-            className="mt-auto inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
-          >
-            Upgrade monthly
-          </Link>
+          <div className="mt-auto pt-6">
+            <Link
+              href="/api/stripe/checkout?billing=monthly"
+              className="inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
+            >
+              Monthly
+            </Link>
+          </div>
         </article>
 
         <article className="flex h-full flex-col rounded-2xl border border-brand/10 bg-white p-6 shadow-soft">
@@ -61,12 +63,14 @@ export default function PricingPage() {
               <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
             </ul>
           </div>
-          <Link
-            href="/api/stripe/checkout?billing=annual"
-            className="mt-auto inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
-          >
-            Upgrade annually
-          </Link>
+          <div className="mt-auto pt-6">
+            <Link
+              href="/api/stripe/checkout?billing=annual"
+              className="inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
+            >
+              Annual
+            </Link>
+          </div>
         </article>
       </section>
     </main>
