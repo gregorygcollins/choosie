@@ -95,7 +95,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
-            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists. Choosie passionate overlap for every group activity.
+            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists. Choosie <strong>passionate overlap</strong> for every group activity.
           </p>
           <Link
             href="/pricing"
@@ -176,22 +176,19 @@ function NarrowPhone() {
       <PhoneHeader title="Selector's turn" />
       <div className="p-3">
         <div className="text-[0.82rem] font-bold text-brand">Choosie 3 movies.</div>
-        <div className="mt-2 h-[6.9rem] space-y-2 overflow-hidden">
-          {["Out of Africa", "City of God", "Moonstruck", "The Godfather"].map((item, index) => {
-            const selected = index < 3;
+        <div className="mt-2 h-[8.15rem] space-y-2 overflow-hidden">
+          {["Out of Africa", "City of God", "Moonstruck", "The Godfather"].map((item) => {
             return (
               <div
                 key={item}
-                className={`rounded-lg border px-2 py-1.5 text-[0.66rem] font-semibold ${
-                  selected ? "border-consensus bg-consensus/10 text-brand" : "border-[#DDE6F3] bg-white text-slate-500"
-                }`}
+                className="rounded-lg border border-consensus bg-consensus/10 px-2 py-1.5 text-[0.66rem] font-semibold text-brand"
               >
                 {item}
               </div>
             );
           })}
         </div>
-        <div className="mt-2 rounded-full bg-consensus px-3 py-2 text-center text-[0.68rem] font-bold text-brand-dark">Confirm</div>
+        <div className="mt-1.5 rounded-full bg-consensus px-3 py-2 text-center text-[0.68rem] font-bold text-brand-dark">Confirm</div>
       </div>
     </PhoneFrame>
   );
