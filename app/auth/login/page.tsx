@@ -11,6 +11,10 @@ export const dynamic = "force-dynamic";
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackBilling = callbackUrl.includes("billing=annual") ? "annual" : "monthly";
+  const signupHref = callbackUrl.startsWith("/api/stripe/checkout")
+    ? `/signup?plan=pro&billing=${callbackBilling}`
+    : "/signup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -127,7 +131,7 @@ function LoginForm() {
           </div>
         </div>
 
-        <Link href="/signup" className="mt-6 inline-flex text-sm font-semibold text-brand hover:text-brand-dark">
+        <Link href={signupHref} className="mt-6 inline-flex text-sm font-semibold text-brand hover:text-brand-dark">
           Need an account? Sign up
         </Link>
       </section>

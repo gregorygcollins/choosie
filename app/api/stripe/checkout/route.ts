@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   const billing = getBillingInterval(new URL(req.url).searchParams.get("billing"));
   const session = await auth();
   if (!session?.user?.id) {
-    const callbackUrl = `/account?intent=upgrade&billing=${billing}`;
+    const callbackUrl = `/api/stripe/checkout?billing=${billing}`;
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`, 302);
   }
 

@@ -33,7 +33,7 @@ export default function PricingPage() {
             <li>Newer modules and early features</li>
           </ul>
           <Link
-            href="/signup?plan=pro&billing=monthly"
+            href="/api/stripe/checkout?billing=monthly"
             className="mt-6 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
           >
             Upgrade monthly
@@ -58,7 +58,7 @@ export default function PricingPage() {
             <li>Virtual narrowing links for remote groups</li>
           </ul>
           <Link
-            href="/signup?plan=pro&billing=annual"
+            href="/api/stripe/checkout?billing=annual"
             className="mt-6 inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
           >
             Upgrade annually

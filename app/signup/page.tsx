@@ -14,7 +14,7 @@ function SignupContent() {
   const plan = searchParams.get("plan");
   const billing = searchParams.get("billing") === "annual" ? "annual" : "monthly";
   const isPro = plan === "pro";
-  const callbackUrl = isPro ? `/account?intent=upgrade&billing=${billing}` : "/new";
+  const callbackUrl = isPro ? `/api/stripe/checkout?billing=${billing}` : "/new";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

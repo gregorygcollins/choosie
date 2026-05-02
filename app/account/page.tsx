@@ -176,7 +176,7 @@ export default function AccountPage() {
 
           <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
-              {user.isPro ? "Active" : "$2.99/mo or $29.99/yr"}
+              {user.isPro ? "Active" : "$2.99/mo"}
             </div>
             <h2 className="text-lg font-bold text-brand">
               {user.isPro ? "Choosie Pro is active" : "Upgrade to Choosie Pro"}
