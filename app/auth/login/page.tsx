@@ -81,7 +81,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={busy}
-              className="mt-5 w-full rounded-full bg-consensus px-5 py-3 text-sm font-bold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark disabled:opacity-50"
+              className="mt-5 w-full rounded-full bg-brand px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand/15 transition-colors hover:bg-brand-dark disabled:opacity-50"
             >
               {busy ? "Signing in..." : "Sign in"}
             </button>
@@ -120,7 +120,7 @@ function LoginForm() {
             </ul>
             <Link
               href="/pricing"
-              className="mt-5 inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="mt-5 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark"
             >
               Explore Pro
             </Link>

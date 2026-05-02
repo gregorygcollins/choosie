@@ -10,7 +10,7 @@ export default function PricingPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pro</p>
         <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">Upgrade to Choosie Pro</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Free is perfect for making and using a movie list. Pro is for saving every list your group wants to build.
+          Free is perfect for making and using a movie list. Pro lets you make and save different lists for different activities and occasions.
         </p>
       </section>
 
