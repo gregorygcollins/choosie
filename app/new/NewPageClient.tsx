@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ListForm from "../../components/ListForm";
 import BookForm from "../../components/BookForm";
-import { upsertList, getList } from "../../lib/storage";
+import { upsertList, getList, removeList } from "../../lib/storage";
 import type { ChoosieList, ChoosieItem } from "../../components/ListForm";
 import type { BookSearchResult } from "../../lib/googleBooks";
 import type { SpotifyTrack } from "../../lib/spotify";
@@ -148,6 +148,29 @@ export default function NewPageClient() {
     return () => { cancelled = true; };
   }, []);
 
+  function navigateToCreatedList(data: any, fallbackList: ChoosieList) {
+    const serverList = data?.list || null;
+    const serverId = serverList?.id || data?.listId;
+
+    if (!serverId) return false;
+
+    const createdList: ChoosieList = {
+      ...fallbackList,
+      ...serverList,
+      id: serverId,
+      moduleType: serverList?.moduleType || fallbackList.moduleType,
+      items: serverList?.items || fallbackList.items,
+      createdAt: serverList?.createdAt || fallbackList.createdAt,
+    };
+
+    upsertList(createdList);
+    if (serverId !== fallbackList.id) {
+      removeList(fallbackList.id);
+    }
+    router.push(`/list/${serverId}`);
+    return true;
+  }
+
   // Book suggestions
   useEffect(() => {
     if (selectedModule !== "books") return;
@@ -265,8 +288,7 @@ export default function NewPageClient() {
         .then(async (res) => {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
-          if (data?.ok && data?.url) {
-            router.push(data.url);
+          if (data?.ok && navigateToCreatedList(data, listWithModule)) {
             return;
           }
           router.push(`/list/${list.id}`);
@@ -433,7 +455,7 @@ export default function NewPageClient() {
         .then(async (res) => {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
-          if (data?.ok && data?.url) return router.push(data.url);
+          if (data?.ok && navigateToCreatedList(data, list)) return;
           return router.push(`/list/${list.id}`);
         })
         .catch(() => router.push(`/list/${list.id}`));
@@ -566,7 +588,7 @@ export default function NewPageClient() {
         .then(async (res) => {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
-          if (data?.ok && data?.url) return router.push(data.url);
+          if (data?.ok && navigateToCreatedList(data, list)) return;
           return router.push(`/list/${list.id}`);
         })
         .catch(() => router.push(`/list/${list.id}`));
@@ -702,7 +724,7 @@ export default function NewPageClient() {
         .then(async (res) => {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
-          if (data?.ok && data?.url) return router.push(data.url);
+          if (data?.ok && navigateToCreatedList(data, list)) return;
           return router.push(`/list/${list.id}`);
         })
         .catch(() => router.push(`/list/${list.id}`));
@@ -818,7 +840,7 @@ export default function NewPageClient() {
         .then(async (res) => {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
-          if (data?.ok && data?.url) return router.push(data.url);
+          if (data?.ok && navigateToCreatedList(data, list)) return;
           return router.push(`/list/${list.id}`);
         })
         .catch(() => router.push(`/list/${list.id}`));

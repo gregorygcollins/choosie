@@ -88,6 +88,11 @@ function getModuleLabel(module: string) {
   return "Movies";
 }
 
+function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
+  const seen = new Set(serverLists.map((list) => list.id));
+  return [...serverLists, ...localLists.filter((list) => !seen.has(list.id))];
+}
+
 export default function ListsPage() {
   const router = useRouter();
   const [lists, setLists] = useState<ChoosieList[]>([]);
@@ -105,7 +110,7 @@ export default function ListsPage() {
         if (res.ok) {
           const data = await res.json();
           if (!cancelled && data?.ok && Array.isArray(data.lists)) {
-            setLists(data.lists);
+            setLists(mergeLists(data.lists, loadLists()));
             setLoading(false);
             return;
           }
@@ -138,6 +143,7 @@ export default function ListsPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.ok) {
+          removeList(list.id);
           setLists((prev) => prev.filter((l) => l.id !== list.id));
           toast("List deleted successfully", "success");
           setDeleteTarget(null);
