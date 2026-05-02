@@ -128,6 +128,26 @@ export async function POST(req: NextRequest) {
       update: { historyJson: state, winnerItemId },
       create: { listId: list.id, historyJson: state, winnerItemId },
     });
+    if (finished && winnerItemId) {
+      const tasteJson: any = list.tasteJson || {};
+      const mode = tasteJson.activeVirtualSessionId ? "virtual" : "in-person";
+      await (prisma as any).narrowingSession.create({
+        data: {
+          listId: list.id,
+          mode,
+          winnerItemId,
+          startingItemCount: list.items.length,
+          roundsJson: {
+            plan: state.plan,
+            rounds: state.rounds,
+            itemSnapshot: list.items.map((item: any) => ({
+              id: item.id,
+              title: item.title,
+            })),
+          },
+        },
+      });
+    }
     console.log('[narrow/confirm] UPSERT', {
       listId: list.id,
       winnerItemId,

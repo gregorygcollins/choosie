@@ -88,18 +88,16 @@ export async function POST(req: NextRequest) {
       update: { historyJson: initialState, winnerItemId: null },
       create: { listId: list.id, historyJson: initialState, winnerItemId: null },
     });
-    if (data.sessionId) {
-      await prisma.list.update({
-        where: { id: list.id },
-        data: {
-          tasteJson: {
-            ...tj,
-            participantClaims: [],
-            activeVirtualSessionId: data.sessionId,
-          },
+    await prisma.list.update({
+      where: { id: list.id },
+      data: {
+        tasteJson: {
+          ...tj,
+          participantClaims: [],
+          activeVirtualSessionId: data.sessionId || null,
         },
-      });
-    }
+      },
+    });
 
     publish(list.id, { ok: true, event: 'state', state: initialState, winnerItemId: null });
     return withCORS(NextResponse.json({ ok: true, state: initialState, winnerItemId: null }), origin);

@@ -11,6 +11,24 @@ import { getSession, isPremium } from "@/lib/auth";
 import { useSession } from "next-auth/react";
 import UpsellModal from "@/components/UpsellModal";
 
+type ListLogRound = {
+  round: number;
+  from: number;
+  to: number;
+  kept: Array<{ id: string; title: string }>;
+  removed: Array<{ id: string; title: string }>;
+};
+
+type ListLogSession = {
+  id: string;
+  mode?: string | null;
+  completedAt: string;
+  winner: { id: string; title: string } | null;
+  startingItemCount: number;
+  path: number[];
+  rounds: ListLogRound[];
+};
+
 export default function ViewListPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -34,6 +52,10 @@ export default function ViewListPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [shareLoading, setShareLoading] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [logSessions, setLogSessions] = useState<ListLogSession[]>([]);
+  const [logLoading, setLogLoading] = useState(false);
+  const [logError, setLogError] = useState<string | null>(null);
   const { data: authSession } = useSession();
   const session = typeof window !== 'undefined' ? getSession() : { user: null };
   const [pro, setPro] = useState<boolean>(isPremium(session));
@@ -424,6 +446,35 @@ export default function ViewListPage() {
     }
   }
 
+  async function handleOpenListLog() {
+    if (!list) return;
+    if (!pro) {
+      setShowUpsell(true);
+      return;
+    }
+
+    setShowLogModal(true);
+    setLogLoading(true);
+    setLogError(null);
+    try {
+      const res = await fetch("/api/choosie/listLog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: list.id }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || "Unable to load list log");
+      }
+      setLogSessions(Array.isArray(data.sessions) ? data.sessions : []);
+    } catch (error: any) {
+      setLogError(error?.message || "Unable to load list log");
+    } finally {
+      setLogLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -553,6 +604,102 @@ export default function ViewListPage() {
                 Done
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showLogModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowLogModal(false)}>
+          <div className="max-h-[86vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">List Log</p>
+                <h2 className="mt-1 text-2xl font-semibold text-brand">{list.title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLogModal(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-brand"
+                title="Close list log"
+                aria-label="Close list log"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {logLoading ? (
+              <div className="mt-6 rounded-xl border border-zinc-200 bg-brand-light/50 p-5 text-sm font-semibold text-brand">
+                Loading list log...
+              </div>
+            ) : logError ? (
+              <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
+                {logError}
+              </div>
+            ) : logSessions.length === 0 ? (
+              <div className="mt-6 rounded-xl border border-zinc-200 bg-brand-light/50 p-5 text-sm leading-6 text-slate-600">
+                Completed narrowing sessions will appear here after this list reaches a winner.
+              </div>
+            ) : (
+              <div className="mt-6 space-y-4">
+                {logSessions.map((session) => (
+                  <article key={session.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-sm font-bold text-brand">
+                          {session.winner ? session.winner.title : "No winner recorded"}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {new Date(session.completedAt).toLocaleString([], {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                          {session.mode ? ` · ${session.mode === "virtual" ? "Virtual" : "In person"}` : ""}
+                        </div>
+                      </div>
+                      <div className="rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold text-brand">
+                        {session.path.join(" -> ")}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {session.rounds.map((round) => (
+                        <details key={`${session.id}-${round.round}`} className="rounded-xl border border-zinc-100 bg-brand-light/40 p-3">
+                          <summary className="cursor-pointer text-sm font-semibold text-brand">
+                            Round {round.round}: {round.from} to {round.to}
+                          </summary>
+                          <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                            <div>
+                              <div className="text-xs font-bold uppercase tracking-wide text-slate-500">Kept</div>
+                              <ul className="mt-2 space-y-1 text-slate-700">
+                                {round.kept.map((item) => (
+                                  <li key={item.id}>{item.title}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold uppercase tracking-wide text-slate-500">Removed</div>
+                              <ul className="mt-2 space-y-1 text-slate-500">
+                                {round.removed.length > 0 ? (
+                                  round.removed.map((item) => <li key={item.id}>{item.title}</li>)
+                                ) : (
+                                  <li>None</li>
+                                )}
+                              </ul>
+                            </div>
+                          </div>
+                        </details>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -758,6 +905,18 @@ export default function ViewListPage() {
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              onClick={handleOpenListLog}
+              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+              title="List log"
+              aria-label="List log"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M12 8v5l3 2" />
+                <path d="M3 12a9 9 0 1 0 3-6.7" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
               className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"

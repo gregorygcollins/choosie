@@ -69,6 +69,7 @@ model List {
   items       Item[]
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   progress    Progress?
+  narrowingSessions NarrowingSession[]
 }
 
 model Item {
@@ -96,6 +97,21 @@ model Progress {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   list         List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+}
+
+model NarrowingSession {
+  id                String   @id @default(cuid())
+  listId            String
+  mode              String?
+  startedAt         DateTime @default(now())
+  completedAt       DateTime @default(now())
+  winnerItemId      String?
+  startingItemCount Int
+  roundsJson        Json
+  createdAt         DateTime @default(now())
+  list              List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@index([listId, completedAt])
 }
 
 model Subscription {
