@@ -7,7 +7,7 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: "If you're into it, others are too.",
-    body: "Make a list of the movies you want to watch with your group.",
+    body: <>Make a list of movies <strong>you</strong>’d love to watch with a group or person.</>,
     phone: <BuildPhone />,
   },
   {
@@ -95,7 +95,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
-            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists for every group activity.
+            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists. Choosie passionate overlap for every group activity.
           </p>
           <Link
             href="/pricing"
@@ -134,7 +134,7 @@ function BuildPhone() {
     <PhoneFrame>
       <PhoneHeader title="Create list" />
       <div className="space-y-2 p-3">
-        <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Film club</div>
+        <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Thanksgiving 2026</div>
         {["The Odyssey", "Under the Skin", "Out of Africa"].map((item, index) => (
           <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-2 py-2 shadow-sm">
             <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[0.62rem] font-semibold text-white">{index + 1}</span>
@@ -204,7 +204,7 @@ function WinnerPhone() {
         <div className="absolute right-5 top-12 text-sm text-sky-400">✦</div>
         <div className="mx-auto mt-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-lg shadow-sm">🎉</div>
         <div className="mt-4 text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
-        <div className="mt-2 text-lg font-bold leading-tight text-brand">City of God</div>
+        <div className="mt-2 text-lg font-bold leading-tight text-brand">The Godfather</div>
         <div className="mx-auto mt-5 w-fit rounded-full bg-consensus px-3 py-2 text-[0.66rem] font-bold text-brand-dark">Share</div>
       </div>
     </PhoneFrame>
