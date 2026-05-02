@@ -16,7 +16,7 @@ export default function ChoosieLogo({ size = "nav", className = "" }: ChoosieLog
       ].join(" ")}
     >
       <img
-        src="/choosie-logo-lockup.png"
+        src="/choosie-logo-nav-flat.png"
         alt=""
         aria-hidden="true"
         className={[
