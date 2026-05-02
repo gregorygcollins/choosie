@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as any; // Stripe.Checkout.Session
         const customerId = String(session.customer || "");
         const subscriptionId = session.subscription ? String(session.subscription) : undefined;
-        const userId = session.metadata?.userId as string | undefined;
+        const email = session.customer_details?.email || session.customer_email || undefined;
+        const userId = (session.metadata?.userId as string | undefined) || (await resolveUserIdByEmail(email));
 
         // Ensure we have a Subscription row linked to this user
         if (userId) {
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
           await prisma.subscription.upsert({
             where: { stripeCustomerId: customerId },
             update: {},
-            create: { userId: userId || (await resolveUserIdByCustomerMetadata(customerId)) || "", stripeCustomerId: customerId, status: "created" },
+            create: { userId: userId || (await resolveUserIdByCustomer(customerId)) || "", stripeCustomerId: customerId, status: "created" },
           });
         }
         break;
@@ -100,7 +101,7 @@ async function upsertFromStripeSubscription(sub: any, hintedUserId?: string) {
   let existing = await prisma.subscription.findFirst({ where: { OR: [ { stripeSubscriptionId: subscriptionId }, { stripeCustomerId: customerId } ] } });
 
   // Resolve userId
-  let userId = existing?.userId || hintedUserId || (await resolveUserIdByCustomerMetadata(customerId));
+  let userId = existing?.userId || hintedUserId || (await resolveUserIdByCustomer(customerId));
 
   if (!existing && userId) {
     existing = await prisma.subscription.findFirst({ where: { userId } });
@@ -138,10 +139,17 @@ async function upsertFromStripeSubscription(sub: any, hintedUserId?: string) {
   }
 }
 
-// Placeholder: if you store metadata mapping customer->user elsewhere, resolve here
-async function resolveUserIdByCustomerMetadata(_customerId: string): Promise<string | undefined> {
-  // In this MVP, we rely on checkout.session.metadata.userId to link accounts.
-  // If needed, you could fetch the customer from Stripe and inspect customer.metadata
-  // to recover userId in the future.
-  return undefined;
+async function resolveUserIdByCustomer(customerId: string): Promise<string | undefined> {
+  const stripe = getStripe();
+  const customer = await stripe.customers.retrieve(customerId).catch(() => null);
+  if (!customer || customer.deleted) return undefined;
+  const metadataUserId = customer.metadata?.userId;
+  if (metadataUserId) return metadataUserId;
+  return resolveUserIdByEmail(customer.email || undefined);
+}
+
+async function resolveUserIdByEmail(email?: string | null): Promise<string | undefined> {
+  if (!email) return undefined;
+  const user = await prisma.user.findUnique({ where: { email } }).catch(() => null);
+  return user?.id;
 }

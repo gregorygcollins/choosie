@@ -67,7 +67,7 @@ function SignupContent() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
           {isPro
-            ? "Sign up, then complete your $2.99/mo Pro upgrade to save unlimited lists across every module."
+            ? "Sign up, then complete your $1.99/mo Pro upgrade to save unlimited lists across every module."
             : "Sign up to save your movie list, share links, and keep narrowing across devices."}
         </p>
 

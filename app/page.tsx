@@ -13,13 +13,13 @@ const walkthrough = [
   {
     eyebrow: "Invite",
     title: "Start narrowing.",
-    body: "Narrow your list in person or share a virtual link with your group.",
+    body: "Pass the phone around or send out a link.",
     phone: <InvitePhone />,
   },
   {
     eyebrow: "Narrow",
     title: "Everyone takes a turn.",
-    body: "Eliminate compromise, bickering, and endless scrolling.",
+    body: "Narrow the list to 5, to 3, to 1.",
     phone: <NarrowPhone />,
   },
   {

@@ -20,7 +20,7 @@ export default function PricingPage() {
             Pro
           </div>
           <div className="flex items-end gap-2">
-            <span className="text-4xl font-bold text-brand">$2.99</span>
+            <span className="text-4xl font-bold text-brand">$1.99</span>
             <span className="pb-1 text-sm font-semibold text-slate-500">/mo</span>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">
