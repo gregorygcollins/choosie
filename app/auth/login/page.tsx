@@ -110,7 +110,7 @@ function LoginForm() {
               Free gets you started with a movie list. Pro lets you save unlimited lists across movies, books, music, food, and anything.
             </p>
             <p className="mt-3 text-xs leading-5 text-slate-500">
-              Pro is $1.99/mo for groups who keep choosing together.
+              Pro is $2.99/mo or $29.99/yr for groups who keep choosing together.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-slate-700">
               <li>Save unlimited lists</li>

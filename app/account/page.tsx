@@ -78,12 +78,11 @@ export default function AccountPage() {
     };
   }, [status]);
 
-  async function startCheckout() {
+  async function startCheckout(billing: "monthly" | "annual" = "monthly") {
     setBusy(true);
     setError(null);
     try {
-      // Prefer server-side redirect flow (avoids JSON parsing/CORS edge-cases)
-      window.location.href = "/api/stripe/checkout";
+      window.location.href = `/api/stripe/checkout?billing=${billing}`;
     } catch (err: any) {
       setError(err?.message || "Navigation error");
       setBusy(false);
@@ -177,7 +176,7 @@ export default function AccountPage() {
 
           <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
-              {user.isPro ? "Active" : "$1.99/mo"}
+              {user.isPro ? "Active" : "$2.99/mo or $29.99/yr"}
             </div>
             <h2 className="text-lg font-bold text-brand">
               {user.isPro ? "Choosie Pro is active" : "Upgrade to Choosie Pro"}
@@ -216,13 +215,22 @@ export default function AccountPage() {
                   Manage subscription
                 </button>
               ) : (
-                <button
-                  disabled={busy}
-                  onClick={startCheckout}
-                  className="w-full rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50"
-                >
-                  {upgradeIntent ? "Complete Pro upgrade" : "Upgrade to Pro"}
-                </button>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    disabled={busy}
+                    onClick={() => startCheckout("monthly")}
+                    className="rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50"
+                  >
+                    {upgradeIntent ? "Monthly" : "Monthly Pro"}
+                  </button>
+                  <button
+                    disabled={busy}
+                    onClick={() => startCheckout("annual")}
+                    className="rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+                  >
+                    {upgradeIntent ? "Annual" : "Annual Pro"}
+                  </button>
+                </div>
               )}
             </div>
           </div>

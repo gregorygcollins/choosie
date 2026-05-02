@@ -12,7 +12,11 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ billing: "monthly" }),
+      });
       const data = await res.json();
       if (data?.url) {
         window.location.href = data.url;

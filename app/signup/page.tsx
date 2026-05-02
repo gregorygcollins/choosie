@@ -12,8 +12,9 @@ function SignupContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const plan = searchParams.get("plan");
+  const billing = searchParams.get("billing") === "annual" ? "annual" : "monthly";
   const isPro = plan === "pro";
-  const callbackUrl = isPro ? "/account?intent=upgrade" : "/new";
+  const callbackUrl = isPro ? `/account?intent=upgrade&billing=${billing}` : "/new";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,7 +68,7 @@ function SignupContent() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
           {isPro
-            ? "Sign up, then complete your $1.99/mo Pro upgrade to save unlimited lists across every module."
+            ? `Sign up, then complete your ${billing === "annual" ? "$29.99/yr" : "$2.99/mo"} Pro upgrade to save unlimited lists across every module.`
             : "Sign up to save your movie list, share links, and keep narrowing across devices."}
         </p>
 
