@@ -184,7 +184,7 @@ export default function AccountPage() {
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {user.isPro
                 ? "Manage your subscription and billing details through Stripe."
-                : "Save unlimited lists across movies, books, music, food, and anything else you want to choose together."}
+                : "Save unlimited lists and look back at winners, dinners, places, and who narrowed last time."}
             </p>
 
             {error && (

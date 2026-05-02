@@ -45,7 +45,7 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
           <li>Unlimited saved lists</li>
           <li>Movie, book, food, music, and anything lists</li>
           <li>Virtual narrowing (remote invites via email or text)</li>
-          <li>Newer modules and early features</li>
+          <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
         </ul>
         {error && (
           <div className="mt-3 rounded-md bg-rose-100 p-2 text-sm text-rose-700">{error}</div>

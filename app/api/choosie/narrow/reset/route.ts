@@ -24,6 +24,7 @@ const resetSchema = z.object({
   listId: z.string().min(1).max(50),
   participantToken: participantTokenSchema.optional(),
   sessionId: z.string().min(1).max(80).optional(),
+  participants: z.number().int().min(1).max(3).optional(),
 });
 
 async function getList(listId: string) {
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Reset progress to initial state
     const tj: any = list.tasteJson || {};
     const invitees = extractInvitees(list);
-    const participantCount = typeof tj.participants === "number" ? tj.participants : invitees.length || 1;
+    const participantCount = data.participants ?? (typeof tj.participants === "number" ? tj.participants : invitees.length || 1);
     const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
     const initialState = {
@@ -93,6 +94,7 @@ export async function POST(req: NextRequest) {
       data: {
         tasteJson: {
           ...tj,
+          participants: participantCount,
           participantClaims: [],
           activeVirtualSessionId: data.sessionId || null,
         },

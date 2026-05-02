@@ -73,6 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // This avoids OAuth failures in environments where DATABASE_URL points to localhost.
   ...(usePrismaAdapter ? { adapter: PrismaAdapter(prisma) } : {}),
   providers,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   session: { 
     strategy: "jwt",

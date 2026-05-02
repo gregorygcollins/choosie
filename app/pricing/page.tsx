@@ -30,7 +30,7 @@ export default function PricingPage() {
             <li>Unlimited saved lists across every module</li>
             <li>Movie, book, food, music, and anything lists</li>
             <li>Virtual narrowing links for remote groups</li>
-            <li>Newer modules and early features</li>
+            <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
           </ul>
           <Link
             href="/api/stripe/checkout?billing=monthly"
@@ -55,7 +55,7 @@ export default function PricingPage() {
             <li>Everything in monthly Pro</li>
             <li>Unlimited saved lists across every module</li>
             <li>Movie, book, food, music, and anything lists</li>
-            <li>Virtual narrowing links for remote groups</li>
+            <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
           </ul>
           <Link
             href="/api/stripe/checkout?billing=annual"

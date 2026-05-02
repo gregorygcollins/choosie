@@ -120,7 +120,7 @@ function LoginForm() {
               <li>Save unlimited lists</li>
               <li>Create lists for movies, books, music, food, and more</li>
               <li>Share virtual narrowing links with your group</li>
-              <li>Try newer modules and early features</li>
+              <li>Look back at winners, dinners, places, and who narrowed last time</li>
             </ul>
             <Link
               href="/pricing"

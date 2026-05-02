@@ -162,7 +162,7 @@ export default function ViewListPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ listId: list.id, sessionId }),
+          body: JSON.stringify({ listId: list.id, sessionId, participants: count }),
         });
       } catch (err) {
         console.error("Failed to sync narrowing setup to server:", err);
