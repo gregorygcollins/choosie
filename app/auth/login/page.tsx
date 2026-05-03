@@ -110,15 +110,15 @@ function LoginForm() {
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
               Pro
             </div>
-            <h2 className="text-xl font-bold text-brand">Save every list</h2>
+            <h2 className="text-xl font-bold text-brand">Choosie passionate overlap</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Free gets you started with a movie list. Pro lets you save unlimited lists across movies, books, music, food, and anything.
+              Free gets you started with a movie list. Pro lets you make and save unlimited lists across movies, books, music, food, and anything.
             </p>
             <p className="mt-3 text-xs leading-5 text-slate-500">
-              Pro is $2.99/mo or $29.99/yr for groups who keep choosing together.
+              Pro is $2.99/mo or $29.99/yr.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-slate-700">
-              <li>Save unlimited lists</li>
+              <li>Make and save unlimited lists</li>
               <li>Create lists for movies, books, music, food, and more</li>
               <li>Share virtual narrowing links with your group</li>
               <li>Look back at winners, dinners, places, and who narrowed last time</li>

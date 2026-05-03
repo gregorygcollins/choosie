@@ -132,6 +132,41 @@ function getModuleLabel(module: string) {
   return "Movies";
 }
 
+function getModuleStyle(module: string) {
+  if (module === "books") {
+    return {
+      badge: "bg-blue-100 text-blue-800",
+      thumbnail: "bg-blue-50 text-blue-700 ring-blue-200",
+    };
+  }
+
+  if (module === "food") {
+    return {
+      badge: "bg-emerald-100 text-emerald-800",
+      thumbnail: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    };
+  }
+
+  if (module === "music") {
+    return {
+      badge: "bg-violet-100 text-violet-800",
+      thumbnail: "bg-violet-50 text-violet-700 ring-violet-200",
+    };
+  }
+
+  if (module === "anything") {
+    return {
+      badge: "bg-rose-100 text-rose-800",
+      thumbnail: "bg-rose-50 text-rose-700 ring-rose-200",
+    };
+  }
+
+  return {
+    badge: "bg-teal-100 text-teal-800",
+    thumbnail: "bg-teal-50 text-teal-700 ring-teal-200",
+  };
+}
+
 function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
   const seen = new Set(serverLists.map((list) => list.id));
   return [...serverLists, ...localLists.filter((list) => !seen.has(list.id))];
@@ -150,10 +185,15 @@ function ListThumbnail({
 }) {
   const image = list.items?.[0]?.image;
   const firstTitle = list.items?.[0]?.title;
+  const moduleStyle = getModuleStyle(module);
 
   return (
     <span
-      className="relative inline-flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand-light text-brand ring-1 ring-brand/10"
+      className={[
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1",
+        variant === "grid" ? "h-10 w-10" : "h-14 w-14",
+        moduleStyle.thumbnail,
+      ].join(" ")}
       title={firstTitle || `${moduleLabel} list`}
       aria-label={firstTitle ? `First item: ${firstTitle}` : `${moduleLabel} list`}
     >
@@ -342,14 +382,15 @@ export default function ListsPage() {
                   : list.id?.startsWith("anything-") ? "anything"
                   : "movies");
             const moduleLabel = getModuleLabel(derivedModule);
+            const moduleStyle = getModuleStyle(derivedModule);
             
             return (
             <div
               key={list.id}
               onClick={() => router.push(`/list/${list.id}`)}
               className={[
-                "card cursor-pointer rounded-2xl p-6 transition-transform hover:translate-y-[-2px]",
-                viewMode === "grid" ? "flex min-h-[10rem] flex-col gap-4" : "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+                "card cursor-pointer rounded-2xl transition-transform hover:translate-y-[-2px]",
+                viewMode === "grid" ? "flex min-h-[8.5rem] flex-col gap-3 p-5" : "flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between",
               ].join(" ")}
               role="button"
               tabIndex={0}
@@ -367,7 +408,7 @@ export default function ListsPage() {
                     <h2 className="font-medium text-brand">
                       {list.title}
                     </h2>
-                    <span className="mt-1 inline-flex rounded-full bg-consensus/10 px-2 py-0.5 text-xs font-semibold text-brand">
+                    <span className={["mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
                       {moduleLabel}
                     </span>
                   </div>

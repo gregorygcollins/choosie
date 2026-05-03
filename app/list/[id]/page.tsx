@@ -648,9 +648,11 @@ export default function ViewListPage() {
                 {shareUrl}
               </a>
             </div>
-            <div className="mt-5 flex gap-2">
+            <div className="mt-5 flex justify-center gap-3">
               <button
                 type="button"
+                title="Copy link"
+                aria-label="Copy link"
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(shareUrl);
@@ -659,16 +661,24 @@ export default function ViewListPage() {
                     toast("Copy failed", "error");
                   }
                 }}
-                className="flex-1 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white transition hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/40"
               >
-                Copy link
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <rect x="3" y="3" width="13" height="13" rx="2" />
+                </svg>
               </button>
               <button
                 type="button"
+                title="Close"
+                aria-label="Close share dialog"
                 onClick={() => setShowShareModal(false)}
-                className="flex-1 rounded-full bg-zinc-100 px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-200"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-brand transition hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/40"
               >
-                Done
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
               </button>
             </div>
           </div>
