@@ -138,9 +138,8 @@ function BuildPhone() {
       <div className="space-y-2 p-3">
         <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Thanksgiving watchlist</div>
         <div className="h-[5.6rem] space-y-2 overflow-hidden">
-          {["The Odyssey", "Toy Story", "Bridesmaids"].map((item, index) => (
-            <div key={item} className="flex items-center gap-2 rounded-lg border border-consensus bg-consensus/10 px-2 py-1.5">
-              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[0.62rem] font-semibold text-white">{index + 1}</span>
+          {["The Odyssey", "Toy Story", "Bridesmaids"].map((item) => (
+            <div key={item} className="rounded-lg border border-consensus bg-consensus/10 px-2 py-1.5">
               <span className="truncate text-[0.68rem] font-semibold text-brand">{item}</span>
             </div>
           ))}
