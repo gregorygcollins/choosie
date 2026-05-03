@@ -8,6 +8,7 @@ export type ChoosieItem = {
 export type ChoosieList = {
   id: string;
   title: string;
+  description?: string;
   items: ChoosieItem[];
   createdAt: string;
   share?: {

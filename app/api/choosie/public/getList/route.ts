@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       id: list.id,
       title: list.title,
+      description: list.description || undefined,
       moduleType: mapModule(list.module, tasteJson),
       items: list.items.map((it: any) => ({ id: it.id, title: it.title, notes: it.notes, image: it.imageUrl || null })),
       winnerItemId: list.progress?.winnerItemId || null,

@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
       list: {
         id: list.id,
         title: list.title,
+        description: list.description || undefined,
         items: list.items.map((it) => ({
           id: it.id,
           title: it.title,

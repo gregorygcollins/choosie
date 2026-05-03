@@ -38,12 +38,14 @@ export async function createList(
   items?: Array<{ title: string; notes?: string; image?: string | null; tmdbId?: string }>,
   module: ModuleType = "MOVIES",
   metadata?: any,
+  description?: string,
 ): Promise<ListWithItems> {
   await ensureDevUser();
   const list = await prisma.list.create({
     data: {
       userId: userId || DEV_USER_ID,
       title: title.trim() || "Untitled",
+      description: description?.trim() || undefined,
       module,
       items: items
         ? {

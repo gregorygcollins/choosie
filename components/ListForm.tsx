@@ -18,6 +18,7 @@ export type ChoosieItem = {
 export type ChoosieList = {
   id: string;
   title: string;
+  description?: string;
   items: ChoosieItem[];
   createdAt: string;
   // Module type for different list types (movies, books, recipes, etc.)
@@ -71,6 +72,7 @@ export default function ListForm({
   existingList?: ChoosieList | null;
 }) {
   const [title, setTitle] = useState(existingList?.title || "");
+  const [description, setDescription] = useState(existingList?.description || "");
   const [items, setItems] = useState<ChoosieItem[]>(existingList?.items || []);
   const [input, setInput] = useState("");
   const [note, setNote] = useState("");
@@ -156,6 +158,7 @@ export default function ListForm({
   useEffect(() => {
     if (existingList) {
       setTitle(existingList.title || "");
+      setDescription(existingList.description || "");
       setItems(existingList.items || []);
       setEventDate(existingList.event?.date || "");
       setEventLocation(existingList.event?.location || "");
@@ -317,6 +320,7 @@ export default function ListForm({
     const list: ChoosieList = {
       id: existingList?.id || id(),
       title: title.trim(),
+      description: description.trim() || undefined,
       items,
       createdAt: existingList?.createdAt || new Date().toISOString(),
       event,
@@ -340,6 +344,13 @@ export default function ListForm({
           onChange={(e) => setTitle(e.target.value)}
           className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
           placeholder="Family vacation, Film club, Date night, etc."
+        />
+        <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+          placeholder="What is this list for?"
         />
       </div>
 

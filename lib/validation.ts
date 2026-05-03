@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const createListSchema = z.object({
   title: z.string().min(1).max(200).trim(),
+  description: z.string().max(1000).optional(),
   // Accept either `module` or `moduleType` from clients; map later in route
   module: z.enum(["movies", "books", "food", "anything", "music"]).optional(),
   moduleType: z.enum(["movies", "books", "food", "anything", "music"]).optional(),

@@ -77,7 +77,8 @@ export async function POST(req: NextRequest) {
       validatedData.title,
       items,
       moduleEnum,
-      { module: clientModule }
+      { module: clientModule },
+      validatedData.description
     );
   
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest) {
       list: {
         id: list.id,
         title: list.title,
+        description: list.description || undefined,
         items: list.items.map((it) => ({
           id: it.id,
           title: it.title,

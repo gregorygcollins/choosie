@@ -25,6 +25,7 @@ export default function NewPageClient() {
   
   // Book list state
   const [bookListTitle, setBookListTitle] = useState("");  // List name
+  const [bookDescription, setBookDescription] = useState("");
   const [bookSearchInput, setBookSearchInput] = useState("");  // Book search field
   const [bookItems, setBookItems] = useState<ChoosieItem[]>([]);
   const [bookNote, setBookNote] = useState("");
@@ -35,6 +36,7 @@ export default function NewPageClient() {
 
   // Music list state
   const [musicListTitle, setMusicListTitle] = useState("");  // List name
+  const [musicDescription, setMusicDescription] = useState("");
   const [musicSearchInput, setMusicSearchInput] = useState("");  // Song search field
   const [musicItems, setMusicItems] = useState<ChoosieItem[]>([]);
   const [musicNote, setMusicNote] = useState("");
@@ -46,6 +48,7 @@ export default function NewPageClient() {
 
   // Food list state
   const [foodTitle, setFoodTitle] = useState("");
+  const [foodDescription, setFoodDescription] = useState("");
   const [foodInput, setFoodInput] = useState("");
   const [foodItems, setFoodItems] = useState<ChoosieItem[]>([]);
   const [foodNote, setFoodNote] = useState("");
@@ -56,6 +59,7 @@ export default function NewPageClient() {
 
   // Anything list state (no API search, manual entry only)
   const [anythingTitle, setAnythingTitle] = useState("");
+  const [anythingDescription, setAnythingDescription] = useState("");
   const [anythingItems, setAnythingItems] = useState<ChoosieItem[]>([]);
   const [anythingInput, setAnythingInput] = useState("");
   const [anythingNote, setAnythingNote] = useState("");
@@ -102,21 +106,25 @@ export default function NewPageClient() {
       if (list.moduleType === "books") {
         setSelectedModule("books");
         setBookListTitle(list.title);
+        setBookDescription(list.description || "");
         setBookItems(list.items);
         setExistingList(list);
       } else if (list.moduleType === "music") {
         setSelectedModule("music");
         setMusicListTitle(list.title);
+        setMusicDescription(list.description || "");
         setMusicItems(list.items);
         setExistingList(list);
       } else if (list.moduleType === "food") {
         setSelectedModule("food");
         setFoodTitle(list.title);
+        setFoodDescription(list.description || "");
         setFoodItems(list.items);
         setExistingList(list);
       } else if (list.moduleType === "anything") {
         setSelectedModule("anything");
         setAnythingTitle(list.title);
+        setAnythingDescription(list.description || "");
         setAnythingItems(list.items);
         setExistingList(list);
       } else {
@@ -159,6 +167,7 @@ export default function NewPageClient() {
       ...serverList,
       id: serverId,
       moduleType: serverList?.moduleType || fallbackList.moduleType,
+      description: serverList?.description || fallbackList.description,
       items: serverList?.items || fallbackList.items,
       createdAt: serverList?.createdAt || fallbackList.createdAt,
     };
@@ -237,6 +246,7 @@ export default function NewPageClient() {
         const payload = {
           listId: list.id,
           title: listWithModule.title,
+          description: listWithModule.description,
           items: (listWithModule.items || []).map((it: any) => ({
             id: it.id,
             title: it.title,
@@ -272,6 +282,7 @@ export default function NewPageClient() {
     if (me && (me as any).id) {
       const payload = {
         title: listWithModule.title,
+        description: listWithModule.description,
         moduleType: selectedModule,
         items: (listWithModule.items || []).map((it: any) => ({
           title: it.title,
@@ -306,21 +317,25 @@ export default function NewPageClient() {
     setSelectedModule(moduleId);
     // Reset book state
     setBookListTitle("");
+    setBookDescription("");
     setBookSearchInput("");
     setBookItems([]);
     setBookNote("");
     // Reset music state
     setMusicListTitle("");
+    setMusicDescription("");
     setMusicSearchInput("");
     setMusicItems([]);
     setMusicNote("");
     setMusicAlbumArt(undefined);
     // Reset food state
     setFoodTitle("");
+    setFoodDescription("");
     setFoodItems([]);
     setFoodNote("");
     // Reset anything state
     setAnythingTitle("");
+    setAnythingDescription("");
     setAnythingItems([]);
     setAnythingInput("");
     setAnythingNote("");
@@ -427,6 +442,7 @@ export default function NewPageClient() {
     const list: ChoosieList = {
       id: existingList?.id || `book-${Date.now()}`,
       title: bookListTitle,
+      description: bookDescription.trim() || undefined,
       moduleType: "books",
       items: bookItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -443,6 +459,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        description: list.description,
         moduleType: "books",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
@@ -560,6 +577,7 @@ export default function NewPageClient() {
     const list: ChoosieList = {
       id: existingList?.id || `music-${Date.now()}`,
       title: musicListTitle,
+      description: musicDescription.trim() || undefined,
       moduleType: "music",
       items: musicItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -576,6 +594,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        description: list.description,
         moduleType: "music",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
@@ -696,6 +715,7 @@ export default function NewPageClient() {
     const list: ChoosieList = {
       id: existingList?.id || `food-${Date.now()}`,
       title: foodTitle,
+      description: foodDescription.trim() || undefined,
       moduleType: "food",
       items: foodItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -712,6 +732,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        description: list.description,
         moduleType: "food",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes, image: it.image })),
       };
@@ -812,6 +833,7 @@ export default function NewPageClient() {
     const list: ChoosieList = {
       id: existingList?.id || `anything-${Date.now()}`,
       title: anythingTitle,
+      description: anythingDescription.trim() || undefined,
       moduleType: "anything",
       items: anythingItems,
       createdAt: existingList?.createdAt || new Date().toISOString(),
@@ -828,6 +850,7 @@ export default function NewPageClient() {
     if (me?.id) {
       const payload = {
         title: list.title,
+        description: list.description,
         moduleType: "anything",
         items: list.items.map((it) => ({ title: it.title, notes: it.notes })),
       };
@@ -869,6 +892,13 @@ export default function NewPageClient() {
               onChange={(e) => setBookListTitle(e.target.value)}
               className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Book club, Reading group, etc."
+            />
+            <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+            <textarea
+              value={bookDescription}
+              onChange={(e) => setBookDescription(e.target.value)}
+              className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+              placeholder="What is this list for?"
             />
           </div>
           {/* Add items panel */}
@@ -1011,6 +1041,13 @@ export default function NewPageClient() {
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Karaoke night, Roadtrip, etc."
           />
+          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <textarea
+            value={musicDescription}
+            onChange={(e) => setMusicDescription(e.target.value)}
+            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            placeholder="What is this list for?"
+          />
         </div>
         {/* Add items panel */}
         <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${musicSugs.length > 0 || musicSugsLoading ? "z-[80]" : "z-10"}`}>
@@ -1143,6 +1180,13 @@ export default function NewPageClient() {
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Weekday dinners, Holiday dishes, etc."
           />
+          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <textarea
+            value={foodDescription}
+            onChange={(e) => setFoodDescription(e.target.value)}
+            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            placeholder="What is this list for?"
+          />
         </div>
         {/* Add items panel */}
         <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
@@ -1250,6 +1294,13 @@ export default function NewPageClient() {
             onChange={(e) => setAnythingTitle(e.target.value)}
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Travel destinations, Baby names, etc."
+          />
+          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <textarea
+            value={anythingDescription}
+            onChange={(e) => setAnythingDescription(e.target.value)}
+            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            placeholder="What is this list for?"
           />
         </div>
         {/* Add items panel */}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadLists, removeList } from "@/lib/storage";
+import { loadLists, removeList, upsertList } from "@/lib/storage";
 import type { ChoosieList } from "@/components/ListForm";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { toast } from "@/components/Toast";
@@ -221,6 +221,9 @@ export default function ListsPage() {
   const [deleteTarget, setDeleteTarget] = useState<ChoosieList | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [descriptionTarget, setDescriptionTarget] = useState<ChoosieList | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionSaving, setDescriptionSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -290,6 +293,42 @@ export default function ListsPage() {
     setIsDeleting(false);
   }
 
+  function openDescriptionEditor(list: ChoosieList) {
+    setDescriptionTarget(list);
+    setDescriptionDraft(list.description || "");
+  }
+
+  async function saveDescription() {
+    if (!descriptionTarget) return;
+    const description = descriptionDraft.trim();
+    const nextList = { ...descriptionTarget, description: description || undefined };
+    setDescriptionSaving(true);
+    upsertList(nextList);
+    setLists((prev) => prev.map((list) => (list.id === nextList.id ? nextList : list)));
+
+    try {
+      const res = await fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ listId: nextList.id, description }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.ok && data.list) {
+        upsertList(data.list);
+        setLists((prev) => prev.map((list) => (list.id === data.list.id ? { ...list, ...data.list } : list)));
+        toast("Description updated", "success");
+      } else {
+        toast("Description saved on this device", "success");
+      }
+    } catch {
+      toast("Description saved on this device", "success");
+    } finally {
+      setDescriptionSaving(false);
+      setDescriptionTarget(null);
+    }
+  }
+
   if (lists.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-8">
@@ -323,6 +362,54 @@ export default function ListsPage() {
         onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
         onCancel={() => setDeleteTarget(null)}
       />
+      {descriptionTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setDescriptionTarget(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="description-editor-title"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Description</p>
+                <h2 id="description-editor-title" className="mt-1 text-xl font-semibold text-brand">
+                  {descriptionTarget.title}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDescriptionTarget(null)}
+                className="grid h-9 w-9 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                title="Close"
+                aria-label="Close description editor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            <textarea
+              value={descriptionDraft}
+              onChange={(e) => setDescriptionDraft(e.target.value)}
+              className="mt-5 min-h-32 w-full resize-y rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-800 outline-none focus:ring-2 focus:ring-brand/30"
+              placeholder="What is this list for?"
+            />
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={saveDescription}
+                disabled={descriptionSaving}
+                className="rounded-full bg-consensus px-5 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {descriptionSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className={["mx-auto", viewMode === "grid" ? "max-w-5xl" : "max-w-3xl"].join(" ")}>
         {usedLocalFallback && (
@@ -413,6 +500,9 @@ export default function ListsPage() {
                     </span>
                   </div>
                 </div>
+                {list.description && (
+                  <p className="line-clamp-2 text-sm leading-5 text-zinc-500">{list.description}</p>
+                )}
                 <div className="mt-1 flex gap-4 text-sm text-zinc-500">
                   <span>{list.items.length} items</span>
                   <span>Created {formatDate(list.createdAt)}</span>
@@ -428,6 +518,35 @@ export default function ListsPage() {
                     Continue narrowing
                   </Link>
                 )}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openDescriptionEditor(list);
+                  }}
+                  className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+                  title="Edit description"
+                  aria-label={`Edit description for ${list.title}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M4 5h16" />
+                    <path d="M4 12h10" />
+                    <path d="M4 19h7" />
+                    <path d="m16 18 4-4" />
+                    <path d="m18 12 2 2" />
+                  </svg>
+                </button>
                 <button
                   onClick={(e) => {
                     e.preventDefault();

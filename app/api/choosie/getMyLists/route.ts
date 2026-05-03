@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       lists: lists.map((l) => ({
         id: l.id,
         title: l.title,
+        description: l.description || undefined,
         items: l.items.map((it) => ({ id: it.id, title: it.title, notes: it.notes, image: it.imageUrl })),
         createdAt: l.createdAt.toISOString(),
         moduleType:

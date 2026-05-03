@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { listId, title, items, participants } = body;
+    const { listId, title, description, items, participants } = body;
 
     if (!listId) {
       return withCORS(
@@ -67,6 +67,9 @@ export async function POST(req: NextRequest) {
     const updates: any = {};
     if (title !== undefined) {
       updates.title = title;
+    }
+    if (description !== undefined) {
+      updates.description = String(description).trim() || null;
     }
     if (participants !== undefined) {
       // Store participants in tasteJson
@@ -143,6 +146,7 @@ export async function POST(req: NextRequest) {
       list: {
         id: finalList!.id,
         title: finalList!.title,
+        description: finalList!.description || undefined,
         items: finalList!.items.map((it: any) => ({
           id: it.id,
           title: it.title,
