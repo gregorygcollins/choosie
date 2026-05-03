@@ -24,7 +24,7 @@ const walkthrough = [
   },
   {
     eyebrow: "Decide",
-    title: "Uncover your shared interest...",
+    title: "Uncover the overlap...",
     body: "And enjoy!",
     phone: <WinnerPhone />,
   },
