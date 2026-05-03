@@ -95,7 +95,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-            <span className="block">Free lets you make a movie list. Pro lets you make and save unlimited movie, book, music, food, and anything lists. Perfect for book clubs, karaoke nights, and deciding what or where to eat. Choosie <strong>passionate overlap</strong> every time.</span>
+            <span className="block">Free lets you make a movie list. Pro lets you make and save unlimited movie, book, music, food, and anything lists. Perfect for book clubs, karaoke nights, and deciding what and where to eat. Choosie <strong>passionate overlap</strong> every time.</span>
           </p>
           <Link
             href="/pricing"
