@@ -903,7 +903,7 @@ export default function ViewListPage() {
       />
       
       <ProcessSection />
-      <div className="mx-auto max-w-3xl bg-white rounded-2xl p-8 shadow-soft">
+      <div className={["mx-auto bg-white rounded-2xl p-8 shadow-soft", viewMode === "grid" ? "max-w-6xl" : "max-w-3xl"].join(" ")}>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-semibold">{list.title}</h1>
           <div className="flex items-center gap-2">
@@ -1016,7 +1016,7 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="group rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="group relative rounded-lg border border-zinc-200 p-4 cursor-pointer transition-colors hover:bg-zinc-50 focus-within:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1035,67 +1035,56 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-16 w-16 overflow-hidden rounded-lg bg-zinc-100 shadow-sm ring-1 ring-zinc-200">
-                      {item.image ? (
-                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
-                      )}
-                    </div>
-                    <div className="cursor-grab text-zinc-300 transition-colors group-hover:text-zinc-400" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1 text-zinc-400">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openPreview(item);
-                      }}
-                      className="grid h-7 w-7 place-items-center rounded-full border border-zinc-200 bg-white text-xs font-semibold leading-none transition-colors hover:border-brand hover:text-brand"
-                      title="Item info"
-                      aria-label={`Show info for ${item.title}`}
-                    >
-                      i
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openItemEditor(item);
-                      }}
-                      className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-brand-light hover:text-brand"
-                      title="Edit item"
-                      aria-label={`Edit ${item.title}`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 20h9" />
-                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setItemToDelete(item.id);
-                      }}
-                      className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-red-50 hover:text-red-600"
-                      title="Remove item"
-                      aria-label={`Remove ${item.title}`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-                      </svg>
-                    </button>
-                  </div>
+                <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 p-1 text-zinc-400 opacity-100 shadow-sm ring-1 ring-zinc-200 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPreview(item);
+                    }}
+                    className="grid h-7 w-7 place-items-center rounded-full text-xs font-semibold leading-none transition-colors hover:bg-brand-light hover:text-brand"
+                    title="Item info"
+                    aria-label={`Show info for ${item.title}`}
+                  >
+                    i
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openItemEditor(item);
+                    }}
+                    className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-brand-light hover:text-brand"
+                    title="Edit item"
+                    aria-label={`Edit ${item.title}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setItemToDelete(item.id);
+                    }}
+                    className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-red-50 hover:text-red-600"
+                    title="Remove item"
+                    aria-label={`Remove ${item.title}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                    </svg>
+                  </button>
                 </div>
-                <div className="line-clamp-2 min-h-[2.5rem] text-base font-semibold leading-5 text-brand">{item.title}</div>
+                <div className="mb-3 h-14 w-14 overflow-hidden rounded-md bg-zinc-100">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
+                  )}
+                </div>
+                <div className="line-clamp-2 text-sm font-medium leading-5 text-brand">{item.title}</div>
                 {item.notes && (
-                  <div className="mt-2 line-clamp-2 text-sm leading-5 text-zinc-500">{item.notes}</div>
+                  <div className="mt-1 line-clamp-1 text-xs leading-5 text-zinc-500">{item.notes}</div>
                 )}
               </div>
             ))}
