@@ -32,6 +32,88 @@ type NarrowingPanelProps = {
   onShareWinner: () => void;
 };
 
+type RoleIconName = "cards" | "pencil" | "camera" | "slate" | "award";
+
+const ROLE_ICONS: Record<string, RoleIconName> = {
+  Curator: "cards",
+  Editor: "pencil",
+  Programmer: "camera",
+  Selector: "slate",
+  Decider: "award",
+};
+
+function RoleIcon({ role }: { role: string }) {
+  const icon = ROLE_ICONS[role] || "slate";
+  const commonProps = {
+    "aria-hidden": true,
+    viewBox: "0 0 32 32",
+    className: "h-5 w-5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (icon === "cards") {
+    return (
+      <svg {...commonProps}>
+        <path d="M8 10.5 20.5 6l3.5 10-12.5 4.5z" />
+        <path d="M10 14.5v8A2.5 2.5 0 0 0 12.5 25h11A2.5 2.5 0 0 0 26 22.5v-8A2.5 2.5 0 0 0 23.5 12H22" />
+        <path d="M14 18h7" />
+        <path d="M14 21h5" />
+      </svg>
+    );
+  }
+
+  if (icon === "pencil") {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 24.5 8.5 19 21 6.5a3 3 0 0 1 4.2 4.2L12.7 23.2z" />
+        <path d="m19 8.5 4.5 4.5" />
+        <path d="M8.5 19 13 23.5" />
+        <path d="M7 24.5h6" />
+      </svg>
+    );
+  }
+
+  if (icon === "camera") {
+    return (
+      <svg {...commonProps}>
+        <path d="M6.5 12.5A3.5 3.5 0 0 1 10 9h9a3.5 3.5 0 0 1 3.5 3.5v7A3.5 3.5 0 0 1 19 23h-9a3.5 3.5 0 0 1-3.5-3.5z" />
+        <path d="m22.5 14 4-2.4v8.8l-4-2.4" />
+        <path d="M12 9 13.5 6.5h4L19 9" />
+        <path d="M13 16a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" />
+      </svg>
+    );
+  }
+
+  if (icon === "slate") {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 12h18v11.5A2.5 2.5 0 0 1 22.5 26h-13A2.5 2.5 0 0 1 7 23.5z" />
+        <path d="M7 12 10 6h15v6" />
+        <path d="M12 6 9 12" />
+        <path d="M18 6 15 12" />
+        <path d="M24 6 21 12" />
+        <path d="M13 18h6" />
+        <path d="M13 21h4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <path d="M11 7h10v5.5A8.5 8.5 0 0 1 16 20a8.5 8.5 0 0 1-5-7.5z" />
+      <path d="M11 10H8.5A3.5 3.5 0 0 0 5 13.5C5 16 7 18 10 18.5" />
+      <path d="M21 10h2.5a3.5 3.5 0 0 1 3.5 3.5c0 2.5-2 4.5-5 5" />
+      <path d="M16 20v4" />
+      <path d="M12 26h8" />
+      <path d="M14 24h4" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -275,8 +357,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 {winner ? "And the winner is..." : actionText}
               </p>
               {!winner && (
-                <p className="mt-1 text-sm text-zinc-500">
-                  {displayedRole.emoji} {displayedRole.role}'s turn
+                <p className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-zinc-500">
+                  <span className="text-brand" aria-hidden="true">
+                    <RoleIcon role={displayedRole.role} />
+                  </span>
+                  <span>{displayedRole.role}&apos;s turn</span>
                 </p>
               )}
             </div>
