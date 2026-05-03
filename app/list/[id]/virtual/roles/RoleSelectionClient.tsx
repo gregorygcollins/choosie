@@ -93,7 +93,7 @@ function RoleSelectionContent() {
           setListTitle(data2.listTitle);
         }
         if (!cancelled && data2.ok && Array.isArray(data2.items)) {
-          setPreviewItems(data2.items.slice(0, 6));
+          setPreviewItems(data2.items.slice(0, 10));
         }
       } catch {}
     }
@@ -144,7 +144,7 @@ function RoleSelectionContent() {
     ];
   }
 
-  const posterItems = previewItems.filter((item) => item.image).slice(0, 6);
+  const posterItems = previewItems.filter((item) => item.image).slice(0, 10);
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12 text-center">
@@ -153,17 +153,19 @@ function RoleSelectionContent() {
       </p>
       <h1 className="mt-4 text-3xl font-bold text-brand sm:text-4xl">{listTitle}</h1>
       {previewItems.length > 0 && (
-        <div className="mx-auto mt-5 max-w-lg">
+        <div className="mx-auto mt-5 max-w-2xl">
           {posterItems.length > 0 ? (
-            <div className="flex justify-center -space-x-3">
-              {posterItems.map((item) => (
-                <img
-                  key={item.id}
-                  src={item.image || ""}
-                  alt=""
-                  className="h-20 w-14 rounded-md border-2 border-white object-cover shadow-sm ring-1 ring-brand/10"
-                />
-              ))}
+            <div className="overflow-x-auto pb-1">
+              <div className="mx-auto flex w-max max-w-full flex-nowrap justify-center -space-x-2 px-2">
+                {posterItems.map((item) => (
+                  <img
+                    key={item.id}
+                    src={item.image || ""}
+                    alt=""
+                    className="h-20 w-14 shrink-0 rounded-md border-2 border-white object-cover shadow-sm ring-1 ring-brand/10"
+                  />
+                ))}
+              </div>
             </div>
           ) : (
             <div className="mx-auto flex max-w-md flex-wrap justify-center gap-2">
