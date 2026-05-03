@@ -18,10 +18,10 @@ const robotoMono = Roboto_Mono({
 
 export const metadata = {
   title: "Choosie – Do Only What You Love, Together",
-  description: "Turn your interests into shared experiences. No scrolling, no bickering, no compromise.",
+  description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
-    description: "Turn your interests into shared experiences. No scrolling, no bickering, no compromise.",
+    description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
     url: "https://choosie-seven.vercel.app",
     siteName: "Choosie",
     images: [
@@ -38,7 +38,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Choosie – Do Only What You Love, Together",
-    description: "Build and share lists with people who love what you love.",
+    description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
     images: ["https://choosie-seven.vercel.app/og-image.png"]
   },
   icons: {

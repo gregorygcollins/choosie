@@ -146,7 +146,7 @@ function RoleSelectionContent() {
         You&apos;ve been invited to choosie a movie.
       </p>
       <h1 className="mt-4 text-3xl font-bold text-brand sm:text-4xl">{listTitle}</h1>
-      <p className="mt-3 text-lg font-semibold text-zinc-700">Choose your role.</p>
+      <p className="mt-3 text-lg font-semibold text-zinc-700">Choosie your role.</p>
 
       <div className="mx-auto mt-8 max-w-md text-left">
         <label htmlFor="narrower-name" className="block text-sm font-semibold text-brand">
