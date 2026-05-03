@@ -4,15 +4,12 @@ import { Suspense, useEffect, useState } from "react";
 import NewPageClient from "./NewPageClient";
 
 const LIST_TYPES = [
-  { word: "watch", color: "text-rose-500" },
-  { word: "book", color: "text-blue-500" },
-  { word: "music", color: "text-purple-500" },
-  { word: "food", color: "text-emerald-500" },
-  { word: "anything", color: "text-brand" },
+  { word: "watch" },
+  { word: "book" },
+  { word: "music" },
+  { word: "food" },
+  { word: "anything" },
 ];
-
-// Calculate the maximum word length for consistent spacing
-const maxWordLength = Math.max(...LIST_TYPES.map((t) => t.word.length));
 
 export default function NewPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -38,12 +35,15 @@ export default function NewPage() {
   <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
           <h1 className="text-3xl font-bold text-brand sm:text-4xl">
             Build your{" "}
-            <span
-              className={`${current.color} transition-all duration-700 ease-in-out inline-block ${
-                isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
-              }`}
-            >
-              {current.word}
+            <span className="relative inline-flex min-w-[9ch] justify-center align-baseline">
+              <span
+                className={`relative inline-block rounded-lg bg-consensus/10 px-2 text-brand-dark ring-1 ring-consensus/20 transition-all duration-700 ease-in-out ${
+                  isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                }`}
+              >
+                {current.word}
+                <span className="absolute inset-x-2 -bottom-1 h-1 rounded-full bg-consensus" aria-hidden="true" />
+              </span>
             </span>
             list.
           </h1>
