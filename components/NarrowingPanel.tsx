@@ -66,6 +66,14 @@ function InfoIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.4">
+      <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function UndoIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -407,9 +415,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   type="button"
                   onClick={onConfirm}
                   disabled={!canConfirm}
-                  className="rounded-full bg-consensus px-5 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50 glow-consensus"
+                  className="inline-grid h-11 w-11 place-items-center rounded-full bg-consensus text-brand-dark transition-colors hover:bg-consensus-dark disabled:cursor-not-allowed disabled:opacity-50 glow-consensus"
+                  title="Confirm"
+                  aria-label="Confirm selections"
                 >
-                  Confirm
+                  <CheckIcon />
                 </button>
                 <button
                   type="button"

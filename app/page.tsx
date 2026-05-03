@@ -137,10 +137,13 @@ function BuildPhone() {
       <PhoneHeader title="Create list" />
       <div className="space-y-2 p-3">
         <div className="rounded-lg border border-[#DDE6F3] bg-white px-2 py-2 text-[0.68rem] text-slate-500">Thanksgiving watchlist</div>
-        <div className="h-[5.6rem] space-y-2 overflow-hidden">
-          {["The Odyssey", "Toy Story", "Bridesmaids"].map((item) => (
-            <div key={item} className="rounded-lg border border-consensus bg-consensus/10 px-2 py-1.5">
-              <span className="truncate text-[0.68rem] font-semibold text-brand">{item}</span>
+        <div className="h-[7.35rem] space-y-2 overflow-hidden">
+          {["The Odyssey", "Toy Story", "Bridesmaids", "Clueless"].map((item) => (
+            <div
+              key={item}
+              className="rounded-lg border border-consensus bg-consensus/10 px-2 py-1.5 text-[0.66rem] font-semibold text-brand"
+            >
+              {item}
             </div>
           ))}
         </div>
@@ -189,7 +192,11 @@ function NarrowPhone() {
             );
           })}
         </div>
-        <div className="mt-1.5 rounded-full bg-consensus px-3 py-2 text-center text-[0.68rem] font-bold text-brand-dark">Confirm</div>
+        <div className="mt-1.5 grid h-9 w-9 place-items-center rounded-full bg-consensus text-brand-dark shadow-sm">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -199,13 +206,13 @@ function WinnerPhone() {
   return (
     <PhoneFrame>
       <PhoneHeader title="Winner" />
-      <div className="relative flex h-[12.4rem] -translate-y-1 flex-col items-center justify-center px-3 py-4 text-center">
-        <div className="absolute left-5 top-7 h-1.5 w-1.5 rounded-full bg-consensus" />
-        <div className="absolute right-5 top-8 text-xs text-sky-400">✦</div>
-        <div className="absolute bottom-9 left-6 text-xs text-consensus-dark">✦</div>
-        <div className="text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
-        <div className="mt-2 text-xl font-bold leading-tight text-brand">The Godfather</div>
-        <div className="relative mt-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-xl font-bold text-brand-dark shadow-sm">
+      <div className="relative flex h-[12.4rem] -translate-y-3 flex-col items-center justify-center px-3 py-4 text-center">
+        <div className="absolute left-5 top-4 h-1.5 w-1.5 rounded-full bg-consensus" />
+        <div className="absolute right-5 top-5 text-xs text-sky-400">✦</div>
+        <div className="absolute bottom-12 left-6 text-xs text-consensus-dark">✦</div>
+        <div className="relative z-10 text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
+        <div className="relative z-10 mt-2 text-xl font-bold leading-tight text-brand">The Godfather</div>
+        <div className="relative z-0 mt-3 grid h-12 w-12 place-items-center rounded-full bg-consensus text-xl font-bold text-brand-dark shadow-sm">
           <span>🎉</span>
           <span className="absolute -right-2 top-0 text-xs text-sky-400">✦</span>
           <span className="absolute -left-2 bottom-1 h-1.5 w-1.5 rounded-full bg-brand" />
