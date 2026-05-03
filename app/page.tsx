@@ -207,7 +207,7 @@ function WinnerPhone() {
         <div className="text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
         <div className="mt-2 text-xl font-bold leading-tight text-brand">The Godfather</div>
         <div className="relative mt-5 grid h-12 w-12 place-items-center rounded-full bg-consensus text-xl font-bold text-brand-dark shadow-sm">
-          <span>1</span>
+          <span>🎉</span>
           <span className="absolute -right-2 top-0 text-xs text-sky-400">✦</span>
           <span className="absolute -left-2 bottom-1 h-1.5 w-1.5 rounded-full bg-brand" />
         </div>
