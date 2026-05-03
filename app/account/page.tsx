@@ -64,7 +64,7 @@ export default function AccountPage() {
           stripe_price_missing: "Billing is not configured. Please set a Stripe price.",
           stripe_not_configured: "Stripe is not configured. Set STRIPE_SECRET_KEY (and a price).",
           checkout_failed: "We couldn’t start checkout. Please try again.",
-          no_stripe_customer: "No Stripe customer found. Start a subscription first.",
+          no_stripe_customer: "No Stripe billing record is linked to this account yet.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",
         };
         const reason = params.get("reason");
@@ -133,6 +133,11 @@ export default function AccountPage() {
     );
   }
 
+  const hasStripeCustomer = Boolean(user.hasStripeCustomer || user.subscription?.hasStripeCustomer);
+  const billingStatus = user.subscription?.status || null;
+  const canManageBilling = user.isPro && hasStripeCustomer;
+  const hasUnlinkedProAccess = user.isPro && !hasStripeCustomer;
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <section className="rounded-2xl bg-white p-6 shadow-soft sm:p-8">
@@ -167,6 +172,18 @@ export default function AccountPage() {
                 <dt className="font-semibold text-slate-500">Plan</dt>
                 <dd className="mt-1 text-brand">{user.isPro ? "Choosie Pro" : "Free"}</dd>
               </div>
+              {user.isPro && (
+                <div>
+                  <dt className="font-semibold text-slate-500">Billing</dt>
+                  <dd className="mt-1 text-brand">
+                    {hasStripeCustomer
+                      ? billingStatus
+                        ? `Stripe ${billingStatus}`
+                        : "Stripe linked"
+                      : "Not linked to Stripe"}
+                  </dd>
+                </div>
+              )}
             </dl>
 
             <button onClick={() => nextAuthSignOut()} className="mt-5 text-sm font-semibold text-rose-500 hover:text-rose-600">
@@ -176,14 +193,20 @@ export default function AccountPage() {
 
           <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
-              {user.isPro ? "Active" : "$2.99/mo"}
+              {user.isPro ? (hasStripeCustomer ? "Active" : "Access active") : "$2.99/mo"}
             </div>
             <h2 className="text-lg font-bold text-brand">
-              {user.isPro ? "Choosie Pro is active" : "Upgrade to Choosie Pro"}
+              {user.isPro
+                ? hasStripeCustomer
+                  ? "Choosie Pro is active"
+                  : "Choosie Pro access is active"
+                : "Upgrade to Choosie Pro"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              {user.isPro
+              {canManageBilling
                 ? "Manage your subscription and billing details through Stripe."
+                : hasUnlinkedProAccess
+                ? "Your account has Pro access, but no Stripe billing customer is linked yet. Start a subscription from this sign-in to manage billing through Stripe."
                 : "Save unlimited lists and look back at winners, dinners, places, and who narrowed last time."}
             </p>
 
@@ -205,8 +228,14 @@ export default function AccountPage() {
               </div>
             )}
 
+            {hasUnlinkedProAccess && (
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                Billing is not linked to Stripe for this Google account, so there is no subscription portal to open yet.
+              </div>
+            )}
+
             <div className="mt-5">
-              {user.isPro ? (
+              {canManageBilling ? (
                 <button
                   disabled={busy}
                   onClick={openPortal}
@@ -221,14 +250,14 @@ export default function AccountPage() {
                     onClick={() => startCheckout("monthly")}
                     className="rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50"
                   >
-                    {upgradeIntent ? "Monthly" : "Monthly Pro"}
+                    {hasUnlinkedProAccess ? "Start monthly billing" : upgradeIntent ? "Monthly" : "Monthly Pro"}
                   </button>
                   <button
                     disabled={busy}
                     onClick={() => startCheckout("annual")}
                     className="rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                   >
-                    {upgradeIntent ? "Annual" : "Annual Pro"}
+                    {hasUnlinkedProAccess ? "Start annual billing" : upgradeIntent ? "Annual" : "Annual Pro"}
                   </button>
                 </div>
               )}
