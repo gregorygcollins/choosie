@@ -3,16 +3,48 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { getRoleName } from "@/lib/planner";
 
-const ROLE_META: Record<string, { choosie: number; emoji: string }> = {
-  Programmer: { choosie: 5, emoji: "💻" },
-  Selector: { choosie: 3, emoji: "🎯" },
-  Decider: { choosie: 1, emoji: "🏆" },
+const ROLE_META: Record<string, { target: number; icon: "camera" | "slate" | "award" }> = {
+  Programmer: { target: 5, icon: "camera" },
+  Selector: { target: 3, icon: "slate" },
+  Decider: { target: 1, icon: "award" },
 };
 
-function RoleSelectionContent() {
+function RoleIcon({ icon }: { icon: "camera" | "slate" | "award" }) {
+  if (icon === "camera") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h7A2.5 2.5 0 0 1 16 8.5v7A2.5 2.5 0 0 1 13.5 18h-7A2.5 2.5 0 0 1 4 15.5z" />
+        <path d="m16 10 4-2.5v9L16 14" />
+        <path d="M7 6 8.5 3.5h3L13 6" />
+      </svg>
+    );
+  }
 
+  if (icon === "slate") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 8h16v10.5A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5z" />
+        <path d="M4 8 6.4 3h3L7 8" />
+        <path d="M10 8 12.4 3h3L13 8" />
+        <path d="M16 8 18.4 3H20v5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M12 3c1.4 1.4 2.2 3 2.2 4.8 0 2.4-1 4.2-2.2 5.2-1.2-1-2.2-2.8-2.2-5.2C9.8 6 10.6 4.4 12 3Z" fill="currentColor" stroke="none" />
+      <path d="M8.5 8.5H6.8A2.8 2.8 0 0 0 4 11.3c0 2.1 1.7 3.9 4 4.2" />
+      <path d="M15.5 8.5h1.7a2.8 2.8 0 0 1 2.8 2.8c0 2.1-1.7 3.9-4 4.2" />
+      <path d="M12 13v4" />
+      <path d="M9 21h6" />
+      <path d="M10 17h4l1 4H9z" />
+    </svg>
+  );
+}
+
+function RoleSelectionContent() {
 
   const { id } = useParams();
   const router = useRouter();
@@ -20,6 +52,7 @@ function RoleSelectionContent() {
   const sessionId = searchParams.get("session") || "";
   const [participants, setParticipants] = useState<any[]>([]);
   const [participantCount, setParticipantCount] = useState<number>(3);
+  const [listTitle, setListTitle] = useState("this list");
   const [name, setName] = useState("");
   const [claiming, setClaiming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +80,15 @@ function RoleSelectionContent() {
         if (!cancelled && data2.ok && typeof data2.list?.participants === "number") {
           setParticipantCount(data2.list.participants);
         }
+        if (!cancelled && data2.ok && data2.list?.title) {
+          setListTitle(data2.list.title);
+        }
       } catch {}
     }
     fetchParticipantsAndCount();
     const interval = setInterval(fetchParticipantsAndCount, 2000);
     return () => { cancelled = true; clearInterval(interval); };
-  }, [id]);
+  }, [id, sessionId]);
 
   // Handle role claim
   async function claimRole(role: string) {
@@ -84,8 +120,7 @@ function RoleSelectionContent() {
   }
 
   // Always show exactly participantCount roles (1=Decider, 2=Selector+Decider, 3=Programmer+Selector+Decider)
-  const roleOrder = ["Programmer", "Selector", "Decider"];
-  let rolesToShow: { role: string; choosie: number; emoji: string }[] = [];
+  let rolesToShow: { role: string; target: number; icon: "camera" | "slate" | "award" }[] = [];
   if (participantCount === 1) {
     rolesToShow = [{ role: "Decider", ...ROLE_META["Decider"] }];
   } else if (participantCount === 2) {
@@ -101,38 +136,49 @@ function RoleSelectionContent() {
     ];
   }
 
-  useEffect(() => {
-    // Diagnostic logging for debugging participant count and roles
-    // eslint-disable-next-line no-console
-    console.log("[RoleSelection] participantCount:", participantCount);
-    // eslint-disable-next-line no-console
-    console.log("[RoleSelection] rolesToShow:", rolesToShow.map(r => r.role));
-  }, [participantCount, rolesToShow]);
-
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Choose Your Role</h1>
-      <div className="mb-4">Enter your name to join:</div>
+    <div className="mx-auto max-w-2xl px-6 py-12 text-center">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
+        You&apos;ve been invited to choosie a movie.
+      </p>
+      <h1 className="mt-4 text-3xl font-bold text-brand sm:text-4xl">{listTitle}</h1>
+      <p className="mt-3 text-lg font-semibold text-zinc-700">Choose your role.</p>
+
+      <div className="mx-auto mt-8 max-w-md text-left">
+        <label htmlFor="narrower-name" className="block text-sm font-semibold text-brand">
+          Enter your name to join
+        </label>
       <input
-        className="border rounded px-3 py-2 mb-4 w-full"
+          id="narrower-name"
+          className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
         value={name}
         onChange={e => setName(e.target.value)}
         placeholder="Your name"
         disabled={!!claiming}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        {rolesToShow.map(({ role, choosie, emoji }) => {
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {rolesToShow.map(({ role, target, icon }) => {
           const taken = participants.find((p) => p.role === role);
           return (
-            <div key={role} className={`rounded border p-4 flex flex-col items-center ${taken ? "bg-zinc-100 border-zinc-300" : "bg-white border-brand"}`}>
-              <div className="text-3xl mb-2">{emoji}</div>
-              <div className="font-bold mb-1">{role}</div>
-              <div className="text-zinc-500 mb-2">Choosie {choosie}</div>
+            <div
+              key={role}
+              className={`flex min-h-48 flex-col items-center justify-between rounded-2xl border p-5 shadow-sm ${
+                taken ? "border-zinc-200 bg-zinc-50 text-zinc-400" : "border-brand/20 bg-white text-brand"
+              }`}
+            >
+              <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-light text-brand">
+                <RoleIcon icon={icon} />
+              </div>
+              <div className="mt-4 text-center text-base font-bold text-zinc-900">
+                {role}: Narrow to {target}
+              </div>
               {taken ? (
-                <div className="text-zinc-400 text-sm">Claimed by {taken.name}</div>
+                <div className="mt-3 text-sm text-zinc-500">Claimed by {taken.name}</div>
               ) : (
                 <button
-                  className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark mt-2 disabled:opacity-60"
+                  className="mt-4 rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-60"
                   disabled={!name || !!claiming}
                   onClick={() => claimRole(role)}
                 >
@@ -143,8 +189,10 @@ function RoleSelectionContent() {
           );
         })}
       </div>
-      {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
-      <div className="text-zinc-500 text-xs">You can join as any available role. The narrowing session begins as soon as a role is claimed.</div>
+      {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
+      <div className="mx-auto mt-5 max-w-md text-xs leading-5 text-zinc-500">
+        You can join as any available role. The narrowing session begins as soon as a role is claimed.
+      </div>
     </div>
   );
 }

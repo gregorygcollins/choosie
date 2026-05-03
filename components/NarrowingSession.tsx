@@ -163,21 +163,26 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
     );
   }
 
+  async function requestAction(endpoint: string, body: Record<string, string>): Promise<NarrowingResponse & { state: NarrowingState }> {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const json: NarrowingResponse = await res.json();
+    if (!res.ok || !json.ok || !json.state) {
+      throw new Error(json.error || "Narrowing action failed");
+    }
+
+    return json as NarrowingResponse & { state: NarrowingState };
+  }
+
   async function postAction(endpoint: string, body: Record<string, string>) {
     setBusy(true);
     setError(null);
 
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const json: NarrowingResponse = await res.json();
-      if (!res.ok || !json.ok || !json.state) {
-        throw new Error(json.error || "Narrowing action failed");
-      }
-
+      const json = await requestAction(endpoint, body);
       setState(normalizeState(json.state));
       if ("winnerItemId" in json) setWinnerItemId(json.winnerItemId || null);
     } catch (err: any) {
@@ -199,6 +204,45 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
 
   function handleConfirm() {
     postAction("/api/choosie/narrow/confirm", { listId, participantToken: getActionToken() });
+  }
+
+  async function handleSurpriseMe() {
+    if (!state) return;
+    const target = state.current.target;
+    const candidates = visibleItems.map((item) => item.id);
+    if (candidates.length < target) {
+      setError("There are not enough options left to narrow.");
+      return;
+    }
+
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+    const chosen = new Set(shuffled.slice(0, target));
+    const participantToken = getActionToken();
+
+    setBusy(true);
+    setError(null);
+    try {
+      for (const itemId of state.current.selectedIds) {
+        if (!chosen.has(itemId)) {
+          await requestAction("/api/choosie/narrow/deselect", { listId, itemId, participantToken });
+        }
+      }
+
+      for (const itemId of chosen) {
+        if (!state.current.selectedIds.includes(itemId)) {
+          await requestAction("/api/choosie/narrow/select", { listId, itemId, participantToken });
+        }
+      }
+
+      const json = await requestAction("/api/choosie/narrow/confirm", { listId, participantToken });
+      setState(normalizeState(json.state));
+      if ("winnerItemId" in json) setWinnerItemId(json.winnerItemId || null);
+    } catch (err: any) {
+      setError(err?.message || "Surprise me could not complete this turn.");
+      await loadState({ silent: true });
+    } finally {
+      setBusy(false);
+    }
   }
 
   function handleUndo() {
@@ -271,6 +315,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       onToggleItem={handleToggleItem}
       onReorderItems={handleReorderItems}
       onConfirm={handleConfirm}
+      onSurpriseMe={handleSurpriseMe}
       onUndo={handleUndo}
       onReset={handleReset}
       onReturnToList={() => {

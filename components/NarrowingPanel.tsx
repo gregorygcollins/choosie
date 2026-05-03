@@ -25,6 +25,7 @@ type NarrowingPanelProps = {
   onToggleItem: (id: string) => void;
   onReorderItems: (from: number, to: number) => void;
   onConfirm: () => void;
+  onSurpriseMe: () => void;
   onUndo: () => void;
   onReset: () => void;
   onReturnToList: () => void;
@@ -117,6 +118,18 @@ function ShareIcon() {
   );
 }
 
+function ShuffleIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M16 3h5v5" />
+      <path d="M4 20 21 3" />
+      <path d="M21 16v5h-5" />
+      <path d="M15 15l6 6" />
+      <path d="M4 4l5 5" />
+    </svg>
+  );
+}
+
 function ConfettiBurst() {
   const pieces = [
     { className: "left-[8%] top-[14%] bg-brand", x: -12, delay: 0 },
@@ -188,6 +201,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   onToggleItem,
   onReorderItems,
   onConfirm,
+  onSurpriseMe,
   onUndo,
   onReset,
   onReturnToList,
@@ -388,14 +402,25 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         <div className="flex flex-row flex-nowrap items-center justify-between gap-3 overflow-x-auto border-t border-zinc-200 px-5 py-4 sm:px-6">
           <div className="flex shrink-0 items-center gap-3">
             {!winner && (
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={!canConfirm}
-                className="rounded-full bg-consensus px-5 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50 glow-consensus"
-              >
-                Confirm
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={onConfirm}
+                  disabled={!canConfirm}
+                  className="rounded-full bg-consensus px-5 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50 glow-consensus"
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  onClick={onSurpriseMe}
+                  disabled={busy || isVirtualWaiting || items.length < target}
+                  className="inline-flex items-center gap-2 rounded-full border border-consensus/60 bg-white px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-consensus/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <ShuffleIcon />
+                  Surprise me
+                </button>
+              </>
             )}
             {winner && (
               <button
