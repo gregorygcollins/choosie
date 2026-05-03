@@ -25,7 +25,7 @@ export default function PricingPage() {
               <span className="pb-1 text-sm font-semibold text-slate-500">/mo</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Build a library of saved lists for movies, books, music, meals, trips, gifts, and anything else your group keeps choosing together.
+              Build a library of saved lists for movies & books, restaurants & meals, or even trips & gifts.
             </p>
             <ul className="mt-5 space-y-2 text-sm text-slate-700">
               <li>Unlimited saved lists across every module</li>
@@ -54,7 +54,7 @@ export default function PricingPage() {
               <span className="pb-1 text-sm font-semibold text-slate-500">/yr</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Save for the year and keep every group activity ready whenever the next plan starts.
+              Save on your Choosie Pro subscription.
             </p>
             <ul className="mt-5 space-y-2 text-sm text-slate-700">
               <li>Everything in monthly Pro</li>

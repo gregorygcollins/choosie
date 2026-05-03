@@ -35,6 +35,29 @@ function buildCanonical(list: any) {
   return state;
 }
 
+function virtualRoles(participantCount: number) {
+  if (participantCount === 1) return ["Decider"];
+  if (participantCount === 2) return ["Selector", "Decider"];
+  return ["Programmer", "Selector", "Decider"];
+}
+
+function resolveRoundParticipant(list: any, participantToken: string, participantCount: number) {
+  const tasteJson: any = list.tasteJson || {};
+  const activeSessionId = tasteJson.activeVirtualSessionId || null;
+  const claims = Array.isArray(tasteJson.participantClaims) ? tasteJson.participantClaims : [];
+  const roleIndex = /^\d+$/.test(participantToken) ? Number(participantToken) : -1;
+  const role = roleIndex >= 0 ? virtualRoles(participantCount)[roleIndex] || null : null;
+  const claim = claims.find((entry: any) => {
+    if (activeSessionId && entry.sessionId !== activeSessionId) return false;
+    return role ? entry.role === role : entry.token === participantToken;
+  });
+
+  return {
+    role: claim?.role || role,
+    participant: claim?.name || (role ? `${role} participant` : "Virtual participant"),
+  };
+}
+
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   try {
@@ -103,11 +126,11 @@ export async function POST(req: NextRequest) {
       finished,
       winnerItemId,
     });
-    // No activeIndex in no-token mode; set role/participant to null or default
+    const roundParticipant = resolveRoundParticipant(list, data.participantToken, participantCount);
     const roundEntry = {
       round: state.roundIndex,
-      role: null, // or e.g. `"Virtual"` or `"N/A"`
-      participant: "Virtual participant",
+      role: roundParticipant.role,
+      participant: roundParticipant.participant,
       chosenIds: [...selected],
       prevRemaining,
     };

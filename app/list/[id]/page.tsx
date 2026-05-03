@@ -15,6 +15,8 @@ type ListLogRound = {
   round: number;
   from: number;
   to: number;
+  participant?: string | null;
+  role?: string | null;
   kept: Array<{ id: string; title: string }>;
   removed: Array<{ id: string; title: string }>;
 };
@@ -43,6 +45,10 @@ export default function ViewListPage() {
   const [showParticipantModal, setShowParticipantModal] = useState(false);
   const [narrowingMode, setNarrowingMode] = useState<"in-person" | "virtual" | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [itemToEdit, setItemToEdit] = useState<any | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
   const [previewItem, setPreviewItem] = useState<any | null>(null);
   const [lastFocusedEl, setLastFocusedEl] = useState<HTMLElement | null>(null);
   const [showUpsell, setShowUpsell] = useState(false);
@@ -320,6 +326,72 @@ export default function ViewListPage() {
     }).catch((err) => {
       console.error("Failed to sync item deletion to server:", err);
     });
+  }
+
+  function openItemEditor(item: any) {
+    setItemToEdit(item);
+    setEditTitle(item.title || "");
+    setEditNotes(item.notes || "");
+  }
+
+  async function handleSaveItemEdit() {
+    if (!list || !itemToEdit) return;
+    const title = editTitle.trim();
+    const notes = editNotes.trim();
+    if (!title) {
+      toast("Give this entry a title before saving.", "error");
+      return;
+    }
+
+    const updatedItems = list.items.map((item) =>
+      item.id === itemToEdit.id
+        ? { ...item, title, notes: notes || undefined }
+        : item
+    );
+    const updatedList = { ...list, items: updatedItems };
+    const updatedItem = updatedItems.find((item) => item.id === itemToEdit.id);
+
+    setEditSaving(true);
+    upsertList(updatedList);
+    setList(updatedList);
+    if (previewItem?.id === itemToEdit.id && updatedItem) {
+      setPreviewItem(updatedItem);
+    }
+
+    try {
+      const res = await fetch("/api/choosie/updateList", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          listId: updatedList.id,
+          items: updatedList.items.map((it: any) => ({
+            id: it.id,
+            title: it.title,
+            notes: it.notes,
+            image: it.image,
+          })),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.ok && data.list) {
+        upsertList(data.list);
+        setList(data.list);
+        const syncedItem = data.list.items?.find((item: any) => item.id === itemToEdit.id);
+        if (previewItem?.id === itemToEdit.id && syncedItem) {
+          setPreviewItem(syncedItem);
+        }
+        toast("Entry updated", "success");
+      } else {
+        toast("Entry saved on this device. Sign in to sync it.", "success");
+      }
+    } catch (err) {
+      console.error("Failed to sync item edit to server:", err);
+      toast("Entry saved on this device. Sign in to sync it.", "success");
+    } finally {
+      setEditSaving(false);
+      setItemToEdit(null);
+    }
   }
 
   // Open preview helper
@@ -680,6 +752,15 @@ export default function ViewListPage() {
                         <details key={`${session.id}-${round.round}`} className="rounded-xl border border-zinc-100 bg-brand-light/40 p-3">
                           <summary className="cursor-pointer text-sm font-semibold text-brand">
                             Round {round.round}: {round.from} to {round.to}
+                            {round.participant ? (
+                              <span className="ml-2 font-medium text-slate-500">
+                                by {round.participant}{round.role ? ` (${round.role})` : ""}
+                              </span>
+                            ) : round.role ? (
+                              <span className="ml-2 font-medium text-slate-500">
+                                by {round.role}
+                              </span>
+                            ) : null}
                           </summary>
                           <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                             <div>
@@ -722,6 +803,90 @@ export default function ViewListPage() {
         onConfirm={() => itemToDelete && handleDeleteItem(itemToDelete)}
         onCancel={() => setItemToDelete(null)}
       />
+
+      {itemToEdit && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          onClick={() => !editSaving && setItemToEdit(null)}
+          aria-modal="true"
+          role="dialog"
+          aria-labelledby="item-edit-title"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Edit entry</p>
+                <h2 id="item-edit-title" className="mt-1 text-2xl font-semibold text-brand">
+                  Update title or note
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setItemToEdit(null)}
+                disabled={editSaving}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-brand disabled:opacity-50"
+                title="Close editor"
+                aria-label="Close editor"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="edit-item-title" className="block text-sm font-semibold text-brand">
+                  Title
+                </label>
+                <input
+                  id="edit-item-title"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+                  placeholder="Entry title"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-item-notes" className="block text-sm font-semibold text-brand">
+                  Note
+                </label>
+                <textarea
+                  id="edit-item-notes"
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="mt-2 min-h-28 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm leading-6 focus:outline-none focus:ring-2 focus:ring-consensus/40"
+                  placeholder="Add a note, reason, correction, or context."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setItemToEdit(null)}
+                disabled={editSaving}
+                className="rounded-full bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-brand hover:bg-zinc-200 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveItemEdit}
+                disabled={editSaving}
+                className="rounded-full bg-consensus px-5 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50"
+              >
+                {editSaving ? "Saving..." : "Save entry"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={showDeleteModal}
@@ -814,19 +979,35 @@ export default function ViewListPage() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setItemToDelete(item.id);
-                  }}
-                  className="text-zinc-400 hover:text-red-600 transition-colors"
-                  title="Remove item"
-                  aria-label={`Remove ${item.title}`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-                  </svg>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openItemEditor(item);
+                    }}
+                    className="text-zinc-400 hover:text-brand transition-colors"
+                    title="Edit item"
+                    aria-label={`Edit ${item.title}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setItemToDelete(item.id);
+                    }}
+                    className="text-zinc-400 hover:text-red-600 transition-colors"
+                    title="Remove item"
+                    aria-label={`Remove ${item.title}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                    </svg>
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -871,19 +1052,35 @@ export default function ViewListPage() {
                       </div>
                       <div className="font-medium text-sm line-clamp-2 flex-1">{item.title}</div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setItemToDelete(item.id);
-                      }}
-                      className="text-zinc-400 hover:text-red-600 transition-colors flex-shrink-0"
-                      title="Remove item"
-                      aria-label={`Remove ${item.title}`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-                      </svg>
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openItemEditor(item);
+                        }}
+                        className="text-zinc-400 hover:text-brand transition-colors"
+                        title="Edit item"
+                        aria-label={`Edit ${item.title}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setItemToDelete(item.id);
+                        }}
+                        className="text-zinc-400 hover:text-red-600 transition-colors"
+                        title="Remove item"
+                        aria-label={`Remove ${item.title}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                   {item.notes && (
                     <div className="text-xs text-zinc-500 line-clamp-1 mt-1">{item.notes}</div>
@@ -1033,6 +1230,14 @@ export default function ViewListPage() {
                 <p className="text-sm text-zinc-400 italic">No notes provided.</p>
               )}
               <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    openItemEditor(previewItem);
+                  }}
+                  className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                >
+                  Edit
+                </button>
                 <button
                   onClick={closePreview}
                   className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/40"

@@ -84,6 +84,8 @@ function normalizeSession(entry: any, fallbackTitleMap: Map<string, string>) {
           round: index + 1,
           from: prevRemaining.length,
           to: chosenIds.length,
+          participant: typeof round.participant === "string" ? round.participant : null,
+          role: typeof round.role === "string" ? round.role : null,
           kept: chosenIds.map((id: string) => ({ id, title: titleMap.get(id) || "Untitled" })),
           removed: removedIds.map((id: string) => ({ id, title: titleMap.get(id) || "Untitled" })),
         };

@@ -7,7 +7,7 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: "A list for every occasion.",
-    body: <>Make a list of movies <strong>you</strong> want to watch with a group or person.</>,
+    body: <>Make a list of movies <strong>you</strong> want to do with a group or person.</>,
     phone: <BuildPhone />,
   },
   {
@@ -19,13 +19,13 @@ const walkthrough = [
   {
     eyebrow: "Narrow",
     title: "Take turns narrowing.",
-    body: <>Each person narrows toward what <strong>they</strong> want to watch.</>,
+    body: <>Each person narrows toward what <strong>they</strong> want to do.</>,
     phone: <NarrowPhone />,
   },
   {
     eyebrow: "Decide",
     title: "Uncover your shared interest...",
-    body: "And enjoy the show!",
+    body: "And enjoy!",
     phone: <WinnerPhone />,
   },
 ];
