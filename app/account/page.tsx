@@ -9,6 +9,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [billingNeedsReconnect, setBillingNeedsReconnect] = useState(false);
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
   const [upgradeIntent, setUpgradeIntent] = useState(false);
 
@@ -64,9 +65,12 @@ export default function AccountPage() {
           stripe_price_missing: "Billing is not configured. Please set a Stripe price.",
           stripe_not_configured: "Stripe is not configured. Set STRIPE_SECRET_KEY (and a price).",
           checkout_failed: "We couldn’t start checkout. Please try again.",
-          no_stripe_customer: "No Stripe billing record is linked to this account yet.",
+          no_stripe_customer: "Stripe billing could not be opened for this account.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",
         };
+        if (err === "no_stripe_customer" || err === "portal_failed") {
+          setBillingNeedsReconnect(true);
+        }
         const reason = params.get("reason");
         const msg = map[err] || "An unknown billing error occurred.";
         setError(reason ? `${msg} (${reason})` : msg);
@@ -135,8 +139,8 @@ export default function AccountPage() {
 
   const hasStripeCustomer = Boolean(user.hasStripeCustomer || user.subscription?.hasStripeCustomer);
   const billingStatus = user.subscription?.status || null;
-  const canManageBilling = user.isPro && hasStripeCustomer;
-  const hasUnlinkedProAccess = user.isPro && !hasStripeCustomer;
+  const canManageBilling = user.isPro && hasStripeCustomer && !billingNeedsReconnect;
+  const needsBillingSetup = user.isPro && (!hasStripeCustomer || billingNeedsReconnect);
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -176,7 +180,9 @@ export default function AccountPage() {
                 <div>
                   <dt className="font-semibold text-slate-500">Billing</dt>
                   <dd className="mt-1 text-brand">
-                    {hasStripeCustomer
+                    {billingNeedsReconnect
+                      ? "Needs reconnecting"
+                      : hasStripeCustomer
                       ? billingStatus
                         ? `Stripe ${billingStatus}`
                         : "Stripe linked"
@@ -193,11 +199,13 @@ export default function AccountPage() {
 
           <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
-              {user.isPro ? (hasStripeCustomer ? "Active" : "Access active") : "$2.99/mo"}
+              {user.isPro ? (needsBillingSetup ? "Access active" : "Active") : "$2.99/mo"}
             </div>
             <h2 className="text-lg font-bold text-brand">
               {user.isPro
-                ? hasStripeCustomer
+                ? needsBillingSetup
+                  ? "Choosie Pro access is active"
+                  : hasStripeCustomer
                   ? "Choosie Pro is active"
                   : "Choosie Pro access is active"
                 : "Upgrade to Choosie Pro"}
@@ -205,8 +213,8 @@ export default function AccountPage() {
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {canManageBilling
                 ? "Manage your subscription and billing details through Stripe."
-                : hasUnlinkedProAccess
-                ? "Your account has Pro access, but no Stripe billing customer is linked yet. Start a subscription from this sign-in to manage billing through Stripe."
+                : needsBillingSetup
+                ? "Your Pro access is available, but billing is not ready to manage from this account. Start billing from this sign-in to connect Stripe."
                 : "Save unlimited lists and look back at winners, dinners, places, and who narrowed last time."}
             </p>
 
@@ -228,9 +236,9 @@ export default function AccountPage() {
               </div>
             )}
 
-            {hasUnlinkedProAccess && (
+            {needsBillingSetup && (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                Billing is not linked to Stripe for this Google account, so there is no subscription portal to open yet.
+                There is no usable Stripe billing portal for this account yet. Pro features remain available.
               </div>
             )}
 
@@ -250,14 +258,14 @@ export default function AccountPage() {
                     onClick={() => startCheckout("monthly")}
                     className="rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-50"
                   >
-                    {hasUnlinkedProAccess ? "Start monthly billing" : upgradeIntent ? "Monthly" : "Monthly Pro"}
+                    {needsBillingSetup ? "Connect monthly billing" : upgradeIntent ? "Monthly" : "Monthly Pro"}
                   </button>
                   <button
                     disabled={busy}
                     onClick={() => startCheckout("annual")}
                     className="rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
                   >
-                    {hasUnlinkedProAccess ? "Start annual billing" : upgradeIntent ? "Annual" : "Annual Pro"}
+                    {needsBillingSetup ? "Connect annual billing" : upgradeIntent ? "Annual" : "Annual Pro"}
                   </button>
                 </div>
               )}
