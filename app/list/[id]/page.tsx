@@ -1002,11 +1002,11 @@ export default function ViewListPage() {
             ))}
           </ul>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-3 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="rounded-lg border border-zinc-200 p-3 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1025,57 +1025,68 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                {item.image ? (
-                  <img src={item.image} alt={item.title} className="w-full aspect-[2/3] rounded-md object-cover" />
-                ) : (
-                  <div className="w-full aspect-[2/3] rounded-md bg-zinc-100 flex items-center justify-center text-zinc-400 text-2xl">📷</div>
-                )}
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 flex-1">
-                      <div className="cursor-grab text-zinc-400 mt-1" title="Drag to reorder" aria-hidden>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                          <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                          <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                          <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                        </svg>
-                      </div>
-                      <div className="font-medium text-sm line-clamp-2 flex-1">{item.title}</div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openItemEditor(item);
-                        }}
-                        className="text-zinc-400 hover:text-brand transition-colors"
-                        title="Edit item"
-                        aria-label={`Edit ${item.title}`}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 20h9" />
-                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setItemToDelete(item.id);
-                        }}
-                        className="text-zinc-400 hover:text-red-600 transition-colors"
-                        title="Remove item"
-                        aria-label={`Remove ${item.title}`}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  {item.notes && (
-                    <div className="text-xs text-zinc-500 line-clamp-1 mt-1">{item.notes}</div>
+                <div className="mb-2 h-14 w-14 overflow-hidden rounded-md">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-zinc-400">📷</div>
                   )}
                 </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 flex-1 items-start gap-2">
+                    <div className="mt-0.5 cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                      </svg>
+                    </div>
+                    <div className="min-w-0 flex-1 line-clamp-2 text-sm font-medium text-brand">{item.title}</div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPreview(item);
+                      }}
+                      className="grid h-5 w-5 place-items-center rounded-full border border-zinc-300 text-[11px] font-semibold leading-none text-zinc-500 transition-colors hover:border-brand hover:text-brand"
+                      title="Item info"
+                      aria-label={`Show info for ${item.title}`}
+                    >
+                      i
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openItemEditor(item);
+                      }}
+                      className="text-zinc-400 hover:text-brand transition-colors"
+                      title="Edit item"
+                      aria-label={`Edit ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setItemToDelete(item.id);
+                      }}
+                      className="text-zinc-400 hover:text-red-600 transition-colors"
+                      title="Remove item"
+                      aria-label={`Remove ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {item.notes && (
+                  <div className="mt-1 line-clamp-1 text-xs text-zinc-500">{item.notes}</div>
+                )}
               </div>
             ))}
           </div>
