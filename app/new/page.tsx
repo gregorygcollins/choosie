@@ -4,11 +4,11 @@ import { Suspense, useEffect, useState } from "react";
 import NewPageClient from "./NewPageClient";
 
 const LIST_TYPES = [
-  { word: "watch" },
-  { word: "book" },
-  { word: "music" },
-  { word: "food" },
-  { word: "anything" },
+  { word: "watch", color: "text-red-500" },
+  { word: "book", color: "text-blue-500" },
+  { word: "music", color: "text-yellow-500" },
+  { word: "food", color: "text-consensus-dark" },
+  { word: "anything", color: "text-fuchsia-500" },
 ];
 
 export default function NewPage() {
@@ -35,17 +35,14 @@ export default function NewPage() {
   <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
           <h1 className="text-3xl font-bold text-brand sm:text-4xl">
             Build your{" "}
-            <span className="relative inline-flex min-w-[9ch] justify-center align-baseline">
-              <span
-                className={`relative inline-block rounded-lg bg-consensus/10 px-2 text-brand-dark ring-1 ring-consensus/20 transition-all duration-700 ease-in-out ${
-                  isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
-                }`}
-              >
-                {current.word}
-                <span className="absolute inset-x-2 -bottom-1 h-1 rounded-full bg-consensus" aria-hidden="true" />
-              </span>
+            <span
+              className={`${current.color} inline-block transition-all duration-700 ease-in-out ${
+                isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
+              }`}
+            >
+              {current.word}
             </span>
-            list.
+            {" "}list.
           </h1>
           <p className="mt-2 text-lg font-normal text-zinc-700 sm:text-xl">
             If you're into it, so is someone else.
