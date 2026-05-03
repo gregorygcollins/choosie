@@ -14,7 +14,17 @@ export default function PricingPage() {
         </p>
       </section>
 
-      <section className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+      <section className="mx-auto mt-8 max-w-3xl rounded-2xl border border-brand/10 bg-white p-6 shadow-soft">
+        <h2 className="text-lg font-bold text-brand">Pro perks</h2>
+        <ul className="mt-4 grid gap-3 text-sm leading-6 text-slate-700 sm:grid-cols-2">
+          <li>Make and save unlimited lists</li>
+          <li>Create lists for movies, books, music, food, and more</li>
+          <li>Share virtual narrowing links with your group</li>
+          <li>Look back at winners, dinners, places, and who narrowed last time</li>
+        </ul>
+      </section>
+
+      <section className="mx-auto mt-6 grid max-w-4xl gap-5 md:grid-cols-2">
         <article className="flex h-full flex-col rounded-2xl border border-consensus bg-white p-6 shadow-soft ring-2 ring-consensus/30">
           <div>
             <div className="mb-4 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
@@ -24,15 +34,6 @@ export default function PricingPage() {
               <span className="text-4xl font-bold text-brand">$2.99</span>
               <span className="pb-1 text-sm font-semibold text-slate-500">/mo</span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Build a library of saved lists for movies & books, restaurants & meals, or even trips & gifts.
-            </p>
-            <ul className="mt-5 space-y-2 text-sm text-slate-700">
-              <li>Unlimited saved lists across every module</li>
-              <li>Movie, book, food, music, and anything lists</li>
-              <li>Virtual narrowing links for remote groups</li>
-              <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
-            </ul>
           </div>
           <div className="mt-auto pt-6">
             <Link
@@ -53,15 +54,6 @@ export default function PricingPage() {
               <span className="text-4xl font-bold text-brand">$29.99</span>
               <span className="pb-1 text-sm font-semibold text-slate-500">/yr</span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Save on your Choosie Pro subscription.
-            </p>
-            <ul className="mt-5 space-y-2 text-sm text-slate-700">
-              <li>Everything in monthly Pro</li>
-              <li>Unlimited saved lists across every module</li>
-              <li>Movie, book, food, music, and anything lists</li>
-              <li>List Log remembers past winners, dinners, places, and who narrowed last time</li>
-            </ul>
           </div>
           <div className="mt-auto pt-6">
             <Link
