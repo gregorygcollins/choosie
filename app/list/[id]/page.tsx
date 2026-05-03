@@ -1035,7 +1035,18 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 p-1 text-zinc-400 opacity-100 shadow-sm ring-1 ring-zinc-200 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                <div className="mb-3 h-14 w-14 overflow-hidden rounded-md bg-zinc-100">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
+                  )}
+                </div>
+                <div className="line-clamp-2 text-sm font-medium leading-5 text-brand">{item.title}</div>
+                {item.notes && (
+                  <div className="mt-1 line-clamp-1 text-xs leading-5 text-zinc-500">{item.notes}</div>
+                )}
+                <div className="mt-4 flex w-fit items-center gap-1 rounded-full bg-white/95 p-1 text-zinc-400 shadow-sm ring-1 ring-zinc-200 transition-opacity sm:absolute sm:right-3 sm:top-3 sm:mt-0 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1075,17 +1086,6 @@ export default function ViewListPage() {
                     </svg>
                   </button>
                 </div>
-                <div className="mb-3 h-14 w-14 overflow-hidden rounded-md bg-zinc-100">
-                  {item.image ? (
-                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
-                  )}
-                </div>
-                <div className="line-clamp-2 text-sm font-medium leading-5 text-brand">{item.title}</div>
-                {item.notes && (
-                  <div className="mt-1 line-clamp-1 text-xs leading-5 text-zinc-500">{item.notes}</div>
-                )}
               </div>
             ))}
           </div>
@@ -1234,15 +1234,25 @@ export default function ViewListPage() {
                   onClick={() => {
                     openItemEditor(previewItem);
                   }}
-                  className="rounded-full bg-zinc-100 px-4 py-2 text-sm font-semibold text-brand hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-brand hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  title="Edit item"
+                  aria-label={`Edit ${previewItem.title}`}
                 >
-                  Edit
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
                 </button>
                 <button
                   onClick={closePreview}
-                  className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  title="Close"
+                  aria-label="Close preview"
                 >
-                  Close
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
                 </button>
               </div>
             </div>
