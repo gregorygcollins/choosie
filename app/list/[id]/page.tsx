@@ -116,24 +116,15 @@ export default function ViewListPage() {
     // eslint-disable-next-line no-console
     console.log('[ParticipantModal] Selected count (narrowers):', count);
     if (!list) return;
-    // Only allow up to 3 narrowers (excluding Organizer)
-    const roleSets = [
-      [],
-      ["Decider"],
-      ["Selector", "Decider"],
-      ["Programmer", "Selector", "Decider"],
-    ];
-    const minSizes = [0, 1, 4, 6];
-    if (count > 3 || count < 1) return; // Defensive: ignore out of range
-    const roles = roleSets[count] || [];
-    const minSize = minSizes[count] || 0;
+    const { computeNarrowingPlan, getMinimumListSizeForNarrowers } = require("@/lib/planner");
+    if (count > 5 || count < 1) return; // Defensive: ignore out of range
+    const minSize = getMinimumListSizeForNarrowers(count);
     if ((list.items?.length || 0) < minSize) {
       setParticipantError(`You need at least ${minSize} items for ${count} narrower${count === 1 ? '' : 's'}.`);
       return;
     }
     setParticipantError(null);
     // Compute narrowing plan and initialize progress for both in-person and virtual narrowing
-    const { computeNarrowingPlan } = require("@/lib/planner");
     // Pass count+1 to include organizer for correct plan
     const plan = computeNarrowingPlan(list.items.length, count + 1, { participants: count + 1 });
     let updated = {
@@ -182,7 +173,7 @@ export default function ViewListPage() {
       })();
     } else {
       (async () => {
-        // Virtual: handle 1 narrower (Decider) vs 2/3 narrowers (roles)
+        // Virtual: handle 1 narrower (Decider) vs multiple narrowers (role claim page)
         const sessionId =
           typeof crypto !== "undefined" && "randomUUID" in crypto
             ? crypto.randomUUID()
@@ -195,7 +186,6 @@ export default function ViewListPage() {
           const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1&${sessionQuery}`;
           setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
         } else {
-          // 2 or 3 narrowers: group roles link
           const groupLink = `${base}/list/${list.id}/virtual/roles?${sessionQuery}`;
           setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
         }
@@ -585,14 +575,14 @@ export default function ViewListPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowParticipantModal(false)}>
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-semibold mb-2 text-center text-[#2E2E2E]">
-              How many participants?
+              How many narrowers?
             </h2>
             <p className="text-sm text-zinc-600 mb-6 text-center">
-              Select the total number of people (excluding you as the Organizer)
+              Select the total number of people narrowing after you, the Organizer.
             </p>
             {participantError && <div className="text-red-600 text-sm mb-4 text-center">{participantError}</div>}
-            <div className="mx-auto mb-6 grid max-w-[13rem] grid-cols-3 gap-2">
-              {[1, 2, 3].map((n) => (
+            <div className="mx-auto mb-6 grid max-w-[22rem] grid-cols-5 gap-2">
+              {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
                   onClick={() => handleParticipantSelect(n)}

@@ -24,7 +24,7 @@ const resetSchema = z.object({
   listId: z.string().min(1).max(50),
   participantToken: participantTokenSchema.optional(),
   sessionId: z.string().min(1).max(80).optional(),
-  participants: z.number().int().min(1).max(3).optional(),
+  participants: z.number().int().min(1).max(5).optional(),
 });
 
 async function getList(listId: string) {

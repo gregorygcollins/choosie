@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { getRolePlan } from "@/lib/planner";
 
 type PreviewItem = {
   id: string;
@@ -10,13 +11,39 @@ type PreviewItem = {
   image?: string | null;
 };
 
-const ROLE_META: Record<string, { target: number; icon: "camera" | "slate" | "award" }> = {
-  Programmer: { target: 5, icon: "camera" },
-  Selector: { target: 3, icon: "slate" },
-  Decider: { target: 1, icon: "award" },
+type RoleIconName = "cards" | "pencil" | "camera" | "slate" | "award";
+
+const ROLE_ICONS: Record<string, RoleIconName> = {
+  Curator: "cards",
+  Editor: "pencil",
+  Programmer: "camera",
+  Selector: "slate",
+  Decider: "award",
 };
 
-function RoleIcon({ icon }: { icon: "camera" | "slate" | "award" }) {
+function RoleIcon({ icon }: { icon: RoleIconName }) {
+  if (icon === "cards") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 10.5 20.5 6l3.5 10-12.5 4.5z" />
+        <path d="M10 14.5v8A2.5 2.5 0 0 0 12.5 25h11A2.5 2.5 0 0 0 26 22.5v-8A2.5 2.5 0 0 0 23.5 12H22" />
+        <path d="M14 18h7" />
+        <path d="M14 21h5" />
+      </svg>
+    );
+  }
+
+  if (icon === "pencil") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 24.5 8.5 19 21 6.5a3 3 0 0 1 4.2 4.2L12.7 23.2z" />
+        <path d="m19 8.5 4.5 4.5" />
+        <path d="M8.5 19 13 23.5" />
+        <path d="M7 24.5h6" />
+      </svg>
+    );
+  }
+
   if (icon === "camera") {
     return (
       <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -128,26 +155,15 @@ function RoleSelectionContent() {
     setClaiming(null);
   }
 
-  let rolesToShow: { role: string; target: number; icon: "camera" | "slate" | "award" }[] = [];
-  if (participantCount === 1) {
-    rolesToShow = [{ role: "Decider", ...ROLE_META["Decider"] }];
-  } else if (participantCount === 2) {
-    rolesToShow = [
-      { role: "Selector", ...ROLE_META["Selector"] },
-      { role: "Decider", ...ROLE_META["Decider"] },
-    ];
-  } else if (participantCount === 3) {
-    rolesToShow = [
-      { role: "Programmer", ...ROLE_META["Programmer"] },
-      { role: "Selector", ...ROLE_META["Selector"] },
-      { role: "Decider", ...ROLE_META["Decider"] },
-    ];
-  }
+  const rolesToShow = getRolePlan(participantCount + 1).map((phase) => ({
+    ...phase,
+    icon: ROLE_ICONS[phase.role] || "slate",
+  }));
 
   const posterItems = previewItems.filter((item) => item.image).slice(0, 10);
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12 text-center">
+    <div className="mx-auto max-w-6xl px-6 py-12 text-center">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
         You&apos;ve been invited to choosie a movie.
       </p>
@@ -194,7 +210,7 @@ function RoleSelectionContent() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {rolesToShow.map(({ role, target, icon }) => {
           const taken = participants.find((p) => p.role === role);
           return (

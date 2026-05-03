@@ -40,7 +40,11 @@ export async function GET(req: Request) {
           <div style={{ marginTop: 28, fontSize: 31, color: "#31445F", lineHeight: 1.22 }}>
             Claim a role and help narrow the list to one movie.
           </div>
-          <div style={{ marginTop: 34, display: "flex", alignItems: "center", gap: 14, color: "#00AFA3", fontSize: 28, fontWeight: 800 }}>
+          <div style={{ marginTop: 34, display: "flex", alignItems: "center", gap: 10, color: "#00AFA3", fontSize: 22, fontWeight: 800 }}>
+            <span>Curator</span>
+            <span style={{ color: "#8EA0B8" }}>→</span>
+            <span>Editor</span>
+            <span style={{ color: "#8EA0B8" }}>→</span>
             <span>Programmer</span>
             <span style={{ color: "#8EA0B8" }}>→</span>
             <span>Selector</span>

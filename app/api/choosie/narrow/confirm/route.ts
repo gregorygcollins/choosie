@@ -3,7 +3,7 @@ import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { narrowingConfirmRoundSchema, validateRequest } from "@/lib/validation";
 import prisma from "@/lib/prisma";
-import { computeNarrowingPlan } from "@/lib/planner";
+import { computeNarrowingPlan, getRolePlan } from "@/lib/planner";
 import { publish } from "@/lib/sse";
 
 export const runtime = "nodejs";
@@ -36,9 +36,7 @@ function buildCanonical(list: any) {
 }
 
 function virtualRoles(participantCount: number) {
-  if (participantCount === 1) return ["Decider"];
-  if (participantCount === 2) return ["Selector", "Decider"];
-  return ["Programmer", "Selector", "Decider"];
+  return getRolePlan(participantCount + 1).map((phase) => phase.role);
 }
 
 function resolveRoundParticipant(list: any, participantToken: string, participantCount: number) {
