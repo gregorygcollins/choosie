@@ -13,33 +13,37 @@ const ROLE_META: Record<string, { target: number; icon: "camera" | "slate" | "aw
 function RoleIcon({ icon }: { icon: "camera" | "slate" | "award" }) {
   if (icon === "camera") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h7A2.5 2.5 0 0 1 16 8.5v7A2.5 2.5 0 0 1 13.5 18h-7A2.5 2.5 0 0 1 4 15.5z" />
-        <path d="m16 10 4-2.5v9L16 14" />
-        <path d="M7 6 8.5 3.5h3L13 6" />
+      <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6.5 12.5A3.5 3.5 0 0 1 10 9h9a3.5 3.5 0 0 1 3.5 3.5v7A3.5 3.5 0 0 1 19 23h-9a3.5 3.5 0 0 1-3.5-3.5z" />
+        <path d="m22.5 14 4-2.4v8.8l-4-2.4" />
+        <path d="M12 9 13.5 6.5h4L19 9" />
+        <path d="M13 16a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" />
       </svg>
     );
   }
 
   if (icon === "slate") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 8h16v10.5A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5z" />
-        <path d="M4 8 6.4 3h3L7 8" />
-        <path d="M10 8 12.4 3h3L13 8" />
-        <path d="M16 8 18.4 3H20v5" />
+      <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 12h18v11.5A2.5 2.5 0 0 1 22.5 26h-13A2.5 2.5 0 0 1 7 23.5z" />
+        <path d="M7 12 10 6h15v6" />
+        <path d="M12 6 9 12" />
+        <path d="M18 6 15 12" />
+        <path d="M24 6 21 12" />
+        <path d="M13 18h6" />
+        <path d="M13 21h4" />
       </svg>
     );
   }
 
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 3c1.4 1.4 2.2 3 2.2 4.8 0 2.4-1 4.2-2.2 5.2-1.2-1-2.2-2.8-2.2-5.2C9.8 6 10.6 4.4 12 3Z" fill="currentColor" stroke="none" />
-      <path d="M8.5 8.5H6.8A2.8 2.8 0 0 0 4 11.3c0 2.1 1.7 3.9 4 4.2" />
-      <path d="M15.5 8.5h1.7a2.8 2.8 0 0 1 2.8 2.8c0 2.1-1.7 3.9-4 4.2" />
-      <path d="M12 13v4" />
-      <path d="M9 21h6" />
-      <path d="M10 17h4l1 4H9z" />
+    <svg aria-hidden="true" viewBox="0 0 32 32" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 7h10v5.5A8.5 8.5 0 0 1 16 20a8.5 8.5 0 0 1-5-7.5z" />
+      <path d="M11 10H8.5A3.5 3.5 0 0 0 5 13.5C5 16 7 18 10 18.5" />
+      <path d="M21 10h2.5a3.5 3.5 0 0 1 3.5 3.5c0 2.5-2 4.5-5 5" />
+      <path d="M16 20v4" />
+      <path d="M12 26h8" />
+      <path d="M14 24h4" />
     </svg>
   );
 }
@@ -70,18 +74,18 @@ function RoleSelectionContent() {
         if (!cancelled && data.ok) setParticipants(data.participants);
       } catch {}
       try {
-        const res2 = await fetch("/api/choosie/getList", {
+        const res2 = await fetch("/api/choosie/narrow/state", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ listId: id }),
-          credentials: "include",
+          cache: "no-store",
         });
         const data2 = await res2.json();
-        if (!cancelled && data2.ok && typeof data2.list?.participants === "number") {
-          setParticipantCount(data2.list.participants);
+        if (!cancelled && data2.ok && typeof data2.participantCount === "number") {
+          setParticipantCount(data2.participantCount);
         }
-        if (!cancelled && data2.ok && data2.list?.title) {
-          setListTitle(data2.list.title);
+        if (!cancelled && data2.ok && data2.listTitle) {
+          setListTitle(data2.listTitle);
         }
       } catch {}
     }
@@ -168,11 +172,12 @@ function RoleSelectionContent() {
                 taken ? "border-zinc-200 bg-zinc-50 text-zinc-400" : "border-brand/20 bg-white text-brand"
               }`}
             >
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-light text-brand">
+              <div className="grid h-16 w-16 place-items-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10">
                 <RoleIcon icon={icon} />
               </div>
-              <div className="mt-4 text-center text-base font-bold text-zinc-900">
-                {role}: Narrow to {target}
+              <div className="mt-4 text-center text-zinc-900">
+                <div className="text-lg font-bold leading-tight">{role}</div>
+                <div className="mt-1 text-base font-semibold leading-tight text-zinc-700">Narrow to {target}</div>
               </div>
               {taken ? (
                 <div className="mt-3 text-sm text-zinc-500">Claimed by {taken.name}</div>
