@@ -1016,7 +1016,7 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="rounded-lg border border-zinc-200 p-3 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="group rounded-lg border border-zinc-200 p-3 cursor-pointer transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1035,31 +1035,30 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="mb-2 h-14 w-14 overflow-hidden rounded-md">
-                  {item.image ? (
-                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-zinc-400">📷</div>
-                  )}
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 flex-1 items-start gap-2">
-                    <div className="mt-0.5 cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-16 overflow-hidden rounded-lg bg-zinc-100 shadow-sm ring-1 ring-zinc-200">
+                      {item.image ? (
+                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
+                      )}
+                    </div>
+                    <div className="cursor-grab text-zinc-300 transition-colors group-hover:text-zinc-400" title="Drag to reorder" aria-hidden>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                         <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
                         <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
                         <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
                       </svg>
                     </div>
-                    <div className="min-w-0 flex-1 line-clamp-2 text-sm font-medium text-brand">{item.title}</div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-1 text-zinc-400">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         openPreview(item);
                       }}
-                      className="grid h-5 w-5 place-items-center rounded-full border border-zinc-300 text-[11px] font-semibold leading-none text-zinc-500 transition-colors hover:border-brand hover:text-brand"
+                      className="grid h-7 w-7 place-items-center rounded-full border border-zinc-200 bg-white text-xs font-semibold leading-none transition-colors hover:border-brand hover:text-brand"
                       title="Item info"
                       aria-label={`Show info for ${item.title}`}
                     >
@@ -1070,7 +1069,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         openItemEditor(item);
                       }}
-                      className="text-zinc-400 hover:text-brand transition-colors"
+                      className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-brand-light hover:text-brand"
                       title="Edit item"
                       aria-label={`Edit ${item.title}`}
                     >
@@ -1084,7 +1083,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         setItemToDelete(item.id);
                       }}
-                      className="text-zinc-400 hover:text-red-600 transition-colors"
+                      className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-red-50 hover:text-red-600"
                       title="Remove item"
                       aria-label={`Remove ${item.title}`}
                     >
@@ -1094,8 +1093,9 @@ export default function ViewListPage() {
                     </button>
                   </div>
                 </div>
+                <div className="line-clamp-2 min-h-[2.5rem] text-base font-semibold leading-5 text-brand">{item.title}</div>
                 {item.notes && (
-                  <div className="mt-1 line-clamp-1 text-xs text-zinc-500">{item.notes}</div>
+                  <div className="mt-2 line-clamp-2 text-sm leading-5 text-zinc-500">{item.notes}</div>
                 )}
               </div>
             ))}
