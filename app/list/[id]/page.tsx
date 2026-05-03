@@ -469,7 +469,12 @@ export default function ViewListPage() {
       }
       setLogSessions(Array.isArray(data.sessions) ? data.sessions : []);
     } catch (error: any) {
-      setLogError(error?.message || "Unable to load list log");
+      const message = error?.message || "Unable to load list log";
+      setLogError(
+        message === "List not found"
+          ? "No List Log yet. Finish a narrowing session with this saved list and its winners will show up here."
+          : message
+      );
     } finally {
       setLogLoading(false);
     }
@@ -635,8 +640,11 @@ export default function ViewListPage() {
                 Loading list log...
               </div>
             ) : logError ? (
-              <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
-                {logError}
+              <div className="mt-6 rounded-xl border border-consensus/30 bg-consensus/10 p-5 text-sm leading-6">
+                <div className="text-base font-bold text-brand">
+                  {logError.startsWith("No List Log yet") ? "Nothing in the log yet" : "List Log is taking a minute"}
+                </div>
+                <p className="mt-1 text-slate-600">{logError}</p>
               </div>
             ) : logSessions.length === 0 ? (
               <div className="mt-6 rounded-xl border border-zinc-200 bg-brand-light/50 p-5 text-sm leading-6 text-slate-600">

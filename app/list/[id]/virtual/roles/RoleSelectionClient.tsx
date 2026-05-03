@@ -176,9 +176,6 @@ function RoleSelectionContent() {
               ))}
             </div>
           )}
-          <p className="mt-3 text-sm font-medium text-zinc-600">
-            {previewItems.length} options waiting. Claim a role to help narrow the list.
-          </p>
         </div>
       )}
       <p className="mt-3 text-lg font-semibold text-zinc-700">Choosie your role.</p>
