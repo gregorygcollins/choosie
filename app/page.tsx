@@ -12,13 +12,13 @@ const walkthrough = [
   },
   {
     eyebrow: "Invite",
-    title: "Start narrowing.",
+    title: "Invite others.",
     body: "Pass the phone around the room or send out a link.",
     phone: <InvitePhone />,
   },
   {
     eyebrow: "Narrow",
-    title: "Take turns narrowing.",
+    title: "Start narrowing.",
     body: <>Each person narrows toward what <strong>they</strong> want to do.</>,
     phone: <NarrowPhone />,
   },
@@ -95,7 +95,9 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">
-            Free lets you make a movie list. Pro lets you save unlimited movie, book, music, food, and anything lists, then look back at what your group chose. Choosie <strong>passionate overlap</strong> every time.
+            <span className="block">Free lets you make a movie list.</span>
+            <span className="block">Pro lets you save unlimited movie, book, music, food, and anything lists, then look back at what your group chose.</span>
+            <span className="block">Choosie <strong>passionate overlap</strong> every time.</span>
           </p>
           <Link
             href="/pricing"
@@ -201,9 +203,9 @@ function WinnerPhone() {
       <div className="relative p-3 text-center">
         <div className="absolute left-4 top-8 text-sm text-consensus">✦</div>
         <div className="absolute right-5 top-12 text-sm text-sky-400">✦</div>
-        <div className="mx-auto mt-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-lg shadow-sm">🎉</div>
-        <div className="mt-4 text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
+        <div className="mt-5 text-[0.64rem] font-semibold uppercase tracking-wide text-slate-500">And the winner is...</div>
         <div className="mt-2 text-lg font-bold leading-tight text-brand">The Godfather</div>
+        <div className="mx-auto mt-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-lg shadow-sm">🎉</div>
         <div className="mx-auto mt-5 w-fit rounded-full bg-consensus px-3 py-2 text-[0.66rem] font-bold text-brand-dark">Share</div>
       </div>
     </PhoneFrame>
