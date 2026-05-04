@@ -26,10 +26,7 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     const list = await getListById(validated.listId);
 
-      if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
-      // Diagnostic logging for participants value
-      // eslint-disable-next-line no-console
-      // console.log('[API/getList] Returning participants:', list.participants); // Removed: property does not exist
+    if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
 
     // Ownership check
     const authCheck = requireAuth(session, list.userId);
@@ -53,7 +50,6 @@ export async function POST(req: NextRequest) {
     let state = progress?.historyJson || null;
     const { computeNarrowingPlan } = await import("@/lib/planner");
     if (!state) {
-      console.log('[getList] Initializing narrowing state for list', list.id);
       const plan = computeNarrowingPlan(list.items.length, participants, { participants });
       state = { plan, roundIndex: 0, rounds: [], current: { remainingIds: list.items.map((i: any) => i.id), selectedIds: [], target: plan[0] } };
       try {
@@ -63,7 +59,6 @@ export async function POST(req: NextRequest) {
           create: { listId: list.id, historyJson: state, winnerItemId: null },
         });
         winnerId = null;
-        console.log('[getList] State after upsert', state);
       } catch (e) {
         console.error('[getList] Error during upsert', e);
       }
@@ -71,7 +66,6 @@ export async function POST(req: NextRequest) {
 
     const res = NextResponse.json({
       ok: true,
-      debug: "getList-logging-test-443d7e6",
       list: {
         id: list.id,
         title: list.title,

@@ -8,8 +8,8 @@ describe('computeNarrowingPlan', () => {
   });
 
   it('enforces minimum list sizes for multi-narrower flows', () => {
-    expect(() => computeNarrowingPlan(3, 3)).toThrow("at least 4 movies");
-    expect(() => computeNarrowingPlan(5, 4)).toThrow("at least 6 movies");
+    expect(() => computeNarrowingPlan(3, 3)).toThrow("at least 4 items");
+    expect(() => computeNarrowingPlan(5, 4)).toThrow("at least 6 items");
   });
 
   it('matches tail for 50 items with 4 players (rounds=3)', () => {

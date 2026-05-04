@@ -191,7 +191,7 @@ function ListThumbnail({
     <span
       className={[
         "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1",
-        variant === "grid" ? "h-10 w-10" : "h-14 w-14",
+        variant === "grid" ? "h-20 w-20" : "h-20 w-20",
         moduleStyle.thumbnail,
       ].join(" ")}
       title={firstTitle || `${moduleLabel} list`}
@@ -489,7 +489,7 @@ export default function ListsPage() {
               }}
             >
               <div className={viewMode === "grid" ? "flex flex-1 flex-col gap-4" : ""}>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant={viewMode} />
                   <div>
                     <h2 className="font-medium text-brand">
@@ -540,11 +540,8 @@ export default function ListsPage() {
                     strokeLinejoin="round"
                     aria-hidden
                   >
-                    <path d="M4 5h16" />
-                    <path d="M4 12h10" />
-                    <path d="M4 19h7" />
-                    <path d="m16 18 4-4" />
-                    <path d="m18 12 2 2" />
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
                   </svg>
                 </button>
                 <button

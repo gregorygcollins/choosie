@@ -63,19 +63,12 @@ export async function POST(req: NextRequest) {
     if (!rl.ok) return withCORS(rl.res, origin);
 
     const body = await req.json();
-    console.log('[narrow/confirm] Incoming body:', body);
     const data = validateRequest(narrowingConfirmRoundSchema, body);
     const list = await getList(data.listId);
     if (!list) {
-      console.log('[narrow/confirm] List not found:', data.listId);
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     const invitees = extractInvitees(list);
-    // TEMP: Bypass participantToken validation
-    // const participantIndex = invitees.findIndex((i: any) => i.token === data.participantToken);
-    // if (participantIndex < 0) {
-    //   return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
-    // }
 
     const participantCount =
       typeof (list as any).tasteJson?.participants === "number"
@@ -86,16 +79,9 @@ export async function POST(req: NextRequest) {
     const state = buildCanonical(list);
     if (!state.plan) state.plan = plan;
 
-    // TEMP: Always allow action as single participant
-    // const activeIndex = state.roundIndex % (participants - 1);
-    // if (participantIndex !== activeIndex) {
-    //   return withCORS(NextResponse.json({ ok: false, error: 'Not your round' }, { status: 409 }), origin);
-    // }
-
     const target = state.plan[state.roundIndex];
     const selected = state.current.selectedIds as string[];
     if (!Array.isArray(selected) || selected.length !== target) {
-      console.log('[narrow/confirm] Selection count mismatch:', { selected, target });
       return withCORS(NextResponse.json({ ok: false, error: 'Selection count does not match target' }, { status: 400 }), origin);
     }
 
@@ -114,16 +100,6 @@ export async function POST(req: NextRequest) {
       winnerItemId = winner;
     }
     // Commit round
-    console.log('[narrow/confirm] BEFORE', {
-      listId: data.listId,
-      participantToken: data.participantToken,
-      roundIndex: state.roundIndex,
-      selectedIds: state.current.selectedIds,
-      remainingIds: state.current.remainingIds,
-      plan: state.plan,
-      finished,
-      winnerItemId,
-    });
     const roundParticipant = resolveRoundParticipant(list, data.participantToken, participantCount);
     const roundEntry = {
       round: state.roundIndex,
@@ -134,15 +110,6 @@ export async function POST(req: NextRequest) {
     };
     state.rounds = Array.isArray(state.rounds) ? state.rounds : [];
     state.rounds.push(roundEntry);
-    // Debug log
-    console.log('[narrow/confirm] FINALIZE', {
-      listId: data.listId,
-      selectedIds: selected,
-      target: state.current.target,
-      roundIndex: state.roundIndex,
-      plan: state.plan,
-      winnerItemId,
-    });
 
     await prisma.progress.upsert({
       where: { listId: list.id },
@@ -169,32 +136,12 @@ export async function POST(req: NextRequest) {
         },
       });
     }
-    console.log('[narrow/confirm] UPSERT', {
-      listId: list.id,
-      winnerItemId,
-      roundIndex: state.roundIndex,
-      remainingIds: state.current.remainingIds,
-      selectedIds: state.current.selectedIds,
-      plan: state.plan,
-      finished,
-      state,
-    });
-
-    console.log('[narrow/confirm] AFTER', {
-      listId: data.listId,
-      participantToken: data.participantToken,
-      roundIndex: state.roundIndex,
-      selectedIds: state.current.selectedIds,
-      remainingIds: state.current.remainingIds,
-      winnerItemId,
-      state,
-    });
 
     publish(list.id, { ok: true, event: 'state', state, winnerItemId });
     return withCORS(NextResponse.json({ ok: true, state, winnerItemId }), origin);
   } catch (e: any) {
     console.error('narrow/confirm error', e);
-    return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 }), origin);
   }
 }
 

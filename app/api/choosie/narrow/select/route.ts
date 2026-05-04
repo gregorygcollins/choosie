@@ -51,22 +51,10 @@ export async function POST(req: NextRequest) {
     }
 
     const invitees = extractInvitees(list);
-    // TEMP: Bypass participantToken validation
-    // const participant = invitees.find((i: any) => i.token === data.participantToken);
-    // if (!participant) {
-    //   return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
-    // }
 
     // Load canonical state
     const historyState = buildCanonical(list);
     ensureSelectionSet(historyState);
-    console.log('[narrow/select] BEFORE', {
-      listId: data.listId,
-      participantToken: data.participantToken,
-      roundIndex: historyState.roundIndex,
-      selectedIds: historyState.current.selectedIds,
-      remainingIds: historyState.current.remainingIds,
-    });
 
     // Basic rule: item must be in remainingIds and not already selected
     const remaining = historyState.current.remainingIds as string[];
@@ -80,12 +68,6 @@ export async function POST(req: NextRequest) {
     const participantCount = typeof tj.participants === "number" ? tj.participants : invitees.length || 1;
     const participants = participantCount + 1;
     historyState.plan = Array.isArray(historyState.plan) ? historyState.plan : computeNarrowingPlan(list.items.length, participants, { participants });
-    // TEMP: Always allow action as single participant
-    // const activeIndex = (historyState.roundIndex || 0) % (participants - 1);
-    // const participantIndex = invitees.findIndex((i: any) => i.token === data.participantToken);
-    // if (participantIndex !== activeIndex) {
-    //   return withCORS(NextResponse.json({ ok: false, error: 'Out of turn' }, { status: 409 }), origin);
-    // }
     if (selected.includes(data.itemId)) {
       return withCORS(NextResponse.json({ ok: true, state: historyState }), origin); // idempotent
     }
@@ -98,20 +80,12 @@ export async function POST(req: NextRequest) {
       create: { listId: list.id, historyJson: historyState },
     });
 
-    console.log('[narrow/select] AFTER', {
-      listId: data.listId,
-      participantToken: data.participantToken,
-      roundIndex: historyState.roundIndex,
-      selectedIds: historyState.current.selectedIds,
-      remainingIds: historyState.current.remainingIds,
-    });
-
     publish(list.id, { ok: true, event: 'state', state: historyState, winnerItemId: list.progress?.winnerItemId || null });
 
     return withCORS(NextResponse.json({ ok: true, state: historyState }), origin);
   } catch (e: any) {
     console.error('narrow/select error', e);
-    return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 }), origin);
   }
 }
 

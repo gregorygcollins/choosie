@@ -893,12 +893,11 @@ export default function NewPageClient() {
               className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Book club, Reading group, etc."
             />
-            <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+            <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
             <textarea
               value={bookDescription}
               onChange={(e) => setBookDescription(e.target.value)}
-              className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
-              placeholder="What is this list for?"
+              className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
             />
           </div>
           {/* Add items panel */}
@@ -1041,12 +1040,11 @@ export default function NewPageClient() {
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Karaoke night, Roadtrip, etc."
           />
-          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
           <textarea
             value={musicDescription}
             onChange={(e) => setMusicDescription(e.target.value)}
-            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
-            placeholder="What is this list for?"
+            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
           />
         </div>
         {/* Add items panel */}
@@ -1180,12 +1178,11 @@ export default function NewPageClient() {
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Weekday dinners, Holiday dishes, etc."
           />
-          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
           <textarea
             value={foodDescription}
             onChange={(e) => setFoodDescription(e.target.value)}
-            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
-            placeholder="What is this list for?"
+            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
           />
         </div>
         {/* Add items panel */}
@@ -1295,12 +1292,11 @@ export default function NewPageClient() {
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
             placeholder="Travel destinations, Baby names, etc."
           />
-          <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+          <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
           <textarea
             value={anythingDescription}
             onChange={(e) => setAnythingDescription(e.target.value)}
-            className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
-            placeholder="What is this list for?"
+            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
           />
         </div>
         {/* Add items panel */}

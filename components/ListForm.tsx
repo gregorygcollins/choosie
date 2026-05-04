@@ -345,12 +345,11 @@ export default function ListForm({
           className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
           placeholder="Family vacation, Film club, Date night, etc."
         />
-        <label className="mt-4 block text-sm font-medium text-neutral-700 mb-2">Description</label>
+        <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="input-soft min-h-24 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
-          placeholder="What is this list for?"
+          className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
         />
       </div>
 

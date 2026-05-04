@@ -10,25 +10,16 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const origin = getOrigin(req);
   try {
-    // Log incoming request for debugging
     const rawBody = await req.text();
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.log('[NARROW DEBUG] POST raw body:', rawBody);
-    }
     let body;
     try {
       body = JSON.parse(rawBody);
     } catch (parseErr) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('[NARROW DEBUG] JSON parse error:', parseErr);
+        console.error('[narrow/state] JSON parse error:', parseErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 }), origin);
-    }
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.log('[NARROW DEBUG] parsed body:', body);
     }
 
     const rl = await rateLimit(req, { scope: 'narrowState', limit: 240, windowMs: 60_000 });
@@ -40,13 +31,9 @@ export async function POST(req: NextRequest) {
     } catch (validationErr) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('[NARROW DEBUG] validation error:', validationErr);
+        console.error('[narrow/state] validation error:', validationErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid or missing listId' }, { status: 400 }), origin);
-    }
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
-      console.log('[NARROW DEBUG] validated data:', data);
     }
     let list = null;
     try {
@@ -54,22 +41,17 @@ export async function POST(req: NextRequest) {
         where: { id: data.listId },
         include: { items: { orderBy: { rank: 'asc' } }, progress: true },
       });
-      if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.log('[NARROW DEBUG] prisma.list.findUnique result:', list);
-      }
     } catch (prismaErr) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('[NARROW DEBUG] Prisma error:', prismaErr);
+        console.error('[narrow/state] Prisma error:', prismaErr);
       }
-      const errMsg = (prismaErr && typeof prismaErr === 'object' && 'message' in prismaErr) ? (prismaErr as any).message : String(prismaErr);
-      return withCORS(NextResponse.json({ ok: false, error: 'Database error: ' + errMsg }), origin);
+      return withCORS(NextResponse.json({ ok: false, error: 'Database error' }, { status: 500 }), origin);
     }
     if (!list) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('[NARROW DEBUG] List not found for id', data.listId);
+        console.error('[narrow/state] List not found for id', data.listId);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
@@ -119,22 +101,12 @@ export async function POST(req: NextRequest) {
     } catch (prismaUpsertErr) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('[NARROW DEBUG] Prisma upsert error:', prismaUpsertErr);
+        console.error('[narrow/state] Prisma upsert error:', prismaUpsertErr);
       }
-      const upsertErrMsg = (prismaUpsertErr && typeof prismaUpsertErr === 'object' && 'message' in prismaUpsertErr) ? (prismaUpsertErr as any).message : String(prismaUpsertErr);
-      return withCORS(NextResponse.json({ ok: false, error: 'Database upsert error: ' + upsertErrMsg }), origin);
+      return withCORS(NextResponse.json({ ok: false, error: 'Database upsert error' }, { status: 500 }), origin);
     }
 
     const winnerItemId = list.progress?.winnerItemId || null;
-    // Debug log
-    console.log('[narrow/state] RESPONSE', {
-      listId: list.id,
-      selectedIds: state.current?.selectedIds,
-      target: state.current?.target,
-      roundIndex: state.roundIndex,
-      plan: state.plan,
-      winnerItemId,
-    });
     return withCORS(NextResponse.json({
       ok: true,
       state,
@@ -152,9 +124,9 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.error('[NARROW DEBUG] Caught error:', e);
+      console.error('[narrow/state] Caught error:', e);
     }
-    return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 }), origin);
   }
 }
 

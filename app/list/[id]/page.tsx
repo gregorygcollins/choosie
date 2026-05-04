@@ -112,9 +112,6 @@ export default function ViewListPage() {
 
   const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
-    // Diagnostic log for participant selection
-    // eslint-disable-next-line no-console
-    console.log('[ParticipantModal] Selected count (narrowers):', count);
     if (!list) return;
     const { computeNarrowingPlan, getMinimumListSizeForNarrowers } = require("@/lib/planner");
     if (count > 5 || count < 1) return; // Defensive: ignore out of range
