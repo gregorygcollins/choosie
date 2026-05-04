@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import Nav from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { InstallChoosiePrompt } from "../components/InstallChoosiePrompt";
 import { ServiceWorkerRegistration } from "../components/ServiceWorkerRegistration";
 import { ToastContainer } from "../components/Toast";
 import "./globals.css";
@@ -77,6 +78,7 @@ export default function RootLayout({
         >
         <Providers>
           <ServiceWorkerRegistration />
+          <InstallChoosiePrompt />
           <div className="min-h-screen flex flex-col">
             <header className="w-full border-b border-black/6 bg-white/40 backdrop-blur-sm">
               <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
