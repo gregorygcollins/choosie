@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import Nav from "../components/Nav";
 import { Footer } from "../components/Footer";
+import { ServiceWorkerRegistration } from "../components/ServiceWorkerRegistration";
 import { ToastContainer } from "../components/Toast";
 import "./globals.css";
 import Providers from "./providers";
@@ -16,9 +17,18 @@ const robotoMono = Roboto_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Choosie – Do Only What You Love, Together",
+  applicationName: "Choosie",
   description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Choosie"
+  },
+  formatDetection: {
+    telephone: false
+  },
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
     description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
@@ -48,7 +58,10 @@ export const metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
     ]
   },
-  manifest: "/site.webmanifest",
+  manifest: "/site.webmanifest"
+};
+
+export const viewport: Viewport = {
   themeColor: "#1A365D"
 };
 
@@ -59,10 +72,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        <body
+  <body
       className={`${inter.variable} ${robotoMono.variable} antialiased`}
         >
         <Providers>
+          <ServiceWorkerRegistration />
           <div className="min-h-screen flex flex-col">
             <header className="w-full border-b border-black/6 bg-white/40 backdrop-blur-sm">
               <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
