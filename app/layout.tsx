@@ -18,6 +18,8 @@ const robotoMono = Roboto_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.choosietogether.com";
+
 export const metadata: Metadata = {
   title: "Choosie – Do Only What You Love, Together",
   applicationName: "Choosie",
@@ -33,11 +35,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
     description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
-    url: "https://choosie-seven.vercel.app",
+    url: siteUrl,
     siteName: "Choosie",
     images: [
       {
-        url: "https://choosie-seven.vercel.app/og-image.png",
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Choosie logo",
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Choosie – Do Only What You Love, Together",
     description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
-    images: ["https://choosie-seven.vercel.app/og-image.png"]
+    images: [`${siteUrl}/og-image.png`]
   },
   icons: {
     icon: [
