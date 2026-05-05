@@ -16,9 +16,13 @@ function SignupContent() {
   const isPro = plan === "pro";
   const callbackUrl = isPro ? `/api/stripe/checkout?billing=${billing}` : "/new";
   const loginHref = isPro ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/auth/login";
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,11 +32,29 @@ function SignupContent() {
     setError("");
 
     try {
+      if (email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+        throw new Error("Email addresses do not match.");
+      }
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match.");
+      }
+      if (!acceptedTerms) {
+        throw new Error("Please accept the terms to create an account.");
+      }
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          confirmEmail,
+          password,
+          confirmPassword,
+          acceptedTerms,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.ok) {
@@ -73,19 +95,37 @@ function SignupContent() {
             : "Sign up to save your movie list, share links, and keep narrowing across devices."}
         </p>
 
-        <div className="mx-auto mt-8 grid max-w-2xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-8 grid max-w-3xl gap-6 md:grid-cols-[1.2fr_.8fr]">
           <form onSubmit={handleEmailSignup} className="rounded-2xl border border-zinc-200 bg-brand-light/50 p-5 text-left">
             <h2 className="text-lg font-bold text-brand">Sign up with email</h2>
-            <label className="mt-4 block text-sm font-semibold text-brand" htmlFor="signup-name">
-              Name
-            </label>
-            <input
-              id="signup-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Name optional"
-              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
-            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-brand" htmlFor="signup-first-name">
+                  First name
+                </label>
+                <input
+                  id="signup-first-name"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                  required
+                  autoComplete="given-name"
+                  className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-brand" htmlFor="signup-last-name">
+                  Last name
+                </label>
+                <input
+                  id="signup-last-name"
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  required
+                  autoComplete="family-name"
+                  className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+                />
+              </div>
+            </div>
             <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="signup-email">
               Email
             </label>
@@ -94,6 +134,18 @@ function SignupContent() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              required
+              autoComplete="email"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="signup-confirm-email">
+              Confirm email
+            </label>
+            <input
+              id="signup-confirm-email"
+              type="email"
+              value={confirmEmail}
+              onChange={(event) => setConfirmEmail(event.target.value)}
               required
               autoComplete="email"
               className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
@@ -111,7 +163,41 @@ function SignupContent() {
               autoComplete="new-password"
               className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
             />
+            <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="signup-confirm-password">
+              Confirm password
+            </label>
+            <input
+              id="signup-confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
             <p className="mt-2 text-xs leading-5 text-slate-500">Use at least 8 characters.</p>
+            <label className="mt-4 flex items-start gap-3 text-sm leading-5 text-slate-600" htmlFor="signup-terms">
+              <input
+                id="signup-terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(event) => setAcceptedTerms(event.target.checked)}
+                required
+                className="mt-1 h-4 w-4 rounded border-zinc-300 text-brand focus:ring-consensus"
+              />
+              <span>
+                I agree to the{" "}
+                <Link href="/terms" className="font-semibold text-brand hover:text-brand-dark">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="font-semibold text-brand hover:text-brand-dark">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
             {error && <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div>}
             <button
               type="submit"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession, signIn, signOut as nextAuthSignOut } from "next-auth/react";
 
@@ -65,6 +66,7 @@ export default function AccountPage() {
           stripe_price_missing: "Billing is not configured. Please set a Stripe price.",
           stripe_not_configured: "Stripe is not configured. Set STRIPE_SECRET_KEY (and a price).",
           checkout_failed: "We couldn’t start checkout. Please try again.",
+          checkout_cancelled: "Checkout was canceled. You can restart whenever you’re ready.",
           no_stripe_customer: "Stripe billing could not be opened for this account.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",
         };
@@ -74,6 +76,9 @@ export default function AccountPage() {
         const reason = params.get("reason");
         const msg = map[err] || "An unknown billing error occurred.";
         setError(reason ? `${msg} (${reason})` : msg);
+      }
+      if (params.get("checkout") === "cancelled") {
+        setError(mapCheckoutCancelled());
       }
     } catch {}
     return () => {
@@ -102,6 +107,10 @@ export default function AccountPage() {
       setError(err?.message || "Navigation error");
       setBusy(false);
     }
+  }
+
+  function mapCheckoutCancelled() {
+    return "Checkout was canceled. You can restart whenever you’re ready.";
   }
 
   if (loading) {
@@ -225,8 +234,22 @@ export default function AccountPage() {
             )}
 
             {showSuccessBanner && user.isPro && (
-              <div className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800">
-                You’re Pro. Enjoy premium features.
+              <div className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-800">
+                <p>You’re Pro. Enjoy premium features.</p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <Link
+                    href="/lists"
+                    className="inline-flex items-center justify-center rounded-full bg-brand px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
+                  >
+                    Go to lists
+                  </Link>
+                  <Link
+                    href="/new"
+                    className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-brand ring-1 ring-brand/15 transition-colors hover:bg-brand-light"
+                  >
+                    Create a list
+                  </Link>
+                </div>
               </div>
             )}
 

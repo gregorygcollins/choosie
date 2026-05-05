@@ -2,23 +2,63 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../../../lib/auth.server";
 import { preflight, getOrigin, withCORS } from "../../../../lib/cors";
 import { rateLimit } from "../../../../lib/rateLimit";
+import { getStripe } from "../../../../lib/stripe";
 
-const STRIPE_PAYMENT_LINKS = {
-  monthly: "https://buy.stripe.com/5kQ14m0DP2J51qI6oDbjW00",
-  annual: "https://buy.stripe.com/28E28q2LXgzV7P6aETbjW02",
-} as const;
-
-type BillingInterval = keyof typeof STRIPE_PAYMENT_LINKS;
+type BillingInterval = "monthly" | "annual";
 
 function getBillingInterval(value?: string | null): BillingInterval {
   return value === "annual" ? "annual" : "monthly";
 }
 
-function paymentLinkFor(interval: BillingInterval, email?: string | null) {
-  const url = new URL(STRIPE_PAYMENT_LINKS[interval]);
-  if (!email) return url.toString();
-  url.searchParams.set("prefilled_email", email);
-  return url.toString();
+function getPriceId(interval: BillingInterval) {
+  if (interval === "annual") return process.env.STRIPE_ANNUAL_PRICE_ID || null;
+  return process.env.STRIPE_MONTHLY_PRICE_ID || process.env.STRIPE_PRICE_ID || null;
+}
+
+function getBaseUrl(origin: string) {
+  return process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || origin;
+}
+
+async function createCheckoutSession({
+  billing,
+  origin,
+  userId,
+  email,
+}: {
+  billing: BillingInterval;
+  origin: string;
+  userId: string;
+  email?: string | null;
+}) {
+  const priceId = getPriceId(billing);
+  if (!priceId) {
+    throw new Error(billing === "annual" ? "Annual billing is not configured." : "Monthly billing is not configured.");
+  }
+
+  const stripe = getStripe();
+  const baseUrl = getBaseUrl(origin).replace(/\/$/, "");
+  const checkout = await stripe.checkout.sessions.create({
+    mode: "subscription",
+    line_items: [{ price: priceId, quantity: 1 }],
+    customer_email: email || undefined,
+    client_reference_id: userId,
+    metadata: {
+      userId,
+      billing,
+    },
+    subscription_data: {
+      metadata: {
+        userId,
+        billing,
+      },
+    },
+    allow_promotion_codes: true,
+    success_url: `${baseUrl}/account?checkout=success`,
+    cancel_url: `${baseUrl}/account?checkout=cancelled`,
+  });
+
+  if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
+  return checkout.url;
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -35,7 +75,13 @@ export async function GET(req: NextRequest) {
   }
 
   const email = (session.user as any).email as string | undefined;
-  return NextResponse.redirect(paymentLinkFor(billing, email), 303);
+  const checkoutUrl = await createCheckoutSession({
+    billing,
+    origin,
+    userId: session.user.id as string,
+    email,
+  });
+  return NextResponse.redirect(checkoutUrl, 303);
 }
 
 export async function POST(req: NextRequest) {
@@ -52,6 +98,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const billing = getBillingInterval(body?.billing);
   const email = (session.user as any).email as string | undefined;
-  const res = NextResponse.json({ ok: true, url: paymentLinkFor(billing, email) });
+  const checkoutUrl = await createCheckoutSession({
+    billing,
+    origin,
+    userId: session.user.id as string,
+    email,
+  });
+  const res = NextResponse.json({ ok: true, url: checkoutUrl });
   return withCORS(res, origin);
 }
