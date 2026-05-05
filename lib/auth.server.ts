@@ -22,19 +22,24 @@ providers.push(
       password: { label: "Password", type: "password" },
     },
     async authorize(credentials) {
-      const email = String(credentials?.email || "").trim().toLowerCase();
-      const password = String(credentials?.password || "");
-      if (!email || !password) return null;
+      try {
+        const email = String(credentials?.email || "").trim().toLowerCase();
+        const password = String(credentials?.password || "");
+        if (!email || !password) return null;
 
-      const user = await prisma.user.findUnique({ where: { email } });
-      if (!user || !verifyPassword(password, (user as any).passwordHash)) return null;
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || !verifyPassword(password, (user as any).passwordHash)) return null;
 
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        image: user.image,
-      };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
+      } catch (error) {
+        console.error("Credentials sign-in failed", error);
+        return null;
+      }
     },
   })
 );

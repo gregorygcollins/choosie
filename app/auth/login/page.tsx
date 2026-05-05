@@ -33,7 +33,9 @@ function LoginForm() {
         callbackUrl,
         redirect: false,
       });
-      if (result?.error) throw new Error("Email or password was incorrect.");
+      if (!result || result.error || !result.url) {
+        throw new Error("Email or password was incorrect.");
+      }
       window.location.href = result?.url || callbackUrl;
     } catch (err: any) {
       setError(err?.message || "Could not sign in.");
@@ -112,17 +114,12 @@ function LoginForm() {
             </div>
             <h2 className="text-xl font-bold text-brand">Choosie passionate overlap</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Free gets you started with a movie list. Pro lets you make and save unlimited lists across movies, books, music, food, and anything.
+              Free gets you started with a movie list. Pro unlocks unlimited saved lists across movies, books, music, food, and anything.
             </p>
-            <p className="mt-3 text-xs leading-5 text-slate-500">
-              Pro is $2.99/mo or $29.99/yr.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm text-slate-700">
-              <li>Make and save unlimited lists</li>
-              <li>Create lists for movies, books, music, food, and more</li>
-              <li>Share virtual narrowing links with your group</li>
-              <li>Look back at winners, dinners, places, and who narrowed last time</li>
-            </ul>
+            <div className="mt-5 rounded-2xl bg-brand-light/70 p-4">
+              <p className="text-3xl font-bold text-brand">$2.99/mo</p>
+              <p className="mt-1 text-sm text-slate-600">or $29.99/yr</p>
+            </div>
             <Link
               href={proSignupHref}
               className="mt-5 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark"
