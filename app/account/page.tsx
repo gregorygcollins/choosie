@@ -13,6 +13,13 @@ export default function AccountPage() {
   const [billingNeedsReconnect, setBillingNeedsReconnect] = useState(false);
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
   const [upgradeIntent, setUpgradeIntent] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +30,11 @@ export default function AccountPage() {
       try {
         const res = await fetch("/api/me", { credentials: "include" });
         const data = await res.json();
-        if (!cancelled) setUser(data.user);
+        if (!cancelled) {
+          setUser(data.user);
+          setProfileName(data.user?.name || "");
+          setProfileEmail(data.user?.email || "");
+        }
       } catch {
         if (!cancelled) setUser(null);
       } finally {
@@ -113,6 +124,54 @@ export default function AccountPage() {
     return "Checkout was canceled. You can restart whenever you’re ready.";
   }
 
+  async function updateProfile(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    setProfileMessage(null);
+    try {
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: profileName, email: profileEmail }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) throw new Error(data?.error || "Could not update profile.");
+      setUser((current: any) => ({ ...current, ...data.user }));
+      setProfileMessage("Profile updated.");
+    } catch (err: any) {
+      setError(err?.message || "Could not update profile.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function updatePassword(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    setPasswordMessage(null);
+    try {
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) throw new Error(data?.error || "Could not update password.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordMessage("Password updated.");
+    } catch (err: any) {
+      setError(err?.message || "Could not update password.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="mx-auto max-w-4xl px-6 py-12">
@@ -169,7 +228,8 @@ export default function AccountPage() {
           </span>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-[1fr_.9fr]">
+        <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_.9fr]">
+          <div className="space-y-5">
           <div className="rounded-2xl border border-zinc-200 bg-brand-light/50 p-5">
             <h2 className="text-lg font-bold text-brand">Profile</h2>
             <dl className="mt-4 space-y-3 text-sm">
@@ -204,6 +264,94 @@ export default function AccountPage() {
             <button onClick={() => nextAuthSignOut()} className="mt-5 text-sm font-semibold text-rose-500 hover:text-rose-600">
               Sign out
             </button>
+          </div>
+
+          <form onSubmit={updateProfile} className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <h2 className="text-lg font-bold text-brand">Update information</h2>
+            <label className="mt-4 block text-sm font-semibold text-brand" htmlFor="account-name">
+              Name
+            </label>
+            <input
+              id="account-name"
+              value={profileName}
+              onChange={(event) => setProfileName(event.target.value)}
+              required
+              autoComplete="name"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="account-email">
+              Email
+            </label>
+            <input
+              id="account-email"
+              type="email"
+              value={profileEmail}
+              onChange={(event) => setProfileEmail(event.target.value)}
+              required
+              autoComplete="email"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            {profileMessage && <p className="mt-3 text-sm font-semibold text-emerald-700">{profileMessage}</p>}
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-5 w-full rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+            >
+              Save information
+            </button>
+          </form>
+
+          <form onSubmit={updatePassword} className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <h2 className="text-lg font-bold text-brand">Change password</h2>
+            <label className="mt-4 block text-sm font-semibold text-brand" htmlFor="account-current-password">
+              Current password
+            </label>
+            <input
+              id="account-current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              autoComplete="current-password"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="account-new-password">
+              New password
+            </label>
+            <input
+              id="account-new-password"
+              type="password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              minLength={8}
+              required
+              autoComplete="new-password"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <label className="mt-3 block text-sm font-semibold text-brand" htmlFor="account-confirm-password">
+              Confirm new password
+            </label>
+            <input
+              id="account-confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              minLength={8}
+              required
+              autoComplete="new-password"
+              className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+            />
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Google-only accounts can set a password by leaving current password blank.
+            </p>
+            {passwordMessage && <p className="mt-3 text-sm font-semibold text-emerald-700">{passwordMessage}</p>}
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-5 w-full rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+            >
+              Update password
+            </button>
+          </form>
           </div>
 
           <div className="rounded-2xl border border-brand/10 bg-white p-5 shadow-sm">
