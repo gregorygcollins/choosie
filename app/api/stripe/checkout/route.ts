@@ -11,8 +11,19 @@ function getBillingInterval(value?: string | null): BillingInterval {
 }
 
 function getPriceId(interval: BillingInterval) {
-  if (interval === "annual") return process.env.STRIPE_ANNUAL_PRICE_ID || null;
-  return process.env.STRIPE_MONTHLY_PRICE_ID || process.env.STRIPE_PRICE_ID || null;
+  if (interval === "annual") {
+    return (
+      process.env.STRIPE_ANNUAL_PRICE_ID ||
+      process.env.STRIPE_PRICE_ID_ANNUAL ||
+      null
+    );
+  }
+  return (
+    process.env.STRIPE_MONTHLY_PRICE_ID ||
+    process.env.STRIPE_PRICE_ID_MONTHLY ||
+    process.env.STRIPE_PRICE_ID ||
+    null
+  );
 }
 
 function getBaseUrl(origin: string) {
@@ -31,9 +42,7 @@ async function createCheckoutSession({
   email?: string | null;
 }) {
   const priceId = getPriceId(billing);
-  if (!priceId) {
-    throw new Error(billing === "annual" ? "Annual billing is not configured." : "Monthly billing is not configured.");
-  }
+  if (!priceId) return null;
 
   const stripe = getStripe();
   const baseUrl = getBaseUrl(origin).replace(/\/$/, "");
@@ -61,6 +70,21 @@ async function createCheckoutSession({
   return checkout.url;
 }
 
+function missingPriceResponse(origin: string, billing: BillingInterval, wantsJson = false) {
+  const baseUrl = getBaseUrl(origin).replace(/\/$/, "");
+  const reason = billing === "annual" ? "missing_annual_price" : "missing_monthly_price";
+  if (wantsJson) {
+    return NextResponse.json(
+      { ok: false, error: "Billing is not configured.", reason, billing },
+      { status: 503 }
+    );
+  }
+  return NextResponse.redirect(
+    `${baseUrl}/account?error=stripe_price_missing&reason=${encodeURIComponent(reason)}`,
+    302
+  );
+}
+
 export async function OPTIONS(req: NextRequest) {
   return preflight(getOrigin(req));
 }
@@ -81,6 +105,7 @@ export async function GET(req: NextRequest) {
     userId: session.user.id as string,
     email,
   });
+  if (!checkoutUrl) return missingPriceResponse(origin, billing);
   return NextResponse.redirect(checkoutUrl, 303);
 }
 
@@ -104,6 +129,7 @@ export async function POST(req: NextRequest) {
     userId: session.user.id as string,
     email,
   });
+  if (!checkoutUrl) return withCORS(missingPriceResponse(origin, billing, true), origin);
   const res = NextResponse.json({ ok: true, url: checkoutUrl });
   return withCORS(res, origin);
 }
