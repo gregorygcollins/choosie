@@ -7,7 +7,7 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: "Make a list.",
-    body: <>Only add the things <strong>you</strong> want to do with a group of person.</>,
+    body: <>Only add the things <strong>you</strong> want to do with a group or person.</>,
     phone: <BuildPhone />,
   },
   {
