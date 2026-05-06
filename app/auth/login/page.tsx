@@ -11,10 +11,8 @@ export const dynamic = "force-dynamic";
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  const callbackBilling = callbackUrl.includes("billing=annual") ? "annual" : "monthly";
-  const proSignupHref = `/signup?plan=pro&billing=${callbackBilling}`;
   const signupHref = callbackUrl.startsWith("/api/stripe/checkout")
-    ? proSignupHref
+    ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
     : "/signup";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,7 +119,7 @@ function LoginForm() {
               <p className="mt-1 text-sm text-slate-600">or $29.99/yr</p>
             </div>
             <Link
-              href={proSignupHref}
+              href={signupHref}
               className="mt-5 inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark"
             >
               Create account to upgrade

@@ -195,6 +195,12 @@ export default function PricingClient() {
                 </button>
               </form>
             )}
+            <a
+              href={`/signup?callbackUrl=${encodeURIComponent(checkoutPath)}`}
+              className="mt-4 inline-flex w-full justify-center text-sm font-semibold text-brand hover:text-brand-dark"
+            >
+              New to Choosie? Create account
+            </a>
           </section>
         </div>
       )}

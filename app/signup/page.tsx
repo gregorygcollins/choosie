@@ -11,11 +11,11 @@ export const dynamic = "force-dynamic";
 function SignupContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const plan = searchParams.get("plan");
-  const billing = searchParams.get("billing") === "annual" ? "annual" : "monthly";
-  const isPro = plan === "pro";
-  const callbackUrl = isPro ? `/api/stripe/checkout?billing=${billing}` : "/new";
-  const loginHref = isPro ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/auth/login";
+  const requestedCallback = searchParams.get("callbackUrl");
+  const legacyBilling = searchParams.get("billing") === "annual" ? "annual" : "monthly";
+  const callbackUrl = requestedCallback || (searchParams.get("plan") === "pro" ? `/api/stripe/checkout?billing=${legacyBilling}` : "/new");
+  const isCheckout = callbackUrl.startsWith("/api/stripe/checkout");
+  const loginHref = isCheckout ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/auth/login";
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -84,14 +84,14 @@ function SignupContent() {
           <img src="/choosie-logo-badge.png" alt="" aria-hidden="true" className="h-full w-full object-contain" />
         </div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
-          {isPro ? "Choosie Pro" : "Choosie"}
+          {isCheckout ? "Choosie Pro" : "Choosie"}
         </p>
         <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
-          {isPro ? "Create your account to upgrade" : "Create your Choosie account"}
+          {isCheckout ? "Create your account" : "Create your Choosie account"}
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
-          {isPro
-            ? `Sign up, then complete your ${billing === "annual" ? "$29.99/yr" : "$2.99/mo"} Pro upgrade to save unlimited lists across every module.`
+          {isCheckout
+            ? "Create your account, then continue directly to secure checkout."
             : "Sign up to save your movie list, share links, and keep narrowing across devices."}
         </p>
 
