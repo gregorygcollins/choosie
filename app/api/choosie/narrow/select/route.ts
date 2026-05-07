@@ -15,13 +15,13 @@ async function getList(listId: string) {
   });
 }
 
-function extractInvitees(list: { tasteJson?: Record<string, any> }): Array<{ token: string }> {
+function extractInvitees(list: { tasteJson?: unknown }): Array<{ token: string }> {
   const tj = (list.tasteJson || {}) as Record<string, any>;
   const invitees = Array.isArray(tj.event?.invitees) ? tj.event.invitees : [];
   return invitees.filter((inv: any) => typeof inv !== 'string');
 }
 
-function buildCanonical(list: { progress?: { historyJson?: Record<string, any> }, items: Array<{ id: string }> }) {
+function buildCanonical(list: { progress?: { historyJson?: unknown } | null, items: Array<{ id: string }> }) {
   // Flatten to minimal canonical narrowing state; historyJson already stored in progress
   const history = (list.progress?.historyJson as Record<string, any>) || { rounds: [], current: { remainingIds: list.items.map((i) => i.id) } };
   return history;

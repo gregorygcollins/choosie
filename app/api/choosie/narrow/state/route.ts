@@ -52,8 +52,8 @@ export async function POST(req: NextRequest) {
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     // Build/normalize state and ensure plan/target are present
-      const tasteJson = (list.tasteJson || {}) as Record<string, any>;
-      const invitees: Array<{ token: string }> = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
+    const tasteJson = (list.tasteJson || {}) as Record<string, any>;
+    const invitees: Array<{ token: string }> = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
     const participantCount =
       typeof tasteJson.participants === "number"
         ? tasteJson.participants
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         : 1;
     const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-      let state: Record<string, any> | null = list.progress?.historyJson || null;
+    let state = (list.progress?.historyJson as Record<string, any> | null) || null;
     const initialState = {
       plan,
       roundIndex: 0,

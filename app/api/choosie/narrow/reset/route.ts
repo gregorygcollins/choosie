@@ -34,7 +34,7 @@ async function getList(listId: string) {
   });
 }
 
-function extractInvitees(list: { tasteJson?: Record<string, any> }): Array<{ token: string }> {
+function extractInvitees(list: { tasteJson?: unknown }): Array<{ token: string }> {
   const tj = (list.tasteJson || {}) as Record<string, any>;
   const invitees = Array.isArray(tj.event?.invitees) ? tj.event.invitees : [];
   return invitees.filter((inv: any) => typeof inv !== 'string');
