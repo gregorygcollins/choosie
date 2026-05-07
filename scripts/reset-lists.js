@@ -10,7 +10,6 @@
   - DATABASE_URL must point to the target database
 */
 
-/* eslint-disable no-console */
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 

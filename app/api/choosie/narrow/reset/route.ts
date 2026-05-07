@@ -34,9 +34,9 @@ async function getList(listId: string) {
   });
 }
 
-function extractInvitees(list: any): Array<any> {
-  const tj = list.tasteJson as any || {};
-  const invitees = Array.isArray(tj.event?.invitees) ? tj.event!.invitees : [];
+function extractInvitees(list: { tasteJson?: Record<string, any> }): Array<{ token: string }> {
+  const tj = (list.tasteJson || {}) as Record<string, any>;
+  const invitees = Array.isArray(tj.event?.invitees) ? tj.event.invitees : [];
   return invitees.filter((inv: any) => typeof inv !== 'string');
 }
 
@@ -61,14 +61,14 @@ export async function POST(req: NextRequest) {
     // Validate participant token if provided (optional: can allow organizer reset without token)
     if (data.participantToken) {
       const invitees = extractInvitees(list);
-      const participant = invitees.find((i: any) => i.token === data.participantToken);
+      const participant = invitees.find((i) => i.token === data.participantToken);
       if (!participant) {
         return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
       }
     }
 
     // Reset progress to initial state
-    const tj: any = list.tasteJson || {};
+    const tj = (list.tasteJson || {}) as Record<string, any>;
     const invitees = extractInvitees(list);
     const participantCount = data.participants ?? (typeof tj.participants === "number" ? tj.participants : invitees.length || 1);
     const participants = participantCount + 1;
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       roundIndex: 0,
       rounds: [],
       current: {
-        remainingIds: list.items.map((i: any) => i.id),
+        remainingIds: list.items.map((i) => i.id),
         selectedIds: [],
         target: plan[0],
       },
@@ -103,9 +103,9 @@ export async function POST(req: NextRequest) {
 
     publish(list.id, { ok: true, event: 'state', state: initialState, winnerItemId: null });
     return withCORS(NextResponse.json({ ok: true, state: initialState, winnerItemId: null }), origin);
-  } catch (e: any) {
+  } catch (e) {
     console.error('narrow/reset error', e);
-    return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: (e as Error)?.message || 'Internal error' }, { status: 500 }), origin);
   }
 }
 

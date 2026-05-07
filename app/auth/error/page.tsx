@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Suspense } from "react";
 
 function ErrorContent() {
@@ -21,12 +22,12 @@ function ErrorContent() {
             <p className="text-sm font-mono text-red-800">Error: {error}</p>
           </div>
         )}
-        <a
+        <Link
           href="/"
           className="mt-6 block w-full text-center bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
         >
           Back to Home
-        </a>
+        </Link>
       </div>
     </div>
   );

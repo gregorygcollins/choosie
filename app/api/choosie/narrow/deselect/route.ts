@@ -15,19 +15,19 @@ async function getList(listId: string) {
   });
 }
 
-function extractInvitees(list: any): Array<any> {
-  const tj = list.tasteJson as any || {};
-  const invitees = Array.isArray(tj.event?.invitees) ? tj.event!.invitees : [];
+function extractInvitees(list: { tasteJson?: Record<string, any> }): Array<{ token: string }> {
+  const tj = (list.tasteJson || {}) as Record<string, any>;
+  const invitees = Array.isArray(tj.event?.invitees) ? tj.event.invitees : [];
   return invitees.filter((inv: any) => typeof inv !== 'string');
 }
 
-function buildCanonical(list: any) {
-  const history = (list.progress?.historyJson as any) || { rounds: [], current: { remainingIds: list.items.map((i: any) => i.id) } };
+function buildCanonical(list: { progress?: { historyJson?: Record<string, any> }, items: Array<{ id: string }> }) {
+  const history = (list.progress?.historyJson as Record<string, any>) || { rounds: [], current: { remainingIds: list.items.map((i) => i.id) } };
   return history;
 }
 
-function ensureSelectionSet(state: any) {
-  if (!state.current) state.current = {}; 
+function ensureSelectionSet(state: Record<string, any>) {
+  if (!state.current) state.current = {};
   if (!Array.isArray(state.current.selectedIds)) state.current.selectedIds = [];
   if (!Array.isArray(state.current.remainingIds)) {
     state.current.remainingIds = [];
@@ -49,13 +49,13 @@ export async function POST(req: NextRequest) {
     }
     const invitees = extractInvitees(list);
     const isRoleToken = /^\d+$/.test(data.participantToken);
-    const participant = invitees.find((i: any) => i.token === data.participantToken);
+    const participant = invitees.find((i) => i.token === data.participantToken);
     if (!isRoleToken && !participant) {
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid participant token' }, { status: 403 }), origin);
     }
     const state = ensureSelectionSet(buildCanonical(list));
     // Turn enforcement
-    const tj: any = list.tasteJson || {};
+    const tj = (list.tasteJson || {}) as Record<string, any>;
     const inviteCount = extractInvitees(list).length;
     const participantCount = typeof tj.participants === "number" ? tj.participants : inviteCount || 1;
     const participants = participantCount + 1;
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const activeIndex = (state.roundIndex || 0) % (participants - 1);
     const participantIndex = isRoleToken
       ? Number(data.participantToken)
-      : extractInvitees(list).findIndex((i: any) => i.token === data.participantToken);
+      : extractInvitees(list).findIndex((i) => i.token === data.participantToken);
     if (participantIndex !== activeIndex) {
       return withCORS(NextResponse.json({ ok: false, error: 'Out of turn' }, { status: 409 }), origin);
     }
@@ -78,9 +78,9 @@ export async function POST(req: NextRequest) {
     });
     publish(list.id, { ok: true, event: 'state', state, winnerItemId: list.progress?.winnerItemId || null });
     return withCORS(NextResponse.json({ ok: true, state }), origin);
-  } catch (e: any) {
+  } catch (e) {
     console.error('narrow/deselect error', e);
-    return withCORS(NextResponse.json({ ok: false, error: e?.message || 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: (e as Error)?.message || 'Internal error' }, { status: 500 }), origin);
   }
 }
 

@@ -57,10 +57,10 @@
 - [x] Configure Content Security Policy stricter rules
 
 #### Assets
-- [ ] Create and add favicon.ico to /public
-- [ ] Create and add apple-touch-icon.png to /public
-- [ ] Create and add og-image.png to /public (1200x630)
-- [ ] Create and add site.webmanifest to /public
+- [x] Create and add favicon.ico to /public
+- [x] Create and add apple-touch-icon.png to /public
+- [x] Create and add og-image.png to /public (1200x630)
+- [x] Create and add site.webmanifest to /public
 
 ### Nice to Have
 
@@ -87,11 +87,11 @@
 - [ ] Test Pro → canceled flow
 
 #### Documentation
-- [ ] Update README with production setup instructions
-- [ ] Document API rate limits
-- [ ] Document environment variables
+- [x] Update README with production setup instructions
+- [x] Document API rate limits
+- [x] Document environment variables
 - [ ] Create troubleshooting guide
-- [ ] Document deployment process
+- [x] Document deployment process
 
 #### Marketing
 - [ ] Create social media preview images

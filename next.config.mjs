@@ -6,9 +6,6 @@ const isProd = process.env.NODE_ENV === "production";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || undefined,
   async headers() {
     const headers = [

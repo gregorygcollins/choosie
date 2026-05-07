@@ -10,6 +10,7 @@ import ProcessSection from "../../../components/ProcessSection";
 import { getSession, isPremium } from "@/lib/auth";
 import { useSession } from "next-auth/react";
 import UpsellModal from "@/components/UpsellModal";
+import { computeNarrowingPlan, getMinimumListSizeForNarrowers } from "@/lib/planner";
 
 type ListLogRound = {
   round: number;
@@ -87,16 +88,16 @@ export default function ViewListPage() {
   // Helper to get list type name
   const getListTypeName = () => {
     if (!list) return "list";
-    const module = (list as any).moduleType
+    const moduleType = (list as any).moduleType
       || (String(list.id).startsWith("book-") ? "books"
           : String(list.id).startsWith("music-") ? "music"
           : String(list.id).startsWith("food-") ? "food"
           : String(list.id).startsWith("anything-") ? "anything"
           : "movies");
-    if (module === "books") return "booklist";
-    if (module === "food") return "food list";
-    if (module === "music") return "musiclist";
-    if (module === "anything") return "list";
+    if (moduleType === "books") return "booklist";
+    if (moduleType === "food") return "food list";
+    if (moduleType === "music") return "musiclist";
+    if (moduleType === "anything") return "list";
     return "watchlist"; // default for movies
   };
 
@@ -113,7 +114,6 @@ export default function ViewListPage() {
   const [participantError, setParticipantError] = useState<string | null>(null);
   const handleParticipantSelect = (count: number) => {
     if (!list) return;
-    const { computeNarrowingPlan, getMinimumListSizeForNarrowers } = require("@/lib/planner");
     if (count > 5 || count < 1) return; // Defensive: ignore out of range
     const minSize = getMinimumListSizeForNarrowers(count);
     if ((list.items?.length || 0) < minSize) {
@@ -124,7 +124,7 @@ export default function ViewListPage() {
     // Compute narrowing plan and initialize progress for both in-person and virtual narrowing
     // Pass count+1 to include organizer for correct plan
     const plan = computeNarrowingPlan(list.items.length, count + 1, { participants: count + 1 });
-    let updated = {
+    const updated = {
       ...list,
       participants: count,
       narrowingPlan: plan,

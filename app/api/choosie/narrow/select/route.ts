@@ -15,20 +15,20 @@ async function getList(listId: string) {
   });
 }
 
-function extractInvitees(list: any): Array<any> {
-  const tj = list.tasteJson as any || {};
-  const invitees = Array.isArray(tj.event?.invitees) ? tj.event!.invitees : [];
+function extractInvitees(list: { tasteJson?: Record<string, any> }): Array<{ token: string }> {
+  const tj = (list.tasteJson || {}) as Record<string, any>;
+  const invitees = Array.isArray(tj.event?.invitees) ? tj.event.invitees : [];
   return invitees.filter((inv: any) => typeof inv !== 'string');
 }
 
-function buildCanonical(list: any) {
+function buildCanonical(list: { progress?: { historyJson?: Record<string, any> }, items: Array<{ id: string }> }) {
   // Flatten to minimal canonical narrowing state; historyJson already stored in progress
-  const history = (list.progress?.historyJson as any) || { rounds: [], current: { remainingIds: list.items.map((i: any) => i.id) } };
+  const history = (list.progress?.historyJson as Record<string, any>) || { rounds: [], current: { remainingIds: list.items.map((i) => i.id) } };
   return history;
 }
 
-function ensureSelectionSet(state: any) {
-  if (!state.current) state.current = {}; 
+function ensureSelectionSet(state: Record<string, any>) {
+  if (!state.current) state.current = {};
   if (!Array.isArray(state.current.selectedIds)) state.current.selectedIds = [];
   if (!Array.isArray(state.current.remainingIds)) {
     // derive remaining from union of items minus previous rounds eliminations
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     const selected = historyState.current.selectedIds as string[];
 
     // Turn enforcement: only active participant may modify selection
-    const tj: any = list.tasteJson || {};
+    const tj = (list.tasteJson || {}) as Record<string, any>;
     const participantCount = typeof tj.participants === "number" ? tj.participants : invitees.length || 1;
     const participants = participantCount + 1;
     historyState.plan = Array.isArray(historyState.plan) ? historyState.plan : computeNarrowingPlan(list.items.length, participants, { participants });
@@ -83,9 +83,9 @@ export async function POST(req: NextRequest) {
     publish(list.id, { ok: true, event: 'state', state: historyState, winnerItemId: list.progress?.winnerItemId || null });
 
     return withCORS(NextResponse.json({ ok: true, state: historyState }), origin);
-  } catch (e: any) {
+  } catch (e) {
     console.error('narrow/select error', e);
-    return withCORS(NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 }), origin);
+    return withCORS(NextResponse.json({ ok: false, error: (e as Error)?.message || 'Internal error' }, { status: 500 }), origin);
   }
 }
 

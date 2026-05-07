@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSession, signIn, signOut as nextAuthSignOut } from "next-auth/react";
 
 export default function AccountPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -89,7 +89,7 @@ export default function AccountPage() {
         setError(reason ? `${msg} (${reason})` : msg);
       }
       if (params.get("checkout") === "cancelled") {
-        setError(mapCheckoutCancelled());
+        setError("Checkout was canceled. You can restart whenever you’re ready.");
       }
     } catch {}
     return () => {
@@ -118,10 +118,6 @@ export default function AccountPage() {
       setError(err?.message || "Navigation error");
       setBusy(false);
     }
-  }
-
-  function mapCheckoutCancelled() {
-    return "Checkout was canceled. You can restart whenever you’re ready.";
   }
 
   async function updateProfile(event: React.FormEvent) {

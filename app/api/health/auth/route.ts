@@ -27,7 +27,7 @@ export async function GET() {
   } as const;
 
   // Connectivity + essential tables via Prisma
-  let db = {
+  const db = {
     connected: false,
     userCount: null as number | null,
     sessionCount: null as number | null,

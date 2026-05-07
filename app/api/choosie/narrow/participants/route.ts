@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) return withCORS(NextResponse.json({ ok: false, error: "List not found" }, { status: 404 }), origin);
     const tasteJson: any = list.tasteJson || {};
-    let participants = Array.isArray(tasteJson.participantClaims)
+    const participants = Array.isArray(tasteJson.participantClaims)
       ? tasteJson.participantClaims
       : Array.isArray(tasteJson.participants)
       ? tasteJson.participants

@@ -101,7 +101,7 @@ async function upsertFromStripeSubscription(sub: any, hintedUserId?: string) {
   let existing = await prisma.subscription.findFirst({ where: { OR: [ { stripeSubscriptionId: subscriptionId }, { stripeCustomerId: customerId } ] } });
 
   // Resolve userId
-  let userId = existing?.userId || hintedUserId || (await resolveUserIdByCustomer(customerId));
+  const userId = existing?.userId || hintedUserId || (await resolveUserIdByCustomer(customerId));
 
   if (!existing && userId) {
     existing = await prisma.subscription.findFirst({ where: { userId } });

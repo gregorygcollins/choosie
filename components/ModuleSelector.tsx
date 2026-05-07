@@ -3,14 +3,14 @@
 import { useState } from "react";
 import UpsellModal from "./UpsellModal";
 
-interface Module {
+interface ChoosieModule {
   id: string;
   title: string;
   icon: string;
   isPro: boolean;
 }
 
-const MODULES = [
+const MODULES: ChoosieModule[] = [
   { id: "movies", title: "Movies & TV", icon: "🎬", isPro: false },
   { id: "books", title: "Books", icon: "📚", isPro: true },
   { id: "food", title: "Food", icon: "🍳", isPro: true },
@@ -31,9 +31,9 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const moduleId = e.target.value;
-    const module = MODULES.find((m) => m.id === moduleId);
+    const selected = MODULES.find((m) => m.id === moduleId);
     
-    if (module && module.isPro && !userIsPro) {
+    if (selected && selected.isPro && !userIsPro) {
       setUpsellOpen(true);
       // Reset to movies
       e.target.value = "movies";
@@ -55,10 +55,10 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
             onChange={handleChange}
             className="peer w-full appearance-none input-soft pr-12 text-base text-[#2B2B2B] bg-white/70"
           >
-            {MODULES.map((module) => (
-              <option key={module.id} value={module.id}>
-                {module.icon} {module.title}
-                {module.isPro ? " (Pro)" : ""}
+            {MODULES.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.icon} {option.title}
+                {option.isPro ? " (Pro)" : ""}
               </option>
             ))}
           </select>

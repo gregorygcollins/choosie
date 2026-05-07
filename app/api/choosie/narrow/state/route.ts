@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
       body = JSON.parse(rawBody);
     } catch (parseErr) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.error('[narrow/state] JSON parse error:', parseErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 }), origin);
@@ -30,7 +29,6 @@ export async function POST(req: NextRequest) {
       data = validateRequest(getListSchema, body);
     } catch (validationErr) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.error('[narrow/state] validation error:', validationErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Invalid or missing listId' }, { status: 400 }), origin);
@@ -43,21 +41,19 @@ export async function POST(req: NextRequest) {
       });
     } catch (prismaErr) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.error('[narrow/state] Prisma error:', prismaErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Database error' }, { status: 500 }), origin);
     }
     if (!list) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.error('[narrow/state] List not found for id', data.listId);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'List not found' }, { status: 404 }), origin);
     }
     // Build/normalize state and ensure plan/target are present
-    const tasteJson: any = list.tasteJson || {};
-    const invitees = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
+      const tasteJson = (list.tasteJson || {}) as Record<string, any>;
+      const invitees: Array<{ token: string }> = Array.isArray(tasteJson.event?.invitees) ? tasteJson.event.invitees : [];
     const participantCount =
       typeof tasteJson.participants === "number"
         ? tasteJson.participants
@@ -66,7 +62,7 @@ export async function POST(req: NextRequest) {
         : 1;
     const participants = participantCount + 1;
     const plan = computeNarrowingPlan(list.items.length, participants, { participants });
-    let state: any = list.progress?.historyJson || null;
+      let state: Record<string, any> | null = list.progress?.historyJson || null;
     const initialState = {
       plan,
       roundIndex: 0,
@@ -100,7 +96,6 @@ export async function POST(req: NextRequest) {
       });
     } catch (prismaUpsertErr) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.error('[narrow/state] Prisma upsert error:', prismaUpsertErr);
       }
       return withCORS(NextResponse.json({ ok: false, error: 'Database upsert error' }, { status: 500 }), origin);
@@ -123,7 +118,6 @@ export async function POST(req: NextRequest) {
     }), origin);
   } catch (e: any) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.error('[narrow/state] Caught error:', e);
     }
     return withCORS(NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 }), origin);

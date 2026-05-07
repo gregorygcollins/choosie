@@ -1,176 +1,119 @@
-# 🎬 Choosie
+# Choosie
 
-<!-- Deployment trigger: updated README timestamp (2025-11-06) -->
-<!-- Last touch: auth/session investigation commit -->
+**Do only what you love, together.**
 
-**Turn your passions into shared experiences.**
+Choosie helps groups decide what to do next. Make a list of what you are excited to watch, read, sing, or try, hand the phone around or share a link, and let the group narrow it down until one winner remains.
 
-Choosie is a playful, future-oriented app that helps groups decide what to do next—together.  
-Make a list of what you’re excited to watch, read, sing, or try, hand the phone around (or share a link), and let the group narrow it down until one perfect winner remains.  
 No scrolling. No bickering. No compromise.
 
----
+## Product
 
-## 🚀 v1 Purpose
+Choosie supports a free movie-list flow plus Pro features for saved unlimited movie, book, music, food, and anything lists.
 
-This version is designed to be **lean, simple, and complete**—a joyful loop from idea to shared decision.
-
-**One clean experience:**
-1. **Create a list** – Add titles and optional notes.  
-2. **Narrow together** – Each round reduces the list automatically.  
-3. **Celebrate** – End with confetti and a clear choice.
-
-That’s the whole story.  
-When this flow works smoothly and intuitively, Choosie v1 is *done.*
-
----
-
-## 🧩 Core Features
+## Core Features
 
 | Feature | Description |
-|----------|-------------|
-| **Create & Save Lists** | Build lists locally (movies, songs, recipes, etc.) and keep them in `localStorage`. |
-| **Automatic Narrowing** | Choosie decides how many rounds it takes to reach one winner. |
-| **Resume Anytime** | Saved progress means you can pause and continue later. |
-| **Celebration Screen** | Joyful final reveal with confetti. |
-| **Responsive Layout** | Works on phones, tablets, and desktops. |
+| --- | --- |
+| Create and save lists | Build and save lists with local fallback and server persistence when signed in. |
+| Automatic narrowing | Choosie computes the narrowing plan and guides the group to a winner. |
+| In-person and virtual flows | Pass a device around or generate role links for remote narrowing. |
+| Auth and accounts | NextAuth credentials/OAuth with Prisma-backed users and sessions. |
+| Billing | Stripe Checkout, webhook sync, and customer portal routes. |
+| Content search | Optional integrations for movies, books, food, and music. |
+| Celebration screen | Joyful final reveal with confetti. |
+| Responsive layout | Works on phones, tablets, and desktops. |
 
----
-
-## 🗑️ Deferred for v2+
-
-- Scheduling or virtual events  
-- Narrowing-parameter sliders or “advanced” tuning  
-- Authentication and billing  
-- Countdown or calendar integrations  
-- Premium route protection  
-
-These live in the **v2 backlog**; they don’t belong in v1.
-
----
-
-## 🧠 Design Principles
-
-1. **Playful first.**  It should feel like a game, not an app.  
-2. **Future-oriented.**  Focus on what people *want to do next*, not what they already liked.  
-3. **Shared discovery.**  The magic moment is finding overlap, not winning an argument.  
-4. **Minimal controls.**  No settings—just start, narrow, celebrate.  
-5. **One emotion per screen.**  Each step should feel calm, clear, and purposeful.
-
----
-
-## 🧭 v1 Completion Checklist
-
-- [ ] A user can create, narrow, and finish a list in under two minutes.  
-- [ ] No dead ends or broken links.  
-- [ ] App feels coherent, light, and social.  
-- [ ] Codebase compiles cleanly—no unused routes or dependencies.  
-- [ ] This README describes the product accurately.
-
-When these boxes are checked, **freeze development** and polish visuals and copy only.
-
----
-
-## 🪄 Local Development
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Visit **http://localhost:3000** to view the app.
+Visit `http://localhost:3000` to view the app.
 
----
+## Auth, DB, and Billing
 
-## � Auth, DB, and Billing (Scaffolded)
+This repo includes authentication, Prisma persistence, and Stripe billing routes.
 
-This repo now includes scaffolding for authentication (NextAuth with Google), a database (Prisma with SQLite for local dev), and Stripe billing (initializer only).
-
-- Prisma schema: `prisma/schema.prisma` (SQLite by default; switch to Postgres in production)
+- Prisma schema: `prisma/schema.prisma`
 - NextAuth route: `app/api/auth/[...nextauth]/route.ts` via `lib/auth.server.ts`
-- Stripe initializer: `lib/stripe.ts`
+- Stripe helpers and routes: `lib/stripe.ts`, `lib/stripeCheckout.ts`, `app/api/stripe/*`
 - Session probe endpoint: `GET /api/me`
 
 Setup:
 
-1. Copy `.env.example` to `.env` and fill in values. For local dev, SQLite defaults are set.
+1. Copy `.env.example` to `.env` and fill in values. Local development can use SQLite.
 2. Generate Prisma client and apply migrations:
-	- `npx prisma generate`
-	- `npx prisma migrate dev --name init`
-3. Create a Google OAuth app and set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+3. Create OAuth apps and set the relevant Google/GitHub client variables.
 4. Start the dev server and hit `/api/me` to verify auth wiring.
-5. For Stripe, set `STRIPE_SECRET_KEY` now; Checkout and webhooks will be added next.
+5. For Stripe, set `STRIPE_SECRET_KEY`, a price variable, and `STRIPE_WEBHOOK_SECRET`.
 
-When deploying to Postgres, change the Prisma datasource provider to `postgresql` and set `DATABASE_URL`. Then run `prisma migrate deploy`.
+When deploying to Postgres, set `DATABASE_URL` to the production Postgres connection string and run `npm run prisma:deploy`.
 
----
+## Deployment Checklist
 
-## 🚢 Deployment Checklist (Vercel)
+Set these in Vercel for Production and Preview as appropriate.
 
-### Required Environment Variables
+**Authentication and App**
 
-Set these in your Vercel project (Settings → Environment Variables) for **Production** and **Preview**:
-
-**Authentication & App**
-Ensure `NEXTAUTH_URL` matches the public production URL (https://your-domain) — do NOT leave it pointing at localhost in Vercel.
-- `NEXTAUTH_URL` = `https://your-vercel-domain.vercel.app` (or custom domain)
-- `NEXTAUTH_SECRET` = (generate with `openssl rand -base64 32`)
-- `GOOGLE_CLIENT_ID` = (from Google Cloud Console OAuth app)
-- `GOOGLE_CLIENT_SECRET` = (from Google Cloud Console OAuth app)
+- `NEXTAUTH_URL`: canonical public origin, for example `https://your-domain.com`
+- `NEXT_PUBLIC_SITE_URL`: same canonical public origin used for redirects and metadata
+- `NEXTAUTH_SECRET`: generate with `openssl rand -base64 32`
+- `ALLOWED_ORIGINS`: comma-separated allowed request origins
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: required if Google sign-in is enabled
+- `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`: required if GitHub sign-in is enabled
 
 **Database**
-- `DATABASE_URL` = (PostgreSQL connection string, e.g., from Vercel Postgres or Supabase)
+
+- `DATABASE_URL`: production Postgres connection string
 
 **Stripe**
-- `STRIPE_SECRET_KEY` = (from Stripe Dashboard → Developers → API keys)
-- `STRIPE_WEBHOOK_SECRET` = (from Stripe Dashboard → Developers → Webhooks; set endpoint to `https://your-domain.vercel.app/api/stripe/webhook`)
 
-**API Keys**
-- `GOOGLE_BOOKS_API_KEY` = (from Google Cloud Console → APIs & Services → Credentials)
-- `SPOONACULAR_API_KEY` = (from Spoonacular API Dashboard)
-- `SPOTIFY_CLIENT_ID` = (from Spotify Developer Dashboard)
-- `SPOTIFY_CLIENT_SECRET` = (from Spotify Developer Dashboard)
+- `STRIPE_SECRET_KEY`: live-mode secret key for production
+- `STRIPE_WEBHOOK_SECRET`: webhook signing secret for `/api/stripe/webhook`
+- `STRIPE_PRICE_ID` or `STRIPE_PRICE_LOOKUP_KEY` or `STRIPE_PRODUCT_ID`: recurring Pro price configuration
 
-> **Note**: API keys should be set in Vercel environment variables, not committed to git. Update keys in Vercel dashboard when they change locally.
+**Content APIs**
 
-### Post-Deployment Steps
+- `TMDB_API_KEY`
+- `GOOGLE_BOOKS_API_KEY`
+- `SPOONACULAR_API_KEY`
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
 
-1. **Configure Stripe Webhook**
-   - Go to Stripe Dashboard → Developers → Webhooks
-   - Add endpoint: `https://your-vercel-domain.vercel.app/api/stripe/webhook`
-   - Select events: `checkout.session.completed`, `customer.subscription.*`
-   - Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in Vercel
+**Rate Limits and Guards**
 
-2. **Run Database Migrations**
-   ```bash
-   # After first deploy with DATABASE_URL set
-   npx prisma migrate deploy
-   ```
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`: Redis-backed rate limiting in production
+- `MAX_BODY_BYTES`: API request body cap; defaults to 1 MB
 
-3. **Verify Deployment**
-   - Visit `/api/health` to check server status
-   - Visit `/api/me` to verify auth flow
-   - Test sign-in with Google OAuth
-   - Test creating a list and narrowing flow
+## Post-Deployment Steps
 
-### Local Development vs. Production
+1. Configure the Stripe webhook endpoint at `https://your-domain.com/api/stripe/webhook`.
+2. Subscribe the webhook to `checkout.session.completed` and `customer.subscription.*`.
+3. Run database migrations with `npm run prisma:deploy`.
+4. Visit `/api/health` to check server status.
+5. Visit `/api/me` to verify auth wiring.
+6. Test sign-in, list creation, narrowing, Stripe Checkout success/cancel, webhook delivery, and portal access.
 
-- **Local**: Uses SQLite (`prisma/dev.db`) and `.env` file
-- **Production**: Uses PostgreSQL and Vercel environment variables
-- Both require same env vars (except `DATABASE_URL` format differs)
+## Quality Gates
 
----
+Run these before deploying:
 
-## 💛 Credits & Voice
+```bash
+npm run lint
+npm run test
+npm run build
+```
 
-Built with **Next.js 16 + Tailwind CSS**.  
-Designed to turn small choices into shared magic.  
-Playful on the surface, quietly profound underneath.
+`next build` runs ESLint and TypeScript validation. Existing legacy type-safety cleanup items are warnings, but lint errors should block release.
 
----
+## Credits and Voice
 
-## 📍 Future Vision
-
-Choosie will grow toward asynchronous and virtual sessions—planning nights, trips, or book clubs weeks ahead.  
-But the heart of Choosie will always stay the same:  
-**helping people discover what they’ll love—together.**
+Built with Next.js and Tailwind CSS. Designed to turn small choices into shared decisions.
