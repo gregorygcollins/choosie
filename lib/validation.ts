@@ -21,6 +21,24 @@ export const createListSchema = z.object({
     .optional(),
 });
 
+export const updateListSchema = z.object({
+  listId: z.string().min(1).max(50),
+  title: z.string().min(1).max(200).trim().optional(),
+  description: z.string().max(1000).nullable().optional(),
+  participants: z.number().int().min(1).max(25).optional(),
+  items: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(50).optional(),
+        title: z.string().min(1).max(500).trim(),
+        notes: z.string().max(1000).nullable().optional(),
+        image: z.string().url().nullable().optional(),
+      })
+    )
+    .max(100)
+    .optional(),
+});
+
 export const addMovieSchema = z.object({
   listId: z.string().min(1).max(50),
   title: z.string().min(1).max(500).trim(),

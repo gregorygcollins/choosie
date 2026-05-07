@@ -1,8 +1,6 @@
-// Lightweight auth & billing scaffolding
-// This file provides types and simple client-side helpers to represent
-// a session, user, and premium access. It's intentionally minimal so
-// real auth (NextAuth, Clerk, Supabase, etc.) and billing (Stripe)
-// can be wired in later without changing the rest of the app.
+// Client compatibility helpers for code paths that predate NextAuth.
+// Real authentication now comes from next-auth/react on the client and
+// lib/auth.server on API routes.
 
 export type User = {
   id: string;
@@ -16,48 +14,21 @@ export type Session = {
   token?: string;
 };
 
-const STORAGE_KEY = "choosie_session_v1";
-
-// Client-side helpers -----------------------------------------------------
-// Note: these are synchronous/local-only placeholders. Replace with
-// real server-backed auth flows when ready.
-
 export function saveSession(session: Session) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  } catch (e) {
-    // ignore
-  }
+  void session;
 }
 
 export function clearSession() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (e) {
-    // ignore
-  }
 }
 
 export function getSession(): Session {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { user: null };
-    return JSON.parse(raw) as Session;
-  } catch (e) {
-    return { user: null };
-  }
+  return { user: null };
 }
 
 export function signInDemo(name = "Demo User", isPro = false) {
-  const user: User = {
-    id: `local_${Date.now()}`,
-    name,
-    email: `${name.replace(/\s+/g, "").toLowerCase()}@local`,
-    isPro,
-  };
-  const session: Session = { user };
-  saveSession(session);
-  return session;
+  void name;
+  void isPro;
+  return getSession();
 }
 
 export function signOut() {

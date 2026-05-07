@@ -8,6 +8,7 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 const DISMISSED_KEY = "choosie-install-dismissed";
+const VISIT_COUNT_KEY = "choosie-install-visit-count";
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
@@ -63,16 +64,20 @@ export function InstallChoosiePrompt() {
   useEffect(() => {
     if (isStandalone() || window.localStorage.getItem(DISMISSED_KEY) === "true") return;
 
+    const visitCount = Number(window.localStorage.getItem(VISIT_COUNT_KEY) || "0") + 1;
+    window.localStorage.setItem(VISIT_COUNT_KEY, String(visitCount));
+    const canShowPrompt = visitCount >= 2;
+
     const ios = isIosSafari();
     if (ios) {
       setShowIosHelp(true);
-      setVisible(true);
+      setVisible(canShowPrompt);
     }
 
     function onBeforeInstallPrompt(event: Event) {
       event.preventDefault();
       setInstallEvent(event as BeforeInstallPromptEvent);
-      setVisible(true);
+      if (canShowPrompt) setVisible(true);
     }
 
     function onAppInstalled() {

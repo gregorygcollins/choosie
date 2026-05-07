@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth.server";
 import { getOrigin, withCORS, preflight } from "@/lib/cors";
 import { rateLimit } from "@/lib/rateLimit";
 import { validateOrigin, createErrorResponse } from "@/lib/security";
+import { updateListSchema, validateRequest } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
@@ -34,14 +35,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { listId, title, description, items, participants } = body;
-
-    if (!listId) {
-      return withCORS(
-        NextResponse.json({ ok: false, error: "listId required" }, { status: 400 }),
-        origin
-      );
-    }
+    const { listId, title, description, items, participants } = validateRequest(updateListSchema, body);
 
     // Verify ownership
     const existingList = await prisma.list.findUnique({
@@ -69,7 +63,7 @@ export async function POST(req: NextRequest) {
       updates.title = title;
     }
     if (description !== undefined) {
-      updates.description = String(description).trim() || null;
+      updates.description = typeof description === "string" ? description.trim() || null : null;
     }
     if (participants !== undefined) {
       // Store participants in tasteJson
@@ -111,7 +105,7 @@ export async function POST(req: NextRequest) {
             where: { id: item.id },
             data: {
               title: item.title,
-              notes: item.notes,
+              notes: item.notes === null ? null : item.notes || undefined,
               imageUrl: item.image,
               rank: i,
             },
@@ -122,7 +116,7 @@ export async function POST(req: NextRequest) {
             data: {
               listId,
               title: item.title,
-              notes: item.notes,
+              notes: item.notes === null ? null : item.notes || undefined,
               imageUrl: item.image,
               rank: i,
             },

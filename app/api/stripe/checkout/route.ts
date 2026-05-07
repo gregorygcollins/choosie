@@ -3,32 +3,7 @@ import { auth } from "../../../../lib/auth.server";
 import { preflight, getOrigin, withCORS } from "../../../../lib/cors";
 import { rateLimit } from "../../../../lib/rateLimit";
 import { getStripe } from "../../../../lib/stripe";
-
-type BillingInterval = "monthly" | "annual";
-
-function getBillingInterval(value?: string | null): BillingInterval {
-  return value === "annual" ? "annual" : "monthly";
-}
-
-function getPriceId(interval: BillingInterval) {
-  if (interval === "annual") {
-    return (
-      process.env.STRIPE_ANNUAL_PRICE_ID ||
-      process.env.STRIPE_PRICE_ID_ANNUAL ||
-      null
-    );
-  }
-  return (
-    process.env.STRIPE_MONTHLY_PRICE_ID ||
-    process.env.STRIPE_PRICE_ID_MONTHLY ||
-    process.env.STRIPE_PRICE_ID ||
-    null
-  );
-}
-
-function getBaseUrl(origin: string) {
-  return process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || origin;
-}
+import { BillingInterval, createCheckoutSessionUrl, getBillingInterval, getCheckoutBaseUrl } from "../../../../lib/stripeCheckout";
 
 async function createCheckoutSession({
   billing,
@@ -41,37 +16,18 @@ async function createCheckoutSession({
   userId: string;
   email?: string | null;
 }) {
-  const priceId = getPriceId(billing);
-  if (!priceId) return null;
-
   const stripe = getStripe();
-  const baseUrl = getBaseUrl(origin).replace(/\/$/, "");
-  const checkout = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
-    customer_email: email || undefined,
-    client_reference_id: userId,
-    metadata: {
-      userId,
-      billing,
-    },
-    subscription_data: {
-      metadata: {
-        userId,
-        billing,
-      },
-    },
-    allow_promotion_codes: true,
-    success_url: `${baseUrl}/account?checkout=success`,
-    cancel_url: `${baseUrl}/account?checkout=cancelled`,
+  return createCheckoutSessionUrl({
+    billing,
+    origin,
+    userId,
+    email,
+    stripe,
   });
-
-  if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
-  return checkout.url;
 }
 
 function missingPriceResponse(origin: string, billing: BillingInterval, wantsJson = false) {
-  const baseUrl = getBaseUrl(origin).replace(/\/$/, "");
+  const baseUrl = getCheckoutBaseUrl(origin).replace(/\/$/, "");
   const reason = billing === "annual" ? "missing_annual_price" : "missing_monthly_price";
   if (wantsJson) {
     return NextResponse.json(
