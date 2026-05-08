@@ -62,8 +62,8 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-semibold mb-3">Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy, please contact us at{" "}
-              <a href="mailto:hello@choosie.app" className="text-blue-600 hover:underline">
-                hello@choosie.app
+              <a href="mailto:hello@choosietogether.com" className="text-blue-600 hover:underline">
+                hello@choosietogether.com
               </a>
             </p>
           </div>

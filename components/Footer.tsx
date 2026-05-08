@@ -16,7 +16,7 @@ export function Footer() {
               Terms
             </Link>
             <a 
-              href="mailto:hello@choosie.app" 
+              href="mailto:hello@choosietogether.com" 
               className="text-zinc-600 hover:text-zinc-900 transition-colors"
             >
               Contact

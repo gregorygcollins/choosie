@@ -22,7 +22,7 @@
 - ✅ Privacy Policy page created
 - ✅ Terms of Service page created
 - ✅ Footer with legal links added
-- ✅ Contact email updated (hello@choosie.app)
+- ✅ Contact email updated (hello@choosietogether.com)
 
 ### Code Quality
 - ✅ Debug logging removed from auth callbacks
