@@ -28,6 +28,9 @@ export default function TermsPage() {
               <li>Attempt to hack or compromise our systems</li>
               <li>Share your account credentials</li>
             </ul>
+            <p className="mt-3">
+              You are responsible for the content you share and the interactions you have with other users.
+            </p>
           </div>
 
           <div>
@@ -38,6 +41,10 @@ export default function TermsPage() {
             </p>
             <p className="mt-2">
               All payments are processed securely by Stripe. We don't store your payment information.
+            </p>
+            <p className="mt-2">
+              Subscriptions are for individual use. Sharing account credentials to bypass Pro limitations is a
+              violation of these Terms and may result in account termination.
             </p>
           </div>
 
@@ -51,6 +58,10 @@ export default function TermsPage() {
               Content from third-party APIs (movies, books, music, recipes) is owned by their respective 
               providers and subject to their terms.
             </p>
+            <p className="mt-2">
+              Choosie does not pre-screen user-generated content and is not responsible for any offensive or
+              inaccurate information shared through the service.
+            </p>
           </div>
 
           <div>
@@ -58,6 +69,10 @@ export default function TermsPage() {
             <p>
               Choosie is provided "as is" without warranties. We're not liable for any damages arising 
               from your use of the service, including data loss or service interruptions.
+            </p>
+            <p className="mt-2">
+              Availability of third-party content, such as movie data or recipes, depends on the uptime of
+              external APIs. Choosie is not responsible for the temporary unavailability of third-party data.
             </p>
           </div>
 

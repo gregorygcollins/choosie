@@ -26,6 +26,10 @@ export default function PrivacyPage() {
               <li>Send important service updates</li>
               <li>Respond to support requests</li>
             </ul>
+            <p className="mt-3">
+              We do not sell your personal data to third parties. Your data is only used to provide the
+              Choosie service as described in this policy.
+            </p>
           </div>
 
           <div>
@@ -33,6 +37,14 @@ export default function PrivacyPage() {
             <p>
               We use industry-standard security measures to protect your data. All connections are encrypted with HTTPS, 
               and sensitive data is stored securely in our database.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-3">Cookies</h2>
+            <p>
+              We use cookies and similar technologies to keep you signed in and to analyze how our service is used.
+              You can control cookie settings in your browser.
             </p>
           </div>
 
