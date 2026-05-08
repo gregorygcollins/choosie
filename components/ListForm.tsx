@@ -148,6 +148,9 @@ export default function ListForm({
   const [eventInviteesInput, setEventInviteesInput] = useState<string>(existingList?.event?.invitees?.join(", ") || "");
   const [eventNotes, setEventNotes] = useState<string>(existingList?.event?.notes || "");
   const [eventVisibility, setEventVisibility] = useState<"private" | "link">(existingList?.event?.visibility || "private");
+  const [itemToEdit, setItemToEdit] = useState<ChoosieItem | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editNote, setEditNote] = useState("");
 
   
 
@@ -223,6 +226,35 @@ export default function ListForm({
 
   function removeItem(id: string) {
     setItems((s) => s.filter((it) => it.id !== id));
+  }
+
+  function openItemEditor(item: ChoosieItem) {
+    setItemToEdit(item);
+    setEditTitle(item.title || "");
+    setEditNote(item.notes || "");
+  }
+
+  function saveItemEdit() {
+    if (!itemToEdit) return;
+    const title = editTitle.trim();
+    const notes = editNote.trim();
+    if (!title) {
+      alert("Give this entry a title before saving.");
+      return;
+    }
+    const duplicate = items.find(
+      (item) => item.id !== itemToEdit.id && item.title.toLowerCase() === title.toLowerCase()
+    );
+    if (duplicate) {
+      alert(`"${title}" has already been added to your list.`);
+      return;
+    }
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemToEdit.id ? { ...item, title, notes: notes || undefined } : item))
+    );
+    setItemToEdit(null);
+    setEditTitle("");
+    setEditNote("");
   }
 
   // drag and drop reorder helpers
@@ -447,6 +479,29 @@ export default function ListForm({
                   {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                 </div>
                 <button
+                  type="button"
+                  onClick={() => openItemEditor(it)}
+                  className="inline-flex h-9 w-9 items-center justify-center text-zinc-500 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+                  title="Edit item"
+                  aria-label={`Edit ${it.title}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </button>
+                <button
                   onClick={() => removeItem(it.id)}
                   className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
                   title="Delete item"
@@ -474,6 +529,80 @@ export default function ListForm({
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {itemToEdit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="item-edit-title"
+          onClick={() => setItemToEdit(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Edit entry</p>
+                <h2 id="item-edit-title" className="mt-1 text-2xl font-semibold text-brand">
+                  Update this item
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setItemToEdit(null)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                title="Close editor"
+                aria-label="Close editor"
+              >
+                x
+              </button>
+            </div>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="edit-item-title" className="block text-sm font-semibold text-brand">
+                  Title
+                </label>
+                <input
+                  id="edit-item-title"
+                  value={editTitle}
+                  onChange={(event) => setEditTitle(event.target.value)}
+                  className="input-soft mt-2 w-full text-[1rem]"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-item-notes" className="block text-sm font-semibold text-brand">
+                  Notes
+                </label>
+                <textarea
+                  id="edit-item-notes"
+                  value={editNote}
+                  onChange={(event) => setEditNote(event.target.value)}
+                  className="input-soft mt-2 min-h-28 w-full resize-y text-[0.95rem]"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setItemToEdit(null)}
+                className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveItemEdit}
+                className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark transition hover:bg-consensus-dark"
+              >
+                Save entry
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

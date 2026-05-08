@@ -165,7 +165,7 @@ function RoleSelectionContent() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 text-center">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
-        You&apos;ve been invited to choosie a movie.
+        Time to choosie.
       </p>
       <h1 className="mt-4 text-3xl font-bold text-brand sm:text-4xl">{listTitle}</h1>
       {previewItems.length > 0 && (

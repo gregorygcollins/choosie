@@ -315,7 +315,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   const displayedRole = isVirtualWaiting ? participantRole : role;
   const displayedTarget = isVirtualWaiting ? plan[participantIndex] ?? target : target;
   const displayedRound = isVirtualWaiting ? participantIndex : roundIndex;
-  const actionText = displayedRole.role === "Decider" ? "Choosie your movie." : `Choosie ${displayedTarget} movies.`;
+  const actionText = displayedRole.role === "Decider" ? "Time to choosie." : `Choosie ${displayedTarget} options.`;
 
   function onDragStart(event: React.DragEvent, index: number) {
     setDragIndex(index);

@@ -30,11 +30,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const base = siteUrl();
   const list = await getInviteList(id).catch(() => null);
-  const title = list?.title || "Choosie movie list";
+  const title = list?.title || "Choosie list";
   const itemCount = list?.items?.length || 0;
   const description = itemCount > 0
-    ? `Claim a role and help narrow ${itemCount} options to one movie.`
-    : "Claim a role and help narrow this movie list to one choice.";
+    ? `Claim a role and help narrow ${itemCount} options to one choice.`
+    : "Claim a role and help narrow this list to one choice.";
   const imageParams = new URLSearchParams({ title });
   for (const item of list?.items || []) {
     if (item.imageUrl) imageParams.append("poster", item.imageUrl);

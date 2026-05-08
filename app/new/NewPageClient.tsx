@@ -65,6 +65,9 @@ export default function NewPageClient() {
   const [anythingNote, setAnythingNote] = useState("");
   const [anythingViewMode, setAnythingViewMode] = useState<"list" | "grid">("list");
   const [anythingDragIndex, setAnythingDragIndex] = useState<number | null>(null);
+  const [editingItem, setEditingItem] = useState<{ module: "books" | "music" | "food" | "anything"; id: string } | null>(null);
+  const [editingItemTitle, setEditingItemTitle] = useState("");
+  const [editingItemNote, setEditingItemNote] = useState("");
 
   useEffect(() => {
     if (!editId) return;
@@ -392,6 +395,79 @@ export default function NewPageClient() {
     setBookItems((prev) => prev.filter((it) => it.id !== itemId));
   }
 
+  function openModuleItemEditor(module: "books" | "music" | "food" | "anything", item: ChoosieItem) {
+    setEditingItem({ module, id: item.id });
+    setEditingItemTitle(item.title || "");
+    setEditingItemNote(item.notes || "");
+  }
+
+  function saveModuleItemEdit() {
+    if (!editingItem) return;
+    const title = editingItemTitle.trim();
+    const notes = editingItemNote.trim();
+    if (!title) {
+      alert("Give this entry a title before saving.");
+      return;
+    }
+    const currentItems =
+      editingItem.module === "books"
+        ? bookItems
+        : editingItem.module === "music"
+        ? musicItems
+        : editingItem.module === "food"
+        ? foodItems
+        : anythingItems;
+    const duplicate = currentItems.find(
+      (item) => item.id !== editingItem.id && item.title.toLowerCase() === title.toLowerCase()
+    );
+    if (duplicate) {
+      alert(`"${title}" has already been added to your list.`);
+      return;
+    }
+
+    const updateItems = (items: ChoosieItem[]) => {
+      return items.map((item) =>
+        item.id === editingItem.id ? { ...item, title, notes: notes || undefined } : item
+      );
+    };
+
+    if (editingItem.module === "books") setBookItems(updateItems);
+    if (editingItem.module === "music") setMusicItems(updateItems);
+    if (editingItem.module === "food") setFoodItems(updateItems);
+    if (editingItem.module === "anything") setAnythingItems(updateItems);
+    setEditingItem(null);
+    setEditingItemTitle("");
+    setEditingItemNote("");
+  }
+
+  function renderEditItemButton(module: "books" | "music" | "food" | "anything", item: ChoosieItem) {
+    return (
+      <button
+        type="button"
+        onClick={() => openModuleItemEditor(module, item)}
+        className="inline-flex h-9 w-9 items-center justify-center text-zinc-500 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+        title="Edit item"
+        aria-label={`Edit ${item.title}`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      </button>
+    );
+  }
+
   // Drag and drop for books
   function reorderBooks(from: number, to: number) {
     if (from === to) return;
@@ -448,14 +524,13 @@ export default function NewPageClient() {
       createdAt: existingList?.createdAt || new Date().toISOString(),
     };
 
-    upsertList(list);
-    
-    // If editing an existing list, just navigate back - don't create a duplicate on server
     if (existingList) {
-      router.push(`/list/${list.id}`);
+      handleSave(list);
       return;
     }
-    
+
+    upsertList(list);
+
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -583,14 +658,13 @@ export default function NewPageClient() {
       createdAt: existingList?.createdAt || new Date().toISOString(),
     };
 
-    upsertList(list);
-    
-    // If editing an existing list, just navigate back - don't create a duplicate on server
     if (existingList) {
-      router.push(`/list/${list.id}`);
+      handleSave(list);
       return;
     }
-    
+
+    upsertList(list);
+
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -721,14 +795,13 @@ export default function NewPageClient() {
       createdAt: existingList?.createdAt || new Date().toISOString(),
     };
 
-    upsertList(list);
-    
-    // If editing an existing list, just navigate back - don't create a duplicate on server
     if (existingList) {
-      router.push(`/list/${list.id}`);
+      handleSave(list);
       return;
     }
-    
+
+    upsertList(list);
+
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -839,14 +912,13 @@ export default function NewPageClient() {
       createdAt: existingList?.createdAt || new Date().toISOString(),
     };
 
-    upsertList(list);
-    
-    // If editing an existing list, just navigate back - don't create a duplicate on server
     if (existingList) {
-      router.push(`/list/${list.id}`);
+      handleSave(list);
       return;
     }
-    
+
+    upsertList(list);
+
     if (me?.id) {
       const payload = {
         title: list.title,
@@ -975,6 +1047,7 @@ export default function NewPageClient() {
                       <div className="font-medium text-neutral-800">{it.title}</div>
                       {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                     </div>
+                    {renderEditItemButton("books", it)}
                     <button
                       onClick={() => removeBookItem(it.id)}
                       className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
@@ -1023,6 +1096,79 @@ export default function NewPageClient() {
           anythingModuleJSX()
       ) : (
         <ListForm onSave={handleSave} existingList={existingList} />
+      )}
+      {editingItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="module-item-edit-title"
+          onClick={() => setEditingItem(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Edit entry</p>
+                <h2 id="module-item-edit-title" className="mt-1 text-2xl font-semibold text-brand">
+                  Update this item
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingItem(null)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                title="Close editor"
+                aria-label="Close editor"
+              >
+                x
+              </button>
+            </div>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="module-edit-item-title" className="block text-sm font-semibold text-brand">
+                  Title
+                </label>
+                <input
+                  id="module-edit-item-title"
+                  value={editingItemTitle}
+                  onChange={(event) => setEditingItemTitle(event.target.value)}
+                  className="input-soft mt-2 w-full text-[1rem]"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label htmlFor="module-edit-item-notes" className="block text-sm font-semibold text-brand">
+                  Notes
+                </label>
+                <textarea
+                  id="module-edit-item-notes"
+                  value={editingItemNote}
+                  onChange={(event) => setEditingItemNote(event.target.value)}
+                  className="input-soft mt-2 min-h-28 w-full resize-y text-[0.95rem]"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setEditingItem(null)}
+                className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveModuleItemEdit}
+                className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark transition hover:bg-consensus-dark"
+              >
+                Save entry
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
@@ -1122,6 +1268,7 @@ export default function NewPageClient() {
                     <div className="font-medium text-neutral-800">{it.title}</div>
                     {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
+                  {renderEditItemButton("music", it)}
                   <button
                     onClick={() => removeMusicItem(it.id)}
                     className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
@@ -1236,6 +1383,7 @@ export default function NewPageClient() {
                     <div className="font-medium text-neutral-800">{it.title}</div>
                     {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
+                  {renderEditItemButton("food", it)}
                   <button
                     onClick={() => removeFoodItem(it.id)}
                     className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
@@ -1346,6 +1494,7 @@ export default function NewPageClient() {
                     <div className="font-medium text-neutral-800">{it.title}</div>
                     {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
                   </div>
+                  {renderEditItemButton("anything", it)}
                   <button
                     onClick={() => removeAnythingItem(it.id)}
                     className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
