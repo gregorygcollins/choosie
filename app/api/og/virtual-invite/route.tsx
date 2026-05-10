@@ -36,7 +36,7 @@ export async function GET(req: Request) {
             {title}
           </div>
           <div style={{ marginTop: 28, fontSize: 31, color: "#31445F", lineHeight: 1.22 }}>
-            Claim a role and help narrow the list to one choice.
+            Turn reluctant agreement into passionate overlap!
           </div>
           <div style={{ marginTop: 34, display: "flex", alignItems: "center", gap: 10, color: "#00AFA3", fontSize: 22, fontWeight: 800 }}>
             <span>Curator</span>
