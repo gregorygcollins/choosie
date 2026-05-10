@@ -141,7 +141,7 @@ export default function ViewListPage() {
   const router = useRouter();
   const { id } = useParams();
   const [list, setList] = useState<ChoosieList | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [sugs, setSugs] = useState<any[]>([]);

@@ -220,7 +220,7 @@ export default function ListsPage() {
   const [usedLocalFallback, setUsedLocalFallback] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ChoosieList | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [descriptionTarget, setDescriptionTarget] = useState<ChoosieList | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState("");
   const [descriptionSaving, setDescriptionSaving] = useState(false);
