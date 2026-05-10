@@ -411,7 +411,7 @@ export default function ListsPage() {
         </div>
       )}
       
-      <div className={["mx-auto", viewMode === "grid" ? "max-w-7xl" : "max-w-3xl"].join(" ")}>
+      <div className={["mx-auto", viewMode === "grid" ? "max-w-7xl" : "max-w-6xl"].join(" ")}>
         {usedLocalFallback && (
           <div className="mb-4 rounded-lg border border-[#DDE6F3] bg-[#F8F9FF] text-brand-dark px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
@@ -461,7 +461,7 @@ export default function ListsPage() {
           </div>
         </div>
 
-        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-4"}>
+        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-5"}>
           {lists.map((list) => {
             // Derive module if missing from server/local legacy data
             const derivedModule = (list as any).moduleType
@@ -547,7 +547,7 @@ export default function ListsPage() {
             <div
               key={list.id}
               onClick={() => router.push(`/list/${list.id}`)}
-              className="card flex cursor-pointer flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between"
+              className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-brand/10 bg-white shadow-soft transition hover:-translate-y-0.5 hover:border-consensus/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -557,91 +557,119 @@ export default function ListsPage() {
                 }
               }}
             >
-              <div>
-                <div className="flex items-center gap-4">
-                  <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant={viewMode} />
-                  <div>
-                    <h2 className="font-medium text-brand">
+              <div className="relative h-40 shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-44">
+                {coverImage ? (
+                  <img
+                    src={coverImage}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div
+                    className={[
+                      "flex h-full w-full flex-col items-center justify-center gap-4 text-center",
+                      moduleStyle.thumbnail,
+                    ].join(" ")}
+                  >
+                    <ModuleIcon module={derivedModule} />
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">{moduleLabel}</span>
+                  </div>
+                )}
+                <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                  {list.items.length} items
+                </div>
+              </div>
+
+              <div className="flex min-w-0 flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="line-clamp-2 text-xl font-semibold leading-snug text-brand">
                       {list.title}
                     </h2>
-                    <span className={["mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                    <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
                       {moduleLabel}
                     </span>
                   </div>
+                  {list.description ? (
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{list.description}</p>
+                  ) : firstItemTitle ? (
+                    <p className="mt-2 line-clamp-1 text-sm leading-6 text-zinc-500">Starts with {firstItemTitle}</p>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">No description yet.</p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-zinc-500">
+                    <span>{list.items.length} items</span>
+                    <span>Created {formatDate(list.createdAt)}</span>
+                  </div>
                 </div>
-                {list.description && (
-                  <p className="line-clamp-2 text-sm leading-5 text-zinc-500">{list.description}</p>
-                )}
-                <div className="mt-1 flex gap-4 text-sm text-zinc-500">
-                  <span>{list.items.length} items</span>
-                  <span>Created {formatDate(list.createdAt)}</span>
+
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  {list.narrowers && (
+                    <Link
+                      href={`/narrow/${list.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex h-9 items-center justify-center rounded-full bg-brand-light px-4 text-sm font-semibold text-brand transition hover:bg-consensus/30 active:translate-y-px"
+                    >
+                      Continue narrowing
+                    </Link>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openDescriptionEditor(list);
+                    }}
+                    className="grid h-10 w-10 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px"
+                    title="Edit description"
+                    aria-label={`Edit description for ${list.title}`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="17"
+                      height="17"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDeleteTarget(list);
+                    }}
+                    className="grid h-10 w-10 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
+                    title="Delete list"
+                    aria-label={`Delete ${list.title}`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="17"
+                      height="17"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
                 </div>
-              </div>
-              <div className="flex gap-3">
-                {list.narrowers && (
-                  <Link
-                    href={`/narrow/${list.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex h-9 items-center justify-center rounded-full border border-black/10 px-4 text-sm transition-all hover:bg-black/[.03] active:translate-y-px dark:border-white/20 dark:hover:bg-white/[.06]"
-                  >
-                    Continue narrowing
-                  </Link>
-                )}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openDescriptionEditor(list);
-                  }}
-                  className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
-                  title="Edit description"
-                  aria-label={`Edit description for ${list.title}`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setDeleteTarget(list);
-                  }}
-                  className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
-                  title="Delete list"
-                  aria-label={`Delete ${list.title}`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                  </svg>
-                </button>
               </div>
             </div>
           );
