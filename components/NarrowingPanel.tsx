@@ -422,7 +422,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 {listTitle}
               </h1>
               <p className={`mt-2 text-lg font-semibold sm:text-xl ${turnFlash ? "animate-pulse text-consensus-dark" : "text-zinc-700"}`}>
-                {turnFlash ? taskLabel : actionText}
+                {turnFlash ? "IT'S YOUR TURN!" : actionText}
               </p>
               {!winner && (
                 <p className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-zinc-500">
@@ -620,30 +620,6 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             <div className="mt-5 text-sm text-zinc-600">
               Selected {selectedIds.length} of {target}
             </div>
-            {mode === "virtual" && (
-              <div ref={actionLogRef} className="mt-4 max-h-56 overflow-y-auto rounded-md border border-consensus/40 bg-consensus/10 p-3 text-sm text-zinc-700">
-                <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-brand">Cut pile</div>
-                {activityLog.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {activityLog.map((entry) => (
-                      <div key={entry.id} className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white/85 p-2 text-left shadow-sm">
-                        {entry.image ? (
-                          <img src={entry.image} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover opacity-65 grayscale" />
-                        ) : (
-                          <div className="h-12 w-12 shrink-0 rounded-md bg-zinc-200" />
-                        )}
-                        <div className="min-w-0">
-                          <div className="truncate text-sm font-semibold text-zinc-700">{entry.title}</div>
-                          <div className="text-xs text-zinc-500">Cut by {entry.role}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-md bg-white/70 px-3 py-4 text-center text-zinc-500">Cut options will stack here as the room narrows.</div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -720,6 +696,34 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             )}
           </div>
         </div>
+        {mode === "virtual" && !winner && (
+          <div ref={actionLogRef} className="border-t border-brand/20 bg-brand px-5 py-4 text-sm text-white sm:px-6">
+            <div className="sticky top-0 z-10 -mx-5 -mt-4 mb-3 bg-brand px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-consensus sm:-mx-6 sm:px-6">
+              Eliminated
+            </div>
+            <div className="max-h-56 overflow-y-auto rounded-md border border-white/15 bg-brand-dark/45 p-3">
+              {activityLog.length > 0 ? (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {activityLog.map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 rounded-md border border-white/10 bg-white/10 p-2 text-left shadow-sm">
+                      {entry.image ? (
+                        <img src={entry.image} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover opacity-60 grayscale" />
+                      ) : (
+                        <div className="h-12 w-12 shrink-0 rounded-md bg-white/15" />
+                      )}
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-white">{entry.title}</div>
+                        <div className="text-xs text-zinc-300">Cut by {entry.role}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-md bg-white/10 px-3 py-4 text-center text-zinc-300">Cut options will stack here as the room narrows.</div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {infoItem && (
