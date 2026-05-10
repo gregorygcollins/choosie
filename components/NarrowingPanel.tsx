@@ -411,7 +411,19 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   <span className="text-brand" aria-hidden="true">
                     <RoleIcon role={displayedRole.role} />
                   </span>
-                  <span>{displayedRole.role}&apos;s turn</span>
+                  <span>
+                    {displayedRole.role === "Curator"
+                      ? `Choosie 10 movies`
+                      : displayedRole.role === "Editor"
+                      ? `Choosie 7 movies`
+                      : displayedRole.role === "Programmer"
+                      ? `Choosie 5 movies`
+                      : displayedRole.role === "Selector"
+                      ? `Choosie 3 movies`
+                      : displayedRole.role === "Decider"
+                      ? `Choosie your movie`
+                      : `${displayedRole.role}'s turn`}
+                  </span>
                 </p>
               )}
             </div>
@@ -480,10 +492,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         ) : (
           <div className="px-5 py-5 sm:px-6">
             {mode === "virtual" && (
-              <div className="mb-4 flex flex-col gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Lobby</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mb-4 flex flex-col gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3 sm:items-center sm:justify-center">
+                <div className="flex flex-col items-center w-full">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500 text-center">Lobby</div>
+                  <div className="mt-2 flex flex-wrap gap-2 justify-center w-full">
                     {rolePlan.map((phase) => {
                       const claim = participants.find((participant) => participant.role === phase.role);
                       const isActive = phase.role === role.role;
@@ -523,71 +535,74 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                       {activeName} is currently {activeAction}...
                     </div>
                     <div className="mt-2 text-sm leading-6 text-zinc-600">
-                      {isSpectator
-                        ? "You are the Organizer. The room updates as each narrower makes cuts."
-                        : `You are the ${participantRole.role}. ${waitLine}`}
+                      The room updates as each narrower makes cuts. You can watch the process in real time.
                     </div>
                   </div>
                 </div>
               )}
             <div className={`grid gap-3 ${itemGridClass}`}>
-              {items.map((item, index) => {
-                const checked = selectedIds.includes(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    draggable={!busy && !isVirtualWaiting}
-                    onDragStart={(event) => onDragStart(event, index)}
-                    onDragOver={onDragOver}
-                    onDrop={(event) => onDrop(event, index)}
-                    onDragEnd={() => setDragIndex(null)}
-                    className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-all duration-500 ${
-                      item.status === "cut"
-                        ? "scale-95 border-red-200 bg-red-50 opacity-0"
-                        :
-                      checked
-                        ? "border-consensus bg-consensus/10"
-                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                    }`}
-                  >
-                    <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden="true">
-                      <GripIcon />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onToggleItem(item.id)}
-                      disabled={busy || isVirtualWaiting}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+              {[...items]
+                .sort((a, b) => {
+                  // Grey out and move cut items to the bottom visually
+                  if ((a.status === "cut") === (b.status === "cut")) return 0;
+                  return a.status === "cut" ? 1 : -1;
+                })
+                .map((item, index) => {
+                  const checked = selectedIds.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      draggable={!busy && !isVirtualWaiting}
+                      onDragStart={(event) => onDragStart(event, index)}
+                      onDragOver={onDragOver}
+                      onDrop={(event) => onDrop(event, index)}
+                      onDragEnd={() => setDragIndex(null)}
+                      className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-all duration-500 ${
+                        item.status === "cut"
+                          ? "opacity-60 grayscale border-zinc-200 bg-zinc-50"
+                          : checked
+                          ? "border-consensus bg-consensus/10"
+                          : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
+                      }`}
                     >
-                      {item.image ? (
-                        <img src={item.image} alt="" className="h-14 w-14 shrink-0 rounded-md object-cover" />
-                      ) : (
-                        <div className="h-14 w-14 shrink-0 rounded-md bg-zinc-100" />
-                      )}
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold text-zinc-950">{item.name}</span>
+                      <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden="true">
+                        <GripIcon />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onToggleItem(item.id)}
+                        disabled={busy || isVirtualWaiting}
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {item.image ? (
+                          <img src={item.image} alt="" className={`h-14 w-14 shrink-0 rounded-md object-cover ${item.status === "cut" ? "opacity-60 grayscale" : ""}`} />
+                        ) : (
+                          <div className={`h-14 w-14 shrink-0 rounded-md bg-zinc-100 ${item.status === "cut" ? "opacity-60 grayscale" : ""}`} />
+                        )}
+                        <span className="min-w-0">
+                          <span className={`block truncate text-sm font-semibold ${item.status === "cut" ? "text-zinc-400" : "text-zinc-950"}`}>{item.name}</span>
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        title={`More about ${item.name}`}
+                        aria-label={`More about ${item.name}`}
+                        onClick={() => setInfoItem(item)}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950"
+                      >
+                        <InfoIcon />
+                      </button>
+                      <span className="sr-only">
+                        {item.notes && (
+                          <>
+                            {" "}
+                            {item.notes}
+                          </>
+                        )}
                       </span>
-                    </button>
-                    <button
-                      type="button"
-                      title={`More about ${item.name}`}
-                      aria-label={`More about ${item.name}`}
-                      onClick={() => setInfoItem(item)}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950"
-                    >
-                      <InfoIcon />
-                    </button>
-                    <span className="sr-only">
-                      {item.notes && (
-                        <>
-                          {" "}
-                          {item.notes}
-                        </>
-                      )}
-                    </span>
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
             </div>
             </div>
 
