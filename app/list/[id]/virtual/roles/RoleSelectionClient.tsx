@@ -246,13 +246,13 @@ function RoleSelectionContent() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
         {rolesToShow.map(({ role, target, icon }) => {
           const taken = participants.find((p) => p.role === role);
           return (
             <div
               key={role}
-              className={`flex min-h-48 flex-col items-center justify-between rounded-2xl border p-5 shadow-sm ${
+              className={`flex min-h-48 w-full max-w-[15rem] flex-col items-center justify-between rounded-2xl border p-5 shadow-sm sm:w-[14rem] ${
                 taken ? "border-zinc-200 bg-zinc-50 text-zinc-400" : "border-brand/20 bg-white text-brand"
               }`}
             >

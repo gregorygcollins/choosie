@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
       participantCount,
       listTitle: list.title,
       listDescription: list.description || null,
+      listModule: list.module,
       items: list.items.map((i: any) => ({
         id: i.id,
         title: i.title,

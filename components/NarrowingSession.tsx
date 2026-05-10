@@ -50,6 +50,7 @@ type NarrowingResponse = {
   participantCount?: number;
   listTitle?: string;
   listDescription?: string | null;
+  listModule?: string | null;
 };
 
 type NarrowingSessionProps = {
@@ -62,6 +63,9 @@ type NarrowingSessionProps = {
 type ActivityLogEntry = {
   id: string;
   text: string;
+  title: string;
+  image?: string | null;
+  role: string;
 };
 
 function normalizeState(state: NarrowingState): NarrowingState {
@@ -97,6 +101,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
   const [displayItems, setDisplayItems] = useState<DisplayItem[]>([]);
   const [listTitle, setListTitle] = useState("");
   const [listDescription, setListDescription] = useState<string | null>(null);
+  const [listModule, setListModule] = useState<string | null>(null);
   const [state, setState] = useState<NarrowingState | null>(null);
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(1);
@@ -140,6 +145,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
       setItems((prev) => mergeItemsByCurrentOrder(json.items!, prev));
       setListTitle(json.listTitle || "Untitled list");
       setListDescription(json.listDescription || null);
+      setListModule(json.listModule || null);
       setState(normalizeState(json.state));
       setWinnerItemId(json.winnerItemId || null);
       setParticipantCount(Math.max(1, json.participantCount || json.state.plan.length || 1));
@@ -251,7 +257,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
 
     const timeout = window.setTimeout(() => {
       setDisplayItems((prev) => prev.filter((item) => remaining.has(item.id)));
-    }, 520);
+    }, 1600);
 
     return () => window.clearTimeout(timeout);
   }, [items, state?.current.remainingIds]);
@@ -268,14 +274,21 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
     if (eliminated.length === 0) return;
 
     const role = getRoleName(participantCount + 1, previous.roundIndex).role;
-    const itemById = new Map(items.map((item) => [item.id, item.title]));
+    const itemById = new Map(items.map((item) => [item.id, item]));
     const timestamp = Date.now();
     setActivityLog((prev) => [
       ...prev,
-      ...eliminated.map((id, index) => ({
-        id: `${timestamp}-${id}-${index}`,
-        text: `${role} eliminated ${itemById.get(id) || "an option"}.`,
-      })),
+      ...eliminated.map((id, index) => {
+        const item = itemById.get(id);
+        const title = item?.title || "an option";
+        return {
+          id: `${timestamp}-${id}-${index}`,
+          text: `${role} cut ${title}.`,
+          title,
+          image: item?.image || null,
+          role,
+        };
+      }),
     ].slice(-16));
   }, [items, participantCount, state]);
 
@@ -459,6 +472,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
       isSpectator={isOrganizerSpectator}
       participants={participants}
       activityLog={activityLog}
+      moduleType={listModule || undefined}
       busy={busy}
       error={error}
       onToggleItem={handleToggleItem}

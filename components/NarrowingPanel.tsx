@@ -18,6 +18,9 @@ type ParticipantClaim = {
 type ActivityLogEntry = {
   id: string;
   text: string;
+  title: string;
+  image?: string | null;
+  role: string;
 };
 
 type NarrowingPanelProps = {
@@ -46,6 +49,7 @@ type NarrowingPanelProps = {
   onReset: () => void;
   onReturnToList: () => void;
   onShareWinner: () => void;
+  moduleType?: string;
 };
 
 type RoleIconName = "cards" | "pencil" | "camera" | "slate" | "award";
@@ -316,6 +320,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   onReset,
   onReturnToList,
   onShareWinner,
+  moduleType,
 }) => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
@@ -347,7 +352,20 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
       : `You're up in ${roundsUntilTurn === 0 ? 1 : roundsUntilTurn} round${roundsUntilTurn === 1 ? "" : "s"}.`;
   const activeClaim = participants.find((participant) => participant.role === role.role);
   const activeName = activeClaim?.name || role.role;
-  const activeAction = role.role === "Decider" ? "making the final call" : `choosing ${target} options`;
+  const normalizedModule = String(moduleType || "movies").toLowerCase();
+  const itemNoun =
+    normalizedModule === "books"
+      ? "books"
+      : normalizedModule === "music"
+      ? "songs"
+      : normalizedModule === "food" || normalizedModule === "recipes"
+      ? "dishes"
+      : normalizedModule === "anything"
+      ? "options"
+      : "movies";
+  const singularNoun = itemNoun === "movies" ? "movie" : itemNoun === "dishes" ? "dish" : itemNoun === "options" ? "option" : itemNoun.slice(0, -1);
+  const activeAction = role.role === "Decider" ? `choosing their ${singularNoun}` : `choosing ${target} ${itemNoun}`;
+  const taskLabel = role.role === "Decider" ? `Choosie your ${singularNoun}` : `Choosie ${target} ${itemNoun}`;
   const turnFlash = mode === "virtual" && !isVirtualWaiting && !winner;
   const actionText = winner
     ? "And the winner is..."
@@ -404,7 +422,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 {listTitle}
               </h1>
               <p className={`mt-2 text-lg font-semibold sm:text-xl ${turnFlash ? "animate-pulse text-consensus-dark" : "text-zinc-700"}`}>
-                {turnFlash ? "IT'S YOUR TURN!" : actionText}
+                {turnFlash ? taskLabel : actionText}
               </p>
               {!winner && (
                 <p className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-zinc-500">
@@ -412,17 +430,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                     <RoleIcon role={displayedRole.role} />
                   </span>
                   <span>
-                    {displayedRole.role === "Curator"
-                      ? `Choosie 10 movies`
-                      : displayedRole.role === "Editor"
-                      ? `Choosie 7 movies`
-                      : displayedRole.role === "Programmer"
-                      ? `Choosie 5 movies`
-                      : displayedRole.role === "Selector"
-                      ? `Choosie 3 movies`
-                      : displayedRole.role === "Decider"
-                      ? `Choosie your movie`
-                      : `${displayedRole.role}'s turn`}
+                    {taskLabel}
                   </span>
                 </p>
               )}
@@ -526,20 +534,21 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               </div>
             )}
 
-            <div className="relative">
-              {isVirtualWaiting && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-white/55 p-4 backdrop-blur-md">
-                  <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white/95 p-5 text-center shadow-xl">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-brand">Live spectator mode</div>
-                    <div className="mt-2 text-xl font-semibold text-zinc-950">
-                      {activeName} is currently {activeAction}...
-                    </div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-600">
-                      The room updates as each narrower makes cuts. You can watch the process in real time.
-                    </div>
-                  </div>
+            {mode === "virtual" && isVirtualWaiting && (
+              <div className="mb-4 rounded-md border border-consensus/50 bg-consensus/10 px-4 py-3 text-center">
+                <div className="text-xs font-semibold uppercase tracking-wide text-brand">Live spectator mode</div>
+                <div className="mt-1 text-base font-semibold text-zinc-950">
+                  {activeName} is currently {activeAction}.
                 </div>
-              )}
+                <div className="mt-1 text-sm leading-6 text-zinc-600">
+                  {isSpectator
+                    ? "You are the Organizer. The list updates as each narrower makes cuts."
+                    : `You are the ${participantRole.role}. ${waitLine}`}
+                </div>
+              </div>
+            )}
+
+            <div className="relative">
             <div className={`grid gap-3 ${itemGridClass}`}>
               {[...items]
                 .sort((a, b) => {
@@ -572,7 +581,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                         type="button"
                         onClick={() => onToggleItem(item.id)}
                         disabled={busy || isVirtualWaiting}
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed"
                       >
                         {item.image ? (
                           <img src={item.image} alt="" className={`h-14 w-14 shrink-0 rounded-md object-cover ${item.status === "cut" ? "opacity-60 grayscale" : ""}`} />
@@ -612,17 +621,26 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               Selected {selectedIds.length} of {target}
             </div>
             {mode === "virtual" && (
-              <div ref={actionLogRef} className="mt-4 max-h-28 overflow-y-auto rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm text-zinc-100">
+              <div ref={actionLogRef} className="mt-4 max-h-56 overflow-y-auto rounded-md border border-consensus/40 bg-consensus/10 p-3 text-sm text-zinc-700">
+                <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-brand">Cut pile</div>
                 {activityLog.length > 0 ? (
-                  <div className="flex flex-col gap-1.5">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {activityLog.map((entry) => (
-                      <div key={entry.id} className="leading-5 text-zinc-100">
-                        {entry.text}
+                      <div key={entry.id} className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white/85 p-2 text-left shadow-sm">
+                        {entry.image ? (
+                          <img src={entry.image} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover opacity-65 grayscale" />
+                        ) : (
+                          <div className="h-12 w-12 shrink-0 rounded-md bg-zinc-200" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-zinc-700">{entry.title}</div>
+                          <div className="text-xs text-zinc-500">Cut by {entry.role}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-zinc-400">Action log will fill in as cuts happen.</div>
+                  <div className="rounded-md bg-white/70 px-3 py-4 text-center text-zinc-500">Cut options will stack here as the room narrows.</div>
                 )}
               </div>
             )}
