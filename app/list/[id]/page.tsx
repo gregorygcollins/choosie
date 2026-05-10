@@ -32,6 +32,111 @@ type ListLogSession = {
   rounds: ListLogRound[];
 };
 
+function getListModule(list: ChoosieList) {
+  return (list as any).moduleType
+    || (String(list.id).startsWith("book-") ? "books"
+        : String(list.id).startsWith("music-") ? "music"
+        : String(list.id).startsWith("food-") ? "food"
+        : String(list.id).startsWith("anything-") ? "anything"
+        : "movies");
+}
+
+function getModuleLabel(module: string) {
+  if (module === "books") return "Books";
+  if (module === "food") return "Food";
+  if (module === "music") return "Music";
+  if (module === "anything") return "Anything";
+  return "Movies";
+}
+
+function getModuleStyle(module: string) {
+  if (module === "books") {
+    return {
+      badge: "bg-blue-100 text-blue-800",
+      fallback: "bg-gradient-to-br from-blue-50 via-sky-100 to-slate-300 text-blue-800",
+    };
+  }
+
+  if (module === "food") {
+    return {
+      badge: "bg-emerald-100 text-emerald-800",
+      fallback: "bg-gradient-to-br from-emerald-50 via-teal-100 to-zinc-500 text-emerald-800",
+    };
+  }
+
+  if (module === "music") {
+    return {
+      badge: "bg-violet-100 text-violet-800",
+      fallback: "bg-gradient-to-br from-violet-50 via-fuchsia-100 to-zinc-600 text-violet-800",
+    };
+  }
+
+  if (module === "anything") {
+    return {
+      badge: "bg-rose-100 text-rose-800",
+      fallback: "bg-gradient-to-br from-rose-50 via-pink-100 to-zinc-500 text-rose-800",
+    };
+  }
+
+  return {
+    badge: "bg-teal-100 text-teal-800",
+    fallback: "bg-gradient-to-br from-teal-50 via-cyan-100 to-zinc-500 text-teal-800",
+  };
+}
+
+function EntryFallback({ module, label }: { module: string; label: string }) {
+  const style = getModuleStyle(module);
+
+  return (
+    <div className={["flex h-full w-full flex-col items-center justify-center gap-4 text-center", style.fallback].join(" ")}>
+      <svg
+        className="h-8 w-8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        viewBox="0 0 24 24"
+        aria-hidden
+      >
+        {module === "food" ? (
+          <>
+            <path d="M4 3v7" />
+            <path d="M8 3v7" />
+            <path d="M4 7h4" />
+            <path d="M6 10v11" />
+            <path d="M17 3c1.7 1.7 2.5 3.7 2.5 6 0 2.2-.8 4-2.5 5.5V21" />
+          </>
+        ) : module === "music" ? (
+          <>
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </>
+        ) : module === "anything" ? (
+          <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
+        ) : module === "books" ? (
+          <>
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+          </>
+        ) : (
+          <>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M7 5v14" />
+            <path d="M17 5v14" />
+            <path d="M3 9h4" />
+            <path d="M17 9h4" />
+            <path d="M3 15h4" />
+            <path d="M17 15h4" />
+          </>
+        )}
+      </svg>
+      <span className="text-xs font-semibold uppercase tracking-[0.18em]">{label}</span>
+    </div>
+  );
+}
+
 export default function ViewListPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -572,6 +677,10 @@ export default function ViewListPage() {
     );
   }
 
+  const listModule = getListModule(list);
+  const moduleLabel = getModuleLabel(listModule);
+  const moduleStyle = getModuleStyle(listModule);
+
   return (
     <main className="min-h-screen p-8">
             {/* Participant Count Modal */}
@@ -909,9 +1018,17 @@ export default function ViewListPage() {
       />
       
       <ProcessSection />
-      <div className={["mx-auto bg-white rounded-2xl p-8 shadow-soft", viewMode === "grid" ? "max-w-6xl" : "max-w-3xl"].join(" ")}>
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-semibold">{list.title}</h1>
+      <div className={["mx-auto bg-white rounded-2xl p-8 shadow-soft", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold text-brand">{list.title}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+              <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                {moduleLabel}
+              </span>
+              <span>{list.items.length} items</span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             {/* list view button */}
             <button
@@ -919,7 +1036,7 @@ export default function ViewListPage() {
               title="List view"
               aria-pressed={viewMode === "list"}
               onClick={() => setViewMode("list")}
-              className={`p-1 rounded-md ${viewMode === "list" ? "bg-zinc-200 shadow" : "hover:bg-zinc-100"}`}
+              className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "list" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.125 1.125 0 0 1 0 2.25H5.625a1.125 1.125 0 0 1 0-2.25Z" />
@@ -931,7 +1048,7 @@ export default function ViewListPage() {
               title="Grid view"
               aria-pressed={viewMode === "grid"}
               onClick={() => setViewMode("grid")}
-              className={`p-1 rounded-md ${viewMode === "grid" ? "bg-zinc-200 shadow" : "hover:bg-zinc-100"}`}
+              className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "grid" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -941,11 +1058,11 @@ export default function ViewListPage() {
         </div>
 
         {viewMode === "list" ? (
-          <ul className="space-y-2">
+          <ul className="space-y-4">
             {list.items.map((item, idx) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-zinc-200 px-4 py-2 cursor-pointer hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -953,8 +1070,7 @@ export default function ViewListPage() {
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
-                onClick={(e) => {
-                  // avoid accidental open when starting drag: if mouse moved substantially dragIndex set
+                onClick={() => {
                   if (dragIndex != null) return;
                   openPreview(item);
                 }}
@@ -965,64 +1081,87 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-                      <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                      <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-                    </svg>
-                  </div>
+                <div className="relative h-36 shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-36">
                   {item.image ? (
-                    <img src={item.image} alt={item.title} className="w-16 h-16 rounded-md object-cover" />
+                    <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   ) : (
-                    <div className="w-16 h-16 rounded-md bg-zinc-100 flex items-center justify-center text-zinc-400">📷</div>
+                    <EntryFallback module={listModule} label={moduleLabel} />
                   )}
-                  <div>
-                    <div className="font-medium">{item.title}</div>
-                    {item.notes && (
-                      <div className="text-sm text-zinc-500">{item.notes}</div>
-                    )}
+                  <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                    #{idx + 1}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openItemEditor(item);
-                    }}
-                    className="text-zinc-400 hover:text-brand transition-colors"
-                    title="Edit item"
-                    aria-label={`Edit ${item.title}`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setItemToDelete(item.id);
-                    }}
-                    className="text-zinc-400 hover:text-red-600 transition-colors"
-                    title="Remove item"
-                    aria-label={`Remove ${item.title}`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
-                    </svg>
-                  </button>
+                <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="line-clamp-2 text-lg font-semibold leading-snug text-brand">{item.title}</h2>
+                      <span className={["rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                        {moduleLabel}
+                      </span>
+                    </div>
+                    {item.notes ? (
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{item.notes}</p>
+                    ) : (
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">No note yet.</p>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <div className="cursor-grab rounded-full bg-zinc-100 p-2 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand" title="Drag to reorder" aria-hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                        <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                        <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+                      </svg>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPreview(item);
+                      }}
+                      className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-sm font-bold text-brand transition hover:bg-brand hover:text-white"
+                      title="Item info"
+                      aria-label={`Show info for ${item.title}`}
+                    >
+                      i
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openItemEditor(item);
+                      }}
+                      className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white"
+                      title="Edit item"
+                      aria-label={`Edit ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setItemToDelete(item.id);
+                      }}
+                      className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white"
+                      title="Remove item"
+                      aria-label={`Remove ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="group relative rounded-lg border border-zinc-200 p-4 cursor-pointer transition-colors hover:bg-zinc-50 focus-within:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-teal-400"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1030,7 +1169,7 @@ export default function ViewListPage() {
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
-                onClick={(e) => {
+                onClick={() => {
                   if (dragIndex != null) return;
                   openPreview(item);
                 }}
@@ -1041,35 +1180,37 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="mb-3 h-14 w-14 overflow-hidden rounded-md bg-zinc-100">
-                  {item.image ? (
-                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-zinc-400">📷</div>
-                  )}
-                </div>
-                <div className="line-clamp-2 text-sm font-medium leading-5 text-brand">{item.title}</div>
-                {item.notes && (
-                  <div className="mt-1 line-clamp-1 text-xs leading-5 text-zinc-500">{item.notes}</div>
+                {item.image ? (
+                  <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                ) : (
+                  <EntryFallback module={listModule} label={moduleLabel} />
                 )}
-                <div className="mt-4 flex w-fit items-center gap-1 rounded-full bg-white/95 p-1 text-zinc-400 shadow-sm ring-1 ring-zinc-200 transition-opacity sm:absolute sm:right-3 sm:top-3 sm:mt-0 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openPreview(item);
-                    }}
-                    className="grid h-7 w-7 place-items-center rounded-full text-xs font-semibold leading-none transition-colors hover:bg-brand-light hover:text-brand"
-                    title="Item info"
-                    aria-label={`Show info for ${item.title}`}
-                  >
-                    i
-                  </button>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
+                <div className="absolute left-3 top-3 z-10 rounded-full bg-black/65 px-2 py-1 text-xs font-semibold text-white">
+                  #{idx + 1}
+                </div>
+                <div className="absolute left-0 right-0 bottom-0 z-10 flex flex-col gap-2 p-4 pr-12">
+                  <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
+                    {moduleLabel}
+                  </span>
+                  <div>
+                    <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                      {item.title}
+                    </h2>
+                    {item.notes && (
+                      <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="absolute right-3 top-3 z-20 flex rounded-full bg-white/90 p-1 text-zinc-500 shadow-lg opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openItemEditor(item);
                     }}
-                    className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-brand-light hover:text-brand"
+                    className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-brand-light hover:text-brand"
                     title="Edit item"
                     aria-label={`Edit ${item.title}`}
                   >
@@ -1083,15 +1224,28 @@ export default function ViewListPage() {
                       e.stopPropagation();
                       setItemToDelete(item.id);
                     }}
-                    className="grid h-7 w-7 place-items-center rounded-full transition-colors hover:bg-red-50 hover:text-red-600"
+                    className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-red-50 hover:text-red-600"
                     title="Remove item"
                     aria-label={`Remove ${item.title}`}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/>
+                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
                     </svg>
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPreview(item);
+                  }}
+                  className="absolute right-3 bottom-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                  title="Item info"
+                  aria-label={`Show info for ${item.title}`}
+                >
+                  i
+                </button>
               </div>
             ))}
           </div>
