@@ -428,7 +428,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   ? isSpectator
                     ? `Watching ${role.role}'s turn in real time.`
                     : waitLine
-                  : "Drag to reorder options, then choose what stays."}
+                  : "Select and confirm your choices!"}
               </p>
             )}
             {!winner && (
