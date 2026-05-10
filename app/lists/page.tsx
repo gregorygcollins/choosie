@@ -1,41 +1,76 @@
-"use client";
-
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { loadLists, removeList, upsertList } from "@/lib/storage";
-import type { ChoosieList } from "@/components/ListForm";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import { toast } from "@/components/Toast";
-
-type ViewMode = "list" | "grid";
-
-function formatDate(isoString: string) {
-  return new Date(isoString).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function ModuleIcon({ module }: { module: string }) {
-  const commonProps = {
-    className: "h-4 w-4",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 2,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    viewBox: "0 0 24 24",
-    "aria-hidden": true,
-  };
-
-  if (module === "books") {
-    return (
-      <svg {...commonProps}>
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-        <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
-      </svg>
+            <div
+              key={list.id}
+              className={[
+                viewMode === "grid"
+                  ? "relative group cursor-pointer rounded-xl overflow-hidden shadow-lg bg-zinc-900 transition-transform hover:scale-105 hover:shadow-2xl flex flex-col min-h-[18rem]"
+                  : "card cursor-pointer rounded-2xl transition-transform hover:translate-y-[-2px] flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between",
+              ].join(" ")}
+              tabIndex={0}
+              role="button"
+              onClick={() => router.push(`/list/${list.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(`/list/${list.id}`);
+                }
+              }}
+            >
+              {viewMode === "grid" ? (
+                <>
+                  {/* Main image background */}
+                  {list.items?.[0]?.image ? (
+                    <img
+                      src={list.items[0].image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
+                      <ModuleIcon module={derivedModule} />
+                    </div>
+                  )}
+                  {/* Overlay gradient for info readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+                  {/* Info overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 z-20 p-4 flex flex-col gap-1">
+                    <h2 className="text-lg font-semibold text-white drop-shadow-sm truncate">{list.title}</h2>
+                    <span className={["inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-semibold bg-white/80 text-zinc-800 backdrop-blur", moduleStyle.badge].join(" ")}>{moduleLabel}</span>
+                  </div>
+                  {/* Info button in bottom-right */}
+                  <button
+                    type="button"
+                    className="absolute bottom-3 right-3 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-lg opacity-80 hover:opacity-100 hover:bg-teal-500 hover:text-white transition"
+                    tabIndex={-1}
+                    title="More info"
+                    aria-label="More info"
+                    onClick={e => {
+                      e.stopPropagation();
+                      // Show modal or tooltip here
+                      alert(`List: ${list.title}\n${list.description || "No description"}`);
+                    }}
+                  >
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-1 flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                      <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant={viewMode} />
+                      <div>
+                        <h2 className="font-medium text-brand">{list.title}</h2>
+                        <span className={["mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>{moduleLabel}</span>
+                      </div>
+                    </div>
+                    {list.description && (<p className="line-clamp-2 text-sm leading-5 text-zinc-500">{list.description}</p>)}
+                    <div className="mt-1 flex gap-4 text-sm text-zinc-500">
+                      <span>{list.items.length} items</span>
+                      <span>Created {formatDate(list.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    {list.narrowers && (
     );
   }
 
