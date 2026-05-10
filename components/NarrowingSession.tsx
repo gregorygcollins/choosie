@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NarrowingPanel } from "@/components/NarrowingPanel";
+import { getRoleName } from "@/lib/planner";
 
 type SessionMode = "in-person" | "virtual";
 
@@ -12,9 +13,27 @@ type ApiItem = {
   image?: string | null;
 };
 
+type DisplayItem = ApiItem & {
+  status?: "active" | "cut";
+};
+
+type ParticipantClaim = {
+  name: string;
+  role: string;
+  joined?: boolean;
+  sessionId?: string;
+};
+
 type NarrowingState = {
   plan: number[];
   roundIndex: number;
+  rounds?: Array<{
+    round?: number;
+    role?: string | null;
+    participant?: string | null;
+    chosenIds?: string[];
+    prevRemaining?: string[];
+  }>;
   current: {
     remainingIds: string[];
     selectedIds: string[];
@@ -36,7 +55,13 @@ type NarrowingResponse = {
 type NarrowingSessionProps = {
   listId: string;
   mode: SessionMode;
-  participantIndex?: number;
+  participantIndex?: number | null;
+  viewerRole?: string;
+};
+
+type ActivityLogEntry = {
+  id: string;
+  text: string;
 };
 
 function normalizeState(state: NarrowingState): NarrowingState {
@@ -67,20 +92,28 @@ function mergeItemsByCurrentOrder(nextItems: ApiItem[], currentItems: ApiItem[])
   return [...ordered, ...added];
 }
 
-export function NarrowingSession({ listId, mode, participantIndex = 0 }: NarrowingSessionProps) {
+export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRole: viewerRoleProp }: NarrowingSessionProps) {
   const [items, setItems] = useState<ApiItem[]>([]);
+  const [displayItems, setDisplayItems] = useState<DisplayItem[]>([]);
   const [listTitle, setListTitle] = useState("");
   const [listDescription, setListDescription] = useState<string | null>(null);
   const [state, setState] = useState<NarrowingState | null>(null);
   const [winnerItemId, setWinnerItemId] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(1);
+  const [participants, setParticipants] = useState<ParticipantClaim[]>([]);
+  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usePolling, setUsePolling] = useState(false);
+  const previousStateRef = useRef<NarrowingState | null>(null);
 
-  const participantToken = String(participantIndex);
+  const viewerRole = viewerRoleProp || (participantIndex == null ? "Organizer" : undefined);
+  const participantToken = participantIndex == null ? "organizer" : String(participantIndex);
+  const isOrganizerSpectator = mode === "virtual" && participantIndex == null;
 
   function getActionToken(action: "current" | "previous" = "current") {
+    if (isOrganizerSpectator) return "organizer";
     if (mode === "virtual") return participantToken;
     const count = Math.max(1, participantCount);
     const index = state?.roundIndex || 0;
@@ -122,13 +155,66 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   }, [loadState]);
 
   useEffect(() => {
+    if (mode !== "virtual" || usePolling) return;
+    let closed = false;
+    const source = new EventSource(`/api/choosie/narrow/stream?listId=${encodeURIComponent(listId)}`);
+
+    source.onmessage = (event) => {
+      if (closed) return;
+      try {
+        const data = JSON.parse(event.data);
+        if (data?.state) {
+          setState(normalizeState(data.state));
+          if ("winnerItemId" in data) setWinnerItemId(data.winnerItemId || null);
+        }
+      } catch {}
+    };
+
+    source.onerror = () => {
+      if (closed) return;
+      setUsePolling(true);
+      source.close();
+    };
+
+    return () => {
+      closed = true;
+      source.close();
+    };
+  }, [listId, mode, usePolling]);
+
+  useEffect(() => {
     if (mode !== "virtual") return;
     const interval = window.setInterval(() => {
       loadState({ silent: true });
-    }, 2500);
+    }, usePolling ? 2500 : 8000);
 
     return () => window.clearInterval(interval);
-  }, [loadState, mode]);
+  }, [loadState, mode, usePolling]);
+
+  useEffect(() => {
+    if (mode !== "virtual") return;
+    let cancelled = false;
+
+    async function loadParticipants() {
+      try {
+        const query = new URLSearchParams({ listId });
+        const sessionId = new URLSearchParams(window.location.search).get("session");
+        if (sessionId) query.set("sessionId", sessionId);
+        const res = await fetch(`/api/choosie/narrow/participants?${query.toString()}`, { cache: "no-store" });
+        const data = await res.json();
+        if (!cancelled && data?.ok && Array.isArray(data.participants)) {
+          setParticipants(data.participants);
+        }
+      } catch {}
+    }
+
+    loadParticipants();
+    const interval = window.setInterval(loadParticipants, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [listId, mode]);
 
   const visibleItems = useMemo(() => {
     const remaining = new Set(state?.current.remainingIds || []);
@@ -141,6 +227,57 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
         image: item.image,
       }));
   }, [items, state]);
+
+  useEffect(() => {
+    const remaining = new Set(state?.current.remainingIds || []);
+    const activeItems = items.filter((item) => remaining.has(item.id));
+
+    setDisplayItems((prev) => {
+      const activeIds = new Set(activeItems.map((item) => item.id));
+      const prevById = new Map(prev.map((item) => [item.id, item]));
+      const activeById = new Map(activeItems.map((item) => [item.id, item]));
+      const nextInPreviousOrder = prev.map((item) => {
+        const activeItem = activeById.get(item.id);
+        if (activeItem) return { ...item, ...activeItem, status: "active" as const };
+        return { ...item, status: "cut" as const };
+      });
+      const previousIds = new Set(prev.map((item) => item.id));
+      const added = activeItems
+        .filter((item) => !previousIds.has(item.id))
+        .map((item) => ({ ...prevById.get(item.id), ...item, status: "active" as const }));
+
+      return [...nextInPreviousOrder, ...added].filter((item) => activeIds.has(item.id) || item.status === "cut");
+    });
+
+    const timeout = window.setTimeout(() => {
+      setDisplayItems((prev) => prev.filter((item) => remaining.has(item.id)));
+    }, 520);
+
+    return () => window.clearTimeout(timeout);
+  }, [items, state?.current.remainingIds]);
+
+  useEffect(() => {
+    if (!state) return;
+    const previous = previousStateRef.current;
+    previousStateRef.current = state;
+    if (!previous || state.roundIndex <= previous.roundIndex) return;
+
+    const before = previous.current.remainingIds || [];
+    const after = new Set(state.current.remainingIds || []);
+    const eliminated = before.filter((id) => !after.has(id));
+    if (eliminated.length === 0) return;
+
+    const role = getRoleName(participantCount + 1, previous.roundIndex).role;
+    const itemById = new Map(items.map((item) => [item.id, item.title]));
+    const timestamp = Date.now();
+    setActivityLog((prev) => [
+      ...prev,
+      ...eliminated.map((id, index) => ({
+        id: `${timestamp}-${id}-${index}`,
+        text: `${role} eliminated ${itemById.get(id) || "an option"}.`,
+      })),
+    ].slice(-16));
+  }, [items, participantCount, state]);
 
   function handleReorderItems(from: number, to: number) {
     const ids = visibleItems.map((item) => item.id);
@@ -193,7 +330,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   }
 
   function handleToggleItem(itemId: string) {
-    if (!state) return;
+    if (!state || isOrganizerSpectator) return;
     const selected = state.current.selectedIds;
     const endpoint = selected.includes(itemId)
       ? "/api/choosie/narrow/deselect"
@@ -203,11 +340,12 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   }
 
   function handleConfirm() {
+    if (isOrganizerSpectator) return;
     postAction("/api/choosie/narrow/confirm", { listId, participantToken: getActionToken() });
   }
 
   async function handleSurpriseMe() {
-    if (!state) return;
+    if (!state || isOrganizerSpectator) return;
     const target = state.current.target;
     const candidates = visibleItems.map((item) => item.id);
     if (candidates.length < target) {
@@ -246,6 +384,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
   }
 
   function handleUndo() {
+    if (isOrganizerSpectator) return;
     postAction("/api/choosie/narrow/undo", { listId, participantToken: getActionToken("previous") });
   }
 
@@ -301,7 +440,13 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
     <NarrowingPanel
       listTitle={listTitle}
       listDescription={listDescription}
-      items={visibleItems}
+      items={displayItems.map((item) => ({
+        id: item.id,
+        name: item.title,
+        notes: item.notes,
+        image: item.image,
+        status: item.status,
+      }))}
       mode={mode}
       roundIndex={state.roundIndex}
       plan={state.plan}
@@ -309,7 +454,11 @@ export function NarrowingSession({ listId, mode, participantIndex = 0 }: Narrowi
       target={state.current.target}
       winnerId={winnerItemId}
       participantCount={participantCount}
-      participantIndex={participantIndex}
+      participantIndex={participantIndex ?? 0}
+      viewerRole={viewerRole}
+      isSpectator={isOrganizerSpectator}
+      participants={participants}
+      activityLog={activityLog}
       busy={busy}
       error={error}
       onToggleItem={handleToggleItem}

@@ -178,13 +178,20 @@ export default function ViewListPage() {
         await syncParticipantsAndReset(sessionId);
         const base = typeof window !== 'undefined' ? window.location.origin : '';
         const sessionQuery = `session=${encodeURIComponent(sessionId)}`;
+        const organizerLink = `${base}/list/${list.id}/virtual?pt=organizer&${sessionQuery}`;
         if (count === 1) {
           // Only Decider: direct link, no role claim needed
           const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1&${sessionQuery}`;
-          setGeneratedLinks([{ url: deciderLink, role: "Decider Link" }]);
+          setGeneratedLinks([
+            { url: deciderLink, role: "Decider Link" },
+            { url: organizerLink, role: "Organizer Watch Link" },
+          ]);
         } else {
           const groupLink = `${base}/list/${list.id}/virtual/roles?${sessionQuery}`;
-          setGeneratedLinks([{ url: groupLink, role: "Group Link" }]);
+          setGeneratedLinks([
+            { url: groupLink, role: "Group Link" },
+            { url: organizerLink, role: "Organizer Watch Link" },
+          ]);
         }
         setShowLinksModal(true);
       })();
@@ -607,24 +614,26 @@ export default function ViewListPage() {
             <p className="text-sm text-zinc-600 mb-6 text-center">
               When they join, each person will claim a role and take a turn narrowing the list—until one final choice remains.
             </p>
-            <div className="mb-4 flex flex-col items-center">
-              <div className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1 w-full">
-                <span className="font-semibold mb-1">Group Link</span>
-                <div className="flex items-center gap-2">
-                  <a href={generatedLinks[0].url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{generatedLinks[0].url}</a>
-                  <button
-                    type="button"
-                    title="Copy link"
-                    aria-label="Copy link"
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedLinks[0].url);
-                    }}
-                    className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
-                  </button>
+            <div className="mb-4 flex flex-col items-center gap-3">
+              {generatedLinks.map((link) => (
+                <div key={link.role} className="text-xs break-all border rounded px-3 py-2 flex flex-col gap-1 w-full">
+                  <span className="font-semibold mb-1">{link.role}</span>
+                  <div className="flex items-center gap-2">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline flex-1">{link.url}</a>
+                    <button
+                      type="button"
+                      title="Copy link"
+                      aria-label={`Copy ${link.role}`}
+                      onClick={() => {
+                        navigator.clipboard.writeText(link.url);
+                      }}
+                      className="ml-1 p-1 rounded hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
             <div className="flex gap-2 mt-4">
               <button type="button" onClick={() => setShowLinksModal(false)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark w-full">Done</button>

@@ -13,6 +13,10 @@ type PreviewItem = {
 
 type RoleIconName = "cards" | "pencil" | "camera" | "slate" | "award";
 
+function roleStorageKey(listId: string, sessionId: string) {
+  return `choosie:virtual-role:${listId}:${sessionId || "default"}`;
+}
+
 const ROLE_ICONS: Record<string, RoleIconName> = {
   Curator: "cards",
   Editor: "pencil",
@@ -129,6 +133,30 @@ function RoleSelectionContent() {
     return () => { cancelled = true; clearInterval(interval); };
   }, [id, sessionId]);
 
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const raw = window.localStorage.getItem(roleStorageKey(String(id), sessionId));
+      if (!raw) {
+        return;
+      }
+      const saved = JSON.parse(raw);
+      const savedIndex = Number(saved?.participantIndex);
+      const savedRole = typeof saved?.role === "string" ? saved.role : "";
+      if (!Number.isFinite(savedIndex) || !savedRole) {
+        return;
+      }
+
+      const claim = participants.find((participant) => participant.role === savedRole);
+      if (participants.length > 0 && claim && saved?.name && claim.name !== saved.name) {
+        window.localStorage.removeItem(roleStorageKey(String(id), sessionId));
+        return;
+      }
+
+      router.replace(`/list/${id}/virtual?pt=${savedIndex}${sessionId ? `&session=${encodeURIComponent(sessionId)}` : ""}`);
+    } catch {}
+  }, [id, participants, router, sessionId]);
+
   async function claimRole(role: string) {
     setClaiming(role);
     setError(null);
@@ -141,6 +169,14 @@ function RoleSelectionContent() {
       const data = await res.json();
       if (data.ok) {
         const idx = rolesToShow.findIndex((r) => r.role === role);
+        try {
+          window.localStorage.setItem(roleStorageKey(String(id), sessionId), JSON.stringify({
+            participantIndex: idx,
+            role,
+            name,
+            sessionId,
+          }));
+        } catch {}
         if (idx === 0) {
           router.push(`/list/${id}/virtual?pt=${idx}&start=1${sessionId ? `&session=${encodeURIComponent(sessionId)}` : ""}`);
         } else {

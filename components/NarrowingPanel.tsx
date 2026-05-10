@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getRoleName } from "@/lib/planner";
 
 type NarrowingItem = {
@@ -6,6 +6,18 @@ type NarrowingItem = {
   name: string;
   notes?: string | null;
   image?: string | null;
+  status?: "active" | "cut";
+};
+
+type ParticipantClaim = {
+  name: string;
+  role: string;
+  joined?: boolean;
+};
+
+type ActivityLogEntry = {
+  id: string;
+  text: string;
 };
 
 type NarrowingPanelProps = {
@@ -20,6 +32,10 @@ type NarrowingPanelProps = {
   winnerId?: string | null;
   participantCount: number;
   participantIndex?: number;
+  viewerRole?: string;
+  isSpectator?: boolean;
+  participants?: ParticipantClaim[];
+  activityLog?: ActivityLogEntry[];
   busy?: boolean;
   error?: string | null;
   onToggleItem: (id: string) => void;
@@ -286,6 +302,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   winnerId,
   participantCount,
   participantIndex = 0,
+  viewerRole,
+  isSpectator = false,
+  participants = [],
+  activityLog = [],
   busy = false,
   error,
   onToggleItem,
@@ -300,10 +320,11 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const actionLogRef = useRef<HTMLDivElement | null>(null);
   const role = getRoleName(participantCount + 1, roundIndex);
-  const participantRole = getRoleName(participantCount + 1, participantIndex);
+  const participantRole = viewerRole ? { role: viewerRole, emoji: "" } : getRoleName(participantCount + 1, participantIndex);
   const activeParticipantIndex = roundIndex % Math.max(1, participantCount);
-  const isVirtualWaiting = mode === "virtual" && participantIndex !== activeParticipantIndex && !winnerId;
+  const isVirtualWaiting = mode === "virtual" && (isSpectator || participantIndex !== activeParticipantIndex) && !winnerId;
   const winner = winnerId ? items.find((item) => item.id === winnerId) : null;
   const canConfirm = !busy && !isVirtualWaiting && selectedIds.length === target;
   const previousParticipantIndex = Math.max(0, roundIndex - 1) % Math.max(1, participantCount);
@@ -312,10 +333,39 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
   const itemGridClass = view === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
-  const displayedRole = isVirtualWaiting ? participantRole : role;
-  const displayedTarget = isVirtualWaiting ? plan[participantIndex] ?? target : target;
-  const displayedRound = isVirtualWaiting ? participantIndex : roundIndex;
-  const actionText = displayedRole.role === "Decider" ? "Time to choosie." : `Choosie ${displayedTarget} options.`;
+  const displayedRole = role;
+  const displayedTarget = target;
+  const displayedRound = roundIndex;
+  const roundsUntilTurn = isSpectator
+    ? null
+    : participantIndex >= roundIndex
+    ? participantIndex - roundIndex
+    : null;
+  const waitLine =
+    roundsUntilTurn == null
+      ? "Your turn is complete. Watch the rest unfold."
+      : `You're up in ${roundsUntilTurn === 0 ? 1 : roundsUntilTurn} round${roundsUntilTurn === 1 ? "" : "s"}.`;
+  const activeClaim = participants.find((participant) => participant.role === role.role);
+  const activeName = activeClaim?.name || role.role;
+  const activeAction = role.role === "Decider" ? "making the final call" : `choosing ${target} options`;
+  const turnFlash = mode === "virtual" && !isVirtualWaiting && !winner;
+  const actionText = winner
+    ? "And the winner is..."
+    : isVirtualWaiting
+    ? `${activeName} is ${activeAction}.`
+    : displayedRole.role === "Decider"
+    ? "Time to choosie."
+    : `Choosie ${displayedTarget} options.`;
+  const rolePlan = plan.map((phaseTarget, index) => ({
+    ...getRoleName(participantCount + 1, index),
+    target: phaseTarget,
+  }));
+
+  useEffect(() => {
+    const node = actionLogRef.current;
+    if (!node) return;
+    node.scrollTop = node.scrollHeight;
+  }, [activityLog]);
 
   function onDragStart(event: React.DragEvent, index: number) {
     setDragIndex(index);
@@ -353,8 +403,8 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <h1 className="mt-1 text-3xl font-semibold text-brand sm:text-4xl">
                 {listTitle}
               </h1>
-              <p className="mt-2 text-lg font-semibold text-zinc-700 sm:text-xl">
-                {winner ? "And the winner is..." : actionText}
+              <p className={`mt-2 text-lg font-semibold sm:text-xl ${turnFlash ? "animate-pulse text-consensus-dark" : "text-zinc-700"}`}>
+                {turnFlash ? "IT'S YOUR TURN!" : actionText}
               </p>
               {!winner && (
                 <p className="mt-2 inline-flex items-center justify-center gap-2 text-sm text-zinc-500">
@@ -375,7 +425,9 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             {!winner && (
               <p className="text-sm text-zinc-600">
                 {isVirtualWaiting
-                  ? `Waiting for ${role.role} to choose ${target}.`
+                  ? isSpectator
+                    ? `Watching ${role.role}'s turn in real time.`
+                    : waitLine
                   : "Drag to reorder options, then choose what stays."}
               </p>
             )}
@@ -427,6 +479,57 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
           </div>
         ) : (
           <div className="px-5 py-5 sm:px-6">
+            {mode === "virtual" && (
+              <div className="mb-4 flex flex-col gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Lobby</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {rolePlan.map((phase) => {
+                      const claim = participants.find((participant) => participant.role === phase.role);
+                      const isActive = phase.role === role.role;
+                      return (
+                        <span
+                          key={phase.role}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                            isActive
+                              ? "border-consensus bg-consensus/30 text-brand-dark"
+                              : claim
+                              ? "border-zinc-200 bg-white text-zinc-700"
+                              : "border-zinc-200 bg-zinc-100 text-zinc-400"
+                          }`}
+                        >
+                          <span className={`h-2 w-2 rounded-full ${claim ? "bg-consensus" : "bg-zinc-300"}`} />
+                          {phase.role}
+                          {claim ? ` - ${claim.name}` : ""}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                {isSpectator && (
+                  <div className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-brand ring-1 ring-zinc-200">
+                    Organizer view
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="relative">
+              {isVirtualWaiting && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-white/55 p-4 backdrop-blur-md">
+                  <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white/95 p-5 text-center shadow-xl">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-brand">Live spectator mode</div>
+                    <div className="mt-2 text-xl font-semibold text-zinc-950">
+                      {activeName} is currently {activeAction}...
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-zinc-600">
+                      {isSpectator
+                        ? "You are the Organizer. The room updates as each narrower makes cuts."
+                        : `You are the ${participantRole.role}. ${waitLine}`}
+                    </div>
+                  </div>
+                </div>
+              )}
             <div className={`grid gap-3 ${itemGridClass}`}>
               {items.map((item, index) => {
                 const checked = selectedIds.includes(item.id);
@@ -438,7 +541,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                     onDragOver={onDragOver}
                     onDrop={(event) => onDrop(event, index)}
                     onDragEnd={() => setDragIndex(null)}
-                    className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-colors ${
+                    className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-all duration-500 ${
+                      item.status === "cut"
+                        ? "scale-95 border-red-200 bg-red-50 opacity-0"
+                        :
                       checked
                         ? "border-consensus bg-consensus/10"
                         : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
@@ -483,12 +589,28 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                 );
               })}
             </div>
+            </div>
 
             {error && <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
             <div className="mt-5 text-sm text-zinc-600">
               Selected {selectedIds.length} of {target}
             </div>
+            {mode === "virtual" && (
+              <div ref={actionLogRef} className="mt-4 max-h-28 overflow-y-auto rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm text-zinc-100">
+                {activityLog.length > 0 ? (
+                  <div className="flex flex-col gap-1.5">
+                    {activityLog.map((entry) => (
+                      <div key={entry.id} className="leading-5 text-zinc-100">
+                        {entry.text}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-zinc-400">Action log will fill in as cuts happen.</div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
