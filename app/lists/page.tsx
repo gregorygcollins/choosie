@@ -411,7 +411,7 @@ export default function ListsPage() {
         </div>
       )}
       
-      <div className={["mx-auto", viewMode === "grid" ? "max-w-5xl" : "max-w-3xl"].join(" ")}>
+      <div className={["mx-auto", viewMode === "grid" ? "max-w-7xl" : "max-w-3xl"].join(" ")}>
         {usedLocalFallback && (
           <div className="mb-4 rounded-lg border border-[#DDE6F3] bg-[#F8F9FF] text-brand-dark px-4 py-3 text-sm">
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
@@ -461,7 +461,7 @@ export default function ListsPage() {
           </div>
         </div>
 
-        <div className={viewMode === "grid" ? "grid gap-4 sm:grid-cols-2" : "grid gap-4"}>
+        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-4"}>
           {lists.map((list) => {
             // Derive module if missing from server/local legacy data
             const derivedModule = (list as any).moduleType
@@ -472,15 +472,82 @@ export default function ListsPage() {
                   : "movies");
             const moduleLabel = getModuleLabel(derivedModule);
             const moduleStyle = getModuleStyle(derivedModule);
+            const coverImage = list.items?.[0]?.image;
+            const firstItemTitle = list.items?.[0]?.title;
+
+            if (viewMode === "grid") {
+              return (
+                <div
+                  key={list.id}
+                  onClick={() => router.push(`/list/${list.id}`)}
+                  className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/list/${list.id}`);
+                    }
+                  }}
+                >
+                  {coverImage ? (
+                    <img
+                      src={coverImage}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      className={[
+                        "absolute inset-0 flex flex-col items-center justify-center gap-4 p-5 text-center",
+                        moduleStyle.thumbnail,
+                      ].join(" ")}
+                    >
+                      <ModuleIcon module={derivedModule} />
+                      <span className="text-sm font-semibold uppercase tracking-[0.14em]">
+                        {moduleLabel}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
+                  <div className="absolute left-0 right-0 bottom-0 z-10 flex flex-col gap-2 p-4 pr-12">
+                    <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
+                      {moduleLabel}
+                    </span>
+                    <div>
+                      <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                        {list.title}
+                      </h2>
+                      <p className="mt-1 truncate text-xs text-white/75">
+                        {list.items.length} items{firstItemTitle ? ` · ${firstItemTitle}` : ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openDescriptionEditor(list);
+                    }}
+                    className="absolute right-3 bottom-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                    title="List info"
+                    aria-label={`List info for ${list.title}`}
+                  >
+                    i
+                  </button>
+                </div>
+              );
+            }
             
             return (
             <div
               key={list.id}
               onClick={() => router.push(`/list/${list.id}`)}
-              className={[
-                "card cursor-pointer rounded-2xl transition-transform hover:translate-y-[-2px]",
-                viewMode === "grid" ? "flex min-h-[8.5rem] flex-col gap-3 p-5" : "flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between",
-              ].join(" ")}
+              className="card flex cursor-pointer flex-col gap-4 rounded-2xl p-6 transition-transform hover:translate-y-[-2px] sm:flex-row sm:items-center sm:justify-between"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -490,7 +557,7 @@ export default function ListsPage() {
                 }
               }}
             >
-              <div className={viewMode === "grid" ? "flex flex-1 flex-col gap-4" : ""}>
+              <div>
                 <div className="flex items-center gap-4">
                   <ListThumbnail list={list} module={derivedModule} moduleLabel={moduleLabel} variant={viewMode} />
                   <div>
@@ -510,7 +577,7 @@ export default function ListsPage() {
                   <span>Created {formatDate(list.createdAt)}</span>
                 </div>
               </div>
-              <div className={viewMode === "grid" ? "mt-auto flex justify-end gap-3" : "flex gap-3"}>
+              <div className="flex gap-3">
                 {list.narrowers && (
                   <Link
                     href={`/narrow/${list.id}`}
