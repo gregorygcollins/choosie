@@ -502,7 +502,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             {mode === "virtual" && (
               <div className="mb-4 flex flex-col gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3 sm:items-center sm:justify-center">
                 <div className="flex flex-col items-center w-full">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500 text-center">Lobby</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500 text-center">NARROWERS</div>
                   <div className="mt-2 flex flex-wrap gap-2 justify-center w-full">
                     {rolePlan.map((phase) => {
                       const claim = participants.find((participant) => participant.role === phase.role);
