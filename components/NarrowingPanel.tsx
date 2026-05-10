@@ -240,6 +240,108 @@ function ShuffleIcon() {
   );
 }
 
+function getModuleLabel(module: string) {
+  if (module === "books") return "Books";
+  if (module === "food" || module === "recipes") return "Food";
+  if (module === "music") return "Music";
+  if (module === "anything") return "Anything";
+  return "Movies";
+}
+
+function getModuleStyle(module: string) {
+  if (module === "books") {
+    return {
+      badge: "bg-blue-100 text-blue-800",
+      fallback: "bg-gradient-to-br from-blue-50 via-sky-100 to-slate-300 text-blue-800",
+    };
+  }
+
+  if (module === "food" || module === "recipes") {
+    return {
+      badge: "bg-emerald-100 text-emerald-800",
+      fallback: "bg-gradient-to-br from-emerald-50 via-teal-100 to-zinc-500 text-emerald-800",
+    };
+  }
+
+  if (module === "music") {
+    return {
+      badge: "bg-violet-100 text-violet-800",
+      fallback: "bg-gradient-to-br from-violet-50 via-fuchsia-100 to-zinc-600 text-violet-800",
+    };
+  }
+
+  if (module === "anything") {
+    return {
+      badge: "bg-rose-100 text-rose-800",
+      fallback: "bg-gradient-to-br from-rose-50 via-pink-100 to-zinc-500 text-rose-800",
+    };
+  }
+
+  return {
+    badge: "bg-teal-100 text-teal-800",
+    fallback: "bg-gradient-to-br from-teal-50 via-cyan-100 to-zinc-500 text-teal-800",
+  };
+}
+
+function ModuleGlyph({ module }: { module: string }) {
+  return (
+    <svg
+      className="h-8 w-8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      {module === "food" || module === "recipes" ? (
+        <>
+          <path d="M4 3v7" />
+          <path d="M8 3v7" />
+          <path d="M4 7h4" />
+          <path d="M6 10v11" />
+          <path d="M17 3c1.7 1.7 2.5 3.7 2.5 6 0 2.2-.8 4-2.5 5.5V21" />
+        </>
+      ) : module === "music" ? (
+        <>
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </>
+      ) : module === "anything" ? (
+        <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
+      ) : module === "books" ? (
+        <>
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+        </>
+      ) : (
+        <>
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M7 5v14" />
+          <path d="M17 5v14" />
+          <path d="M3 9h4" />
+          <path d="M17 9h4" />
+          <path d="M3 15h4" />
+          <path d="M17 15h4" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function ItemFallback({ module, label }: { module: string; label: string }) {
+  const style = getModuleStyle(module);
+
+  return (
+    <div className={["flex h-full w-full flex-col items-center justify-center gap-4 text-center", style.fallback].join(" ")}>
+      <ModuleGlyph module={module} />
+      <span className="text-xs font-semibold uppercase tracking-[0.18em]">{label}</span>
+    </div>
+  );
+}
+
 function ConfettiBurst() {
   const pieces = [
     { className: "left-[8%] top-[14%] bg-brand", x: -12, delay: 0 },
@@ -337,7 +439,6 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     !busy &&
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
-  const itemGridClass = view === "grid" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1";
   const displayedRole = role;
   const displayedTarget = target;
   const displayedRound = roundIndex;
@@ -353,6 +454,8 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   const activeClaim = participants.find((participant) => participant.role === role.role);
   const activeName = activeClaim?.name || role.role;
   const normalizedModule = String(moduleType || "movies").toLowerCase();
+  const moduleLabel = getModuleLabel(normalizedModule);
+  const moduleStyle = getModuleStyle(normalizedModule);
   const itemNoun =
     normalizedModule === "books"
       ? "books"
@@ -410,7 +513,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+    <main className={["mx-auto w-full px-4 py-8 sm:px-6", view === "grid" && !winner ? "max-w-7xl" : "max-w-5xl"].join(" ")}>
       <section className="rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div className="border-b border-zinc-200 px-5 py-4 sm:px-6">
           <div className="flex flex-col items-center gap-3 text-center">
@@ -452,15 +555,15 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               </p>
             )}
             {!winner && (
-              <div className="inline-flex w-fit rounded-md border border-zinc-200 bg-white p-1">
+              <div className="inline-flex w-fit rounded-full border border-brand/10 bg-white p-1 shadow-soft">
                 <button
                   type="button"
                   title="Grid view"
                   aria-label="Grid view"
                   aria-pressed={view === "grid"}
                   onClick={() => setView("grid")}
-                  className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "grid" ? "bg-brand text-white" : "text-zinc-600 hover:bg-zinc-100"
+                  className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
+                    view === "grid" ? "bg-brand text-white" : "text-brand hover:bg-brand-light"
                   }`}
                 >
                   <GridIcon />
@@ -471,8 +574,8 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   aria-label="List view"
                   aria-pressed={view === "list"}
                   onClick={() => setView("list")}
-                  className={`rounded px-2.5 py-1.5 transition-colors ${
-                    view === "list" ? "bg-brand text-white" : "text-zinc-600 hover:bg-zinc-100"
+                  className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
+                    view === "list" ? "bg-brand text-white" : "text-brand hover:bg-brand-light"
                   }`}
                 >
                   <ListIcon />
@@ -549,70 +652,161 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             )}
 
             <div className="relative">
-            <div className={`grid gap-3 ${itemGridClass}`}>
-              {[...items]
-                .sort((a, b) => {
-                  // Grey out and move cut items to the bottom visually
-                  if ((a.status === "cut") === (b.status === "cut")) return 0;
-                  return a.status === "cut" ? 1 : -1;
-                })
-                .map((item, index) => {
-                  const checked = selectedIds.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      draggable={!busy && !isVirtualWaiting}
-                      onDragStart={(event) => onDragStart(event, index)}
-                      onDragOver={onDragOver}
-                      onDrop={(event) => onDrop(event, index)}
-                      onDragEnd={() => setDragIndex(null)}
-                      className={`flex min-h-20 items-center gap-3 rounded-lg border p-3 transition-all duration-500 ${
-                        item.status === "cut"
-                          ? "opacity-60 grayscale border-zinc-200 bg-zinc-50"
-                          : checked
-                          ? "border-consensus bg-consensus/10"
-                          : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                      }`}
-                    >
-                      <div className="cursor-grab text-zinc-400" title="Drag to reorder" aria-hidden="true">
-                        <GripIcon />
+              <div className={view === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-4"}>
+                {[...items]
+                  .sort((a, b) => {
+                    if ((a.status === "cut") === (b.status === "cut")) return 0;
+                    return a.status === "cut" ? 1 : -1;
+                  })
+                  .map((item, index) => {
+                    const checked = selectedIds.includes(item.id);
+                    const isCut = item.status === "cut";
+
+                    if (view === "grid") {
+                      return (
+                        <div
+                          key={item.id}
+                          draggable={!busy && !isVirtualWaiting}
+                          onDragStart={(event) => onDragStart(event, index)}
+                          onDragOver={onDragOver}
+                          onDrop={(event) => onDrop(event, index)}
+                          onDragEnd={() => setDragIndex(null)}
+                          className={[
+                            "group relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 transition duration-300 focus-within:ring-2 focus-within:ring-teal-400",
+                            busy || isVirtualWaiting ? "cursor-default" : "cursor-pointer",
+                            checked ? "ring-4 ring-consensus shadow-consensus/30" : "ring-white/10 hover:-translate-y-1 hover:shadow-2xl",
+                            isCut ? "opacity-55 grayscale" : "",
+                          ].join(" ")}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => onToggleItem(item.id)}
+                            disabled={busy || isVirtualWaiting}
+                            className="absolute inset-0 z-10 text-left disabled:cursor-not-allowed"
+                            aria-pressed={checked}
+                            aria-label={`${checked ? "Deselect" : "Select"} ${item.name}`}
+                          />
+
+                          {item.image ? (
+                            <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                          ) : (
+                            <ItemFallback module={normalizedModule} label={moduleLabel} />
+                          )}
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
+                          <div className="absolute left-3 top-3 z-20 rounded-full bg-black/65 px-2 py-1 text-xs font-semibold text-white">
+                            #{index + 1}
+                          </div>
+                          {checked && (
+                            <div className="absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-consensus text-brand-dark shadow-lg">
+                              <CheckIcon />
+                            </div>
+                          )}
+                          {isCut && (
+                            <div className="absolute inset-x-3 top-1/2 z-20 rounded-full bg-black/70 px-3 py-1 text-center text-xs font-bold uppercase tracking-wide text-white">
+                              Cut
+                            </div>
+                          )}
+                          <div className="absolute left-0 right-0 bottom-0 z-20 flex flex-col gap-2 p-4 pr-12">
+                            <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
+                              {moduleLabel}
+                            </span>
+                            <div>
+                              <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                                {item.name}
+                              </h2>
+                              {item.notes && <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            title={`More about ${item.name}`}
+                            aria-label={`More about ${item.name}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setInfoItem(item);
+                            }}
+                            className="absolute right-3 bottom-3 z-30 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                          >
+                            <InfoIcon />
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={item.id}
+                        draggable={!busy && !isVirtualWaiting}
+                        onDragStart={(event) => onDragStart(event, index)}
+                        onDragOver={onDragOver}
+                        onDrop={(event) => onDrop(event, index)}
+                        onDragEnd={() => setDragIndex(null)}
+                        className={[
+                          "group flex overflow-hidden rounded-xl border bg-white shadow-sm transition duration-300",
+                          busy || isVirtualWaiting ? "cursor-default" : "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg",
+                          checked ? "border-consensus bg-consensus/10 ring-2 ring-consensus/30" : "border-zinc-200",
+                          isCut ? "opacity-55 grayscale" : "",
+                        ].join(" ")}
+                      >
+                        <div className="relative h-32 w-32 shrink-0 overflow-hidden bg-zinc-100 sm:w-40">
+                          {item.image ? (
+                            <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                          ) : (
+                            <ItemFallback module={normalizedModule} label={moduleLabel} />
+                          )}
+                          <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                            #{index + 1}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => onToggleItem(item.id)}
+                          disabled={busy || isVirtualWaiting}
+                          className="flex min-w-0 flex-1 items-center gap-4 p-4 text-left disabled:cursor-not-allowed sm:p-5"
+                          aria-pressed={checked}
+                        >
+                          <span className="min-w-0 flex-1">
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className={`line-clamp-2 text-lg font-semibold leading-snug ${isCut ? "text-zinc-400" : "text-brand"}`}>
+                                {item.name}
+                              </span>
+                              <span className={["rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                                {moduleLabel}
+                              </span>
+                            </span>
+                            {item.notes ? (
+                              <span className="mt-2 block line-clamp-2 text-sm leading-6 text-zinc-500">{item.notes}</span>
+                            ) : (
+                              <span className="mt-2 block text-sm leading-6 text-zinc-400">No note yet.</span>
+                            )}
+                          </span>
+                        </button>
+
+                        <div className="flex shrink-0 items-center gap-2 p-4">
+                          <div className="cursor-grab rounded-full bg-zinc-100 p-2 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand" title="Drag to reorder" aria-hidden="true">
+                            <GripIcon />
+                          </div>
+                          {checked && (
+                            <span className="grid h-9 w-9 place-items-center rounded-full bg-consensus text-brand-dark">
+                              <CheckIcon />
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            title={`More about ${item.name}`}
+                            aria-label={`More about ${item.name}`}
+                            onClick={() => setInfoItem(item)}
+                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-zinc-100 text-brand transition-colors hover:bg-brand hover:text-white"
+                          >
+                            <InfoIcon />
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => onToggleItem(item.id)}
-                        disabled={busy || isVirtualWaiting}
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed"
-                      >
-                        {item.image ? (
-                          <img src={item.image} alt="" className={`h-14 w-14 shrink-0 rounded-md object-cover ${item.status === "cut" ? "opacity-60 grayscale" : ""}`} />
-                        ) : (
-                          <div className={`h-14 w-14 shrink-0 rounded-md bg-zinc-100 ${item.status === "cut" ? "opacity-60 grayscale" : ""}`} />
-                        )}
-                        <span className="min-w-0">
-                          <span className={`block truncate text-sm font-semibold ${item.status === "cut" ? "text-zinc-400" : "text-zinc-950"}`}>{item.name}</span>
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        title={`More about ${item.name}`}
-                        aria-label={`More about ${item.name}`}
-                        onClick={() => setInfoItem(item)}
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:bg-white hover:text-zinc-950"
-                      >
-                        <InfoIcon />
-                      </button>
-                      <span className="sr-only">
-                        {item.notes && (
-                          <>
-                            {" "}
-                            {item.notes}
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
+                    );
+                  })}
+              </div>
             </div>
 
             {error && <div className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
