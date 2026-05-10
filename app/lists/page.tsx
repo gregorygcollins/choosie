@@ -452,9 +452,11 @@ export default function ListsPage() {
             </div>
             <Link
               href="/new"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-consensus px-6 text-base font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+              className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-teal-500 text-white text-3xl shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
+              title="Create new list"
+              aria-label="Create new list"
             >
-              Create new list
+              <span aria-hidden="true">+</span>
             </Link>
           </div>
         </div>
