@@ -127,10 +127,10 @@ function ListIcon() {
 function PlusIcon() {
   return (
     <svg
-      className="h-7 w-7"
+      className="h-5 w-5"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2.8}
+      strokeWidth={2.4}
       strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 24 24"
@@ -470,15 +470,11 @@ export default function ListsPage() {
             </div>
             <Link
               href="/new"
-              className="group relative inline-grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#18e6d4] via-[#00c8bb] to-[#07968f] text-white shadow-xl shadow-teal-500/30 ring-1 ring-white/70 transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-2xl hover:shadow-teal-500/40 focus:outline-none focus:ring-4 focus:ring-teal-300/60 active:translate-y-0 active:scale-100"
+              className="inline-grid h-11 w-11 place-items-center rounded-full bg-consensus text-brand-dark transition-colors hover:bg-consensus-dark focus:outline-none focus:ring-2 focus:ring-consensus/50 glow-consensus"
               title="Create new list"
               aria-label="Create new list"
             >
-              <span className="absolute inset-x-2 top-1 h-5 rounded-full bg-white/35 blur-sm transition group-hover:bg-white/45" aria-hidden="true" />
-              <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-white/20" aria-hidden="true" />
-              <span className="relative grid h-10 w-10 place-items-center rounded-full bg-white/12 shadow-inner shadow-white/20 transition group-hover:rotate-90 group-hover:bg-white/18">
-                <PlusIcon />
-              </span>
+              <PlusIcon />
             </Link>
           </div>
         </div>
