@@ -201,7 +201,7 @@ function RoleSelectionContent() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-12 text-center sm:py-16">
       <p className="text-base font-semibold uppercase tracking-[0.36em] text-brand">
-        TIME TO CHOOSIE.
+        TIME TO CHOOSIE
       </p>
       <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-bold leading-tight text-brand sm:text-7xl">{listTitle}</h1>
       {previewItems.length > 0 && (

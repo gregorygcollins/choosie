@@ -29,7 +29,7 @@ export async function GET(req: Request) {
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <img src={logoUrl} width={62} height={62} alt="Choosie" style={{ objectFit: "contain" }} />
           <div style={{ fontSize: 30, fontWeight: 850, letterSpacing: 11, textTransform: "uppercase" }}>
-            TIME TO CHOOSIE.
+            TIME TO CHOOSIE
           </div>
         </div>
 
