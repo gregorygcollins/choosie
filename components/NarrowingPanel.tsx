@@ -475,7 +475,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     : isVirtualWaiting
     ? `${activeName} is ${activeAction}.`
     : displayedRole.role === "Decider"
-    ? "Time to choosie."
+    ? "TIME TO CHOOSIE."
     : `Choosie ${displayedTarget} options.`;
   const rolePlan = plan.map((phaseTarget, index) => ({
     ...getRoleName(participantCount + 1, index),
@@ -518,7 +518,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
         <div className="border-b border-zinc-200 px-5 py-4 sm:px-6">
           <div className="flex flex-col items-center gap-3 text-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-sm font-semibold uppercase tracking-[0.32em] text-brand">
+                TIME TO CHOOSIE.
+              </p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
               </p>
               <h1 className="mt-1 text-3xl font-semibold text-brand sm:text-4xl">

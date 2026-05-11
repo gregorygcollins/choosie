@@ -196,33 +196,40 @@ function RoleSelectionContent() {
     icon: ROLE_ICONS[phase.role] || "slate",
   }));
 
-  const posterItems = previewItems.filter((item) => item.image).slice(0, 10);
+  const posterItems = previewItems.filter((item) => item.image).slice(0, 12);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12 text-center">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
-        Time to choosie.
+    <div className="mx-auto max-w-7xl px-6 py-12 text-center sm:py-16">
+      <p className="text-base font-semibold uppercase tracking-[0.36em] text-brand">
+        TIME TO CHOOSIE.
       </p>
-      <h1 className="mt-4 text-3xl font-bold text-brand sm:text-4xl">{listTitle}</h1>
+      <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-bold leading-tight text-brand sm:text-7xl">{listTitle}</h1>
       {previewItems.length > 0 && (
-        <div className="mx-auto mt-5 max-w-2xl">
+        <div className="mx-auto mt-8 max-w-5xl">
           {posterItems.length > 0 ? (
-            <div className="overflow-x-auto pb-1">
-              <div className="mx-auto flex w-max max-w-full flex-nowrap justify-center -space-x-2 px-2">
-                {posterItems.map((item) => (
-                  <img
+            <div className="overflow-x-auto pb-3">
+              <div className="mx-auto flex w-max max-w-full flex-nowrap justify-center -space-x-1 px-3">
+                {posterItems.map((item, index) => (
+                  <div
                     key={item.id}
-                    src={item.image || ""}
-                    alt=""
-                    className="h-20 w-14 shrink-0 rounded-md border-2 border-white object-cover shadow-sm ring-1 ring-brand/10"
-                  />
+                    className="group relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border-[3px] border-white bg-zinc-950 shadow-lg ring-1 ring-brand/10 transition hover:z-10 hover:-translate-y-1 hover:scale-110 sm:h-36 sm:w-24"
+                    style={{ transform: `translateY(${Math.abs(index - (posterItems.length - 1) / 2) * 1.5}px)` }}
+                  >
+                    <img
+                      src={item.image || ""}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition group-hover:opacity-100" />
+                  </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="mx-auto flex max-w-md flex-wrap justify-center gap-2">
-              {previewItems.slice(0, 4).map((item) => (
-                <span key={item.id} className="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand ring-1 ring-brand/10">
+            <div className="mx-auto flex max-w-3xl flex-wrap justify-center gap-3">
+              {previewItems.slice(0, 8).map((item) => (
+                <span key={item.id} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand shadow-sm ring-1 ring-brand/10">
                   {item.title}
                 </span>
               ))}
@@ -230,15 +237,15 @@ function RoleSelectionContent() {
           )}
         </div>
       )}
-      <p className="mt-3 text-lg font-semibold text-zinc-700">Choosie your role.</p>
+      <p className="mt-9 text-3xl font-bold text-zinc-700">Choosie your role.</p>
 
-      <div className="mx-auto mt-8 max-w-md text-left">
-        <label htmlFor="narrower-name" className="block text-sm font-semibold text-brand">
+      <div className="mx-auto mt-10 max-w-2xl text-left">
+        <label htmlFor="narrower-name" className="block text-xl font-bold text-brand">
           Enter your name to join
         </label>
         <input
           id="narrower-name"
-          className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-consensus/40"
+          className="mt-4 w-full rounded-2xl border border-brand/10 bg-white px-6 py-5 text-2xl shadow-soft focus:outline-none focus:ring-2 focus:ring-consensus/40"
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder="Your name"
@@ -246,28 +253,28 @@ function RoleSelectionContent() {
         />
       </div>
 
-      <div className="mt-6 flex flex-wrap justify-center gap-4">
+      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {rolesToShow.map(({ role, target, icon }) => {
           const taken = participants.find((p) => p.role === role);
           return (
             <div
               key={role}
-              className={`flex min-h-48 w-full max-w-[15rem] flex-col items-center justify-between rounded-2xl border p-5 shadow-sm sm:w-[14rem] ${
-                taken ? "border-zinc-200 bg-zinc-50 text-zinc-400" : "border-brand/20 bg-white text-brand"
+              className={`flex min-h-72 flex-col items-center justify-between rounded-2xl border p-8 shadow-soft transition ${
+                taken ? "border-zinc-200 bg-zinc-50 text-zinc-400 opacity-70" : "border-brand/10 bg-white text-brand hover:-translate-y-1 hover:border-consensus/50 hover:shadow-xl"
               }`}
             >
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10">
+              <div className="grid h-24 w-24 place-items-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10">
                 <RoleIcon icon={icon} />
               </div>
-              <div className="mt-4 text-center text-zinc-900">
-                <div className="text-lg font-bold leading-tight">{role}</div>
-                <div className="mt-1 text-base font-semibold leading-tight text-zinc-700">Narrow to {target}</div>
+              <div className="mt-8 text-center text-zinc-950">
+                <div className="text-3xl font-bold leading-tight">{role}</div>
+                <div className="mt-3 text-2xl font-bold leading-tight text-zinc-700">Narrow to {target}</div>
               </div>
               {taken ? (
-                <div className="mt-3 text-sm text-zinc-500">Claimed by {taken.name}</div>
+                <div className="mt-6 text-base font-semibold text-zinc-500">Claimed by {taken.name}</div>
               ) : (
                 <button
-                  className="mt-4 rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-consensus-dark disabled:opacity-60"
+                  className="mt-8 rounded-full bg-consensus px-6 py-3 text-base font-bold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark disabled:opacity-60"
                   disabled={!name || !!claiming}
                   onClick={() => claimRole(role)}
                 >
