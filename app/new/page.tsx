@@ -4,11 +4,11 @@ import { Suspense, useEffect, useState } from "react";
 import NewPageClient from "./NewPageClient";
 
 const LIST_TYPES = [
-  { word: "watch", color: "text-red-500" },
-  { word: "book", color: "text-blue-500" },
-  { word: "music", color: "text-yellow-500" },
+  { word: "watch", color: "text-brand" },
+  { word: "book", color: "text-blue-600" },
+  { word: "music", color: "text-violet-600" },
   { word: "food", color: "text-consensus-dark" },
-  { word: "anything", color: "text-fuchsia-500" },
+  { word: "anything", color: "text-rose-600" },
 ];
 
 export default function NewPage() {
@@ -29,11 +29,13 @@ export default function NewPage() {
   const current = LIST_TYPES[currentIndex];
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="mx-auto max-w-3xl">
-        {/* Hero invitation */}
-  <section className="mb-[0.225rem] px-4 sm:px-0 text-center">
-          <h1 className="text-3xl font-bold text-brand sm:text-4xl">
+    <main className="min-h-screen px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-5xl">
+        <section className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.32em] text-brand">
+            TIME TO CHOOSIE
+          </p>
+          <h1 className="mt-4 text-4xl font-bold text-brand sm:text-6xl">
             Build your{" "}
             <span
               className={`${current.color} inline-block transition-all duration-700 ease-in-out ${
@@ -44,24 +46,19 @@ export default function NewPage() {
             </span>
             {" "}list.
           </h1>
-          <p className="mt-2 text-lg font-normal text-zinc-700 sm:text-xl">
+          <p className="mx-auto mt-4 max-w-2xl text-lg font-normal leading-8 text-zinc-600 sm:text-xl">
             If you're into it, so is someone else.
           </p>
         </section>
 
-        {/* Choosie Process Diagram */}
-        <div className="flex justify-center my-2">
-          {/* Wrapper crops a few pixels and nudges content slightly right to give the first cloud more breathing room */}
-          <div className="relative w-full max-w-[690px] overflow-visible">
+        <div className="my-7 flex justify-center">
+          <div className="relative w-full max-w-4xl overflow-visible rounded-lg border border-brand/10 bg-white px-6 py-7 shadow-soft">
             <img
               src="/choosie-process.svg?v=9"
               alt="Choosie process diagram"
               className="block opacity-80"
               style={{
-                width: "calc(100% + 16px)",
-                transform: "translateX(2px)",
-                marginTop: "0.25rem",
-                marginBottom: "0.25rem",
+                width: "100%",
                 height: "auto",
                 objectFit: "contain",
                 background: "transparent",
@@ -70,8 +67,7 @@ export default function NewPage() {
           </div>
         </div>
 
-        {/* Form section */}
-  <div className="mt-[0.075rem]">
+        <div className="mx-auto max-w-4xl">
           <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
             <NewPageClient />
           </Suspense>

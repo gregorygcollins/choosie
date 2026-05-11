@@ -54,21 +54,26 @@ export default function FinalPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-      <div className="animate-bounce mb-8 text-4xl">
-        🎉 🎊 🎈
-      </div>
-      
-      <h1 className="text-3xl font-bold mb-2">{list.title}</h1>
-      <p className="text-zinc-600 mb-8">And the winner is...</p>
-      
-      <div className="bg-white/80 rounded-2xl p-8 shadow-soft mb-12 transform hover:scale-105 transition-all duration-200">
+    <div className="mx-auto max-w-5xl px-4 py-12 text-center sm:px-6">
+      <p className="text-sm font-semibold uppercase tracking-[0.32em] text-brand">
+        TIME TO CHOOSIE
+      </p>
+      <h1 className="mt-4 text-3xl font-bold text-brand sm:text-5xl">{list.title}</h1>
+      <p className="mt-3 text-lg font-semibold text-zinc-700">And the winner is...</p>
+
+      <div className="mx-auto mt-8 mb-12 max-w-xl rounded-lg border border-zinc-200 bg-white px-5 py-8 shadow-soft sm:px-8">
         {winner.image ? (
-          <img src={winner.image} alt={winner.title} className="w-full h-64 object-cover rounded-lg mb-4" />
-        ) : null}
-        <h2 className="text-4xl font-bold mb-3">{winner.title}</h2>
+          <div className="mx-auto mb-6 aspect-[2/3] w-60 max-w-[76vw] overflow-hidden rounded-lg bg-zinc-950 shadow-2xl ring-4 ring-consensus/50 sm:w-72">
+            <img src={winner.image} alt={winner.title} className="h-full w-full object-cover" />
+          </div>
+        ) : (
+          <div className="mx-auto mb-6 grid aspect-[2/3] w-60 max-w-[76vw] place-items-center rounded-lg bg-brand-light text-6xl text-brand shadow-xl sm:w-72">
+            🎉
+          </div>
+        )}
+        <h2 className="text-4xl font-bold text-brand sm:text-5xl">{winner.title}</h2>
         {winner.notes && (
-          <p className="text-zinc-600">{winner.notes}</p>
+          <p className="mx-auto mt-4 max-w-md text-base leading-7 text-zinc-600">{winner.notes}</p>
         )}
       </div>
 

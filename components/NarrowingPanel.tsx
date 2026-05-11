@@ -49,6 +49,7 @@ type NarrowingPanelProps = {
   onReset: () => void;
   onReturnToList: () => void;
   onShareWinner: () => void;
+  onShareProgress?: () => void;
   moduleType?: string;
 };
 
@@ -422,10 +423,12 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   onReset,
   onReturnToList,
   onShareWinner,
+  onShareProgress,
   moduleType,
 }) => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
+  const [cutListOpen, setCutListOpen] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const actionLogRef = useRef<HTMLDivElement | null>(null);
   const role = getRoleName(participantCount + 1, roundIndex);
@@ -439,6 +442,8 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     !busy &&
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
+  const canShareVirtualProgress =
+    mode === "virtual" && !winnerId && !isSpectator && participantIndex < roundIndex && Boolean(onShareProgress);
   const displayedRole = role;
   const displayedTarget = target;
   const displayedRound = roundIndex;
@@ -521,9 +526,6 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               <p className="text-sm font-semibold uppercase tracking-[0.32em] text-brand">
                 TIME TO CHOOSIE
               </p>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                {mode === "in-person" ? "In Person Narrowing" : "Virtual Narrowing"}
-              </p>
               <h1 className="mt-1 text-3xl font-semibold text-brand sm:text-4xl">
                 {listTitle}
               </h1>
@@ -592,11 +594,14 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
           <div className="relative overflow-hidden px-5 py-12 text-center sm:px-6">
             <ConfettiBurst />
             {winner?.image && (
-              <img
-                src={winner.image}
-                alt=""
-                className="relative mx-auto mb-5 h-36 w-36 rounded-lg object-cover shadow-lg ring-4 ring-consensus/50"
-              />
+              <div className="relative mx-auto mb-6 aspect-[2/3] w-56 max-w-[70vw] overflow-hidden rounded-lg bg-zinc-950 shadow-2xl ring-4 ring-consensus/50 sm:w-64">
+                <img
+                  src={winner.image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-white/5" />
+              </div>
             )}
             <div className="relative mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-consensus text-2xl shadow-sm">
               🎉
@@ -843,6 +848,18 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   <ShuffleIcon />
                   Surprise me
                 </button>
+                {canShareVirtualProgress && (
+                  <button
+                    type="button"
+                    onClick={() => onShareProgress?.()}
+                    className="inline-flex items-center gap-2 rounded-full border border-brand/15 bg-white px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    title="Share current narrowed list"
+                    aria-label="Share current narrowed list"
+                  >
+                    <ShareIcon />
+                    Share
+                  </button>
+                )}
               </>
             )}
             {winner && (
@@ -894,29 +911,46 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
           </div>
         </div>
         {mode === "virtual" && !winner && (
-          <div ref={actionLogRef} className="border-t border-brand/20 bg-brand px-5 py-4 text-sm text-white sm:px-6">
-            <div className="sticky top-0 z-10 -mx-5 -mt-4 mb-3 bg-brand px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-consensus sm:-mx-6 sm:px-6">
-              Eliminated
-            </div>
-            <div className="max-h-56 overflow-y-auto rounded-md border border-white/15 bg-brand-dark/45 p-3">
-              {activityLog.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {activityLog.map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 rounded-md border border-white/10 bg-white/10 p-2 text-left shadow-sm">
-                      {entry.image ? (
-                        <img src={entry.image} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover opacity-60 grayscale" />
-                      ) : (
-                        <div className="h-12 w-12 shrink-0 rounded-md bg-white/15" />
-                      )}
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-white">{entry.title}</div>
-                        <div className="text-xs text-zinc-300">Cut by {entry.role}</div>
+          <div className="border-t border-zinc-200 px-5 py-4 sm:px-6">
+            <div className="overflow-hidden rounded-lg border border-[#d5dfec] bg-[#243b5a] text-sm text-white shadow-sm">
+              <button
+                type="button"
+                onClick={() => setCutListOpen((open) => !open)}
+                className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-white/5"
+                aria-expanded={cutListOpen}
+              >
+                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-consensus">
+                  CUT LIST
+                </span>
+                <span className="flex items-center gap-3 text-xs font-semibold text-slate-200">
+                  {activityLog.length} cut
+                  <span className="text-base leading-none" aria-hidden="true">{cutListOpen ? "-" : "+"}</span>
+                </span>
+              </button>
+              {cutListOpen && (
+                <div ref={actionLogRef} className="border-t border-white/10 px-3 py-3">
+                  <div className="max-h-56 overflow-y-auto rounded-md border border-white/10 bg-[#1d314c]/70 p-3">
+                    {activityLog.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {activityLog.map((entry) => (
+                          <div key={entry.id} className="flex items-center gap-3 rounded-md border border-white/10 bg-white/10 p-2 text-left shadow-sm">
+                            {entry.image ? (
+                              <img src={entry.image} alt="" className="h-12 w-12 shrink-0 rounded-md object-cover opacity-65 grayscale" />
+                            ) : (
+                              <div className="h-12 w-12 shrink-0 rounded-md bg-white/15" />
+                            )}
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-semibold text-white">{entry.title}</div>
+                              <div className="text-xs text-slate-300">Cut by {entry.role}</div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div className="rounded-md bg-white/10 px-3 py-4 text-center text-slate-300">Cut options will stack here as the room narrows.</div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="rounded-md bg-white/10 px-3 py-4 text-center text-zinc-300">Cut options will stack here as the room narrows.</div>
               )}
             </div>
           </div>

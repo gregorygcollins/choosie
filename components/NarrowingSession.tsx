@@ -432,6 +432,34 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
     }
   }
 
+  async function handleShareProgress() {
+    const remainingIds = new Set(state?.current.remainingIds || []);
+    const remainingItems = items.filter((item) => remainingIds.has(item.id));
+    const preview = remainingItems.slice(0, 6).map((item) => item.title).join(", ");
+    const suffix = remainingItems.length > 6 ? `, and ${remainingItems.length - 6} more` : "";
+    const roleName = viewerRole || getRoleName(participantCount + 1, participantIndex ?? 0).role;
+    const text = `${roleName} finished a turn on "${listTitle || "our Choosie list"}". Still looking at: ${preview}${suffix}.`;
+    const url = `${window.location.origin}/list/${listId}/virtual`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Choosie update",
+          text,
+          url,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      window.alert("Update copied to clipboard.");
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        setError("Failed to share update");
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="px-4 py-12 text-center text-zinc-600">
@@ -485,6 +513,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
         window.location.href = `/list/${listId}`;
       }}
       onShareWinner={handleShareWinner}
+      onShareProgress={handleShareProgress}
     />
   );
 }

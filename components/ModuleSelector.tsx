@@ -29,14 +29,11 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
   // Bump this to force a fresh client remount after deploys (avoids stale cached bundles showing old option labels)
   const UI_LABEL_VERSION = "movies-tv-v3";
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const moduleId = e.target.value;
+  const handleSelect = (moduleId: string) => {
     const selected = MODULES.find((m) => m.id === moduleId);
     
     if (selected && selected.isPro && !userIsPro) {
       setUpsellOpen(true);
-      // Reset to movies
-      e.target.value = "movies";
     } else {
       onSelectModule(moduleId);
     }
@@ -44,30 +41,40 @@ export default function ModuleSelector({ userIsPro, selectedModule, onSelectModu
 
   return (
     <>
-  <div className="mb-6" key={UI_LABEL_VERSION}>
-        <label htmlFor="module-select" className="mb-2 block text-sm font-medium text-neutral-700">
+      <div className="mb-6" key={UI_LABEL_VERSION}>
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <label className="block text-sm font-semibold text-brand">
           What type of list?
-        </label>
-        <div className="relative card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
-          <select
-            id="module-select"
-            value={selectedModule}
-            onChange={handleChange}
-            className="peer w-full appearance-none input-soft pr-12 text-base text-[#2B2B2B] bg-white/70"
-          >
-            {MODULES.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.icon} {option.title}
-                {option.isPro ? " (Pro)" : ""}
-              </option>
-            ))}
-          </select>
-          {/* Custom chevron */}
-          <span className="pointer-events-none absolute right-7 top-1/2 -translate-y-1/2 text-neutral-500 peer-focus:text-brand">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          </label>
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">
+            Pick a format
           </span>
+        </div>
+        <div className="grid gap-3 rounded-lg border border-brand/10 bg-white p-3 shadow-soft sm:grid-cols-5">
+            {MODULES.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => handleSelect(option.id)}
+                aria-pressed={selectedModule === option.id}
+                className={[
+                  "flex min-h-24 flex-col items-start justify-between rounded-lg border p-3 text-left transition",
+                  selectedModule === option.id
+                    ? "border-consensus bg-consensus/15 text-brand shadow-sm"
+                    : "border-zinc-200 bg-white text-zinc-700 hover:border-brand/25 hover:bg-brand-light/50",
+                ].join(" ")}
+              >
+                <span className="text-2xl" aria-hidden="true">{option.icon}</span>
+                <span>
+                  <span className="block text-sm font-semibold leading-tight">{option.title}</span>
+                  {option.isPro && (
+                    <span className="mt-1 inline-flex rounded-full bg-brand-light px-2 py-0.5 text-[11px] font-semibold text-brand">
+                      Pro
+                    </span>
+                  )}
+                </span>
+              </button>
+            ))}
         </div>
       </div>
 
