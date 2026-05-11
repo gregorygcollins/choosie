@@ -111,6 +111,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usePolling, setUsePolling] = useState(false);
+  const [progressShareUrl, setProgressShareUrl] = useState("");
   const previousStateRef = useRef<NarrowingState | null>(null);
 
   const viewerRole = viewerRoleProp || (participantIndex == null ? "Organizer" : undefined);
@@ -159,6 +160,15 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
   useEffect(() => {
     loadState();
   }, [loadState]);
+
+  useEffect(() => {
+    if (mode !== "virtual") return;
+    const params = new URLSearchParams();
+    params.set("pt", "organizer");
+    const sessionId = new URLSearchParams(window.location.search).get("session");
+    if (sessionId) params.set("session", sessionId);
+    setProgressShareUrl(`${window.location.origin}/list/${listId}/virtual?${params.toString()}`);
+  }, [listId, mode]);
 
   useEffect(() => {
     if (mode !== "virtual" || usePolling) return;
@@ -432,34 +442,6 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
     }
   }
 
-  async function handleShareProgress() {
-    const remainingIds = new Set(state?.current.remainingIds || []);
-    const remainingItems = items.filter((item) => remainingIds.has(item.id));
-    const preview = remainingItems.slice(0, 6).map((item) => item.title).join(", ");
-    const suffix = remainingItems.length > 6 ? `, and ${remainingItems.length - 6} more` : "";
-    const roleName = viewerRole || getRoleName(participantCount + 1, participantIndex ?? 0).role;
-    const text = `${roleName} finished a turn on "${listTitle || "our Choosie list"}". Still looking at: ${preview}${suffix}.`;
-    const url = `${window.location.origin}/list/${listId}/virtual`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "Choosie update",
-          text,
-          url,
-        });
-        return;
-      }
-
-      await navigator.clipboard.writeText(`${text} ${url}`);
-      window.alert("Update copied to clipboard.");
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
-        setError("Failed to share update");
-      }
-    }
-  }
-
   if (loading) {
     return (
       <div className="px-4 py-12 text-center text-zinc-600">
@@ -513,7 +495,7 @@ export function NarrowingSession({ listId, mode, participantIndex = 0, viewerRol
         window.location.href = `/list/${listId}`;
       }}
       onShareWinner={handleShareWinner}
-      onShareProgress={handleShareProgress}
+      shareProgressUrl={progressShareUrl}
     />
   );
 }

@@ -49,7 +49,7 @@ type NarrowingPanelProps = {
   onReset: () => void;
   onReturnToList: () => void;
   onShareWinner: () => void;
-  onShareProgress?: () => void;
+  shareProgressUrl?: string;
   moduleType?: string;
 };
 
@@ -225,6 +225,15 @@ function ShareIcon() {
       <circle cx="18" cy="19" r="3" />
       <path d="m8.6 10.6 6.8-4.2" />
       <path d="m8.6 13.4 6.8 4.2" />
+    </svg>
+  );
+}
+
+function CopyIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   );
 }
@@ -423,12 +432,14 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   onReset,
   onReturnToList,
   onShareWinner,
-  onShareProgress,
+  shareProgressUrl,
   moduleType,
 }) => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [infoItem, setInfoItem] = useState<NarrowingItem | null>(null);
   const [cutListOpen, setCutListOpen] = useState(false);
+  const [shareLinkOpen, setShareLinkOpen] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const actionLogRef = useRef<HTMLDivElement | null>(null);
   const role = getRoleName(participantCount + 1, roundIndex);
@@ -443,7 +454,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     roundIndex > 0 &&
     (mode === "in-person" || participantIndex === previousParticipantIndex);
   const canShareVirtualProgress =
-    mode === "virtual" && !winnerId && !isSpectator && participantIndex < roundIndex && Boolean(onShareProgress);
+    mode === "virtual" && !winnerId && !isSpectator && participantIndex < roundIndex && Boolean(shareProgressUrl);
   const displayedRole = role;
   const displayedTarget = target;
   const displayedRound = roundIndex;
@@ -515,6 +526,15 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
     } catch {}
     setDragIndex(null);
     if (from != null && Number.isFinite(from)) onReorderItems(from, index);
+  }
+
+  async function copyProgressLink() {
+    if (!shareProgressUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareProgressUrl);
+      setShareLinkCopied(true);
+      window.setTimeout(() => setShareLinkCopied(false), 1600);
+    } catch {}
   }
 
   return (
@@ -862,17 +882,43 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
               </button>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="relative flex shrink-0 items-center gap-3">
             {canShareVirtualProgress && (
               <button
                 type="button"
-                onClick={() => onShareProgress?.()}
-                title="Share current narrowed list"
-                aria-label="Share current narrowed list"
+                onClick={() => setShareLinkOpen((open) => !open)}
+                title="Share progress link"
+                aria-label="Share progress link"
+                aria-expanded={shareLinkOpen}
                 className="inline-grid h-10 w-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand-light hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
               >
                 <ShareIcon />
               </button>
+            )}
+            {canShareVirtualProgress && shareLinkOpen && shareProgressUrl && (
+              <div className="absolute bottom-full right-0 z-40 mb-3 w-[min(22rem,calc(100vw-2rem))] rounded-lg border border-brand/10 bg-white p-3 text-left shadow-2xl">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Share update</div>
+                <div className="mt-2 text-sm leading-5 text-zinc-600">Copy this link and send it in a text.</div>
+                <div className="mt-3 flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 p-1.5">
+                  <input
+                    readOnly
+                    value={shareProgressUrl}
+                    className="min-w-0 flex-1 bg-transparent px-2 text-sm text-zinc-700 outline-none"
+                    aria-label="Progress share link"
+                    onFocus={(event) => event.currentTarget.select()}
+                  />
+                  <button
+                    type="button"
+                    onClick={copyProgressLink}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-consensus text-brand-dark transition-colors hover:bg-consensus-dark focus:outline-none focus:ring-2 focus:ring-consensus/50"
+                    title="Copy link"
+                    aria-label="Copy progress link"
+                  >
+                    <CopyIcon />
+                  </button>
+                </div>
+                {shareLinkCopied && <div className="mt-2 text-xs font-semibold text-consensus-dark">Copied</div>}
+              </div>
             )}
             <button
               type="button"

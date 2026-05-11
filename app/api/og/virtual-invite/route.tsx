@@ -6,9 +6,11 @@ function truncate(value: string, max: number) {
 
 export async function GET(req: Request) {
   const { searchParams, origin } = new URL(req.url);
-  const title = truncate(searchParams.get("title") || "Choosie list", 58);
-  const posters = searchParams.getAll("poster").slice(0, 8);
+  const title = truncate(searchParams.get("title") || "Choosie list", 42);
+  const description = "Turn reluctant agreement into passionate overlap!";
+  const posters = searchParams.getAll("poster").slice(0, 5);
   const logoUrl = `${origin}/choosie-logo-badge.png`;
+  const roles = ["Curator", "Editor", "Programmer", "Selector", "Decider"];
 
   return new ImageResponse(
     (
@@ -17,103 +19,131 @@ export async function GET(req: Request) {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
+          position: "relative",
           alignItems: "center",
           justifyContent: "center",
-          gap: 28,
-          padding: "58px 72px",
+          padding: "76px 84px",
           background: "#F8F9FF",
           color: "#1A365D",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <img src={logoUrl} width={62} height={62} alt="Choosie" style={{ objectFit: "contain" }} />
-          <div style={{ fontSize: 30, fontWeight: 850, letterSpacing: 11, textTransform: "uppercase" }}>
-            TIME TO CHOOSIE
-          </div>
-        </div>
-
-        <div style={{ maxWidth: 1020, textAlign: "center", fontSize: 76, fontWeight: 900, lineHeight: 1 }}>
-          {title}
-        </div>
-
         <div
           style={{
-            position: "relative",
-            width: 900,
-            height: 230,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(135deg, rgba(255,255,255,0.92), rgba(243,247,255,0.72))",
           }}
-        >
-          {posters.length > 0 ? (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {posters.map((poster, index) => {
-                const offset = index - (posters.length - 1) / 2;
-                const isCenter = Math.abs(offset) < 1;
+        />
+
+        <div style={{ position: "relative", display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", width: 600, flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              <img src={logoUrl} width={70} height={70} alt="Choosie" style={{ objectFit: "contain" }} />
+              <div style={{ fontSize: 23, fontWeight: 500, letterSpacing: 12, textTransform: "uppercase" }}>
+                CHOOSIE INVITE
+              </div>
+            </div>
+
+            <div style={{ marginTop: 54, fontSize: 62, fontWeight: 650, lineHeight: 1.05, letterSpacing: -1 }}>
+              {title}
+            </div>
+
+            <div style={{ marginTop: 20, width: 560, color: "#29466d", fontSize: 32, fontWeight: 420, lineHeight: 1.15 }}>
+              {description}
+            </div>
+
+            <div style={{ marginTop: 38, display: "flex", alignItems: "center", gap: 12, color: "#00AFA3", fontSize: 20, fontWeight: 520 }}>
+              {roles.map((role, index) => (
+                <div key={role} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span>{role}</span>
+                  {index < roles.length - 1 && <span style={{ color: "#8EA0B8" }}>→</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              width: 410,
+              height: 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 70,
+                top: 122,
+                width: 270,
+                height: 160,
+                borderRadius: 80,
+                background: "rgba(26,54,93,0.13)",
+                boxShadow: "0 28px 58px rgba(26,54,93,0.18)",
+              }}
+            />
+            {posters.length > 0 ? (
+              posters.map((poster, index) => {
+                const rotations = [-14, -7, 0, 8, 15];
+                const x = [16, 78, 140, 202, 264][index] || 140;
+                const y = [70, 48, 35, 48, 72][index] || 45;
                 return (
                   <img
                     key={poster}
                     src={poster}
-                    width={132}
-                    height={198}
+                    width={145}
+                    height={218}
                     alt=""
                     style={{
+                      position: "absolute",
+                      left: x,
+                      top: y,
                       objectFit: "cover",
-                      borderRadius: 14,
-                      border: "5px solid white",
-                      boxShadow: "0 18px 36px rgba(26, 54, 93, 0.22)",
-                      marginLeft: index === 0 ? 0 : -12,
-                      transform: `translateY(${Math.abs(offset) * 5}px) scale(${isCenter ? 1.06 : 1})`,
-                      zIndex: 20 - Math.abs(offset),
+                      borderRadius: 16,
+                      border: "7px solid white",
+                      boxShadow: "0 18px 34px rgba(26, 54, 93, 0.24)",
+                      transform: `rotate(${rotations[index] || 0}deg)`,
+                      zIndex: 10 + index,
                     }}
                   />
                 );
-              })}
-            </div>
-          ) : (
+              })
+            ) : (
+              <div
+                style={{
+                  width: 250,
+                  height: 170,
+                  borderRadius: 28,
+                  background: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 24px 48px rgba(26, 54, 93, 0.16)",
+                }}
+              >
+                <img src={logoUrl} width={130} height={130} alt="Choosie" style={{ objectFit: "contain" }} />
+              </div>
+            )}
             <div
               style={{
-                width: 320,
-                height: 190,
-                borderRadius: 34,
-                background: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 24px 48px rgba(26, 54, 93, 0.16)",
+                position: "absolute",
+                right: 4,
+                bottom: 36,
+                borderRadius: 999,
+                background: "#00D1C1",
+                color: "#102A43",
+                padding: "16px 30px",
+                fontSize: 24,
+                fontWeight: 750,
+                boxShadow: "0 18px 28px rgba(0, 209, 193, 0.28)",
+                zIndex: 30,
               }}
             >
-              <img src={logoUrl} width={160} height={160} alt="Choosie" style={{ objectFit: "contain" }} />
+              Narrow virtually
             </div>
-          )}
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#00AFA3", fontSize: 26, fontWeight: 850 }}>
-          <span>Curator</span>
-          <span style={{ color: "#8EA0B8" }}>→</span>
-          <span>Editor</span>
-          <span style={{ color: "#8EA0B8" }}>→</span>
-          <span>Programmer</span>
-          <span style={{ color: "#8EA0B8" }}>→</span>
-          <span>Selector</span>
-          <span style={{ color: "#8EA0B8" }}>→</span>
-          <span>Decider</span>
-        </div>
-
-        <div
-          style={{
-            borderRadius: 999,
-            background: "#00D1C1",
-            color: "#102A43",
-            padding: "15px 28px",
-            fontSize: 28,
-            fontWeight: 900,
-            boxShadow: "0 14px 30px rgba(0, 209, 193, 0.30)",
-          }}
-        >
-          Choose your role
+          </div>
         </div>
       </div>
     ),
