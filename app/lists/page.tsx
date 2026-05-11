@@ -124,6 +124,24 @@ function ListIcon() {
   );
 }
 
+function PlusIcon() {
+  return (
+    <svg
+      className="h-7 w-7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
 function getModuleLabel(module: string) {
   if (module === "books") return "Books";
   if (module === "food") return "Food";
@@ -452,11 +470,15 @@ export default function ListsPage() {
             </div>
             <Link
               href="/new"
-              className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-teal-500 text-white text-3xl shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
+              className="group relative inline-grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#18e6d4] via-[#00c8bb] to-[#07968f] text-white shadow-xl shadow-teal-500/30 ring-1 ring-white/70 transition duration-200 hover:-translate-y-0.5 hover:scale-105 hover:shadow-2xl hover:shadow-teal-500/40 focus:outline-none focus:ring-4 focus:ring-teal-300/60 active:translate-y-0 active:scale-100"
               title="Create new list"
               aria-label="Create new list"
             >
-              <span aria-hidden="true">+</span>
+              <span className="absolute inset-x-2 top-1 h-5 rounded-full bg-white/35 blur-sm transition group-hover:bg-white/45" aria-hidden="true" />
+              <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-white/20" aria-hidden="true" />
+              <span className="relative grid h-10 w-10 place-items-center rounded-full bg-white/12 shadow-inner shadow-white/20 transition group-hover:rotate-90 group-hover:bg-white/18">
+                <PlusIcon />
+              </span>
             </Link>
           </div>
         </div>
