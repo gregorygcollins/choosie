@@ -660,7 +660,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             )}
 
             <div className="relative">
-              <div className={view === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-4"}>
+              <div className={view === "grid" ? "grid justify-center gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),18rem))]" : "grid gap-4"}>
                 {[...items]
                   .sort((a, b) => {
                     if ((a.status === "cut") === (b.status === "cut")) return 0;
@@ -848,18 +848,6 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                   <ShuffleIcon />
                   Surprise me
                 </button>
-                {canShareVirtualProgress && (
-                  <button
-                    type="button"
-                    onClick={() => onShareProgress?.()}
-                    className="inline-flex items-center gap-2 rounded-full border border-brand/15 bg-white px-4 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-brand/30"
-                    title="Share current narrowed list"
-                    aria-label="Share current narrowed list"
-                  >
-                    <ShareIcon />
-                    Share
-                  </button>
-                )}
               </>
             )}
             {winner && (
@@ -875,6 +863,17 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             )}
           </div>
           <div className="flex shrink-0 items-center gap-3">
+            {canShareVirtualProgress && (
+              <button
+                type="button"
+                onClick={() => onShareProgress?.()}
+                title="Share current narrowed list"
+                aria-label="Share current narrowed list"
+                className="inline-grid h-10 w-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand-light hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
+              >
+                <ShareIcon />
+              </button>
+            )}
             <button
               type="button"
               onClick={onReturnToList}
