@@ -7,7 +7,7 @@ const walkthrough = [
   {
     eyebrow: "Build",
     title: <span>Make <span className="text-consensus-dark">your</span> list.</span>,
-    body: <>Only add the things <strong>you</strong> want to do with a group or person.</>,
+    body: <>Only add the things <strong className="text-consensus-dark">you</strong> want to do with a group or person.</>,
     phone: <BuildPhone />,
   },
   {
