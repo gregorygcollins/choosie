@@ -19,7 +19,7 @@ const walkthrough = [
   {
     eyebrow: "Narrow",
     title: "Narrow.",
-    body: <>Each person narrows toward what <strong>they</strong> want to do.</>,
+    body: <>Each person narrows toward what <strong className="text-consensus-dark">they</strong> want to do.</>,
     phone: <NarrowPhone />,
   },
   {
