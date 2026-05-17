@@ -1087,9 +1087,7 @@ export default function ViewListPage() {
                   ) : (
                     <EntryFallback module={listModule} label={moduleLabel} />
                   )}
-                  <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
-                    #{idx + 1}
-                  </div>
+                  {/* Removed numbered badge */}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -1187,9 +1185,7 @@ export default function ViewListPage() {
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
-                <div className="absolute left-3 top-3 z-10 rounded-full bg-black/65 px-2 py-1 text-xs font-semibold text-white">
-                  #{idx + 1}
-                </div>
+                {/* Removed numbered badge */}
                 <div className="absolute left-0 right-0 bottom-0 z-10 flex flex-col gap-2 p-4 pr-12">
                   <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                     {moduleLabel}

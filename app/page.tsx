@@ -6,7 +6,7 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 const walkthrough = [
   {
     eyebrow: "Build",
-    title: "Make a list.",
+    title: <span>Make <span className="text-consensus-dark">your</span> list.</span>,
     body: <>Only add the things <strong>you</strong> want to do with a group or person.</>,
     phone: <BuildPhone />,
   },
@@ -69,7 +69,7 @@ export default function Home() {
         <div className="grid gap-5 lg:grid-cols-4">
           {walkthrough.map((step, index) => (
             <article
-              key={step.title}
+              key={typeof step.title === "string" ? step.title : `step-${index}`}
               className="card panel-tier-2 flex min-h-[31rem] flex-col overflow-hidden rounded-2xl bg-white/85 text-left"
             >
               <div className="flex justify-center bg-gradient-to-b from-white to-brand-light px-5 py-6">
