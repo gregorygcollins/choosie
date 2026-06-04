@@ -288,8 +288,8 @@ function getModuleStyle(module: string) {
   }
 
   return {
-    badge: "bg-consensus/35 text-brand-dark",
-    fallback: "bg-gradient-to-br from-brand-light via-consensus/25 to-[#77d7c4] text-brand-dark",
+    badge: "bg-[#eef4f4] text-brand-dark",
+    fallback: "bg-gradient-to-br from-[#f7fbfb] via-[#eef4f4] to-[#cfdedd] text-brand-dark",
   };
 }
 
@@ -357,14 +357,14 @@ function getModuleTheme(module: string) {
   return {
     title: "text-brand",
     icon: "text-brand",
-    pulse: "text-consensus-dark",
-    toggleActive: "bg-consensus text-brand-dark",
-    toggleInactive: "text-brand hover:bg-brand-light",
-    ring: "group-focus-within:ring-consensus-dark",
-    ghost: "text-brand hover:bg-brand-light hover:text-brand-dark focus:ring-consensus/40",
-    infoHover: "hover:bg-consensus-dark hover:text-white",
-    confirm: "bg-consensus text-brand-dark hover:bg-consensus-dark",
-    confirmBorder: "border-consensus/70 text-brand hover:bg-consensus/10",
+    pulse: "text-teal-700",
+    toggleActive: "bg-teal-600 text-white",
+    toggleInactive: "text-brand hover:bg-[#eef4f4]",
+    ring: "group-focus-within:ring-teal-300",
+    ghost: "text-brand hover:bg-[#eef4f4] hover:text-brand-dark focus:ring-teal-200",
+    infoHover: "hover:bg-teal-600 hover:text-white",
+    confirm: "bg-teal-600 text-white hover:bg-teal-700",
+    confirmBorder: "border-teal-500/60 text-brand hover:bg-[#eef4f4]",
     selectedText: "text-brand",
   };
 }

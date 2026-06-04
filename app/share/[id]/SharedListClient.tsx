@@ -56,8 +56,8 @@ function getModuleStyle(module: string) {
   }
 
   return {
-    badge: "bg-consensus/35 text-brand-dark",
-    fallback: "bg-gradient-to-br from-brand-light via-consensus/25 to-[#77d7c4] text-brand-dark",
+    badge: "bg-[#eef4f4] text-brand-dark",
+    fallback: "bg-gradient-to-br from-[#f7fbfb] via-[#eef4f4] to-[#cfdedd] text-brand-dark",
   };
 }
 
@@ -103,12 +103,12 @@ function getModuleTheme(module: string) {
     };
   }
   return {
-    pageBg: "bg-gradient-to-b from-consensus/30 via-white to-white",
+    pageBg: "bg-gradient-to-b from-[#f3f7f7] via-white to-white",
     heading: "text-brand",
-    cta: "bg-consensus text-brand-dark hover:bg-consensus-dark",
-    toggleActive: "bg-consensus text-brand-dark shadow",
-    toggleInactive: "text-brand hover:bg-brand-light",
-    shell: "bg-white border border-consensus/45",
+    cta: "bg-teal-600 text-white hover:bg-teal-700",
+    toggleActive: "bg-teal-600 text-white shadow",
+    toggleInactive: "text-brand hover:bg-[#eef4f4]",
+    shell: "bg-white border border-[#d6e3e2]",
   };
 }
 

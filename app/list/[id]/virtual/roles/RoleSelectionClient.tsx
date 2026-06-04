@@ -55,12 +55,12 @@ function getModuleTheme(module: string) {
     };
   }
   return {
-    pageBg: "bg-gradient-to-b from-consensus/30 via-white to-white",
+    pageBg: "bg-gradient-to-b from-[#f3f7f7] via-white to-white",
     title: "text-brand",
     accent: "text-brand",
-    ring: "ring-consensus/45",
-    icon: "bg-consensus/25 text-brand",
-    claim: "bg-consensus text-brand-dark hover:bg-consensus-dark",
+    ring: "ring-[#d6e3e2]",
+    icon: "bg-[#eef4f4] text-brand",
+    claim: "bg-teal-600 text-white hover:bg-teal-700",
   };
 }
 
