@@ -356,16 +356,21 @@ function ItemFallback({ module, label }: { module: string; label: string }) {
   );
 }
 
-function ItemIdentityTile({ module, title }: { module: string; title: string }) {
+function ItemIdentityTile({ module, title, notes }: { module: string; title: string; notes?: string | null }) {
   const style = getModuleStyle(module);
 
   return (
     <div className={["relative h-full w-full overflow-hidden", style.fallback].join(" ")}>
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/18" />
-      <div className="absolute inset-0 flex items-center justify-center p-3 text-center sm:p-5">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-3 text-center sm:gap-2 sm:p-5">
         <span className="line-clamp-4 text-sm font-semibold leading-tight text-current sm:text-2xl sm:leading-snug">
           {title}
         </span>
+        {notes && (
+          <span className="line-clamp-2 text-[10px] font-medium leading-snug text-current/70 sm:text-sm">
+            {notes}
+          </span>
+        )}
       </div>
       <div className="absolute bottom-2 left-2 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-current shadow-sm ring-1 ring-white/70 backdrop-blur sm:bottom-4 sm:left-4 sm:h-11 sm:w-11">
         <ModuleGlyph module={module} />
@@ -743,7 +748,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                             />
 
                             {usesIdentityTile(normalizedModule) ? (
-                              <ItemIdentityTile module={normalizedModule} title={item.name} />
+                              <ItemIdentityTile module={normalizedModule} title={item.name} notes={item.notes} />
                             ) : item.image ? (
                               <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                             ) : (
