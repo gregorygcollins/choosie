@@ -11,7 +11,7 @@ export default function ChoosieLogo({ size = "nav", className = "" }: ChoosieLog
       aria-label="Choosie"
       className={[
         "inline-flex items-center",
-        isHero ? "w-full max-w-[42rem] justify-center" : "w-[8.5rem]",
+        isHero ? "w-full max-w-[42rem] justify-center" : "w-[6.75rem] sm:w-[8.5rem]",
         className,
       ].join(" ")}
     >

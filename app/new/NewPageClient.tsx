@@ -9,6 +9,7 @@ import type { ChoosieList, ChoosieItem } from "../../components/ListForm";
 import type { BookSearchResult } from "../../lib/googleBooks";
 import type { SpotifyTrack } from "../../lib/spotify";
 import ModuleSelector from "../../components/ModuleSelector";
+import { requestChoosieInstallPrompt } from "../../components/InstallChoosiePrompt";
 
 // simple unique id helper
 function id() {
@@ -220,8 +221,13 @@ export default function NewPageClient() {
     if (serverId !== fallbackList.id) {
       removeList(fallbackList.id);
     }
-    router.push(`/list/${serverId}`);
+    openCreatedList(serverId);
     return true;
+  }
+
+  function openCreatedList(listId: string) {
+    requestChoosieInstallPrompt();
+    router.push(`/list/${listId}`);
   }
 
   // Book suggestions
@@ -346,14 +352,14 @@ export default function NewPageClient() {
           if (data?.ok && navigateToCreatedList(data, listWithModule)) {
             return;
           }
-          router.push(`/list/${list.id}`);
+          openCreatedList(list.id);
         })
         .catch(() => {
           // fall back to local view on failure
-          router.push(`/list/${list.id}`);
+          openCreatedList(list.id);
         });
     } else {
-      router.push(`/list/${list.id}`);
+      openCreatedList(list.id);
     }
   }
 
@@ -486,7 +492,7 @@ export default function NewPageClient() {
       <button
         type="button"
         onClick={() => openModuleItemEditor(module, item)}
-        className="inline-flex h-9 w-9 items-center justify-center text-zinc-500 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-zinc-500 transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px"
         title="Edit item"
         aria-label={`Edit ${item.title}`}
       >
@@ -589,11 +595,11 @@ export default function NewPageClient() {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
           if (data?.ok && navigateToCreatedList(data, list)) return;
-          return router.push(`/list/${list.id}`);
+          return openCreatedList(list.id);
         })
-        .catch(() => router.push(`/list/${list.id}`));
+        .catch(() => openCreatedList(list.id));
     } else {
-      router.push(`/list/${list.id}`);
+      openCreatedList(list.id);
     }
   }
 
@@ -723,11 +729,11 @@ export default function NewPageClient() {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
           if (data?.ok && navigateToCreatedList(data, list)) return;
-          return router.push(`/list/${list.id}`);
+          return openCreatedList(list.id);
         })
-        .catch(() => router.push(`/list/${list.id}`));
+        .catch(() => openCreatedList(list.id));
     } else {
-      router.push(`/list/${list.id}`);
+      openCreatedList(list.id);
     }
   }
 
@@ -860,11 +866,11 @@ export default function NewPageClient() {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
           if (data?.ok && navigateToCreatedList(data, list)) return;
-          return router.push(`/list/${list.id}`);
+          return openCreatedList(list.id);
         })
-        .catch(() => router.push(`/list/${list.id}`));
+        .catch(() => openCreatedList(list.id));
     } else {
-      router.push(`/list/${list.id}`);
+      openCreatedList(list.id);
     }
   }
 
@@ -977,11 +983,11 @@ export default function NewPageClient() {
           if (!res.ok) throw new Error("createList failed");
           const data = await res.json();
           if (data?.ok && navigateToCreatedList(data, list)) return;
-          return router.push(`/list/${list.id}`);
+          return openCreatedList(list.id);
         })
-        .catch(() => router.push(`/list/${list.id}`));
+        .catch(() => openCreatedList(list.id));
     } else {
-      router.push(`/list/${list.id}`);
+      openCreatedList(list.id);
     }
   }
 
@@ -1018,12 +1024,12 @@ export default function NewPageClient() {
           <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${bookSugs.length > 0 || bookSugsLoading ? "z-[80]" : "z-10"}`}>
             <label className="block text-sm font-medium text-neutral-700 mb-2">Add books</label>
             <div className="relative">
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <input
                   value={bookSearchInput}
                   onChange={(e) => setBookSearchInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
-                  className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
+                  className="min-w-0 flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                   placeholder="Book title"
                 />
                 <button
@@ -1073,7 +1079,7 @@ export default function NewPageClient() {
                 {bookItems.map((it, idx) => (
                   <li
                     key={it.id}
-                    className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
+                    className="flex items-center gap-2 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md sm:gap-4"
                     draggable
                     onDragStart={(e) => onBookDragStart(e, idx)}
                     onDragOver={onBookDragOver}
@@ -1087,18 +1093,18 @@ export default function NewPageClient() {
                       </span>
                     </div>
                     {it.image ? (
-                      <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                      <img src={it.image} alt={it.title} className="h-12 w-12 shrink-0 rounded-md object-cover" />
                     ) : (
-                      <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">📚</div>
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-white/60 text-zinc-400">📚</div>
                     )}
-                    <div className="flex-1">
-                      <div className="font-medium text-neutral-800">{it.title}</div>
-                      {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium text-neutral-800">{it.title}</div>
+                      {it.notes && <div className="line-clamp-2 text-xs text-neutral-500">{it.notes}</div>}
                     </div>
                     {renderEditItemButton("books", it)}
                     <button
                       onClick={() => removeBookItem(it.id)}
-                      className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-red-600 transition-colors hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                       title="Delete item"
                       aria-label="Delete item"
                     >
@@ -1251,12 +1257,12 @@ export default function NewPageClient() {
         <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${musicSugs.length > 0 || musicSugsLoading ? "z-[80]" : "z-10"}`}>
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add songs</label>
           <div className="relative">
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <input
                 value={musicSearchInput}
                 onChange={(e) => setMusicSearchInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
-                className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
+                className="min-w-0 flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                 placeholder="Song title"
               />
               <button
@@ -1306,7 +1312,7 @@ export default function NewPageClient() {
               {musicItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
+                  className="flex items-center gap-2 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md sm:gap-4"
                   draggable
                   onDragStart={(e) => onMusicDragStart(e, idx)}
                   onDragOver={onMusicDragOver}
@@ -1320,18 +1326,18 @@ export default function NewPageClient() {
                     </span>
                   </div>
                   {it.image ? (
-                    <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                    <img src={it.image} alt={it.title} className="h-12 w-12 shrink-0 rounded-md object-cover" />
                   ) : (
-                    <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🎵</div>
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-white/60 text-zinc-400">🎵</div>
                   )}
-                  <div className="flex-1">
-                    <div className="font-medium text-neutral-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="line-clamp-2 text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   {renderEditItemButton("music", it)}
                   <button
                     onClick={() => removeMusicItem(it.id)}
-                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-red-600 transition-colors hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                     title="Delete item"
                     aria-label="Delete item"
                   >
@@ -1395,12 +1401,12 @@ export default function NewPageClient() {
         {/* Add items panel */}
         <div className="card panel-tier-3 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add dishes</label>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <input
               value={foodInput}
               onChange={(e) => setFoodInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFoodItem(); } }}
-              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
+              className="min-w-0 flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Dish name"
             />
             <button
@@ -1427,7 +1433,7 @@ export default function NewPageClient() {
               {foodItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
+                  className="flex items-center gap-2 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md sm:gap-4"
                   draggable
                   onDragStart={(e) => onFoodDragStart(e, idx)}
                   onDragOver={onFoodDragOver}
@@ -1441,18 +1447,18 @@ export default function NewPageClient() {
                     </span>
                   </div>
                   {it.image ? (
-                    <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                    <img src={it.image} alt={it.title} className="h-12 w-12 shrink-0 rounded-md object-cover" />
                   ) : (
-                    <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">🍳</div>
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-white/60 text-zinc-400">🍳</div>
                   )}
-                  <div className="flex-1">
-                    <div className="font-medium text-neutral-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="line-clamp-2 text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   {renderEditItemButton("food", it)}
                   <button
                     onClick={() => removeFoodItem(it.id)}
-                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-red-600 transition-colors hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                     title="Delete item"
                     aria-label="Delete item"
                   >
@@ -1516,12 +1522,12 @@ export default function NewPageClient() {
         {/* Add items panel */}
         <div className="card panel-tier-3 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add items</label>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <input
               value={anythingInput}
               onChange={(e) => setAnythingInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAnythingItem(); } }}
-              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
+              className="min-w-0 flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Item name"
             />
             <button
@@ -1548,7 +1554,7 @@ export default function NewPageClient() {
               {anythingItems.map((it, idx) => (
                 <li
                   key={it.id}
-                  className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
+                  className="flex items-center gap-2 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md sm:gap-4"
                   draggable
                   onDragStart={(e) => onAnythingDragStart(e, idx)}
                   onDragOver={onAnythingDragOver}
@@ -1561,15 +1567,15 @@ export default function NewPageClient() {
                       <span className="h-1 w-1 rounded-full bg-current" />
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
-                  <div className="flex-1">
-                    <div className="font-medium text-neutral-800">{it.title}</div>
-                    {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-white/60 text-zinc-400">✨</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-neutral-800">{it.title}</div>
+                    {it.notes && <div className="line-clamp-2 text-xs text-neutral-500">{it.notes}</div>}
                   </div>
                   {renderEditItemButton("anything", it)}
                   <button
                     onClick={() => removeAnythingItem(it.id)}
-                    className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-red-600 transition-colors hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                     title="Delete item"
                     aria-label="Delete item"
                   >

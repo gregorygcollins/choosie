@@ -9,6 +9,9 @@ type BeforeInstallPromptEvent = Event & {
 
 const DISMISSED_KEY = "choosie-install-dismissed";
 const VISIT_COUNT_KEY = "choosie-install-visit-count";
+const INSTALL_REQUEST_EVENT = "choosie:install-request";
+const INSTALL_AVAILABLE_EVENT = "choosie:install-available";
+let installAvailable = false;
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
@@ -32,6 +35,11 @@ function InstallIcon() {
       <path d="M5 20h14" strokeLinecap="round" />
     </svg>
   );
+}
+
+export function requestChoosieInstallPrompt() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(INSTALL_REQUEST_EVENT));
 }
 
 function ShareIcon() {
@@ -76,7 +84,9 @@ export function InstallChoosiePrompt() {
 
     function onBeforeInstallPrompt(event: Event) {
       event.preventDefault();
+      installAvailable = true;
       setInstallEvent(event as BeforeInstallPromptEvent);
+      window.dispatchEvent(new Event(INSTALL_AVAILABLE_EVENT));
       if (canShowPrompt) setVisible(true);
     }
 
@@ -84,15 +94,23 @@ export function InstallChoosiePrompt() {
       setVisible(false);
       setOpen(false);
       setInstallEvent(null);
+      installAvailable = false;
       window.localStorage.setItem(DISMISSED_KEY, "true");
+    }
+
+    function onInstallRequest() {
+      setOpen(true);
+      setVisible(true);
     }
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
     window.addEventListener("appinstalled", onAppInstalled);
+    window.addEventListener(INSTALL_REQUEST_EVENT, onInstallRequest);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
       window.removeEventListener("appinstalled", onAppInstalled);
+      window.removeEventListener(INSTALL_REQUEST_EVENT, onInstallRequest);
     };
   }, []);
 
@@ -171,5 +189,46 @@ export function InstallChoosiePrompt() {
         </button>
       </div>
     </div>
+  );
+}
+
+export function InstallChoosieButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (isStandalone() || window.localStorage.getItem(DISMISSED_KEY) === "true") return;
+    if (installAvailable || isIosSafari()) {
+      setVisible(true);
+    }
+
+    function onInstallAvailable() {
+      setVisible(true);
+    }
+
+    function onAppInstalled() {
+      setVisible(false);
+    }
+
+    window.addEventListener(INSTALL_AVAILABLE_EVENT, onInstallAvailable);
+    window.addEventListener("appinstalled", onAppInstalled);
+    return () => {
+      window.removeEventListener(INSTALL_AVAILABLE_EVENT, onInstallAvailable);
+      window.removeEventListener("appinstalled", onAppInstalled);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={requestChoosieInstallPrompt}
+      className="inline-flex h-8 items-center gap-1.5 rounded-full border border-brand/10 bg-white px-2.5 text-xs font-semibold text-brand shadow-sm transition hover:border-consensus/40 hover:text-brand-dark sm:h-9 sm:px-3"
+      aria-label="Add Choosie to your home screen"
+      title="Add Choosie to your home screen"
+    >
+      <InstallIcon />
+      <span className="hidden sm:inline">Install</span>
+    </button>
   );
 }

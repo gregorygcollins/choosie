@@ -33,6 +33,11 @@
   --gradient-consensus: linear-gradient(135deg, #00D1C1 0%, #66E6DC 100%);
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100vh;
   font-family: 'Inter', 'Nunito', system-ui, Arial, Helvetica, sans-serif;
@@ -41,6 +46,13 @@ body {
     radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.96), rgba(248, 249, 255, 0.82) 44%, rgba(221, 230, 243, 0.42) 76%),
     linear-gradient(180deg, #FFFFFF 0%, #F8F9FF 100%);
   color: var(--color-body);
+}
+
+input,
+textarea,
+select,
+button {
+  min-width: 0;
 }
 
 :where(h1, h2, h3) {
@@ -61,7 +73,7 @@ body {
 }
 
 /* Card styles */
-.card, [class*="bg-white"] {
+.card {
   background: rgba(255, 255, 255, 0.80) !important;
   border: 1px solid rgba(221, 230, 243, 0.92) !important;
   box-shadow: var(--shadow-recess) !important;
@@ -131,6 +143,7 @@ body {
 
 .bg-consensus-gradient { background: var(--gradient-consensus); }
 .shadow-recess { box-shadow: var(--shadow-recess); }
+.shadow-soft { box-shadow: var(--shadow-recess); }
 .shadow-depth { box-shadow: var(--shadow-depth); }
 .glow-consensus { box-shadow: 0 0 0 3px rgba(0,209,193,0.18), 0 12px 30px rgba(0,209,193,0.28); }
 

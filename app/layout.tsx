@@ -86,7 +86,7 @@ export default function RootLayout({
           <InstallChoosiePrompt />
           <div className="min-h-screen flex flex-col">
             <header className="w-full border-b border-black/6 bg-white/40 backdrop-blur-sm">
-              <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+              <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
                 <Nav />
               </div>
             </header>

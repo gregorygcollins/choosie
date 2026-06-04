@@ -393,7 +393,7 @@ export default function ListForm({
       <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${sugsOpen ? "z-[80]" : "z-10"}`}>
         <label className="block text-sm font-medium text-neutral-700 mb-2">Add movies</label>
         <div className="relative">
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -403,13 +403,13 @@ export default function ListForm({
                   addItem();
                 }
               }}
-              className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
+              className="min-w-0 flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Movie title"
             />
             <button
               onClick={addItem}
               className={[
-                "px-5 py-2",
+                "shrink-0 px-5 py-2",
                 addButtonClassName || "btn-lilac",
               ].join(" ")}
               title="Add movie"
@@ -469,7 +469,7 @@ export default function ListForm({
             {items.map((it, idx) => (
               <li
                 key={it.id}
-                className="flex items-center gap-4 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md"
+                className="flex items-center gap-2 rounded-xl bg-white/70 shadow-sm px-3 py-2 transition-all duration-300 hover:shadow-md sm:gap-4"
                 draggable
                 onDragStart={(e) => onDragStart(e, idx)}
                 onDragOver={onDragOver}
@@ -483,18 +483,18 @@ export default function ListForm({
                   </span>
                 </div>
                 {it.image ? (
-                  <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
+                  <img src={it.image} alt={it.title} className="h-12 w-12 shrink-0 rounded-md object-cover" />
                 ) : (
-                  <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-gray-400">🎬</div>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-white/60 text-gray-400">🎬</div>
                 )}
-                <div className="flex-1">
-                  <div className="font-medium text-neutral-800">{it.title}</div>
-                  {it.notes && <div className="text-xs text-neutral-500">{it.notes}</div>}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium text-neutral-800">{it.title}</div>
+                  {it.notes && <div className="line-clamp-2 text-xs text-neutral-500">{it.notes}</div>}
                 </div>
                 <button
                   type="button"
                   onClick={() => openItemEditor(it)}
-                  className="inline-flex h-9 w-9 items-center justify-center text-zinc-500 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-zinc-500 transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px"
                   title="Edit item"
                   aria-label={`Edit ${it.title}`}
                 >
@@ -516,7 +516,7 @@ export default function ListForm({
                 </button>
                 <button
                   onClick={() => removeItem(it.id)}
-                  className="inline-flex h-9 w-9 items-center justify-center text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px transition-colors"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-red-600 transition-colors hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
                   title="Delete item"
                   aria-label="Delete item"
                 >

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import auth, { getSession, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import ChoosieLogo from "./ChoosieLogo";
+import { InstallChoosieButton } from "./InstallChoosiePrompt";
 
 export default function Nav() {
   const { data: nextSession } = useSession();
@@ -38,14 +39,14 @@ export default function Nav() {
   const activeUser = nextSession?.user || localSession?.user;
 
   return (
-    <div className="flex items-center w-full justify-between">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="flex items-center">
+    <div className="flex w-full min-w-0 items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+        <Link href="/" className="flex shrink-0 items-center">
           <ChoosieLogo size="nav" />
         </Link>
 
         {/* Mobile quick nav */}
-        <nav className="flex md:hidden items-center gap-3">
+        <nav className="hidden sm:flex md:hidden items-center gap-3">
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             Lists
           </Link>
@@ -64,12 +65,13 @@ export default function Nav() {
         </nav>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         {!mounted ? (
           // Prevent hydration mismatch by showing nothing until client-side
           <div className="h-6 w-24" />
         ) : activeUser ? (
           <>
+            <InstallChoosieButton />
             {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
               <span className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white">
                 Pro
@@ -84,6 +86,7 @@ export default function Nav() {
           </>
         ) : (
           <div className="flex items-center gap-2">
+            <InstallChoosieButton />
             <Link href={`/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-700 hover:text-brand">
               Sign in
             </Link>
