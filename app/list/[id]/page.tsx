@@ -1159,7 +1159,7 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
-                className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-teal-400"
+                className="group cursor-pointer focus:outline-none"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1178,70 +1178,80 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                {item.image ? (
-                  <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                ) : (
-                  <EntryFallback module={listModule} label={moduleLabel} />
-                )}
+                <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2 group-focus:ring-teal-400">
+                  {item.image ? (
+                    <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                  ) : (
+                    <EntryFallback module={listModule} label={moduleLabel} />
+                  )}
 
-                <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
-                {/* Removed numbered badge */}
-                <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
-                  <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
-                    {moduleLabel}
-                  </span>
-                  <div>
-                    <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
-                      {item.title}
-                    </h2>
-                    {item.notes && (
-                      <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>
-                    )}
+                  <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
+                  {/* Removed numbered badge */}
+                  <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
+                    <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
+                      {moduleLabel}
+                    </span>
+                    <div>
+                      <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                        {item.title}
+                      </h2>
+                      {item.notes && (
+                        <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="absolute right-3 top-3 z-20 hidden rounded-full bg-white/90 p-1 text-zinc-500 shadow-lg opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 sm:flex">
+                  <div className="absolute right-3 top-3 z-20 hidden rounded-full bg-white/90 p-1 text-zinc-500 shadow-lg opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 sm:flex">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openItemEditor(item);
+                      }}
+                      className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-brand-light hover:text-brand"
+                      title="Edit item"
+                      aria-label={`Edit ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setItemToDelete(item.id);
+                      }}
+                      className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-red-50 hover:text-red-600"
+                      title="Remove item"
+                      aria-label={`Remove ${item.title}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
+                      </svg>
+                    </button>
+                  </div>
+
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      openItemEditor(item);
+                      openPreview(item);
                     }}
-                    className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-brand-light hover:text-brand"
-                    title="Edit item"
-                    aria-label={`Edit ${item.title}`}
+                    className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
+                    title="Item info"
+                    aria-label={`Show info for ${item.title}`}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setItemToDelete(item.id);
-                    }}
-                    className="grid h-7 w-7 place-items-center rounded-full transition hover:bg-red-50 hover:text-red-600"
-                    title="Remove item"
-                    aria-label={`Remove ${item.title}`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
-                    </svg>
+                    i
                   </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openPreview(item);
-                  }}
-                  className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
-                  title="Item info"
-                  aria-label={`Show info for ${item.title}`}
-                >
-                  i
-                </button>
+                <h2 className="mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden">
+                  {item.title}
+                </h2>
+                {item.notes && (
+                  <p className="mt-0.5 line-clamp-1 text-[10px] leading-none text-zinc-500 sm:hidden">
+                    {item.notes}
+                  </p>
+                )}
               </div>
             ))}
           </div>
