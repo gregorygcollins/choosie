@@ -50,9 +50,9 @@ function getModuleTheme(module: string) {
   }
 
   return {
-    pageBg: "bg-white/55 ring-1 ring-teal-100/55",
+    pageBg: "bg-[#eef4f4]/70 ring-1 ring-[#d6e3e2]",
     createBtn: "bg-teal-600 text-white shadow-lg shadow-teal-600/20 hover:bg-teal-700",
-    addBtn: "rounded-xl bg-white/80 px-5 py-2 font-semibold text-teal-800 ring-1 ring-teal-100/80 transition hover:bg-teal-50",
+    addBtn: "rounded-xl bg-[#f7fbfb] px-5 py-2 font-semibold text-teal-800 ring-1 ring-[#d6e3e2] transition hover:bg-teal-50",
   };
 }
 
