@@ -498,7 +498,7 @@ export default function ListsPage() {
                 <div
                   key={list.id}
                   onClick={() => router.push(`/list/${list.id}`)}
-                  className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="group cursor-pointer focus:outline-none"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -508,60 +508,63 @@ export default function ListsPage() {
                     }
                   }}
                 >
-                  {coverImage ? (
-                    <img
-                      src={coverImage}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div
-                      className={[
-                        "absolute inset-0 flex flex-col items-center justify-center gap-4 p-5 text-center",
-                        moduleStyle.thumbnail,
-                      ].join(" ")}
-                    >
-                      <ModuleIcon module={derivedModule} />
-                      <span className="text-sm font-semibold uppercase tracking-[0.14em]">
+                  <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2 group-focus:ring-teal-400">
+                    {coverImage ? (
+                      <img
+                        src={coverImage}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div
+                        className={[
+                          "absolute inset-0 flex flex-col items-center justify-center gap-4 p-5 text-center",
+                          moduleStyle.thumbnail,
+                        ].join(" ")}
+                      >
+                        <ModuleIcon module={derivedModule} />
+                        <span className="text-sm font-semibold uppercase tracking-[0.14em]">
+                          {moduleLabel}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
+                    <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
+                      <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                         {moduleLabel}
                       </span>
+                      <div>
+                        <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                          {list.title}
+                        </h2>
+                        <p className="mt-1 truncate text-xs text-white/75">
+                          {list.items.length} items{firstItemTitle ? ` · ${firstItemTitle}` : ""}
+                        </p>
+                      </div>
                     </div>
-                  )}
 
-                  <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
-                  <div className="absolute inset-x-0 bottom-0 z-10 bg-white/92 px-1.5 py-1.5 text-left shadow-[0_-6px_16px_rgba(255,255,255,0.72)] sm:hidden">
-                    <h2 className="line-clamp-2 text-[11px] font-semibold leading-tight text-brand">
-                      {list.title}
-                    </h2>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openDescriptionEditor(list);
+                      }}
+                      className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
+                      title="List info"
+                      aria-label={`List info for ${list.title}`}
+                    >
+                      i
+                    </button>
                   </div>
-                  <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
-                    <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
-                      {moduleLabel}
-                    </span>
-                    <div>
-                      <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
-                        {list.title}
-                      </h2>
-                      <p className="mt-1 truncate text-xs text-white/75">
-                        {list.items.length} items{firstItemTitle ? ` · ${firstItemTitle}` : ""}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openDescriptionEditor(list);
-                    }}
-                    className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
-                    title="List info"
-                    aria-label={`List info for ${list.title}`}
-                  >
-                    i
-                  </button>
+                  <h2 className="mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden">
+                    {list.title}
+                  </h2>
+                  <p className="mt-0.5 text-[10px] leading-none text-zinc-500 sm:hidden">
+                    {list.items.length} items
+                  </p>
                 </div>
               );
             }
