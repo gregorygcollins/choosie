@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import auth, { getSession, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import ChoosieLogo from "./ChoosieLogo";
-import { InstallChoosieButton } from "./InstallChoosiePrompt";
 
 export default function Nav() {
   const { data: nextSession } = useSession();
@@ -49,7 +48,7 @@ export default function Nav() {
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             My lists
           </Link>
-          <Link href="/new" className="hidden text-sm text-zinc-700 hover:text-brand sm:inline">
+          <Link href="/new" className="text-sm text-zinc-700 hover:text-brand">
             Create
           </Link>
         </nav>
@@ -70,27 +69,14 @@ export default function Nav() {
           <div className="h-6 w-24" />
         ) : activeUser ? (
           <>
-            <InstallChoosieButton />
-            {('isPro' in (activeUser as any) && (activeUser as any).isPro) && (
-              <span className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white">
-                Pro
-              </span>
-            )}
-            <Link href="/account" className="text-sm text-zinc-700 hover:text-brand">
-              {activeUser.name || (activeUser as any).email}
-            </Link>
             <button onClick={handleSignOut} className="text-sm text-rose-500">
               Sign out
             </button>
           </>
         ) : (
           <div className="flex items-center gap-2">
-            <InstallChoosieButton />
             <Link href={`/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`} className="text-sm text-zinc-700 hover:text-brand">
               Sign in
-            </Link>
-            <Link href="/pricing" className="rounded-full bg-brand px-2 py-1 text-xs font-semibold text-white hover:bg-brand-dark">
-              Try Pro
             </Link>
           </div>
         )}
