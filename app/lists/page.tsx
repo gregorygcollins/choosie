@@ -369,7 +369,7 @@ export default function ListsPage() {
   }
 
   return (
-      <div className="min-h-screen px-8 py-12 sm:px-16">
+      <div className="min-h-screen px-3 py-6 sm:px-16 sm:py-12">
       <ConfirmModal
         isOpen={!!deleteTarget}
         title="Delete List?"
@@ -435,11 +435,11 @@ export default function ListsPage() {
             Showing lists saved on this device. Sign in to sync across devices, or check site origin settings if your server lists aren't loading.
           </div>
         )}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex items-center justify-between gap-3 sm:mb-8">
           <h1 className="text-2xl font-semibold text-brand">
             My Lists
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div className="inline-flex h-10 rounded-full border border-brand/10 bg-white p-1 shadow-soft" aria-label="Choose view">
               <button
                 type="button"
@@ -479,7 +479,7 @@ export default function ListsPage() {
           </div>
         </div>
 
-        <div className={viewMode === "grid" ? "grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-5"}>
+        <div className={viewMode === "grid" ? "grid grid-cols-3 gap-2.5 min-[390px]:grid-cols-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-3 sm:gap-5"}>
           {lists.map((list) => {
             // Derive module if missing from server/local legacy data
             const derivedModule = (list as any).moduleType
@@ -529,8 +529,8 @@ export default function ListsPage() {
                     </div>
                   )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
-                  <div className="absolute left-0 right-0 bottom-0 z-10 flex flex-col gap-2 p-4 pr-12">
+                  <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
+                  <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
                     <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                       {moduleLabel}
                     </span>
@@ -551,7 +551,7 @@ export default function ListsPage() {
                       e.stopPropagation();
                       openDescriptionEditor(list);
                     }}
-                    className="absolute right-3 bottom-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                    className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
                     title="List info"
                     aria-label={`List info for ${list.title}`}
                   >
@@ -565,7 +565,7 @@ export default function ListsPage() {
             <div
               key={list.id}
               onClick={() => router.push(`/list/${list.id}`)}
-              className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-brand/10 bg-white shadow-soft transition hover:-translate-y-0.5 hover:border-consensus/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row"
+              className="group flex cursor-pointer gap-3 overflow-hidden rounded-xl border border-brand/10 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:border-consensus/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand/40 sm:rounded-2xl sm:p-0 sm:flex-row sm:gap-0 sm:shadow-soft"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -575,7 +575,7 @@ export default function ListsPage() {
                 }
               }}
             >
-              <div className="relative h-40 shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-44">
+              <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-auto sm:w-44 sm:rounded-none">
                 {coverImage ? (
                   <img
                     src={coverImage}
@@ -594,40 +594,40 @@ export default function ListsPage() {
                     <span className="text-xs font-semibold uppercase tracking-[0.18em]">{moduleLabel}</span>
                   </div>
                 )}
-                <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                <div className="absolute left-3 top-3 hidden rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white sm:block">
                   {list.items.length} items
                 </div>
               </div>
 
-              <div className="flex min-w-0 flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+              <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-1 pr-1 sm:gap-5 sm:p-7 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="line-clamp-2 text-xl font-semibold leading-snug text-brand">
+                    <h2 className="line-clamp-2 text-base font-semibold leading-tight text-brand sm:text-xl sm:leading-snug">
                       {list.title}
                     </h2>
-                    <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                    <span className={["hidden rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex", moduleStyle.badge].join(" ")}>
                       {moduleLabel}
                     </span>
                   </div>
                   {list.description ? (
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{list.description}</p>
+                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{list.description}</p>
                   ) : firstItemTitle ? (
-                    <p className="mt-2 line-clamp-1 text-sm leading-6 text-zinc-500">Starts with {firstItemTitle}</p>
+                    <p className="mt-1 line-clamp-1 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">Starts with {firstItemTitle}</p>
                   ) : (
-                    <p className="mt-2 text-sm leading-6 text-zinc-400">No description yet.</p>
+                    <p className="mt-1 text-sm leading-5 text-zinc-400 sm:mt-2 sm:leading-6">No description yet.</p>
                   )}
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-zinc-500">
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500 sm:mt-3 sm:gap-x-5 sm:text-sm">
                     <span>{list.items.length} items</span>
                     <span>Created {formatDate(list.createdAt)}</span>
                   </div>
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center gap-1.5 sm:gap-2">
                   {list.narrowers && (
                     <Link
                       href={`/narrow/${list.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex h-9 items-center justify-center rounded-full bg-brand-light px-4 text-sm font-semibold text-brand transition hover:bg-consensus/30 active:translate-y-px"
+                      className="inline-flex h-8 items-center justify-center rounded-full bg-brand-light px-3 text-xs font-semibold text-brand transition hover:bg-consensus/30 active:translate-y-px sm:h-9 sm:px-4 sm:text-sm"
                     >
                       Continue narrowing
                     </Link>
@@ -638,7 +638,7 @@ export default function ListsPage() {
                       e.stopPropagation();
                       openDescriptionEditor(list);
                     }}
-                    className="grid h-10 w-10 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px"
+                    className="grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px sm:h-10 sm:w-10"
                     title="Edit description"
                     aria-label={`Edit description for ${list.title}`}
                   >
@@ -664,7 +664,7 @@ export default function ListsPage() {
                       e.stopPropagation();
                       setDeleteTarget(list);
                     }}
-                    className="grid h-10 w-10 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px"
+                    className="grid h-8 w-8 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300 active:translate-y-px sm:h-10 sm:w-10"
                     title="Delete list"
                     aria-label={`Delete ${list.title}`}
                   >
