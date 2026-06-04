@@ -191,9 +191,6 @@ function EntryIdentityTile({ module, title, notes }: { module: string; title: st
           </span>
         )}
       </div>
-      <div className="absolute left-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-current shadow-sm ring-1 ring-white/70 backdrop-blur sm:left-4 sm:top-4 sm:h-11 sm:w-11">
-        <ModuleGlyph module={module} />
-      </div>
     </div>
   );
 }
@@ -1245,9 +1242,6 @@ export default function ViewListPage() {
                   )}
 
                   <div className={usesIdentityTile(listModule) ? "hidden" : "absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block"} />
-                  <div className={usesIdentityTile(listModule) ? "hidden" : "absolute left-2 top-2 z-10 sm:left-4 sm:top-4"}>
-                    <ModuleMark module={listModule} subtle size="xs" />
-                  </div>
                   <div className={usesIdentityTile(listModule) ? "hidden" : "absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex"}>
                     <div>
                       <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">

@@ -1090,7 +1090,7 @@ export default function NewPageClient() {
               onClick={handleSaveBookList}
               className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
             >
-              {existingList ? "Update Book List" : "Create Book List"}
+              {existingList ? "Update Book List" : "Create"}
             </button>
           </div>
         </div>
@@ -1317,7 +1317,7 @@ export default function NewPageClient() {
             onClick={handleSaveMusicList}
             className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update Music List" : "Create Music List"}
+            {existingList ? "Update Music List" : "Create"}
           </button>
         </div>
       </div>
@@ -1438,7 +1438,7 @@ export default function NewPageClient() {
             onClick={handleSaveFoodList}
             className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update Food List" : "Create Food List"}
+            {existingList ? "Update Food List" : "Create"}
           </button>
         </div>
       </div>
@@ -1555,7 +1555,7 @@ export default function NewPageClient() {
             onClick={handleSaveAnythingList}
             className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update List" : "Create List"}
+            {existingList ? "Update List" : "Create"}
           </button>
         </div>
       </div>

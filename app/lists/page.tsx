@@ -605,9 +605,6 @@ export default function ListsPage() {
                           <h2 className="line-clamp-4 text-sm font-semibold leading-tight text-current min-[390px]:text-base sm:text-2xl sm:leading-snug">
                             {list.title}
                           </h2>
-                          <p className="text-[10px] font-medium text-current/70 sm:text-sm">
-                            {list.items.length} items
-                          </p>
                         </div>
                         <div className="absolute left-2 top-2 z-10 sm:left-4 sm:top-4">
                           <ModuleMark module={derivedModule} subtle size="sm" />
@@ -660,8 +657,7 @@ export default function ListsPage() {
                       i
                     </button>
                   </div>
-                  <div className={["mt-1.5 flex items-start gap-1.5 sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
-                    <ModuleMark module={derivedModule} size="xs" />
+                  <div className="mt-1.5 flex items-start gap-1.5 sm:hidden">
                     <div className="min-w-0">
                       <h2 className="line-clamp-2 text-[11px] font-semibold leading-tight text-brand">
                         {list.title}

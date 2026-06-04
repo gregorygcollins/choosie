@@ -618,7 +618,7 @@ export default function ListForm({
           onClick={handleSave}
           className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
         >
-          {existingList ? "Update Watchlist" : "Create Watchlist"}
+          {existingList ? "Update Watchlist" : "Create"}
         </button>
       </div>
     </div>
