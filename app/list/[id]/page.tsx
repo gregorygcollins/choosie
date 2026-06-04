@@ -1058,11 +1058,11 @@ export default function ViewListPage() {
         </div>
 
         {viewMode === "list" ? (
-          <ul className="space-y-4">
+          <ul className="space-y-3 sm:space-y-4">
             {list.items.map((item, idx) => (
               <li
                 key={item.id}
-                className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row"
+                className="group flex cursor-pointer gap-3 overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row sm:gap-0 sm:p-0"
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1081,7 +1081,7 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="relative h-36 shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-36">
+                <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-auto sm:w-36 sm:rounded-none">
                   {item.image ? (
                     <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   ) : (
@@ -1089,23 +1089,23 @@ export default function ViewListPage() {
                   )}
                   {/* Removed numbered badge */}
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-1 pr-1 sm:gap-4 sm:p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="line-clamp-2 text-lg font-semibold leading-snug text-brand">{item.title}</h2>
-                      <span className={["rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                      <h2 className="line-clamp-2 text-base font-semibold leading-tight text-brand sm:text-lg sm:leading-snug">{item.title}</h2>
+                      <span className={["hidden rounded-full px-2 py-0.5 text-xs font-semibold sm:inline-flex", moduleStyle.badge].join(" ")}>
                         {moduleLabel}
                       </span>
                     </div>
                     {item.notes ? (
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{item.notes}</p>
+                      <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{item.notes}</p>
                     ) : (
-                      <p className="mt-2 text-sm leading-6 text-zinc-400">No note yet.</p>
+                      <p className="mt-1 text-sm leading-5 text-zinc-400 sm:mt-2 sm:leading-6">No note yet.</p>
                     )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <div className="cursor-grab rounded-full bg-zinc-100 p-2 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand" title="Drag to reorder" aria-hidden>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                    <div className="cursor-grab rounded-full bg-zinc-100 p-1.5 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand sm:p-2" title="Drag to reorder" aria-hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="sm:h-[18px] sm:w-[18px]">
                         <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
                         <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
                         <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
@@ -1116,7 +1116,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         openPreview(item);
                       }}
-                      className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-sm font-bold text-brand transition hover:bg-brand hover:text-white"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-sm font-bold text-brand transition hover:bg-brand hover:text-white sm:h-9 sm:w-9"
                       title="Item info"
                       aria-label={`Show info for ${item.title}`}
                     >
@@ -1127,7 +1127,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         openItemEditor(item);
                       }}
-                      className="grid h-9 w-9 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white sm:h-9 sm:w-9"
                       title="Edit item"
                       aria-label={`Edit ${item.title}`}
                     >
@@ -1141,7 +1141,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         setItemToDelete(item.id);
                       }}
-                      className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-600 hover:text-white sm:h-9 sm:w-9"
                       title="Remove item"
                       aria-label={`Remove ${item.title}`}
                     >
