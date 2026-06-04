@@ -68,10 +68,12 @@ export default function ListForm({
   onSave,
   existingList,
   createButtonClassName,
+  addButtonClassName,
 }: {
   onSave: (list: ChoosieList) => void;
   existingList?: ChoosieList | null;
   createButtonClassName?: string;
+  addButtonClassName?: string;
 }) {
   const [title, setTitle] = useState(existingList?.title || "");
   const [description, setDescription] = useState(existingList?.description || "");
@@ -406,7 +408,10 @@ export default function ListForm({
             />
             <button
               onClick={addItem}
-              className="btn-lilac px-5 py-2"
+              className={[
+                "px-5 py-2",
+                addButtonClassName || "btn-lilac",
+              ].join(" ")}
               title="Add movie"
               aria-label="Add movie"
             >

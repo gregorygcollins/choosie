@@ -20,6 +20,7 @@ function getModuleTheme(module: string) {
     return {
       pageBg: "bg-blue-50/70 ring-1 ring-blue-100/80",
       createBtn: "bg-blue-600 text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700",
+      addBtn: "rounded-xl bg-blue-100 px-5 py-2 font-semibold text-blue-800 transition hover:bg-blue-200",
     };
   }
 
@@ -27,6 +28,7 @@ function getModuleTheme(module: string) {
     return {
       pageBg: "bg-violet-50/70 ring-1 ring-violet-100/80",
       createBtn: "bg-violet-600 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-700",
+      addBtn: "rounded-xl bg-violet-100 px-5 py-2 font-semibold text-violet-800 transition hover:bg-violet-200",
     };
   }
 
@@ -34,6 +36,7 @@ function getModuleTheme(module: string) {
     return {
       pageBg: "bg-emerald-50/70 ring-1 ring-emerald-100/80",
       createBtn: "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700",
+      addBtn: "rounded-xl bg-emerald-100 px-5 py-2 font-semibold text-emerald-800 transition hover:bg-emerald-200",
     };
   }
 
@@ -41,12 +44,14 @@ function getModuleTheme(module: string) {
     return {
       pageBg: "bg-rose-50/70 ring-1 ring-rose-100/80",
       createBtn: "bg-rose-600 text-white shadow-lg shadow-rose-600/25 hover:bg-rose-700",
+      addBtn: "rounded-xl bg-rose-100 px-5 py-2 font-semibold text-rose-800 transition hover:bg-rose-200",
     };
   }
 
   return {
-    pageBg: "bg-teal-50/70 ring-1 ring-teal-100/80",
-    createBtn: "bg-teal-600 text-white shadow-lg shadow-teal-600/25 hover:bg-teal-700",
+    pageBg: "bg-consensus/10 ring-1 ring-consensus/25",
+    createBtn: "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
+    addBtn: "rounded-xl bg-consensus/25 px-5 py-2 font-semibold text-brand-dark transition hover:bg-consensus/40",
   };
 }
 
@@ -1023,7 +1028,7 @@ export default function NewPageClient() {
                 />
                 <button
                   onClick={addBookItem}
-                  className="btn-lilac px-5 py-2"
+                  className={moduleTheme.addBtn}
                   title="Add book"
                   aria-label="Add book"
                 >
@@ -1138,7 +1143,12 @@ export default function NewPageClient() {
       ) : selectedModule === "anything" ? (
           anythingModuleJSX()
       ) : (
-        <ListForm onSave={handleSave} existingList={existingList} createButtonClassName={moduleTheme.createBtn} />
+        <ListForm
+          onSave={handleSave}
+          existingList={existingList}
+          createButtonClassName={moduleTheme.createBtn}
+          addButtonClassName={moduleTheme.addBtn}
+        />
       )}
       </div>
       {editingItem && (
@@ -1251,7 +1261,7 @@ export default function NewPageClient() {
               />
               <button
                 onClick={addMusicItem}
-                className="btn-lilac px-5 py-2"
+                className={moduleTheme.addBtn}
                 title="Add song"
                 aria-label="Add song"
               >
@@ -1395,7 +1405,7 @@ export default function NewPageClient() {
             />
             <button
               onClick={addFoodItem}
-              className="btn-lilac px-5 py-2"
+              className={moduleTheme.addBtn}
               title="Add dish"
               aria-label="Add dish"
             >
@@ -1516,7 +1526,7 @@ export default function NewPageClient() {
             />
             <button
               onClick={addAnythingItem}
-              className="btn-lilac px-5 py-2"
+              className={moduleTheme.addBtn}
               title="Add item"
               aria-label="Add item"
             >
