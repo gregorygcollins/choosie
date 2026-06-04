@@ -13,6 +13,57 @@ type PreviewItem = {
 
 type RoleIconName = "cards" | "pencil" | "camera" | "slate" | "award";
 
+function getModuleTheme(module: string) {
+  if (module === "books") {
+    return {
+      pageBg: "bg-gradient-to-b from-blue-50/65 via-white to-white",
+      title: "text-blue-900",
+      accent: "text-blue-700",
+      ring: "ring-blue-100",
+      icon: "bg-blue-100 text-blue-700",
+      claim: "bg-blue-600 text-white hover:bg-blue-700",
+    };
+  }
+  if (module === "music") {
+    return {
+      pageBg: "bg-gradient-to-b from-violet-50/65 via-white to-white",
+      title: "text-violet-900",
+      accent: "text-violet-700",
+      ring: "ring-violet-100",
+      icon: "bg-violet-100 text-violet-700",
+      claim: "bg-violet-600 text-white hover:bg-violet-700",
+    };
+  }
+  if (module === "food") {
+    return {
+      pageBg: "bg-gradient-to-b from-emerald-50/65 via-white to-white",
+      title: "text-emerald-900",
+      accent: "text-emerald-700",
+      ring: "ring-emerald-100",
+      icon: "bg-emerald-100 text-emerald-700",
+      claim: "bg-emerald-600 text-white hover:bg-emerald-700",
+    };
+  }
+  if (module === "anything") {
+    return {
+      pageBg: "bg-gradient-to-b from-rose-50/65 via-white to-white",
+      title: "text-rose-900",
+      accent: "text-rose-700",
+      ring: "ring-rose-100",
+      icon: "bg-rose-100 text-rose-700",
+      claim: "bg-rose-600 text-white hover:bg-rose-700",
+    };
+  }
+  return {
+    pageBg: "bg-gradient-to-b from-consensus/30 via-white to-white",
+    title: "text-brand",
+    accent: "text-brand",
+    ring: "ring-consensus/45",
+    icon: "bg-consensus/25 text-brand",
+    claim: "bg-consensus text-brand-dark hover:bg-consensus-dark",
+  };
+}
+
 function roleStorageKey(listId: string, sessionId: string) {
   return `choosie:virtual-role:${listId}:${sessionId || "default"}`;
 }
@@ -93,6 +144,7 @@ function RoleSelectionContent() {
   const [participants, setParticipants] = useState<any[]>([]);
   const [participantCount, setParticipantCount] = useState<number>(3);
   const [listTitle, setListTitle] = useState("this list");
+  const [listModule, setListModule] = useState("movies");
   const [previewItems, setPreviewItems] = useState<PreviewItem[]>([]);
   const [name, setName] = useState("");
   const [claiming, setClaiming] = useState<string | null>(null);
@@ -122,6 +174,9 @@ function RoleSelectionContent() {
         }
         if (!cancelled && data2.ok && data2.listTitle) {
           setListTitle(data2.listTitle);
+        }
+        if (!cancelled && data2.ok && data2.listModule) {
+          setListModule(String(data2.listModule));
         }
         if (!cancelled && data2.ok && Array.isArray(data2.items)) {
           setPreviewItems(data2.items.slice(0, 10));
@@ -197,13 +252,14 @@ function RoleSelectionContent() {
   }));
 
   const posterItems = previewItems.filter((item) => item.image).slice(0, 12);
+  const moduleTheme = getModuleTheme(listModule);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12 text-center sm:py-16">
-      <p className="text-base font-semibold uppercase tracking-[0.36em] text-brand">
+    <div className={["mx-auto max-w-7xl px-6 py-12 text-center sm:py-16", moduleTheme.pageBg].join(" ")}>
+      <p className={["text-base font-semibold uppercase tracking-[0.36em]", moduleTheme.accent].join(" ")}>
         TIME TO CHOOSIE
       </p>
-      <h1 className="mx-auto mt-6 max-w-5xl text-5xl font-bold leading-tight text-brand sm:text-7xl">{listTitle}</h1>
+      <h1 className={["mx-auto mt-6 max-w-5xl text-5xl font-bold leading-tight sm:text-7xl", moduleTheme.title].join(" ")}>{listTitle}</h1>
       {previewItems.length > 0 && (
         <div className="mx-auto mt-8 max-w-5xl">
           {posterItems.length > 0 ? (
@@ -240,7 +296,7 @@ function RoleSelectionContent() {
       <p className="mt-9 text-3xl font-bold text-zinc-700">Choosie your role.</p>
 
       <div className="mx-auto mt-10 max-w-2xl text-left">
-        <label htmlFor="narrower-name" className="block text-xl font-bold text-brand">
+        <label htmlFor="narrower-name" className={["block text-xl font-bold", moduleTheme.title].join(" ")}>
           Enter your name to join
         </label>
         <input
@@ -263,7 +319,7 @@ function RoleSelectionContent() {
                 taken ? "border-zinc-200 bg-zinc-50 text-zinc-400 opacity-70" : "border-brand/10 bg-white text-brand hover:-translate-y-1 hover:border-consensus/50 hover:shadow-xl"
               }`}
             >
-              <div className="grid h-24 w-24 place-items-center rounded-full bg-brand-light text-brand ring-1 ring-brand/10">
+                <div className={["grid h-24 w-24 place-items-center rounded-full ring-1", moduleTheme.icon, moduleTheme.ring].join(" ")}>
                 <RoleIcon icon={icon} />
               </div>
               <div className="mt-8 text-center text-zinc-950">
@@ -274,7 +330,7 @@ function RoleSelectionContent() {
                 <div className="mt-6 text-base font-semibold text-zinc-500">Claimed by {taken.name}</div>
               ) : (
                 <button
-                  className="mt-8 rounded-full bg-consensus px-6 py-3 text-base font-bold text-brand-dark shadow-lg shadow-consensus/20 transition-colors hover:bg-consensus-dark disabled:opacity-60"
+                  className={["mt-8 rounded-full px-6 py-3 text-base font-bold shadow-lg transition-colors disabled:opacity-60", moduleTheme.claim].join(" ")}
                   disabled={!name || !!claiming}
                   onClick={() => claimRole(role)}
                 >

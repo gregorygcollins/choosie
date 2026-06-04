@@ -82,7 +82,7 @@ function moduleAccent(module: string) {
   if (module === "music") return "text-violet-700 bg-violet-50 ring-violet-100";
   if (module === "food") return "text-emerald-700 bg-emerald-50 ring-emerald-100";
   if (module === "anything") return "text-rose-700 bg-rose-50 ring-rose-100";
-  return "text-brand bg-brand-light/70 ring-brand/10";
+  return "text-consensus-dark bg-consensus/20 ring-consensus/40";
 }
 
 export default function ModuleSelector({ userIsPro, selectedModule, onSelectModule }: ModuleSelectorProps) {

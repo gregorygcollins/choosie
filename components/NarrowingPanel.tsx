@@ -288,8 +288,84 @@ function getModuleStyle(module: string) {
   }
 
   return {
-    badge: "bg-teal-100 text-teal-800",
-    fallback: "bg-gradient-to-br from-teal-50 via-cyan-100 to-zinc-500 text-teal-800",
+    badge: "bg-consensus/35 text-brand-dark",
+    fallback: "bg-gradient-to-br from-brand-light via-consensus/25 to-[#77d7c4] text-brand-dark",
+  };
+}
+
+function getModuleTheme(module: string) {
+  if (module === "books") {
+    return {
+      title: "text-blue-900",
+      icon: "text-blue-700",
+      pulse: "text-blue-700",
+      toggleActive: "bg-blue-600 text-white",
+      toggleInactive: "text-blue-700 hover:bg-blue-50",
+      ring: "group-focus-within:ring-blue-400",
+      ghost: "text-blue-700 hover:bg-blue-50 hover:text-blue-900 focus:ring-blue-300/40",
+      infoHover: "hover:bg-blue-600 hover:text-white",
+      confirm: "bg-blue-600 text-white hover:bg-blue-700",
+      confirmBorder: "border-blue-500/60 text-blue-700 hover:bg-blue-50",
+      selectedText: "text-blue-800",
+    };
+  }
+  if (module === "music") {
+    return {
+      title: "text-violet-900",
+      icon: "text-violet-700",
+      pulse: "text-violet-700",
+      toggleActive: "bg-violet-600 text-white",
+      toggleInactive: "text-violet-700 hover:bg-violet-50",
+      ring: "group-focus-within:ring-violet-400",
+      ghost: "text-violet-700 hover:bg-violet-50 hover:text-violet-900 focus:ring-violet-300/40",
+      infoHover: "hover:bg-violet-600 hover:text-white",
+      confirm: "bg-violet-600 text-white hover:bg-violet-700",
+      confirmBorder: "border-violet-500/60 text-violet-700 hover:bg-violet-50",
+      selectedText: "text-violet-800",
+    };
+  }
+  if (module === "food" || module === "recipes") {
+    return {
+      title: "text-emerald-900",
+      icon: "text-emerald-700",
+      pulse: "text-emerald-700",
+      toggleActive: "bg-emerald-600 text-white",
+      toggleInactive: "text-emerald-700 hover:bg-emerald-50",
+      ring: "group-focus-within:ring-emerald-400",
+      ghost: "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-900 focus:ring-emerald-300/40",
+      infoHover: "hover:bg-emerald-600 hover:text-white",
+      confirm: "bg-emerald-600 text-white hover:bg-emerald-700",
+      confirmBorder: "border-emerald-500/60 text-emerald-700 hover:bg-emerald-50",
+      selectedText: "text-emerald-800",
+    };
+  }
+  if (module === "anything") {
+    return {
+      title: "text-rose-900",
+      icon: "text-rose-700",
+      pulse: "text-rose-700",
+      toggleActive: "bg-rose-600 text-white",
+      toggleInactive: "text-rose-700 hover:bg-rose-50",
+      ring: "group-focus-within:ring-rose-400",
+      ghost: "text-rose-700 hover:bg-rose-50 hover:text-rose-900 focus:ring-rose-300/40",
+      infoHover: "hover:bg-rose-600 hover:text-white",
+      confirm: "bg-rose-600 text-white hover:bg-rose-700",
+      confirmBorder: "border-rose-500/60 text-rose-700 hover:bg-rose-50",
+      selectedText: "text-rose-800",
+    };
+  }
+  return {
+    title: "text-brand",
+    icon: "text-brand",
+    pulse: "text-consensus-dark",
+    toggleActive: "bg-consensus text-brand-dark",
+    toggleInactive: "text-brand hover:bg-brand-light",
+    ring: "group-focus-within:ring-consensus-dark",
+    ghost: "text-brand hover:bg-brand-light hover:text-brand-dark focus:ring-consensus/40",
+    infoHover: "hover:bg-consensus-dark hover:text-white",
+    confirm: "bg-consensus text-brand-dark hover:bg-consensus-dark",
+    confirmBorder: "border-consensus/70 text-brand hover:bg-consensus/10",
+    selectedText: "text-brand",
   };
 }
 
@@ -499,6 +575,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
   const normalizedModule = String(moduleType || "movies").toLowerCase();
   const moduleLabel = getModuleLabel(normalizedModule);
   const moduleStyle = getModuleStyle(normalizedModule);
+  const moduleTheme = getModuleTheme(normalizedModule);
   const itemNoun =
     normalizedModule === "books"
       ? "books"

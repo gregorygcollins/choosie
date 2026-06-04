@@ -79,8 +79,8 @@ function getModuleStyle(module: string) {
   }
 
   return {
-    badge: "bg-teal-100 text-teal-800",
-    fallback: "bg-gradient-to-br from-teal-50 via-cyan-100 to-zinc-500 text-teal-800",
+    badge: "bg-consensus/35 text-brand-dark",
+    fallback: "bg-gradient-to-br from-brand-light via-consensus/25 to-[#77d7c4] text-brand-dark",
   };
 }
 
@@ -150,17 +150,17 @@ function getModuleTheme(module: string) {
   }
 
   return {
-    pageBg: "bg-gradient-to-b from-teal-50/70 via-white to-white",
-    shell: "bg-white/95 border border-teal-100/80 shadow-[0_12px_30px_-20px_rgba(13,148,136,0.45)]",
-    heading: "text-teal-900",
-    toggleActive: "bg-teal-600 text-white shadow",
-    toggleInactive: "text-teal-700 hover:bg-teal-50",
-    focusRing: "focus:ring-teal-300",
-    gridFocus: "group-focus:ring-teal-400",
-    primaryButton: "bg-teal-600 text-white shadow-lg shadow-teal-600/25 hover:bg-teal-700",
-    iconButton: "text-teal-700 hover:text-teal-900 focus:ring-teal-300/40",
-    iconSolid: "text-teal-700 hover:bg-teal-700 hover:text-white",
-    iconSoft: "group-hover:bg-teal-50 group-hover:text-teal-700",
+    pageBg: "bg-gradient-to-b from-consensus/30 via-white to-white",
+    shell: "bg-white/95 border border-consensus/40 shadow-[0_12px_30px_-20px_rgba(95,210,183,0.65)]",
+    heading: "text-brand",
+    toggleActive: "bg-consensus text-brand-dark shadow",
+    toggleInactive: "text-brand hover:bg-brand-light",
+    focusRing: "focus:ring-consensus/55",
+    gridFocus: "group-focus:ring-consensus-dark",
+    primaryButton: "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
+    iconButton: "text-brand hover:text-brand-dark focus:ring-consensus/45",
+    iconSolid: "text-brand hover:bg-consensus-dark hover:text-white",
+    iconSoft: "group-hover:bg-consensus/20 group-hover:text-brand",
   };
 }
 

@@ -56,8 +56,59 @@ function getModuleStyle(module: string) {
   }
 
   return {
-    badge: "bg-teal-100 text-teal-800",
-    fallback: "bg-gradient-to-br from-teal-50 via-cyan-100 to-zinc-500 text-teal-800",
+    badge: "bg-consensus/35 text-brand-dark",
+    fallback: "bg-gradient-to-br from-brand-light via-consensus/25 to-[#77d7c4] text-brand-dark",
+  };
+}
+
+function getModuleTheme(module: string) {
+  if (module === "books") {
+    return {
+      pageBg: "bg-gradient-to-b from-blue-50/65 via-white to-white",
+      heading: "text-blue-900",
+      cta: "bg-blue-600 text-white hover:bg-blue-700",
+      toggleActive: "bg-blue-600 text-white shadow",
+      toggleInactive: "text-blue-700 hover:bg-blue-50",
+      shell: "bg-white border border-blue-100/80",
+    };
+  }
+  if (module === "music") {
+    return {
+      pageBg: "bg-gradient-to-b from-violet-50/65 via-white to-white",
+      heading: "text-violet-900",
+      cta: "bg-violet-600 text-white hover:bg-violet-700",
+      toggleActive: "bg-violet-600 text-white shadow",
+      toggleInactive: "text-violet-700 hover:bg-violet-50",
+      shell: "bg-white border border-violet-100/80",
+    };
+  }
+  if (module === "food") {
+    return {
+      pageBg: "bg-gradient-to-b from-emerald-50/65 via-white to-white",
+      heading: "text-emerald-900",
+      cta: "bg-emerald-600 text-white hover:bg-emerald-700",
+      toggleActive: "bg-emerald-600 text-white shadow",
+      toggleInactive: "text-emerald-700 hover:bg-emerald-50",
+      shell: "bg-white border border-emerald-100/80",
+    };
+  }
+  if (module === "anything") {
+    return {
+      pageBg: "bg-gradient-to-b from-rose-50/65 via-white to-white",
+      heading: "text-rose-900",
+      cta: "bg-rose-600 text-white hover:bg-rose-700",
+      toggleActive: "bg-rose-600 text-white shadow",
+      toggleInactive: "text-rose-700 hover:bg-rose-50",
+      shell: "bg-white border border-rose-100/80",
+    };
+  }
+  return {
+    pageBg: "bg-gradient-to-b from-consensus/30 via-white to-white",
+    heading: "text-brand",
+    cta: "bg-consensus text-brand-dark hover:bg-consensus-dark",
+    toggleActive: "bg-consensus text-brand-dark shadow",
+    toggleInactive: "text-brand hover:bg-brand-light",
+    shell: "bg-white border border-consensus/45",
   };
 }
 
@@ -178,14 +229,15 @@ export default function SharedListClient({ listId, token }: { listId: string; to
 
   const moduleLabel = getModuleLabel(list.moduleType);
   const moduleStyle = getModuleStyle(list.moduleType);
+  const moduleTheme = getModuleTheme(list.moduleType);
 
   return (
-    <main className="min-h-screen bg-brand-light p-6 sm:p-8">
+    <main className={["min-h-screen p-6 sm:p-8", moduleTheme.pageBg].join(" ")}>
       <section className={["mx-auto", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-consensus-dark">Shared Choosie list</p>
-            <h1 className="mt-2 text-3xl font-semibold text-brand sm:text-4xl">{list.title}</h1>
+            <h1 className={["mt-2 text-3xl font-semibold sm:text-4xl", moduleTheme.heading].join(" ")}>{list.title}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-zinc-600">
               <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
                 {moduleLabel}
@@ -195,13 +247,13 @@ export default function SharedListClient({ listId, token }: { listId: string; to
           </div>
           <Link
             href="/new"
-            className="inline-flex w-fit rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+            className={["inline-flex w-fit rounded-full px-5 py-2 text-sm font-semibold", moduleTheme.cta].join(" ")}
           >
             Create a list
           </Link>
         </div>
 
-        <div className="rounded-2xl bg-white p-6 shadow-soft">
+        <div className={["rounded-2xl p-6 shadow-soft", moduleTheme.shell].join(" ")}>
           <div className="mb-4 flex justify-end">
             <div className="flex items-center gap-2">
               <button
@@ -210,7 +262,7 @@ export default function SharedListClient({ listId, token }: { listId: string; to
                 aria-label="List view"
                 aria-pressed={viewMode === "list"}
                 onClick={() => setViewMode("list")}
-                className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "list" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+                className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "list" ? moduleTheme.toggleActive : moduleTheme.toggleInactive}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.125 1.125 0 0 1 0 2.25H5.625a1.125 1.125 0 0 1 0-2.25Z" />
@@ -222,7 +274,7 @@ export default function SharedListClient({ listId, token }: { listId: string; to
                 aria-label="Grid view"
                 aria-pressed={viewMode === "grid"}
                 onClick={() => setViewMode("grid")}
-                className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "grid" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+                className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "grid" ? moduleTheme.toggleActive : moduleTheme.toggleInactive}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
