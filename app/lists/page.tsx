@@ -628,9 +628,12 @@ export default function ListsPage() {
                     <div className={["absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block", identityListTile ? "sm:hidden" : ""].join(" ")} />
                     <div className={["absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex", identityListTile ? "sm:hidden" : ""].join(" ")}>
                       <div>
-                        <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
-                          {list.title}
-                        </h2>
+                        <div className="flex items-start gap-2">
+                          <ModuleMark module={derivedModule} subtle size="xs" />
+                          <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                            {list.title}
+                          </h2>
+                        </div>
                         <p className="mt-1 truncate text-xs text-white/75">
                           {list.items.length} items{firstItemTitle ? ` · ${firstItemTitle}` : ""}
                         </p>
