@@ -84,6 +84,86 @@ function getModuleStyle(module: string) {
   };
 }
 
+function getModuleTheme(module: string) {
+  if (module === "books") {
+    return {
+      pageBg: "bg-gradient-to-b from-blue-50/65 via-white to-white",
+      shell: "bg-white/95 border border-blue-100/80 shadow-[0_12px_30px_-20px_rgba(37,99,235,0.45)]",
+      heading: "text-blue-900",
+      toggleActive: "bg-blue-600 text-white shadow",
+      toggleInactive: "text-blue-700 hover:bg-blue-50",
+      focusRing: "focus:ring-blue-300",
+      gridFocus: "group-focus:ring-blue-400",
+      primaryButton: "bg-blue-600 text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700",
+      iconButton: "text-blue-700 hover:text-blue-900 focus:ring-blue-300/40",
+      iconSolid: "text-blue-700 hover:bg-blue-700 hover:text-white",
+      iconSoft: "group-hover:bg-blue-50 group-hover:text-blue-700",
+    };
+  }
+
+  if (module === "food") {
+    return {
+      pageBg: "bg-gradient-to-b from-emerald-50/70 via-white to-white",
+      shell: "bg-white/95 border border-emerald-100/80 shadow-[0_12px_30px_-20px_rgba(5,150,105,0.45)]",
+      heading: "text-emerald-900",
+      toggleActive: "bg-emerald-600 text-white shadow",
+      toggleInactive: "text-emerald-700 hover:bg-emerald-50",
+      focusRing: "focus:ring-emerald-300",
+      gridFocus: "group-focus:ring-emerald-400",
+      primaryButton: "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700",
+      iconButton: "text-emerald-700 hover:text-emerald-900 focus:ring-emerald-300/40",
+      iconSolid: "text-emerald-700 hover:bg-emerald-700 hover:text-white",
+      iconSoft: "group-hover:bg-emerald-50 group-hover:text-emerald-700",
+    };
+  }
+
+  if (module === "music") {
+    return {
+      pageBg: "bg-gradient-to-b from-violet-50/70 via-white to-white",
+      shell: "bg-white/95 border border-violet-100/80 shadow-[0_12px_30px_-20px_rgba(124,58,237,0.45)]",
+      heading: "text-violet-900",
+      toggleActive: "bg-violet-600 text-white shadow",
+      toggleInactive: "text-violet-700 hover:bg-violet-50",
+      focusRing: "focus:ring-violet-300",
+      gridFocus: "group-focus:ring-violet-400",
+      primaryButton: "bg-violet-600 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-700",
+      iconButton: "text-violet-700 hover:text-violet-900 focus:ring-violet-300/40",
+      iconSolid: "text-violet-700 hover:bg-violet-700 hover:text-white",
+      iconSoft: "group-hover:bg-violet-50 group-hover:text-violet-700",
+    };
+  }
+
+  if (module === "anything") {
+    return {
+      pageBg: "bg-gradient-to-b from-rose-50/70 via-white to-white",
+      shell: "bg-white/95 border border-rose-100/80 shadow-[0_12px_30px_-20px_rgba(244,63,94,0.45)]",
+      heading: "text-rose-900",
+      toggleActive: "bg-rose-600 text-white shadow",
+      toggleInactive: "text-rose-700 hover:bg-rose-50",
+      focusRing: "focus:ring-rose-300",
+      gridFocus: "group-focus:ring-rose-400",
+      primaryButton: "bg-rose-600 text-white shadow-lg shadow-rose-600/25 hover:bg-rose-700",
+      iconButton: "text-rose-700 hover:text-rose-900 focus:ring-rose-300/40",
+      iconSolid: "text-rose-700 hover:bg-rose-700 hover:text-white",
+      iconSoft: "group-hover:bg-rose-50 group-hover:text-rose-700",
+    };
+  }
+
+  return {
+    pageBg: "bg-gradient-to-b from-teal-50/70 via-white to-white",
+    shell: "bg-white/95 border border-teal-100/80 shadow-[0_12px_30px_-20px_rgba(13,148,136,0.45)]",
+    heading: "text-teal-900",
+    toggleActive: "bg-teal-600 text-white shadow",
+    toggleInactive: "text-teal-700 hover:bg-teal-50",
+    focusRing: "focus:ring-teal-300",
+    gridFocus: "group-focus:ring-teal-400",
+    primaryButton: "bg-teal-600 text-white shadow-lg shadow-teal-600/25 hover:bg-teal-700",
+    iconButton: "text-teal-700 hover:text-teal-900 focus:ring-teal-300/40",
+    iconSolid: "text-teal-700 hover:bg-teal-700 hover:text-white",
+    iconSoft: "group-hover:bg-teal-50 group-hover:text-teal-700",
+  };
+}
+
 function usesIdentityTile(module: string) {
   return module === "food" || module === "anything";
 }
@@ -737,9 +817,10 @@ export default function ViewListPage() {
 
   const listModule = getListModule(list);
   const moduleLabel = getModuleLabel(listModule);
+  const moduleTheme = getModuleTheme(listModule);
 
   return (
-    <main className="min-h-screen p-3 sm:p-8">
+    <main className={["min-h-screen p-3 sm:p-8", moduleTheme.pageBg].join(" ")}>
             {/* Participant Count Modal */}
       {showParticipantModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowParticipantModal(false)}>
@@ -1075,10 +1156,10 @@ export default function ViewListPage() {
       />
       
       <ProcessSection />
-      <div className={["mx-auto bg-white rounded-2xl p-3 shadow-soft sm:p-8", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
+      <div className={["mx-auto rounded-2xl p-3 backdrop-blur sm:p-8", moduleTheme.shell, viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
         <div className="mb-4 flex items-start justify-between gap-3 sm:mb-6 sm:items-center">
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-semibold text-brand sm:text-3xl">{list.title}</h1>
+            <h1 className={["truncate text-2xl font-semibold sm:text-3xl", moduleTheme.heading].join(" ")}>{list.title}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500 sm:mt-2">
               <ModuleMark module={listModule} size="xs" />
               <span>{list.items.length} items</span>
@@ -1091,7 +1172,7 @@ export default function ViewListPage() {
               title="List view"
               aria-pressed={viewMode === "list"}
               onClick={() => setViewMode("list")}
-              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "list" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "list" ? moduleTheme.toggleActive : moduleTheme.toggleInactive}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.125 1.125 0 0 1 0 2.25H5.625a1.125 1.125 0 0 1 0-2.25Z" />
@@ -1103,7 +1184,7 @@ export default function ViewListPage() {
               title="Grid view"
               aria-pressed={viewMode === "grid"}
               onClick={() => setViewMode("grid")}
-              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "grid" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "grid" ? moduleTheme.toggleActive : moduleTheme.toggleInactive}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -1117,7 +1198,7 @@ export default function ViewListPage() {
             {list.items.map((item, idx) => (
               <li
                 key={item.id}
-                className="group flex cursor-pointer gap-3 overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand/40 sm:flex-row sm:gap-0 sm:p-0"
+                className={["group flex cursor-pointer gap-3 overflow-hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 sm:flex-row sm:gap-0 sm:p-0", moduleTheme.focusRing].join(" ")}
                 role="button"
                 tabIndex={0}
                 aria-label={`Preview ${item.title}`}
@@ -1149,7 +1230,7 @@ export default function ViewListPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <ModuleMark module={listModule} size="xs" />
-                      <h2 className="line-clamp-2 text-base font-semibold leading-tight text-brand sm:text-lg sm:leading-snug">{item.title}</h2>
+                      <h2 className={["line-clamp-2 text-base font-semibold leading-tight sm:text-lg sm:leading-snug", moduleTheme.heading].join(" ")}>{item.title}</h2>
                     </div>
                     {item.notes ? (
                       <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{item.notes}</p>
@@ -1158,7 +1239,7 @@ export default function ViewListPage() {
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                    <div className="cursor-grab rounded-full bg-zinc-100 p-1.5 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand sm:p-2" title="Drag to reorder" aria-hidden>
+                    <div className={["cursor-grab rounded-full bg-zinc-100 p-1.5 text-zinc-400 transition sm:p-2", moduleTheme.iconSoft].join(" ")} title="Drag to reorder" aria-hidden>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="sm:h-[18px] sm:w-[18px]">
                         <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
                         <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
@@ -1170,7 +1251,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         openPreview(item);
                       }}
-                      className="grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-sm font-bold text-brand transition hover:bg-brand hover:text-white sm:h-9 sm:w-9"
+                      className={["grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-sm font-bold transition sm:h-9 sm:w-9", moduleTheme.iconSolid].join(" ")}
                       title="Item info"
                       aria-label={`Show info for ${item.title}`}
                     >
@@ -1181,7 +1262,7 @@ export default function ViewListPage() {
                         e.stopPropagation();
                         openItemEditor(item);
                       }}
-                      className="grid h-8 w-8 place-items-center rounded-full bg-zinc-100 text-brand transition hover:bg-brand hover:text-white sm:h-9 sm:w-9"
+                      className={["grid h-8 w-8 place-items-center rounded-full bg-zinc-100 transition sm:h-9 sm:w-9", moduleTheme.iconSolid].join(" ")}
                       title="Edit item"
                       aria-label={`Edit ${item.title}`}
                     >
@@ -1232,7 +1313,7 @@ export default function ViewListPage() {
                   }
                 }}
               >
-                <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2 group-focus:ring-teal-400">
+                <div className={["relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2", moduleTheme.gridFocus].join(" ")}>
                   {usesIdentityTile(listModule) ? (
                     <EntryIdentityTile module={listModule} title={item.title} notes={item.notes} />
                   ) : item.image ? (
@@ -1289,14 +1370,14 @@ export default function ViewListPage() {
                       e.stopPropagation();
                       openPreview(item);
                     }}
-                    className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
+                    className={["absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100", moduleTheme.iconSolid].join(" ")}
                     title="Item info"
                     aria-label={`Show info for ${item.title}`}
                   >
                     i
                   </button>
                 </div>
-                <h2 className={usesIdentityTile(listModule) ? "hidden" : "mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden"}>
+                <h2 className={usesIdentityTile(listModule) ? "hidden" : ["mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight sm:hidden", moduleTheme.heading].join(" ")}>
                   {item.title}
                 </h2>
                 {!usesIdentityTile(listModule) && item.notes && (
@@ -1315,13 +1396,13 @@ export default function ViewListPage() {
           <div className="flex gap-3">
             <button
               onClick={() => handleNarrowClick("in-person")}
-              className="min-w-0 flex-1 rounded-full bg-consensus px-3 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:flex-none sm:px-4"
+              className={["min-w-0 flex-1 rounded-full px-3 py-2 text-sm font-semibold transition sm:flex-none sm:px-4", moduleTheme.primaryButton].join(" ")}
             >
               Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="min-w-0 flex-1 rounded-full bg-consensus px-3 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:flex-none sm:px-4"
+              className={["min-w-0 flex-1 rounded-full px-3 py-2 text-sm font-semibold transition sm:flex-none sm:px-4", moduleTheme.primaryButton].join(" ")}
             >
               Narrow virtually
             </button>
@@ -1330,7 +1411,7 @@ export default function ViewListPage() {
           <div className="flex items-center gap-2 self-end sm:self-auto">
             <button
               onClick={handleOpenListLog}
-              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+              className={["inline-flex h-9 w-9 items-center justify-center focus:outline-none focus:ring-2 active:translate-y-px transition-colors", moduleTheme.iconButton].join(" ")}
               title="List log"
               aria-label="List log"
             >
@@ -1342,7 +1423,7 @@ export default function ViewListPage() {
             </button>
             <button
               onClick={() => router.push(`/new?editId=${list.id}`)}
-              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors"
+              className={["inline-flex h-9 w-9 items-center justify-center focus:outline-none focus:ring-2 active:translate-y-px transition-colors", moduleTheme.iconButton].join(" ")}
               title="Edit list"
               aria-label="Edit list"
             >
@@ -1365,7 +1446,7 @@ export default function ViewListPage() {
             <button
               onClick={handleShareList}
               disabled={shareLoading}
-              className="inline-flex h-9 w-9 items-center justify-center text-brand hover:text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 active:translate-y-px transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className={["inline-flex h-9 w-9 items-center justify-center focus:outline-none focus:ring-2 active:translate-y-px transition-colors disabled:cursor-not-allowed disabled:opacity-60", moduleTheme.iconButton].join(" ")}
               title={shareLoading ? "Sharing..." : "Share list"}
               aria-label={shareLoading ? "Sharing list" : "Share list"}
             >
