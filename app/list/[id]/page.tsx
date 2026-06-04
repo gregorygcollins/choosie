@@ -1018,7 +1018,7 @@ export default function ViewListPage() {
       />
       
       <ProcessSection />
-      <div className={["mx-auto bg-white rounded-2xl p-8 shadow-soft", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
+      <div className={["mx-auto bg-white rounded-2xl p-3 shadow-soft sm:p-8", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-brand">{list.title}</h1>
@@ -1155,7 +1155,7 @@ export default function ViewListPage() {
             ))}
           </ul>
         ) : (
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-3 min-[390px]:grid-cols-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
@@ -1184,9 +1184,9 @@ export default function ViewListPage() {
                   <EntryFallback module={listModule} label={moduleLabel} />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
+                <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
                 {/* Removed numbered badge */}
-                <div className="absolute left-0 right-0 bottom-0 z-10 flex flex-col gap-2 p-4 pr-12">
+                <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
                   <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                     {moduleLabel}
                   </span>
@@ -1200,7 +1200,7 @@ export default function ViewListPage() {
                   </div>
                 </div>
 
-                <div className="absolute right-3 top-3 z-20 flex rounded-full bg-white/90 p-1 text-zinc-500 shadow-lg opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+                <div className="absolute right-3 top-3 z-20 hidden rounded-full bg-white/90 p-1 text-zinc-500 shadow-lg opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 sm:flex">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1236,7 +1236,7 @@ export default function ViewListPage() {
                     e.stopPropagation();
                     openPreview(item);
                   }}
-                  className="absolute right-3 bottom-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                  className="absolute right-3 bottom-3 z-20 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-sm font-bold text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
                   title="Item info"
                   aria-label={`Show info for ${item.title}`}
                 >
