@@ -680,7 +680,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
             )}
 
             <div className="relative">
-              <div className={view === "grid" ? "grid justify-center gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),18rem))]" : "grid gap-4"}>
+              <div className={view === "grid" ? "grid grid-cols-3 gap-2.5 min-[390px]:grid-cols-4 sm:justify-center sm:gap-5 sm:[grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),18rem))]" : "grid gap-3 sm:gap-4"}>
                 {[...items]
                   .sort((a, b) => {
                     if ((a.status === "cut") === (b.status === "cut")) return 0;
@@ -700,64 +700,78 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                           onDrop={(event) => onDrop(event, index)}
                           onDragEnd={() => setDragIndex(null)}
                           className={[
-                            "group relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 transition duration-300 focus-within:ring-2 focus-within:ring-teal-400",
+                            "group focus:outline-none",
                             busy || isVirtualWaiting ? "cursor-default" : "cursor-pointer",
-                            checked ? "ring-4 ring-consensus shadow-consensus/30" : "ring-white/10 hover:-translate-y-1 hover:shadow-2xl",
                             isCut ? "opacity-55 grayscale" : "",
                           ].join(" ")}
                         >
-                          <button
-                            type="button"
-                            onClick={() => onToggleItem(item.id)}
-                            disabled={busy || isVirtualWaiting}
-                            className="absolute inset-0 z-10 text-left disabled:cursor-not-allowed"
-                            aria-pressed={checked}
-                            aria-label={`${checked ? "Deselect" : "Select"} ${item.name}`}
-                          />
-
-                          {item.image ? (
-                            <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                          ) : (
-                            <ItemFallback module={normalizedModule} label={moduleLabel} />
-                          )}
-
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100" />
-                          <div className="absolute left-3 top-3 z-20 rounded-full bg-black/65 px-2 py-1 text-xs font-semibold text-white">
-                            #{index + 1}
-                          </div>
-                          {checked && (
-                            <div className="absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-consensus text-brand-dark shadow-lg">
-                              <CheckIcon />
-                            </div>
-                          )}
-                          {isCut && (
-                            <div className="absolute inset-x-3 top-1/2 z-20 rounded-full bg-black/70 px-3 py-1 text-center text-xs font-bold uppercase tracking-wide text-white">
-                              Cut
-                            </div>
-                          )}
-                          <div className="absolute left-0 right-0 bottom-0 z-20 flex flex-col gap-2 p-4 pr-12">
-                            <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
-                              {moduleLabel}
-                            </span>
-                            <div>
-                              <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
-                                {item.name}
-                              </h2>
-                              {item.notes && <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            title={`More about ${item.name}`}
-                            aria-label={`More about ${item.name}`}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setInfoItem(item);
-                            }}
-                            className="absolute right-3 bottom-3 z-30 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                          <div
+                            className={[
+                              "relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 transition duration-300 group-focus-within:ring-2 group-focus-within:ring-teal-400",
+                              checked ? "ring-4 ring-consensus shadow-consensus/30" : "ring-white/10 group-hover:-translate-y-1 group-hover:shadow-2xl",
+                            ].join(" ")}
                           >
-                            <InfoIcon />
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => onToggleItem(item.id)}
+                              disabled={busy || isVirtualWaiting}
+                              className="absolute inset-0 z-10 text-left disabled:cursor-not-allowed"
+                              aria-pressed={checked}
+                              aria-label={`${checked ? "Deselect" : "Select"} ${item.name}`}
+                            />
+
+                            {item.image ? (
+                              <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                            ) : (
+                              <ItemFallback module={normalizedModule} label={moduleLabel} />
+                            )}
+
+                            <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
+                            <div className="absolute left-2 top-2 z-20 rounded-full bg-black/65 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:left-3 sm:top-3 sm:px-2 sm:py-1 sm:text-xs">
+                              #{index + 1}
+                            </div>
+                            {checked && (
+                              <div className="absolute right-2 top-2 z-20 grid h-7 w-7 place-items-center rounded-full bg-consensus text-brand-dark shadow-lg sm:right-3 sm:top-3 sm:h-9 sm:w-9">
+                                <CheckIcon />
+                              </div>
+                            )}
+                            {isCut && (
+                              <div className="absolute inset-x-2 top-1/2 z-20 rounded-full bg-black/70 px-2 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-white sm:inset-x-3 sm:text-xs">
+                                Cut
+                              </div>
+                            )}
+                            <div className="absolute left-0 right-0 bottom-0 z-20 hidden flex-col gap-2 p-4 pr-12 sm:flex">
+                              <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
+                                {moduleLabel}
+                              </span>
+                              <div>
+                                <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
+                                  {item.name}
+                                </h2>
+                                {item.notes && <p className="mt-1 truncate text-xs text-white/75">{item.notes}</p>}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              title={`More about ${item.name}`}
+                              aria-label={`More about ${item.name}`}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setInfoItem(item);
+                              }}
+                              className="absolute right-3 bottom-3 z-30 hidden h-8 w-8 place-items-center rounded-full bg-white/90 text-zinc-900 shadow-lg transition hover:bg-teal-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/80 sm:grid sm:opacity-0 sm:group-hover:opacity-100"
+                            >
+                              <InfoIcon />
+                            </button>
+                          </div>
+                          <h2 className={`mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight sm:hidden ${isCut ? "text-zinc-400" : "text-brand"}`}>
+                            {item.name}
+                          </h2>
+                          {item.notes && (
+                            <p className="mt-0.5 line-clamp-1 text-[10px] leading-none text-zinc-500 sm:hidden">
+                              {item.notes}
+                            </p>
+                          )}
                         </div>
                       );
                     }
@@ -771,19 +785,19 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                         onDrop={(event) => onDrop(event, index)}
                         onDragEnd={() => setDragIndex(null)}
                         className={[
-                          "group flex overflow-hidden rounded-xl border bg-white shadow-sm transition duration-300",
+                          "group flex gap-3 overflow-hidden rounded-xl border bg-white p-2 shadow-sm transition duration-300 sm:gap-0 sm:p-0",
                           busy || isVirtualWaiting ? "cursor-default" : "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg",
                           checked ? "border-consensus bg-consensus/10 ring-2 ring-consensus/30" : "border-zinc-200",
                           isCut ? "opacity-55 grayscale" : "",
                         ].join(" ")}
                       >
-                        <div className="relative h-32 w-32 shrink-0 overflow-hidden bg-zinc-100 sm:w-40">
+                        <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-32 sm:w-40 sm:rounded-none">
                           {item.image ? (
                             <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                           ) : (
                             <ItemFallback module={normalizedModule} label={moduleLabel} />
                           )}
-                          <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                          <div className="absolute left-2 top-2 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:left-3 sm:top-3 sm:px-2 sm:py-1 sm:text-xs">
                             #{index + 1}
                           </div>
                         </div>
@@ -792,32 +806,32 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                           type="button"
                           onClick={() => onToggleItem(item.id)}
                           disabled={busy || isVirtualWaiting}
-                          className="flex min-w-0 flex-1 items-center gap-4 p-4 text-left disabled:cursor-not-allowed sm:p-5"
+                          className="flex min-w-0 flex-1 items-center gap-4 py-1 pr-1 text-left disabled:cursor-not-allowed sm:p-5"
                           aria-pressed={checked}
                         >
                           <span className="min-w-0 flex-1">
                             <span className="flex flex-wrap items-center gap-2">
-                              <span className={`line-clamp-2 text-lg font-semibold leading-snug ${isCut ? "text-zinc-400" : "text-brand"}`}>
+                              <span className={`line-clamp-2 text-base font-semibold leading-tight sm:text-lg sm:leading-snug ${isCut ? "text-zinc-400" : "text-brand"}`}>
                                 {item.name}
                               </span>
-                              <span className={["rounded-full px-2 py-0.5 text-xs font-semibold", moduleStyle.badge].join(" ")}>
+                              <span className={["hidden rounded-full px-2 py-0.5 text-xs font-semibold sm:inline-flex", moduleStyle.badge].join(" ")}>
                                 {moduleLabel}
                               </span>
                             </span>
                             {item.notes ? (
-                              <span className="mt-2 block line-clamp-2 text-sm leading-6 text-zinc-500">{item.notes}</span>
+                              <span className="mt-1 block line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{item.notes}</span>
                             ) : (
-                              <span className="mt-2 block text-sm leading-6 text-zinc-400">No note yet.</span>
+                              <span className="mt-1 block text-sm leading-5 text-zinc-400 sm:mt-2 sm:leading-6">No note yet.</span>
                             )}
                           </span>
                         </button>
 
-                        <div className="flex shrink-0 items-center gap-2 p-4">
-                          <div className="cursor-grab rounded-full bg-zinc-100 p-2 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand" title="Drag to reorder" aria-hidden="true">
+                        <div className="flex shrink-0 items-center gap-1.5 py-1 pr-1 sm:gap-2 sm:p-4">
+                          <div className="cursor-grab rounded-full bg-zinc-100 p-1.5 text-zinc-400 transition group-hover:bg-brand-light group-hover:text-brand sm:p-2" title="Drag to reorder" aria-hidden="true">
                             <GripIcon />
                           </div>
                           {checked && (
-                            <span className="grid h-9 w-9 place-items-center rounded-full bg-consensus text-brand-dark">
+                            <span className="grid h-8 w-8 place-items-center rounded-full bg-consensus text-brand-dark sm:h-9 sm:w-9">
                               <CheckIcon />
                             </span>
                           )}
@@ -826,7 +840,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                             title={`More about ${item.name}`}
                             aria-label={`More about ${item.name}`}
                             onClick={() => setInfoItem(item)}
-                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-zinc-100 text-brand transition-colors hover:bg-brand hover:text-white"
+                            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-zinc-100 text-brand transition-colors hover:bg-brand hover:text-white sm:h-9 sm:w-9"
                           >
                             <InfoIcon />
                           </button>
