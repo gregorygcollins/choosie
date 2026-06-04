@@ -153,14 +153,14 @@ function getModuleTheme(module: string) {
     pageBg: "bg-gradient-to-b from-[#f3f7f7] via-white to-white",
     shell: "bg-white/95 border border-[#d6e3e2] shadow-[0_12px_30px_-22px_rgba(26,54,93,0.22)]",
     heading: "text-brand",
-    toggleActive: "bg-teal-600 text-white shadow",
+    toggleActive: "bg-consensus text-brand-dark shadow",
     toggleInactive: "text-brand hover:bg-[#eef4f4]",
-    focusRing: "focus:ring-teal-200",
-    gridFocus: "group-focus:ring-teal-300",
-    primaryButton: "bg-teal-600 text-white shadow-lg shadow-teal-600/20 hover:bg-teal-700",
-    iconButton: "text-brand hover:text-brand-dark focus:ring-teal-200",
-    iconSolid: "text-brand hover:bg-teal-600 hover:text-white",
-    iconSoft: "group-hover:bg-[#eef4f4] group-hover:text-brand",
+    focusRing: "focus:ring-consensus/55",
+    gridFocus: "group-focus:ring-consensus-dark",
+    primaryButton: "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
+    iconButton: "text-brand hover:text-brand-dark focus:ring-consensus/45",
+    iconSolid: "text-brand hover:bg-consensus-dark hover:text-white",
+    iconSoft: "group-hover:bg-consensus/20 group-hover:text-brand",
   };
 }
 
