@@ -15,6 +15,24 @@ function id() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
 }
 
+function SearchIcon() {
+  return (
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+
 export default function NewPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -350,6 +368,36 @@ export default function NewPageClient() {
 
   function selectSpotifyTrack(track: SpotifyTrack) {
   // Removed: suggestion/autocomplete logic
+  }
+
+  function searchBooksNow() {
+    const query = bookSearchInput.trim();
+    if (query.length < 2) {
+      setBookSugs([]);
+      return;
+    }
+
+    setBookSugsLoading(true);
+    fetch(`/api/books/search?query=${encodeURIComponent(query)}`)
+      .then((r) => r.json())
+      .then((data) => setBookSugs((data?.books || []).slice(0, 8)))
+      .catch(() => setBookSugs([]))
+      .finally(() => setBookSugsLoading(false));
+  }
+
+  function searchMusicNow() {
+    const query = musicSearchInput.trim();
+    if (query.length < 2) {
+      setMusicSugs([]);
+      return;
+    }
+
+    setMusicSugsLoading(true);
+    fetch(`/api/spotify/search?query=${encodeURIComponent(query)}`)
+      .then((r) => r.json())
+      .then((data) => setMusicSugs((data?.tracks || []).slice(0, 8)))
+      .catch(() => setMusicSugs([]))
+      .finally(() => setMusicSugsLoading(false));
   }
 
   function addBookItem() {
@@ -980,10 +1028,19 @@ export default function NewPageClient() {
                 <input
                   value={bookSearchInput}
                   onChange={(e) => setBookSearchInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchBooksNow(); } }}
                   className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                   placeholder="Book title"
                 />
+                <button
+                  type="button"
+                  onClick={searchBooksNow}
+                  className="btn-lilac grid px-4 py-2"
+                  title="Search Google Books"
+                  aria-label="Search Google Books"
+                >
+                  <SearchIcon />
+                </button>
                 <button
                   onClick={addBookItem}
                   className="btn-lilac px-5 py-2"
@@ -994,7 +1051,7 @@ export default function NewPageClient() {
                 </button>
               </div>
               {/* Book suggestions dropdown */}
-              {bookSugs.length > 0 && (
+              {(bookSugs.length > 0 || bookSugsLoading) && (
                 <div className="absolute z-[9999] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                   {bookSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                   {bookSugs.map((book) => (
@@ -1201,10 +1258,19 @@ export default function NewPageClient() {
               <input
                 value={musicSearchInput}
                 onChange={(e) => setMusicSearchInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchMusicNow(); } }}
                 className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                 placeholder="Song title"
               />
+              <button
+                type="button"
+                onClick={searchMusicNow}
+                className="btn-lilac grid px-4 py-2"
+                title="Search Spotify"
+                aria-label="Search Spotify"
+              >
+                <SearchIcon />
+              </button>
               <button
                 onClick={addMusicItem}
                 className="btn-lilac px-5 py-2"
@@ -1215,7 +1281,7 @@ export default function NewPageClient() {
               </button>
             </div>
             {/* Music suggestions dropdown */}
-            {musicSugs.length > 0 && (
+            {(musicSugs.length > 0 || musicSugsLoading) && (
               <div className="absolute z-[9999] mt-2 w-full suggestion-menu max-h-64 overflow-auto fade-in">
                 {musicSugsLoading && <div className="px-3 py-2 text-sm text-neutral-300">Searching...</div>}
                 {musicSugs.map((track) => (

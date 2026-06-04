@@ -20,6 +20,13 @@ function getToken(searchParams: { token?: string | string[] }) {
   return Array.isArray(searchParams.token) ? searchParams.token[0] : searchParams.token;
 }
 
+function absoluteImageUrl(value: string | null | undefined, base: string) {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith("/")) return `${base}${value}`;
+  return "";
+}
+
 function mapModuleLabel(module: unknown, tasteJson: any) {
   if (module === "BOOKS") return "Books";
   if (module === "RECIPES") return "Food";
@@ -52,6 +59,7 @@ async function getSharedListForMetadata(listId: string, token?: string) {
     moduleLabel: mapModuleLabel(list.module, tasteJson),
     itemCount: list._count.items,
     itemTitles: list.items.map((item) => item.title).filter(Boolean),
+    firstImageUrl: list.items.find((item) => item.imageUrl)?.imageUrl || "",
   };
 }
 
@@ -84,6 +92,8 @@ export async function generateMetadata({
     count: String(sharedList.itemCount),
   });
   if (itemPreview) imageParams.set("items", itemPreview);
+  const firstImageUrl = absoluteImageUrl(sharedList.firstImageUrl, base);
+  if (firstImageUrl) imageParams.set("image", firstImageUrl);
   const imageUrl = `${base}/api/og/share-list?${imageParams.toString()}`;
 
   return {

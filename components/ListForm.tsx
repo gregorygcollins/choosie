@@ -7,6 +7,24 @@ function id() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
 }
 
+function SearchIcon() {
+  return (
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+
 // types
 export type ChoosieItem = {
   id: string;
@@ -129,6 +147,25 @@ export default function ListForm({
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
   }, [input]);
+
+  function searchMovieSuggestions() {
+    const query = input.trim();
+    if (query.length < 2) {
+      setSugs([]);
+      setSugsOpen(false);
+      return;
+    }
+
+    setSugsLoading(true);
+    setSugsOpen(true);
+    fetch(`/api/movies/search?query=${encodeURIComponent(query)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setSugs((data?.results || []).slice(0, 6));
+      })
+      .catch(() => setSugs([]))
+      .finally(() => setSugsLoading(false));
+  }
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -402,6 +439,15 @@ export default function ListForm({
               className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Movie title"
             />
+            <button
+              type="button"
+              onClick={searchMovieSuggestions}
+              className="btn-lilac grid px-4 py-2"
+              title="Search TMDB"
+              aria-label="Search TMDB"
+            >
+              <SearchIcon />
+            </button>
             <button
               onClick={addItem}
               className="btn-lilac px-5 py-2"

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { type DragEvent, useEffect, useRef, useState } from "react";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { ChoosieList } from "../../components/ListForm";
 import { toast } from "../../components/Toast";
 import { loadLists, removeList, upsertList } from "../../lib/storage";
 
 type ViewMode = "list" | "grid";
+const LIST_ORDER_KEY = "choosie_list_order_v1";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -222,6 +223,36 @@ function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
   return [...serverLists, ...localLists.filter((list) => !seen.has(list.id))];
 }
 
+function loadListOrder() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LIST_ORDER_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveListOrder(ids: string[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LIST_ORDER_KEY, JSON.stringify(ids));
+}
+
+function applyListOrder(lists: ChoosieList[]) {
+  const order = loadListOrder();
+  if (order.length === 0) return lists;
+  const orderIndex = new Map(order.map((id, index) => [id, index]));
+  return [...lists].sort((a, b) => {
+    const aIndex = orderIndex.get(a.id);
+    const bIndex = orderIndex.get(b.id);
+    if (aIndex == null && bIndex == null) return 0;
+    if (aIndex == null) return 1;
+    if (bIndex == null) return -1;
+    return aIndex - bIndex;
+  });
+}
+
 export default function ListsPage() {
   const router = useRouter();
   const [lists, setLists] = useState<ChoosieList[]>([]);
@@ -233,6 +264,8 @@ export default function ListsPage() {
   const [descriptionTarget, setDescriptionTarget] = useState<ChoosieList | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState("");
   const [descriptionSaving, setDescriptionSaving] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const dragActiveRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,7 +276,7 @@ export default function ListsPage() {
         if (res.ok) {
           const data = await res.json();
           if (!cancelled && data?.ok && Array.isArray(data.lists)) {
-            setLists(mergeLists(data.lists, loadLists()));
+            setLists(applyListOrder(mergeLists(data.lists, loadLists())));
             setLoading(false);
             return;
           }
@@ -252,7 +285,7 @@ export default function ListsPage() {
       // Fallback: local lists
       if (!cancelled) {
         setUsedLocalFallback(true);
-        setLists(loadLists());
+        setLists(applyListOrder(loadLists()));
         setLoading(false);
       }
     }
@@ -277,7 +310,11 @@ export default function ListsPage() {
         const data = await res.json();
         if (data.ok) {
           removeList(list.id);
-          setLists((prev) => prev.filter((l) => l.id !== list.id));
+          setLists((prev) => {
+            const next = prev.filter((l) => l.id !== list.id);
+            saveListOrder(next.map((item) => item.id));
+            return next;
+          });
           toast("List deleted successfully", "success");
           setDeleteTarget(null);
           setIsDeleting(false);
@@ -291,7 +328,11 @@ export default function ListsPage() {
     // Fallback: delete from local storage
     try {
       removeList(list.id);
-      setLists((prev) => prev.filter((l) => l.id !== list.id));
+      setLists((prev) => {
+        const next = prev.filter((l) => l.id !== list.id);
+        saveListOrder(next.map((item) => item.id));
+        return next;
+      });
       toast("List deleted", "success");
     } catch (error) {
       console.error("Delete failed:", error);
@@ -305,6 +346,40 @@ export default function ListsPage() {
   function openDescriptionEditor(list: ChoosieList) {
     setDescriptionTarget(list);
     setDescriptionDraft(list.description || "");
+  }
+
+  function openList(id: string) {
+    if (dragActiveRef.current) return;
+    router.push(`/list/${id}`);
+  }
+
+  function onDragStart(index: number) {
+    dragActiveRef.current = true;
+    setDragIndex(index);
+  }
+
+  function onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  function onDrop(index: number) {
+    setLists((prev) => {
+      if (dragIndex == null || dragIndex === index) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(dragIndex, 1);
+      if (!moved) return prev;
+      next.splice(index, 0, moved);
+      saveListOrder(next.map((list) => list.id));
+      return next;
+    });
+    setDragIndex(null);
+  }
+
+  function onDragEnd() {
+    setDragIndex(null);
+    window.setTimeout(() => {
+      dragActiveRef.current = false;
+    }, 0);
   }
 
   async function saveDescription() {
@@ -471,7 +546,7 @@ export default function ListsPage() {
         </div>
 
         <div className={viewMode === "grid" ? "grid grid-cols-3 gap-2.5 min-[390px]:grid-cols-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5" : "grid gap-3 sm:gap-5"}>
-          {lists.map((list) => {
+          {lists.map((list, index) => {
             // Derive module if missing from server/local legacy data
             const derivedModule = (list as any).moduleType
               || (list.id?.startsWith("book-") ? "books"
@@ -488,14 +563,26 @@ export default function ListsPage() {
               return (
                 <div
                   key={list.id}
-                  onClick={() => router.push(`/list/${list.id}`)}
-                  className="group cursor-pointer focus:outline-none"
+                  onClick={() => openList(list.id)}
+                  className={[
+                    "group cursor-grab focus:outline-none active:cursor-grabbing",
+                    dragIndex === index ? "opacity-60" : "",
+                  ].join(" ")}
                   role="button"
                   tabIndex={0}
+                  draggable
+                  onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", list.id);
+                    onDragStart(index);
+                  }}
+                  onDragOver={onDragOver}
+                  onDrop={() => onDrop(index)}
+                  onDragEnd={onDragEnd}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      router.push(`/list/${list.id}`);
+                      openList(list.id);
                     }
                   }}
                 >
@@ -578,14 +665,26 @@ export default function ListsPage() {
             return (
             <div
               key={list.id}
-              onClick={() => router.push(`/list/${list.id}`)}
-              className="group flex cursor-pointer gap-3 overflow-hidden rounded-xl border border-brand/10 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:border-consensus/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand/40 sm:rounded-2xl sm:p-0 sm:flex-row sm:gap-0 sm:shadow-soft"
+              onClick={() => openList(list.id)}
+              className={[
+                "group flex cursor-grab gap-3 overflow-hidden rounded-xl border border-brand/10 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:border-consensus/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand/40 active:cursor-grabbing sm:rounded-2xl sm:p-0 sm:flex-row sm:gap-0 sm:shadow-soft",
+                dragIndex === index ? "opacity-60" : "",
+              ].join(" ")}
               role="button"
               tabIndex={0}
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", list.id);
+                onDragStart(index);
+              }}
+              onDragOver={onDragOver}
+              onDrop={() => onDrop(index)}
+              onDragEnd={onDragEnd}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  router.push(`/list/${list.id}`);
+                  openList(list.id);
                 }
               }}
             >

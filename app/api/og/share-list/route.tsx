@@ -21,6 +21,7 @@ export async function GET(req: Request) {
   const moduleName = truncate(searchParams.get("module") || "List", 18);
   const count = searchParams.get("count") || "0";
   const items = truncate(searchParams.get("items") || "", 96);
+  const thumbnailUrl = searchParams.get("image") || "";
   const colors = moduleColors(moduleName);
   const logoUrl = `${origin}/choosie-logo-badge.png`;
 
@@ -72,13 +73,45 @@ export async function GET(req: Request) {
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ fontSize: 76, lineHeight: 1.02, fontWeight: 850, letterSpacing: 0 }}>
-              {title}
-            </div>
-            <div style={{ display: "flex", color: "#4B5563", fontSize: 32, fontWeight: 650 }}>
-              {count} {Number(count) === 1 ? "item" : "items"}
-              {items ? ` - ${items}` : ""}
+          <div style={{ display: "flex", alignItems: "center", gap: 42 }}>
+            {thumbnailUrl && (
+              <div
+                style={{
+                  width: 290,
+                  height: 290,
+                  display: "flex",
+                  overflow: "hidden",
+                  borderRadius: 28,
+                  background: "#FFFFFF",
+                  border: `2px solid ${colors.soft}`,
+                  boxShadow: "0 18px 48px rgba(26, 54, 93, 0.22)",
+                }}
+              >
+                <img
+                  src={thumbnailUrl}
+                  width={290}
+                  height={290}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            )}
+            <div
+              style={{
+                minWidth: 0,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 22,
+              }}
+            >
+              <div style={{ fontSize: thumbnailUrl ? 62 : 76, lineHeight: 1.02, fontWeight: 850, letterSpacing: 0 }}>
+                {title}
+              </div>
+              <div style={{ display: "flex", color: "#4B5563", fontSize: thumbnailUrl ? 28 : 32, fontWeight: 650, lineHeight: 1.25 }}>
+                {count} {Number(count) === 1 ? "item" : "items"}
+                {items ? ` - ${items}` : ""}
+              </div>
             </div>
           </div>
 
