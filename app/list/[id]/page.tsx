@@ -84,55 +84,111 @@ function getModuleStyle(module: string) {
   };
 }
 
+function usesIdentityTile(module: string) {
+  return module === "food" || module === "anything";
+}
+
+function ModuleGlyph({ module }: { module: string }) {
+  return (
+    <svg
+      className="h-8 w-8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      {module === "food" ? (
+        <>
+          <path d="M4 3v7" />
+          <path d="M8 3v7" />
+          <path d="M4 7h4" />
+          <path d="M6 10v11" />
+          <path d="M17 3c1.7 1.7 2.5 3.7 2.5 6 0 2.2-.8 4-2.5 5.5V21" />
+        </>
+      ) : module === "music" ? (
+        <>
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </>
+      ) : module === "anything" ? (
+        <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
+      ) : module === "books" ? (
+        <>
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+        </>
+      ) : (
+        <>
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M7 5v14" />
+          <path d="M17 5v14" />
+          <path d="M3 9h4" />
+          <path d="M17 9h4" />
+          <path d="M3 15h4" />
+          <path d="M17 15h4" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function ModuleMark({
+  module,
+  size = "sm",
+  subtle = false,
+}: {
+  module: string;
+  size?: "xs" | "sm";
+  subtle?: boolean;
+}) {
+  const style = getModuleStyle(module);
+
+  return (
+    <span
+      className={[
+        "inline-grid shrink-0 place-items-center rounded-full ring-1",
+        size === "xs" ? "h-7 w-7 [&_svg]:h-3.5 [&_svg]:w-3.5" : "h-8 w-8 [&_svg]:h-4 [&_svg]:w-4",
+        subtle
+          ? "bg-white/85 text-zinc-900 ring-white/70 backdrop-blur"
+          : `${style.fallback} bg-white/90`,
+      ].join(" ")}
+      aria-label={getModuleLabel(module)}
+      title={getModuleLabel(module)}
+    >
+      <ModuleGlyph module={module} />
+    </span>
+  );
+}
+
 function EntryFallback({ module, label }: { module: string; label: string }) {
   const style = getModuleStyle(module);
 
   return (
     <div className={["flex h-full w-full flex-col items-center justify-center gap-4 text-center", style.fallback].join(" ")}>
-      <svg
-        className="h-8 w-8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        viewBox="0 0 24 24"
-        aria-hidden
-      >
-        {module === "food" ? (
-          <>
-            <path d="M4 3v7" />
-            <path d="M8 3v7" />
-            <path d="M4 7h4" />
-            <path d="M6 10v11" />
-            <path d="M17 3c1.7 1.7 2.5 3.7 2.5 6 0 2.2-.8 4-2.5 5.5V21" />
-          </>
-        ) : module === "music" ? (
-          <>
-            <path d="M9 18V5l12-2v13" />
-            <circle cx="6" cy="18" r="3" />
-            <circle cx="18" cy="16" r="3" />
-          </>
-        ) : module === "anything" ? (
-          <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
-        ) : module === "books" ? (
-          <>
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
-          </>
-        ) : (
-          <>
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <path d="M7 5v14" />
-            <path d="M17 5v14" />
-            <path d="M3 9h4" />
-            <path d="M17 9h4" />
-            <path d="M3 15h4" />
-            <path d="M17 15h4" />
-          </>
-        )}
-      </svg>
+      <ModuleGlyph module={module} />
       <span className="text-xs font-semibold uppercase tracking-[0.18em]">{label}</span>
+    </div>
+  );
+}
+
+function EntryIdentityTile({ module, title }: { module: string; title: string }) {
+  const style = getModuleStyle(module);
+
+  return (
+    <div className={["relative h-full w-full overflow-hidden", style.fallback].join(" ")}>
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/18" />
+      <div className="absolute inset-0 flex items-center justify-center p-3 text-center sm:p-5">
+        <span className="line-clamp-4 text-sm font-semibold leading-tight text-current sm:text-2xl sm:leading-snug">
+          {title}
+        </span>
+      </div>
+      <div className="absolute bottom-2 left-2 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-current shadow-sm ring-1 ring-white/70 backdrop-blur sm:bottom-4 sm:left-4 sm:h-11 sm:w-11">
+        <ModuleGlyph module={module} />
+      </div>
     </div>
   );
 }
@@ -679,7 +735,6 @@ export default function ViewListPage() {
 
   const listModule = getListModule(list);
   const moduleLabel = getModuleLabel(listModule);
-  const moduleStyle = getModuleStyle(listModule);
 
   return (
     <main className="min-h-screen p-3 sm:p-8">
@@ -1023,9 +1078,7 @@ export default function ViewListPage() {
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-semibold text-brand sm:text-3xl">{list.title}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500 sm:mt-2">
-              <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
-                {moduleLabel}
-              </span>
+              <ModuleMark module={listModule} size="xs" />
               <span>{list.items.length} items</span>
             </div>
           </div>
@@ -1082,20 +1135,19 @@ export default function ViewListPage() {
                 }}
               >
                 <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-auto sm:w-36 sm:rounded-none">
-                  {item.image ? (
+                  {usesIdentityTile(listModule) ? (
+                    <EntryIdentityTile module={listModule} title={item.title} />
+                  ) : item.image ? (
                     <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   ) : (
                     <EntryFallback module={listModule} label={moduleLabel} />
                   )}
-                  {/* Removed numbered badge */}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-1 pr-1 sm:gap-4 sm:p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
+                      <ModuleMark module={listModule} size="xs" />
                       <h2 className="line-clamp-2 text-base font-semibold leading-tight text-brand sm:text-lg sm:leading-snug">{item.title}</h2>
-                      <span className={["hidden rounded-full px-2 py-0.5 text-xs font-semibold sm:inline-flex", moduleStyle.badge].join(" ")}>
-                        {moduleLabel}
-                      </span>
                     </div>
                     {item.notes ? (
                       <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{item.notes}</p>
@@ -1179,18 +1231,17 @@ export default function ViewListPage() {
                 }}
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2 group-focus:ring-teal-400">
-                  {item.image ? (
+                  {usesIdentityTile(listModule) ? (
+                    <EntryIdentityTile module={listModule} title={item.title} />
+                  ) : item.image ? (
                     <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                   ) : (
                     <EntryFallback module={listModule} label={moduleLabel} />
                   )}
 
-                  <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
-                  {/* Removed numbered badge */}
-                  <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
-                    <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
-                      {moduleLabel}
-                    </span>
+                  <div className={usesIdentityTile(listModule) ? "hidden" : "absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block"} />
+                  <div className={usesIdentityTile(listModule) ? "hidden" : "absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex"}>
+                    <ModuleMark module={listModule} subtle size="xs" />
                     <div>
                       <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
                         {item.title}
@@ -1244,10 +1295,10 @@ export default function ViewListPage() {
                     i
                   </button>
                 </div>
-                <h2 className="mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden">
+                <h2 className={usesIdentityTile(listModule) ? "hidden" : "mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden"}>
                   {item.title}
                 </h2>
-                {item.notes && (
+                {!usesIdentityTile(listModule) && item.notes && (
                   <p className="mt-0.5 line-clamp-1 text-[10px] leading-none text-zinc-500 sm:hidden">
                     {item.notes}
                   </p>

@@ -293,6 +293,10 @@ function getModuleStyle(module: string) {
   };
 }
 
+function usesIdentityTile(module: string) {
+  return module === "food" || module === "recipes" || module === "anything";
+}
+
 function ModuleGlyph({ module }: { module: string }) {
   return (
     <svg
@@ -348,6 +352,24 @@ function ItemFallback({ module, label }: { module: string; label: string }) {
     <div className={["flex h-full w-full flex-col items-center justify-center gap-4 text-center", style.fallback].join(" ")}>
       <ModuleGlyph module={module} />
       <span className="text-xs font-semibold uppercase tracking-[0.18em]">{label}</span>
+    </div>
+  );
+}
+
+function ItemIdentityTile({ module, title }: { module: string; title: string }) {
+  const style = getModuleStyle(module);
+
+  return (
+    <div className={["relative h-full w-full overflow-hidden", style.fallback].join(" ")}>
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/18" />
+      <div className="absolute inset-0 flex items-center justify-center p-3 text-center sm:p-5">
+        <span className="line-clamp-4 text-sm font-semibold leading-tight text-current sm:text-2xl sm:leading-snug">
+          {title}
+        </span>
+      </div>
+      <div className="absolute bottom-2 left-2 grid h-8 w-8 place-items-center rounded-full bg-white/80 text-current shadow-sm ring-1 ring-white/70 backdrop-blur sm:bottom-4 sm:left-4 sm:h-11 sm:w-11">
+        <ModuleGlyph module={module} />
+      </div>
     </div>
   );
 }
@@ -720,16 +742,15 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                               aria-label={`${checked ? "Deselect" : "Select"} ${item.name}`}
                             />
 
-                            {item.image ? (
+                            {usesIdentityTile(normalizedModule) ? (
+                              <ItemIdentityTile module={normalizedModule} title={item.name} />
+                            ) : item.image ? (
                               <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                             ) : (
                               <ItemFallback module={normalizedModule} label={moduleLabel} />
                             )}
 
-                            <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
-                            <div className="absolute left-2 top-2 z-20 rounded-full bg-black/65 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:left-3 sm:top-3 sm:px-2 sm:py-1 sm:text-xs">
-                              #{index + 1}
-                            </div>
+                            <div className={usesIdentityTile(normalizedModule) ? "hidden" : "absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block"} />
                             {checked && (
                               <div className="absolute right-2 top-2 z-20 grid h-7 w-7 place-items-center rounded-full bg-consensus text-brand-dark shadow-lg sm:right-3 sm:top-3 sm:h-9 sm:w-9">
                                 <CheckIcon />
@@ -740,7 +761,7 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                                 Cut
                               </div>
                             )}
-                            <div className="absolute left-0 right-0 bottom-0 z-20 hidden flex-col gap-2 p-4 pr-12 sm:flex">
+                            <div className={usesIdentityTile(normalizedModule) ? "hidden" : "absolute left-0 right-0 bottom-0 z-20 hidden flex-col gap-2 p-4 pr-12 sm:flex"}>
                               <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", item.image ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                                 {moduleLabel}
                               </span>
@@ -764,10 +785,10 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                               <InfoIcon />
                             </button>
                           </div>
-                          <h2 className={`mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight sm:hidden ${isCut ? "text-zinc-400" : "text-brand"}`}>
+                          <h2 className={usesIdentityTile(normalizedModule) ? "hidden" : `mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight sm:hidden ${isCut ? "text-zinc-400" : "text-brand"}`}>
                             {item.name}
                           </h2>
-                          {item.notes && (
+                          {!usesIdentityTile(normalizedModule) && item.notes && (
                             <p className="mt-0.5 line-clamp-1 text-[10px] leading-none text-zinc-500 sm:hidden">
                               {item.notes}
                             </p>
@@ -792,14 +813,13 @@ export const NarrowingPanel: React.FC<NarrowingPanelProps> = ({
                         ].join(" ")}
                       >
                         <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-32 sm:w-40 sm:rounded-none">
-                          {item.image ? (
+                          {usesIdentityTile(normalizedModule) ? (
+                            <ItemIdentityTile module={normalizedModule} title={item.name} />
+                          ) : item.image ? (
                             <img src={item.image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                           ) : (
                             <ItemFallback module={normalizedModule} label={moduleLabel} />
                           )}
-                          <div className="absolute left-2 top-2 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:left-3 sm:top-3 sm:px-2 sm:py-1 sm:text-xs">
-                            #{index + 1}
-                          </div>
                         </div>
 
                         <button

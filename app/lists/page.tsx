@@ -82,6 +82,38 @@ function ModuleIcon({ module }: { module: string }) {
   );
 }
 
+function usesIdentityListTile(module: string) {
+  return module === "food" || module === "anything";
+}
+
+function ModuleMark({
+  module,
+  size = "md",
+  subtle = false,
+}: {
+  module: string;
+  size?: "sm" | "md";
+  subtle?: boolean;
+}) {
+  const moduleStyle = getModuleStyle(module);
+
+  return (
+    <span
+      className={[
+        "inline-grid shrink-0 place-items-center rounded-full ring-1",
+        size === "sm" ? "h-8 w-8 [&_svg]:h-4 [&_svg]:w-4" : "h-10 w-10 [&_svg]:h-5 [&_svg]:w-5",
+        subtle
+          ? "bg-white/85 text-zinc-900 ring-white/70 backdrop-blur"
+          : `${moduleStyle.thumbnail} bg-white/90`,
+      ].join(" ")}
+      aria-label={getModuleLabel(module)}
+      title={getModuleLabel(module)}
+    >
+      <ModuleIcon module={module} />
+    </span>
+  );
+}
+
 function GridIcon() {
   return (
     <svg
@@ -188,47 +220,6 @@ function getModuleStyle(module: string) {
 function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
   const seen = new Set(serverLists.map((list) => list.id));
   return [...serverLists, ...localLists.filter((list) => !seen.has(list.id))];
-}
-
-function ListThumbnail({
-  list,
-  module,
-  moduleLabel,
-  variant,
-}: {
-  list: ChoosieList;
-  module: string;
-  moduleLabel: string;
-  variant: ViewMode;
-}) {
-  const image = list.items?.[0]?.image;
-  const firstTitle = list.items?.[0]?.title;
-  const moduleStyle = getModuleStyle(module);
-
-  return (
-    <span
-      className={[
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1",
-        variant === "grid" ? "h-20 w-20" : "h-20 w-20",
-        moduleStyle.thumbnail,
-      ].join(" ")}
-      title={firstTitle || `${moduleLabel} list`}
-      aria-label={firstTitle ? `First item: ${firstTitle}` : `${moduleLabel} list`}
-    >
-      {image ? (
-        <img
-          src={image}
-          alt=""
-          aria-hidden="true"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span>
-          <ModuleIcon module={module} />
-        </span>
-      )}
-    </span>
-  );
 }
 
 export default function ListsPage() {
@@ -488,10 +479,10 @@ export default function ListsPage() {
                   : list.id?.startsWith("food-") ? "food"
                   : list.id?.startsWith("anything-") ? "anything"
                   : "movies");
-            const moduleLabel = getModuleLabel(derivedModule);
             const moduleStyle = getModuleStyle(derivedModule);
             const coverImage = list.items?.[0]?.image;
             const firstItemTitle = list.items?.[0]?.title;
+            const identityListTile = usesIdentityListTile(derivedModule);
 
             if (viewMode === "grid") {
               return (
@@ -509,7 +500,27 @@ export default function ListsPage() {
                   }}
                 >
                   <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-950 shadow-lg ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-2xl group-focus:ring-2 group-focus:ring-teal-400">
-                    {coverImage ? (
+                    {identityListTile ? (
+                      <div
+                        className={[
+                          "absolute inset-0 flex flex-col items-center justify-center px-4 text-center",
+                          moduleStyle.thumbnail,
+                        ].join(" ")}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/18" />
+                        <div className="relative z-10 flex max-w-full flex-col items-center gap-1.5">
+                          <h2 className="line-clamp-4 text-sm font-semibold leading-tight text-current min-[390px]:text-base sm:text-2xl sm:leading-snug">
+                            {list.title}
+                          </h2>
+                          <p className="text-[10px] font-medium text-current/70 sm:text-sm">
+                            {list.items.length} items
+                          </p>
+                        </div>
+                        <div className="absolute bottom-2 left-2 z-10 sm:bottom-4 sm:left-4">
+                          <ModuleMark module={derivedModule} subtle size="sm" />
+                        </div>
+                      </div>
+                    ) : coverImage ? (
                       <img
                         src={coverImage}
                         alt=""
@@ -524,17 +535,12 @@ export default function ListsPage() {
                         ].join(" ")}
                       >
                         <ModuleIcon module={derivedModule} />
-                        <span className="text-sm font-semibold uppercase tracking-[0.14em]">
-                          {moduleLabel}
-                        </span>
                       </div>
                     )}
 
-                    <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
-                    <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
-                      <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
-                        {moduleLabel}
-                      </span>
+                    <div className={["absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block", identityListTile ? "sm:hidden" : ""].join(" ")} />
+                    <div className={["absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex", identityListTile ? "sm:hidden" : ""].join(" ")}>
+                      <ModuleMark module={derivedModule} subtle size="sm" />
                       <div>
                         <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
                           {list.title}
@@ -559,10 +565,10 @@ export default function ListsPage() {
                       i
                     </button>
                   </div>
-                  <h2 className="mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden">
+                  <h2 className={["mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
                     {list.title}
                   </h2>
-                  <p className="mt-0.5 text-[10px] leading-none text-zinc-500 sm:hidden">
+                  <p className={["mt-0.5 text-[10px] leading-none text-zinc-500 sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
                     {list.items.length} items
                   </p>
                 </div>
@@ -584,7 +590,22 @@ export default function ListsPage() {
               }}
             >
               <div className="relative h-28 w-[4.65rem] shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-auto sm:w-44 sm:rounded-none">
-                {coverImage ? (
+                {identityListTile ? (
+                  <div
+                    className={[
+                      "relative flex h-full w-full items-center justify-center px-2 text-center",
+                      moduleStyle.thumbnail,
+                    ].join(" ")}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/18" />
+                    <h2 className="relative z-10 line-clamp-3 text-xs font-semibold leading-tight text-current sm:text-lg">
+                      {list.title}
+                    </h2>
+                    <div className="absolute bottom-2 left-2 z-10">
+                      <ModuleMark module={derivedModule} subtle size="sm" />
+                    </div>
+                  </div>
+                ) : coverImage ? (
                   <img
                     src={coverImage}
                     alt=""
@@ -599,7 +620,6 @@ export default function ListsPage() {
                     ].join(" ")}
                   >
                     <ModuleIcon module={derivedModule} />
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">{moduleLabel}</span>
                   </div>
                 )}
                 <div className="absolute left-3 top-3 hidden rounded-full bg-black/70 px-2 py-1 text-xs font-semibold text-white sm:block">
@@ -610,12 +630,10 @@ export default function ListsPage() {
               <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 py-1 pr-1 sm:gap-5 sm:p-7 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
+                    <ModuleMark module={derivedModule} size="sm" />
                     <h2 className="line-clamp-2 text-base font-semibold leading-tight text-brand sm:text-xl sm:leading-snug">
                       {list.title}
                     </h2>
-                    <span className={["hidden rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex", moduleStyle.badge].join(" ")}>
-                      {moduleLabel}
-                    </span>
                   </div>
                   {list.description ? (
                     <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-500 sm:mt-2 sm:leading-6">{list.description}</p>
