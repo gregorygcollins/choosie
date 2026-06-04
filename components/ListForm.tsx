@@ -7,24 +7,6 @@ function id() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
 }
 
-function SearchIcon() {
-  return (
-    <svg
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
-}
-
 // types
 export type ChoosieItem = {
   id: string;
@@ -147,25 +129,6 @@ export default function ListForm({
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
   }, [input]);
-
-  function searchMovieSuggestions() {
-    const query = input.trim();
-    if (query.length < 2) {
-      setSugs([]);
-      setSugsOpen(false);
-      return;
-    }
-
-    setSugsLoading(true);
-    setSugsOpen(true);
-    fetch(`/api/movies/search?query=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setSugs((data?.results || []).slice(0, 6));
-      })
-      .catch(() => setSugs([]))
-      .finally(() => setSugsLoading(false));
-  }
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -404,9 +367,9 @@ export default function ListForm({
   }
 
   return (
-  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
+  <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
       {/* List name panel */}
-      <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+      <div className="card panel-tier-2 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
         <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your watchlist"}</label>
         <input
           value={title}
@@ -418,12 +381,12 @@ export default function ListForm({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+          className="input-soft min-h-16 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A] sm:min-h-20"
         />
       </div>
 
       {/* Add items panel */}
-      <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${sugsOpen ? "z-[80]" : "z-10"}`}>
+      <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${sugsOpen ? "z-[80]" : "z-10"}`}>
         <label className="block text-sm font-medium text-neutral-700 mb-2">Add movies</label>
         <div className="relative">
           <div className="flex gap-3">
@@ -439,15 +402,6 @@ export default function ListForm({
               className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
               placeholder="Movie title"
             />
-            <button
-              type="button"
-              onClick={searchMovieSuggestions}
-              className="btn-lilac grid px-4 py-2"
-              title="Search TMDB"
-              aria-label="Search TMDB"
-            >
-              <SearchIcon />
-            </button>
             <button
               onClick={addItem}
               className="btn-lilac px-5 py-2"
@@ -502,7 +456,7 @@ export default function ListForm({
 
       {/* Items list panel */}
       {items.length > 0 && (
-        <div className="card panel-tier-1 p-4">
+        <div className="card panel-tier-1 p-3 sm:p-4">
           <label className="block text-sm font-medium text-neutral-700 mb-3">Your movies</label>
           <ul className="space-y-3">
             {items.map((it, idx) => (
@@ -514,7 +468,13 @@ export default function ListForm({
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
               >
-                <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                <div className="flex h-9 w-7 shrink-0 items-center justify-center rounded-full text-brand/55" aria-hidden="true">
+                  <span className="grid gap-0.5">
+                    <span className="h-1 w-1 rounded-full bg-current" />
+                    <span className="h-1 w-1 rounded-full bg-current" />
+                    <span className="h-1 w-1 rounded-full bg-current" />
+                  </span>
+                </div>
                 {it.image ? (
                   <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                 ) : (
@@ -653,10 +613,10 @@ export default function ListForm({
       )}
 
       {/* Save button */}
-      <div className="flex justify-center">
+      <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         <button
           onClick={handleSave}
-          className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+          className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
         >
           {existingList ? "Update Watchlist" : "Create Watchlist"}
         </button>

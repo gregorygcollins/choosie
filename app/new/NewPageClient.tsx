@@ -15,24 +15,6 @@ function id() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
 }
 
-function SearchIcon() {
-  return (
-    <svg
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
-}
-
 export default function NewPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -368,36 +350,6 @@ export default function NewPageClient() {
 
   function selectSpotifyTrack(track: SpotifyTrack) {
   // Removed: suggestion/autocomplete logic
-  }
-
-  function searchBooksNow() {
-    const query = bookSearchInput.trim();
-    if (query.length < 2) {
-      setBookSugs([]);
-      return;
-    }
-
-    setBookSugsLoading(true);
-    fetch(`/api/books/search?query=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => setBookSugs((data?.books || []).slice(0, 8)))
-      .catch(() => setBookSugs([]))
-      .finally(() => setBookSugsLoading(false));
-  }
-
-  function searchMusicNow() {
-    const query = musicSearchInput.trim();
-    if (query.length < 2) {
-      setMusicSugs([]);
-      return;
-    }
-
-    setMusicSugsLoading(true);
-    fetch(`/api/spotify/search?query=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => setMusicSugs((data?.tracks || []).slice(0, 8)))
-      .catch(() => setMusicSugs([]))
-      .finally(() => setMusicSugsLoading(false));
   }
 
   function addBookItem() {
@@ -1003,9 +955,9 @@ export default function NewPageClient() {
       )}
 
       {selectedModule === "books" ? (
-        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
+        <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
           {/* List name panel */}
-          <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="card panel-tier-2 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
             <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your booklist"}</label>
             <input
               value={bookListTitle}
@@ -1017,30 +969,21 @@ export default function NewPageClient() {
             <textarea
               value={bookDescription}
               onChange={(e) => setBookDescription(e.target.value)}
-              className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+              className="input-soft min-h-16 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A] sm:min-h-20"
             />
           </div>
           {/* Add items panel */}
-          <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${bookSugs.length > 0 || bookSugsLoading ? "z-[80]" : "z-10"}`}>
+          <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${bookSugs.length > 0 || bookSugsLoading ? "z-[80]" : "z-10"}`}>
             <label className="block text-sm font-medium text-neutral-700 mb-2">Add books</label>
             <div className="relative">
               <div className="flex gap-3">
                 <input
                   value={bookSearchInput}
                   onChange={(e) => setBookSearchInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchBooksNow(); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addBookItem(); } }}
                   className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                   placeholder="Book title"
                 />
-                <button
-                  type="button"
-                  onClick={searchBooksNow}
-                  className="btn-lilac grid px-4 py-2"
-                  title="Search Google Books"
-                  aria-label="Search Google Books"
-                >
-                  <SearchIcon />
-                </button>
                 <button
                   onClick={addBookItem}
                   className="btn-lilac px-5 py-2"
@@ -1082,7 +1025,7 @@ export default function NewPageClient() {
           </div>
           {/* Items list panel */}
           {bookItems.length > 0 && (
-            <div className="card panel-tier-1 p-4">
+            <div className="card panel-tier-1 p-3 sm:p-4">
               <label className="block text-sm font-medium text-neutral-700 mb-3">Your books</label>
               <ul className="space-y-3">
                 {bookItems.map((it, idx) => (
@@ -1094,7 +1037,13 @@ export default function NewPageClient() {
                     onDragOver={onBookDragOver}
                     onDrop={(e) => onBookDrop(e, idx)}
                   >
-                    <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                    <div className="flex h-9 w-7 shrink-0 items-center justify-center rounded-full text-brand/55" aria-hidden="true">
+                      <span className="grid gap-0.5">
+                        <span className="h-1 w-1 rounded-full bg-current" />
+                        <span className="h-1 w-1 rounded-full bg-current" />
+                        <span className="h-1 w-1 rounded-full bg-current" />
+                      </span>
+                    </div>
                     {it.image ? (
                       <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                     ) : (
@@ -1136,12 +1085,12 @@ export default function NewPageClient() {
             </div>
           )}
           {/* Save button */}
-          <div className="flex justify-center">
+          <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
             <button
               onClick={handleSaveBookList}
-              className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+              className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
             >
-              {existingList ? "Update Booklist" : "Create Booklist"}
+              {existingList ? "Update Book List" : "Create Book List"}
             </button>
           </div>
         </div>
@@ -1233,9 +1182,9 @@ export default function NewPageClient() {
   // ========== KARAOKE MODULE COMPONENT ==========
     function musicModuleJSX() {
     return (
-  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
+  <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
         {/* List name panel */}
-        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="card panel-tier-2 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your music list"}</label>
           <input
             value={musicListTitle}
@@ -1247,30 +1196,21 @@ export default function NewPageClient() {
           <textarea
             value={musicDescription}
             onChange={(e) => setMusicDescription(e.target.value)}
-            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            className="input-soft min-h-16 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A] sm:min-h-20"
           />
         </div>
         {/* Add items panel */}
-        <div className={`card panel-tier-3 relative overflow-visible p-4 hover:-translate-y-0.5 transition-transform duration-200 ${musicSugs.length > 0 || musicSugsLoading ? "z-[80]" : "z-10"}`}>
+        <div className={`card panel-tier-3 relative overflow-visible p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5 ${musicSugs.length > 0 || musicSugsLoading ? "z-[80]" : "z-10"}`}>
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add songs</label>
           <div className="relative">
             <div className="flex gap-3">
               <input
                 value={musicSearchInput}
                 onChange={(e) => setMusicSearchInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchMusicNow(); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMusicItem(); } }}
                 className="flex-1 input-soft text-[1.05rem] placeholder-[#7A7A7A]"
                 placeholder="Song title"
               />
-              <button
-                type="button"
-                onClick={searchMusicNow}
-                className="btn-lilac grid px-4 py-2"
-                title="Search Spotify"
-                aria-label="Search Spotify"
-              >
-                <SearchIcon />
-              </button>
               <button
                 onClick={addMusicItem}
                 className="btn-lilac px-5 py-2"
@@ -1312,7 +1252,7 @@ export default function NewPageClient() {
         </div>
         {/* Items list panel */}
         {musicItems.length > 0 && (
-          <div className="card panel-tier-1 p-4">
+          <div className="card panel-tier-1 p-3 sm:p-4">
             <label className="block text-sm font-medium text-neutral-700 mb-3">Your songs</label>
             <ul className="space-y-3">
               {musicItems.map((it, idx) => (
@@ -1324,7 +1264,13 @@ export default function NewPageClient() {
                   onDragOver={onMusicDragOver}
                   onDrop={(e) => onMusicDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="flex h-9 w-7 shrink-0 items-center justify-center rounded-full text-brand/55" aria-hidden="true">
+                    <span className="grid gap-0.5">
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                    </span>
+                  </div>
                   {it.image ? (
                     <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                   ) : (
@@ -1366,12 +1312,12 @@ export default function NewPageClient() {
           </div>
         )}
         {/* Save button */}
-        <div className="flex justify-center">
+        <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveMusicList}
-            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update Music List" : "Create Musiclist"}
+            {existingList ? "Update Music List" : "Create Music List"}
           </button>
         </div>
       </div>
@@ -1381,9 +1327,9 @@ export default function NewPageClient() {
   // ========== FOOD MODULE COMPONENT ==========
     function foodModuleJSX() {
     return (
-  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
+  <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
         {/* List name panel */}
-        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="card panel-tier-2 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your food list"}</label>
           <input
             value={foodTitle}
@@ -1395,11 +1341,11 @@ export default function NewPageClient() {
           <textarea
             value={foodDescription}
             onChange={(e) => setFoodDescription(e.target.value)}
-            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            className="input-soft min-h-16 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A] sm:min-h-20"
           />
         </div>
         {/* Add items panel */}
-        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="card panel-tier-3 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add dishes</label>
           <div className="flex gap-3">
             <input
@@ -1427,7 +1373,7 @@ export default function NewPageClient() {
         </div>
         {/* Items list panel */}
         {foodItems.length > 0 && (
-          <div className="card panel-tier-1 p-4">
+          <div className="card panel-tier-1 p-3 sm:p-4">
             <label className="block text-sm font-medium text-neutral-700 mb-3">Your dishes</label>
             <ul className="space-y-3">
               {foodItems.map((it, idx) => (
@@ -1439,7 +1385,13 @@ export default function NewPageClient() {
                   onDragOver={onFoodDragOver}
                   onDrop={(e) => onFoodDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="flex h-9 w-7 shrink-0 items-center justify-center rounded-full text-brand/55" aria-hidden="true">
+                    <span className="grid gap-0.5">
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                    </span>
+                  </div>
                   {it.image ? (
                     <img src={it.image} alt={it.title} className="w-12 h-12 rounded-md object-cover" />
                   ) : (
@@ -1481,12 +1433,12 @@ export default function NewPageClient() {
           </div>
         )}
         {/* Save button */}
-        <div className="flex justify-center">
+        <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveFoodList}
-            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update Food List" : "Create Foodlist"}
+            {existingList ? "Update Food List" : "Create Food List"}
           </button>
         </div>
       </div>
@@ -1496,9 +1448,9 @@ export default function NewPageClient() {
   // ========== ANYTHING MODULE COMPONENT ==========
     function anythingModuleJSX() {
     return (
-  <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 fade-in">
+  <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
         {/* List name panel */}
-        <div className="card panel-tier-2 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="card panel-tier-2 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">{existingList ? "Rename" : "Name your list"}</label>
           <input
             value={anythingTitle}
@@ -1510,11 +1462,11 @@ export default function NewPageClient() {
           <textarea
             value={anythingDescription}
             onChange={(e) => setAnythingDescription(e.target.value)}
-            className="input-soft min-h-20 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A]"
+            className="input-soft min-h-16 w-full resize-y text-[0.95rem] placeholder-[#7A7A7A] sm:min-h-20"
           />
         </div>
         {/* Add items panel */}
-        <div className="card panel-tier-3 p-4 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="card panel-tier-3 p-3 transition-transform duration-200 sm:p-4 sm:hover:-translate-y-0.5">
           <label className="block text-sm font-medium text-neutral-700 mb-2">Add items</label>
           <div className="flex gap-3">
             <input
@@ -1542,7 +1494,7 @@ export default function NewPageClient() {
         </div>
         {/* Items list panel */}
         {anythingItems.length > 0 && (
-          <div className="card panel-tier-1 p-4">
+          <div className="card panel-tier-1 p-3 sm:p-4">
             <label className="block text-sm font-medium text-neutral-700 mb-3">Your items</label>
             <ul className="space-y-3">
               {anythingItems.map((it, idx) => (
@@ -1554,7 +1506,13 @@ export default function NewPageClient() {
                   onDragOver={onAnythingDragOver}
                   onDrop={(e) => onAnythingDrop(e, idx)}
                 >
-                  <div className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-medium text-sm">{idx + 1}</div>
+                  <div className="flex h-9 w-7 shrink-0 items-center justify-center rounded-full text-brand/55" aria-hidden="true">
+                    <span className="grid gap-0.5">
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                      <span className="h-1 w-1 rounded-full bg-current" />
+                    </span>
+                  </div>
                   <div className="w-12 h-12 rounded-md bg-white/60 flex items-center justify-center text-zinc-400">✨</div>
                   <div className="flex-1">
                     <div className="font-medium text-neutral-800">{it.title}</div>
@@ -1592,12 +1550,12 @@ export default function NewPageClient() {
           </div>
         )}
         {/* Save button */}
-        <div className="flex justify-center">
+        <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveAnythingList}
-            className="rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
           >
-            {existingList ? "Update List" : "Create Anythinglist"}
+            {existingList ? "Update List" : "Create List"}
           </button>
         </div>
       </div>

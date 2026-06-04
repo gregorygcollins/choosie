@@ -29,13 +29,10 @@ export default function NewPage() {
   const current = LIST_TYPES[currentIndex];
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:px-6">
+    <main className="min-h-screen px-4 pb-8 pt-5 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-5xl">
-        <section className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.32em] text-brand">
-            TIME TO CHOOSIE
-          </p>
-          <h1 className="mt-4 text-4xl font-bold text-brand sm:text-6xl">
+        <section className="mb-4 text-left sm:mb-7 sm:text-center">
+          <h1 className="text-3xl font-bold leading-tight text-brand sm:text-6xl">
             Build your{" "}
             <span
               className={`${current.color} inline-block transition-all duration-700 ease-in-out ${
@@ -46,12 +43,12 @@ export default function NewPage() {
             </span>
             {" "}list.
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg font-normal leading-8 text-zinc-600 sm:text-xl">
+          <p className="mt-2 max-w-2xl text-sm font-normal leading-6 text-zinc-600 sm:mx-auto sm:mt-4 sm:text-xl sm:leading-8">
             If you're into it, so is someone else.
           </p>
         </section>
 
-        <div className="my-7 flex justify-center">
+        <div className="my-7 hidden justify-center sm:flex">
           <div className="relative w-full max-w-4xl overflow-visible rounded-lg border border-brand/10 bg-white px-6 py-7 shadow-soft">
             <img
               src="/choosie-process.svg?v=9"

@@ -93,16 +93,22 @@ function ModuleMark({
   subtle = false,
 }: {
   module: string;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
   subtle?: boolean;
 }) {
   const moduleStyle = getModuleStyle(module);
+  const sizeClass =
+    size === "xs"
+      ? "h-6 w-6 [&_svg]:h-3 [&_svg]:w-3"
+      : size === "sm"
+        ? "h-8 w-8 [&_svg]:h-4 [&_svg]:w-4"
+        : "h-10 w-10 [&_svg]:h-5 [&_svg]:w-5";
 
   return (
     <span
       className={[
         "inline-grid shrink-0 place-items-center rounded-full ring-1",
-        size === "sm" ? "h-8 w-8 [&_svg]:h-4 [&_svg]:w-4" : "h-10 w-10 [&_svg]:h-5 [&_svg]:w-5",
+        sizeClass,
         subtle
           ? "bg-white/85 text-zinc-900 ring-white/70 backdrop-blur"
           : `${moduleStyle.thumbnail} bg-white/90`,
@@ -652,12 +658,17 @@ export default function ListsPage() {
                       i
                     </button>
                   </div>
-                  <h2 className={["mt-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-brand sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
-                    {list.title}
-                  </h2>
-                  <p className={["mt-0.5 text-[10px] leading-none text-zinc-500 sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
-                    {list.items.length} items
-                  </p>
+                  <div className={["mt-1.5 flex items-start gap-1.5 sm:hidden", identityListTile ? "sr-only" : ""].join(" ")}>
+                    <ModuleMark module={derivedModule} size="xs" />
+                    <div className="min-w-0">
+                      <h2 className="line-clamp-2 text-[11px] font-semibold leading-tight text-brand">
+                        {list.title}
+                      </h2>
+                      <p className="mt-0.5 text-[10px] leading-none text-zinc-500">
+                        {list.items.length} items
+                      </p>
+                    </div>
+                  </div>
                 </div>
               );
             }
