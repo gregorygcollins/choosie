@@ -602,10 +602,14 @@ export default function ListsPage() {
                       >
                         <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/18" />
                         <div className="relative z-10 flex max-w-full flex-col items-center gap-1.5">
+                          <ModuleMark module={derivedModule} size="sm" />
                           <h2 className="line-clamp-4 text-sm font-semibold leading-tight text-current min-[390px]:text-base sm:text-2xl sm:leading-snug">
                             {list.title}
                           </h2>
                         </div>
+                        <p className="absolute bottom-2 z-10 text-[10px] font-medium text-current/75 sm:bottom-4 sm:text-sm">
+                          {list.items.length} items
+                        </p>
                       </div>
                     ) : coverImage ? (
                       <img
