@@ -50,9 +50,9 @@ function getModuleTheme(module: string) {
   }
 
   return {
-    pageBg: "bg-consensus/10 ring-1 ring-consensus/25",
-    createBtn: "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
-    addBtn: "rounded-xl bg-consensus/25 px-5 py-2 font-semibold text-brand-dark transition hover:bg-consensus/40",
+    pageBg: "bg-teal-50/60 ring-1 ring-teal-100/80",
+    createBtn: "bg-teal-600 text-white shadow-lg shadow-teal-600/20 hover:bg-teal-700",
+    addBtn: "rounded-xl bg-teal-50 px-5 py-2 font-semibold text-teal-800 ring-1 ring-teal-100 transition hover:bg-teal-100",
   };
 }
 

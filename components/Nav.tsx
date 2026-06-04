@@ -85,11 +85,13 @@ export default function Nav() {
 
   return (
     <div className="flex w-full min-w-0 items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+      <div className="flex min-w-0 items-center">
         <Link href="/" className="flex shrink-0 items-center">
           <ChoosieLogo size="nav" />
         </Link>
+      </div>
 
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <nav className="flex items-center gap-2 sm:gap-3 md:hidden">
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
             Lists
@@ -107,9 +109,7 @@ export default function Nav() {
             Create
           </Link>
         </nav>
-      </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         {!mounted ? (
           // Prevent hydration mismatch by showing nothing until client-side
           <div className="h-9 w-9" />
@@ -129,7 +129,7 @@ export default function Nav() {
 
             {menuOpen && (
               <div
-                className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-brand/10 bg-white py-1 text-sm shadow-xl shadow-slate-900/10"
+                className="absolute right-0 top-full z-[1000] mt-2 w-44 overflow-hidden rounded-xl border border-brand/10 bg-white py-1 text-sm shadow-xl shadow-slate-900/10"
                 role="menu"
               >
                 {activeUser ? (

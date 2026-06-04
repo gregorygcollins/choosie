@@ -85,7 +85,7 @@ export default function RootLayout({
           <ServiceWorkerRegistration />
           <InstallChoosiePrompt />
           <div className="min-h-screen flex flex-col">
-            <header className="w-full border-b border-black/6 bg-white/40 backdrop-blur-sm">
+            <header className="relative z-[200] w-full border-b border-black/6 bg-white/40 backdrop-blur-sm">
               <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
                 <Nav />
               </div>
