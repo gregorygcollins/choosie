@@ -15,6 +15,41 @@ function id() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
 }
 
+function getModuleTheme(module: string) {
+  if (module === "books") {
+    return {
+      pageBg: "bg-blue-50/70 ring-1 ring-blue-100/80",
+      createBtn: "bg-blue-600 text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700",
+    };
+  }
+
+  if (module === "music") {
+    return {
+      pageBg: "bg-violet-50/70 ring-1 ring-violet-100/80",
+      createBtn: "bg-violet-600 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-700",
+    };
+  }
+
+  if (module === "food") {
+    return {
+      pageBg: "bg-emerald-50/70 ring-1 ring-emerald-100/80",
+      createBtn: "bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700",
+    };
+  }
+
+  if (module === "anything") {
+    return {
+      pageBg: "bg-rose-50/70 ring-1 ring-rose-100/80",
+      createBtn: "bg-rose-600 text-white shadow-lg shadow-rose-600/25 hover:bg-rose-700",
+    };
+  }
+
+  return {
+    pageBg: "bg-teal-50/70 ring-1 ring-teal-100/80",
+    createBtn: "bg-teal-600 text-white shadow-lg shadow-teal-600/25 hover:bg-teal-700",
+  };
+}
+
 export default function NewPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,6 +103,7 @@ export default function NewPageClient() {
   const [editingItem, setEditingItem] = useState<{ module: "books" | "music" | "food" | "anything"; id: string } | null>(null);
   const [editingItemTitle, setEditingItemTitle] = useState("");
   const [editingItemNote, setEditingItemNote] = useState("");
+  const moduleTheme = getModuleTheme(selectedModule);
 
   useEffect(() => {
     if (!editId) return;
@@ -954,6 +990,7 @@ export default function NewPageClient() {
         />
       )}
 
+      <div className={["mt-4 rounded-2xl p-2 transition-colors duration-300 sm:mt-5 sm:p-3", moduleTheme.pageBg].join(" ")}>
       {selectedModule === "books" ? (
         <div className="w-full max-w-3xl mx-auto flex flex-col gap-4 pb-24 fade-in sm:gap-5 sm:pb-0">
           {/* List name panel */}
@@ -1088,7 +1125,7 @@ export default function NewPageClient() {
           <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
             <button
               onClick={handleSaveBookList}
-              className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
+              className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
             >
               {existingList ? "Update Book List" : "Create"}
             </button>
@@ -1101,8 +1138,9 @@ export default function NewPageClient() {
       ) : selectedModule === "anything" ? (
           anythingModuleJSX()
       ) : (
-        <ListForm onSave={handleSave} existingList={existingList} />
+        <ListForm onSave={handleSave} existingList={existingList} createButtonClassName={moduleTheme.createBtn} />
       )}
+      </div>
       {editingItem && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -1315,7 +1353,7 @@ export default function NewPageClient() {
         <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveMusicList}
-            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
+            className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
             {existingList ? "Update Music List" : "Create"}
           </button>
@@ -1436,7 +1474,7 @@ export default function NewPageClient() {
         <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveFoodList}
-            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
+            className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
             {existingList ? "Update Food List" : "Create"}
           </button>
@@ -1553,7 +1591,7 @@ export default function NewPageClient() {
         <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <button
             onClick={handleSaveAnythingList}
-            className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
+            className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
             {existingList ? "Update List" : "Create"}
           </button>

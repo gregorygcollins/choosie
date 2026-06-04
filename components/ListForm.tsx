@@ -67,9 +67,11 @@ export type ChoosieList = {
 export default function ListForm({
   onSave,
   existingList,
+  createButtonClassName,
 }: {
   onSave: (list: ChoosieList) => void;
   existingList?: ChoosieList | null;
+  createButtonClassName?: string;
 }) {
   const [title, setTitle] = useState(existingList?.title || "");
   const [description, setDescription] = useState(existingList?.description || "");
@@ -616,7 +618,10 @@ export default function ListForm({
       <div className="sticky bottom-4 z-40 -mx-1 flex justify-center rounded-full bg-white/85 p-2 shadow-soft backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         <button
           onClick={handleSave}
-          className="w-full rounded-full bg-consensus px-8 py-3 text-[1.05rem] font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:w-auto"
+          className={[
+            "w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto",
+            createButtonClassName || "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
+          ].join(" ")}
         >
           {existingList ? "Update Watchlist" : "Create"}
         </button>
