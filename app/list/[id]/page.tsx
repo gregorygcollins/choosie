@@ -682,7 +682,7 @@ export default function ViewListPage() {
   const moduleStyle = getModuleStyle(listModule);
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-3 sm:p-8">
             {/* Participant Count Modal */}
       {showParticipantModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setShowParticipantModal(false)}>
@@ -1019,24 +1019,24 @@ export default function ViewListPage() {
       
       <ProcessSection />
       <div className={["mx-auto bg-white rounded-2xl p-3 shadow-soft sm:p-8", viewMode === "grid" ? "max-w-7xl" : "max-w-4xl"].join(" ")}>
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold text-brand">{list.title}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+        <div className="mb-4 flex items-start justify-between gap-3 sm:mb-6 sm:items-center">
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-semibold text-brand sm:text-3xl">{list.title}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500 sm:mt-2">
               <span className={["rounded-full px-2.5 py-1 text-xs font-semibold", moduleStyle.badge].join(" ")}>
                 {moduleLabel}
               </span>
               <span>{list.items.length} items</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             {/* list view button */}
             <button
               type="button"
               title="List view"
               aria-pressed={viewMode === "list"}
               onClick={() => setViewMode("list")}
-              className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "list" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "list" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.125 1.125 0 0 1 0 2.25H5.625a1.125 1.125 0 0 1 0-2.25Z" />
@@ -1048,7 +1048,7 @@ export default function ViewListPage() {
               title="Grid view"
               aria-pressed={viewMode === "grid"}
               onClick={() => setViewMode("grid")}
-              className={`grid h-10 w-10 place-items-center rounded-full transition ${viewMode === "grid" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
+              className={`grid h-9 w-9 place-items-center rounded-full transition sm:h-10 sm:w-10 ${viewMode === "grid" ? "bg-brand text-white shadow" : "text-brand hover:bg-brand-light"}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -1155,7 +1155,7 @@ export default function ViewListPage() {
             ))}
           </ul>
         ) : (
-          <div className="grid grid-cols-3 gap-3 min-[390px]:grid-cols-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-2.5 min-[390px]:grid-cols-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5">
             {list.items.map((item, idx) => (
               <div
                 key={item.id}
@@ -1249,17 +1249,17 @@ export default function ViewListPage() {
 
         {/* Suggestions panel removed as requested */}
 
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex gap-3">
             <button
               onClick={() => handleNarrowClick("in-person")}
-              className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+              className="min-w-0 flex-1 rounded-full bg-consensus px-3 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:flex-none sm:px-4"
             >
               Narrow in person
             </button>
             <button
               onClick={() => handleNarrowClick("virtual")}
-              className="rounded-full bg-consensus px-4 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark"
+              className="min-w-0 flex-1 rounded-full bg-consensus px-3 py-2 text-sm font-semibold text-brand-dark shadow-lg shadow-consensus/25 transition hover:bg-consensus-dark sm:flex-none sm:px-4"
             >
               Narrow virtually
             </button>
