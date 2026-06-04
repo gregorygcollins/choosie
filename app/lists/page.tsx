@@ -606,9 +606,6 @@ export default function ListsPage() {
                             {list.title}
                           </h2>
                         </div>
-                        <div className="absolute left-2 top-2 z-10 sm:left-4 sm:top-4">
-                          <ModuleMark module={derivedModule} subtle size="sm" />
-                        </div>
                       </div>
                     ) : coverImage ? (
                       <img
@@ -629,9 +626,6 @@ export default function ListsPage() {
                     )}
 
                     <div className={["absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block", identityListTile ? "sm:hidden" : ""].join(" ")} />
-                    <div className={["absolute left-2 top-2 z-10 sm:left-4 sm:top-4", identityListTile ? "hidden" : ""].join(" ")}>
-                      <ModuleMark module={derivedModule} subtle size="sm" />
-                    </div>
                     <div className={["absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex", identityListTile ? "sm:hidden" : ""].join(" ")}>
                       <div>
                         <h2 className="line-clamp-2 text-base font-semibold leading-tight text-white drop-shadow">
@@ -658,6 +652,7 @@ export default function ListsPage() {
                     </button>
                   </div>
                   <div className="mt-1.5 flex items-start gap-1.5 sm:hidden">
+                    <ModuleMark module={derivedModule} size="xs" />
                     <div className="min-w-0">
                       <h2 className="line-clamp-2 text-[11px] font-semibold leading-tight text-brand">
                         {list.title}
