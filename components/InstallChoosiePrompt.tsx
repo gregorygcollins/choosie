@@ -223,7 +223,7 @@ export function InstallChoosieButton() {
     <button
       type="button"
       onClick={requestChoosieInstallPrompt}
-      className="inline-flex h-8 items-center gap-1.5 rounded-full border border-brand/10 bg-white px-2.5 text-xs font-semibold text-brand shadow-sm transition hover:border-consensus/40 hover:text-brand-dark sm:h-9 sm:px-3"
+      className="hidden h-8 items-center gap-1.5 rounded-full border border-brand/10 bg-white px-2.5 text-xs font-semibold text-brand shadow-sm transition hover:border-consensus/40 hover:text-brand-dark min-[390px]:inline-flex sm:h-9 sm:px-3"
       aria-label="Add Choosie to your home screen"
       title="Add Choosie to your home screen"
     >

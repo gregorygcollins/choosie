@@ -45,19 +45,18 @@ export default function Nav() {
           <ChoosieLogo size="nav" />
         </Link>
 
-        {/* Mobile quick nav */}
-        <nav className="hidden sm:flex md:hidden items-center gap-3">
+        <nav className="flex items-center gap-2 sm:gap-3 md:hidden">
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
-            Lists
+            My lists
           </Link>
-          <Link href="/new" className="text-sm text-zinc-700 hover:text-brand">
+          <Link href="/new" className="hidden text-sm text-zinc-700 hover:text-brand sm:inline">
             Create
           </Link>
         </nav>
 
         <nav className="hidden md:flex items-center gap-4">
           <Link href="/lists" className="text-sm text-zinc-700 hover:text-brand">
-            Lists
+            My lists
           </Link>
           <Link href="/new" className="text-sm text-zinc-700 hover:text-brand">
             Create
