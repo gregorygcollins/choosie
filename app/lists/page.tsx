@@ -530,6 +530,11 @@ export default function ListsPage() {
                   )}
 
                   <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/20 to-black/5 opacity-90 transition group-hover:opacity-100 sm:block" />
+                  <div className="absolute inset-x-0 bottom-0 z-10 bg-white/92 px-1.5 py-1.5 text-left shadow-[0_-6px_16px_rgba(255,255,255,0.72)] sm:hidden">
+                    <h2 className="line-clamp-2 text-[11px] font-semibold leading-tight text-brand">
+                      {list.title}
+                    </h2>
+                  </div>
                   <div className="absolute left-0 right-0 bottom-0 z-10 hidden flex-col gap-2 p-4 pr-12 sm:flex">
                     <span className={["w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold", coverImage ? "bg-white/85 text-zinc-900" : moduleStyle.badge].join(" ")}>
                       {moduleLabel}
