@@ -34,7 +34,7 @@ function getModuleTheme(module: string) {
       claim: "bg-violet-600 text-white hover:bg-violet-700",
     };
   }
-  if (module === "food") {
+  if (module === "food" || module === "recipes") {
     return {
       pageBg: "bg-gradient-to-b from-emerald-50/65 via-white to-white",
       title: "text-emerald-900",
@@ -255,11 +255,12 @@ function RoleSelectionContent() {
   const moduleTheme = getModuleTheme(listModule);
 
   return (
-    <div className={["mx-auto max-w-7xl px-6 py-12 text-center sm:py-16", moduleTheme.pageBg].join(" ")}>
+    <main className={["min-h-screen", moduleTheme.pageBg].join(" ")}>
+      <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:py-16">
       <p className={["text-base font-semibold uppercase tracking-[0.36em]", moduleTheme.accent].join(" ")}>
         TIME TO CHOOSIE
       </p>
-      <h1 className={["mx-auto mt-6 max-w-5xl text-5xl font-bold leading-tight sm:text-7xl", moduleTheme.title].join(" ")}>{listTitle}</h1>
+      <h1 className={["mx-auto mt-6 max-w-5xl break-words text-4xl font-bold leading-tight sm:text-7xl", moduleTheme.title].join(" ")}>{listTitle}</h1>
       {previewItems.length > 0 && (
         <div className="mx-auto mt-8 max-w-5xl">
           {posterItems.length > 0 ? (
@@ -293,7 +294,7 @@ function RoleSelectionContent() {
           )}
         </div>
       )}
-      <p className="mt-9 text-3xl font-bold text-zinc-700">Choosie your role.</p>
+      <p className="mt-9 text-2xl font-bold text-zinc-700 sm:text-3xl">Choosie your role.</p>
 
       <div className="mx-auto mt-10 max-w-2xl text-left">
         <label htmlFor="narrower-name" className={["block text-xl font-bold", moduleTheme.title].join(" ")}>
@@ -309,7 +310,7 @@ function RoleSelectionContent() {
         />
       </div>
 
-      <div className="mt-10 flex flex-wrap justify-center gap-6">
+      <div className="mt-10 flex flex-wrap justify-center gap-4 sm:gap-6">
         {rolesToShow.map(({ role, target, icon }) => {
           const taken = participants.find((p) => p.role === role);
           return (
@@ -345,7 +346,8 @@ function RoleSelectionContent() {
       <div className="mx-auto mt-5 max-w-md text-xs leading-5 text-zinc-500">
         You can join as any available role. The narrowing session begins as soon as a role is claimed.
       </div>
-    </div>
+      </div>
+    </main>
   );
 }
 
