@@ -421,19 +421,16 @@ export default function ViewListPage() {
         await syncParticipantsAndReset(sessionId);
         const base = typeof window !== 'undefined' ? window.location.origin : '';
         const sessionQuery = `session=${encodeURIComponent(sessionId)}`;
-        const organizerLink = `${base}/list/${list.id}/virtual?pt=organizer&${sessionQuery}`;
         if (count === 1) {
           // Only Decider: direct link, no role claim needed
           const deciderLink = `${base}/list/${list.id}/virtual?pt=0&start=1&${sessionQuery}`;
           setGeneratedLinks([
             { url: deciderLink, role: "Decider Link" },
-            { url: organizerLink, role: "Organizer Watch Link" },
           ]);
         } else {
           const groupLink = `${base}/list/${list.id}/virtual/roles?${sessionQuery}`;
           setGeneratedLinks([
             { url: groupLink, role: "Group Link" },
-            { url: organizerLink, role: "Organizer Watch Link" },
           ]);
         }
         setShowLinksModal(true);
