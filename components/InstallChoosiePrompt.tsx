@@ -83,20 +83,22 @@ function XIcon() {
 export function InstallChoosiePrompt() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHelp, setShowIosHelp] = useState(false);
+  const [showManualHelp, setShowManualHelp] = useState(false);
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (isStandalone() || window.localStorage.getItem(DISMISSED_KEY) === "true") return;
+    if (isStandalone()) return;
 
     const visitCount = Number(window.localStorage.getItem(VISIT_COUNT_KEY) || "0") + 1;
     window.localStorage.setItem(VISIT_COUNT_KEY, String(visitCount));
     const canShowPrompt = visitCount >= 2;
+    const dismissed = window.localStorage.getItem(DISMISSED_KEY) === "true";
 
     const ios = isIosSafari();
     if (ios) {
       setShowIosHelp(true);
-      setVisible(canShowPrompt);
+      setVisible(canShowPrompt && !dismissed);
     }
 
     function onBeforeInstallPrompt(event: Event) {
@@ -104,7 +106,7 @@ export function InstallChoosiePrompt() {
       installAvailable = true;
       setInstallEvent(event as BeforeInstallPromptEvent);
       window.dispatchEvent(new Event(INSTALL_AVAILABLE_EVENT));
-      if (canShowPrompt) setVisible(true);
+      if (canShowPrompt && !dismissed) setVisible(true);
     }
 
     function onAppInstalled() {
@@ -116,6 +118,7 @@ export function InstallChoosiePrompt() {
     }
 
     function onInstallRequest() {
+      setShowManualHelp(true);
       setOpen(true);
       setVisible(true);
     }
@@ -133,6 +136,8 @@ export function InstallChoosiePrompt() {
 
   async function install() {
     if (!installEvent) {
+      setShowManualHelp(true);
+      setVisible(true);
       setOpen(true);
       return;
     }
@@ -151,7 +156,7 @@ export function InstallChoosiePrompt() {
     setOpen(false);
   }
 
-  if (!visible || (!installEvent && !showIosHelp)) return null;
+  if (!visible || (!installEvent && !showIosHelp && !showManualHelp)) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2">
@@ -176,6 +181,14 @@ export function InstallChoosiePrompt() {
               <div className="flex items-center gap-2 rounded-xl bg-brand-light px-3 py-2 font-semibold text-brand-dark">
                 <ShareIcon />
                 <span>Share, then Add to Home Screen</span>
+              </div>
+            </div>
+          ) : showManualHelp && !installEvent ? (
+            <div className="space-y-3">
+              <p className="leading-5">Use your browser menu or share button, then choose Add to Home Screen or Install app.</p>
+              <div className="flex items-center gap-2 rounded-xl bg-brand-light px-3 py-2 font-semibold text-brand-dark">
+                <ShareIcon />
+                <span>Menu or Share, then Install</span>
               </div>
             </div>
           ) : (
