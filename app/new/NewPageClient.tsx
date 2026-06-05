@@ -1516,7 +1516,7 @@ export default function NewPageClient() {
             value={anythingTitle}
             onChange={(e) => setAnythingTitle(e.target.value)}
             className="input-soft w-full text-[1.05rem] placeholder-[#7A7A7A]"
-            placeholder="Travel destinations, Baby names, etc."
+            placeholder="Restaurants, Baby names, etc."
           />
           <label className="mt-4 block text-xs font-medium uppercase tracking-wide text-neutral-500 mb-2">Notes</label>
           <textarea
