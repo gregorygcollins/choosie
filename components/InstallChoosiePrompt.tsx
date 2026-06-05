@@ -254,23 +254,14 @@ export function InstallChoosieFloatingButton() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (isStandalone() || window.localStorage.getItem(DISMISSED_KEY) === "true") return;
-    if (installAvailable || isIosSafari()) {
-      setVisible(true);
-    }
-
-    function onInstallAvailable() {
-      setVisible(true);
-    }
+    setVisible(!isStandalone());
 
     function onAppInstalled() {
       setVisible(false);
     }
 
-    window.addEventListener(INSTALL_AVAILABLE_EVENT, onInstallAvailable);
     window.addEventListener("appinstalled", onAppInstalled);
     return () => {
-      window.removeEventListener(INSTALL_AVAILABLE_EVENT, onInstallAvailable);
       window.removeEventListener("appinstalled", onAppInstalled);
     };
   }, []);
