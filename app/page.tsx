@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Pacifico } from "next/font/google";
+import { InstallChoosieFloatingButton } from "../components/InstallChoosiePrompt";
 
 const pacifico = Pacifico({ subsets: ["latin"], weight: "400" });
 
@@ -105,6 +106,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
+      <InstallChoosieFloatingButton />
     </main>
   );
 }
