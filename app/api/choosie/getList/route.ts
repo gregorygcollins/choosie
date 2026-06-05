@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       list: {
         id: list.id,
+        userId: list.userId,
         title: list.title,
         description: list.description || undefined,
         items: list.items.map((it) => ({

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import auth, { getSession, signOut } from "../lib/auth";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import ChoosieLogo from "./ChoosieLogo";
+import { setListStorageUserId } from "../lib/storage";
 
 function UserIcon() {
   return (
@@ -26,8 +27,9 @@ function UserIcon() {
 }
 
 export default function Nav() {
-  const { data: nextSession } = useSession();
+  const { data: nextSession, status } = useSession();
   const [localSession, setLocalSession] = useState(auth.getSession());
+  const [serverUser, setServerUser] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -69,7 +71,39 @@ export default function Nav() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function syncServerUser() {
+      if (status !== "authenticated" || !nextSession?.user) {
+        setServerUser(null);
+        setListStorageUserId(null);
+        return;
+      }
+
+      const sessionUser = nextSession.user as any;
+      if (sessionUser.id) setListStorageUserId(sessionUser.id);
+
+      try {
+        const res = await fetch("/api/me", { credentials: "include", cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (!cancelled && data?.user) {
+          setServerUser(data.user);
+          setListStorageUserId(data.user.id || null);
+        }
+      } catch {
+        if (!cancelled) setServerUser(sessionUser);
+      }
+    }
+
+    syncServerUser();
+    return () => {
+      cancelled = true;
+    };
+  }, [nextSession, status]);
+
   function handleSignOut() {
+    setListStorageUserId(null);
     if (nextSession?.user) {
       nextAuthSignOut();
     } else {
@@ -79,7 +113,7 @@ export default function Nav() {
     setMenuOpen(false);
   }
 
-  const activeUser = nextSession?.user || localSession?.user;
+  const activeUser = serverUser || nextSession?.user || localSession?.user;
   const isPro = Boolean(activeUser && "isPro" in (activeUser as any) && (activeUser as any).isPro);
   const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(pathname || '/')}`;
 

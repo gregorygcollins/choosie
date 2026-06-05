@@ -1,14 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function UpsellModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { data: session } = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isPro = Boolean((session?.user as any)?.isPro);
 
   if (!open) return null;
 
   function startCheckout() {
+    if (isPro) {
+      window.location.href = "/account";
+      return;
+    }
     setBusy(true);
     setError(null);
     window.location.href = "/api/stripe/checkout?billing=monthly";
@@ -19,11 +26,13 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
       <div className="absolute inset-0 bg-black/40" onClick={() => !busy && onClose()} />
       <div className="relative z-10 w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-start justify-between">
-          <h3 className="text-lg font-semibold">Go Pro</h3>
+          <h3 className="text-lg font-semibold">{isPro ? "Pro is active" : "Go Pro"}</h3>
           <button disabled={busy} onClick={onClose} className="text-zinc-500 hover:text-black disabled:opacity-40">✕</button>
         </div>
         <p className="mt-2 text-sm text-zinc-700">
-          Free lets you make and use a movie list. Pro lets you keep building and saving every list your group needs.
+          {isPro
+            ? "Your account already has Pro access."
+            : "Free lets you make and use a movie list. Pro lets you keep building and saving every list your group needs."}
         </p>
         <ul className="mt-3 space-y-1 text-sm text-zinc-700 list-disc list-inside">
           <li>Unlimited saved lists</li>
@@ -41,7 +50,7 @@ export default function UpsellModal({ open, onClose }: { open: boolean; onClose:
             onClick={startCheckout}
             className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50"
           >
-            {busy ? "Starting…" : "Upgrade to Pro"}
+            {isPro ? "Go to account" : busy ? "Starting…" : "Upgrade to Pro"}
           </button>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { type DragEvent, useEffect, useRef, useState } from "react";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { ChoosieList } from "../../components/ListForm";
 import { toast } from "../../components/Toast";
-import { loadLists, removeList, upsertList } from "../../lib/storage";
+import { getListStorageUserId, loadLists, removeList, setListStorageUserId, upsertList } from "../../lib/storage";
 
 type ViewMode = "list" | "grid";
 const LIST_ORDER_KEY = "choosie_list_order_v1";
@@ -232,7 +232,8 @@ function mergeLists(serverLists: ChoosieList[], localLists: ChoosieList[]) {
 function loadListOrder() {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(LIST_ORDER_KEY);
+    const scope = getListStorageUserId() || "anonymous";
+    const raw = localStorage.getItem(`${LIST_ORDER_KEY}:${scope}`);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
   } catch {
@@ -242,7 +243,8 @@ function loadListOrder() {
 
 function saveListOrder(ids: string[]) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(LIST_ORDER_KEY, JSON.stringify(ids));
+  const scope = getListStorageUserId() || "anonymous";
+  localStorage.setItem(`${LIST_ORDER_KEY}:${scope}`, JSON.stringify(ids));
 }
 
 function applyListOrder(lists: ChoosieList[]) {
@@ -282,10 +284,13 @@ export default function ListsPage() {
         if (res.ok) {
           const data = await res.json();
           if (!cancelled && data?.ok && Array.isArray(data.lists)) {
-            setLists(applyListOrder(mergeLists(data.lists, loadLists())));
+            setListStorageUserId(data.userId || null);
+            setLists(applyListOrder(mergeLists(data.lists, loadLists(data.userId))));
             setLoading(false);
             return;
           }
+        } else if (res.status === 401) {
+          setListStorageUserId(null);
         }
       } catch {}
       // Fallback: local lists

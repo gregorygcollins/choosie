@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getList, removeList, upsertList } from "../../../lib/storage";
+import { getList, removeList, setListStorageUserId, upsertList } from "../../../lib/storage";
 import { ChoosieList } from "../../../components/ListForm";
 import { ConfirmModal } from "../../../components/ConfirmModal";
 import { toast } from "../../../components/Toast";
@@ -444,9 +444,6 @@ export default function ViewListPage() {
     let cancelled = false;
 
     async function load() {
-      // Check localStorage first
-      const localList = getList(id as string);
-      
       try {
         // Try server-backed list first (requires sign-in and ownership)
         const res = await fetch("/api/choosie/getList", {
@@ -458,6 +455,9 @@ export default function ViewListPage() {
         if (res.ok) {
           const data = await res.json();
           if (!cancelled && data?.ok && data.list) {
+            const userId = data.list.userId || null;
+            const localList = getList(id as string, userId);
+            setListStorageUserId(userId);
             // If we have a local copy, prefer it (might have unsaved edits)
             // Otherwise use server copy and save to localStorage
             if (localList) {
@@ -473,6 +473,7 @@ export default function ViewListPage() {
       } catch {}
       // Fallback: local list
       if (!cancelled) {
+        const localList = getList(id as string);
         setList(localList || null);
         setLoading(false);
       }

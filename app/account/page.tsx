@@ -80,6 +80,7 @@ export default function AccountPage() {
           checkout_cancelled: "Checkout was canceled. You can restart whenever you’re ready.",
           no_stripe_customer: "Stripe billing could not be opened for this account.",
           portal_failed: "We couldn’t open the billing portal. Please try again.",
+          already_pro: "Choosie Pro is already active for this account.",
         };
         if (err === "no_stripe_customer" || err === "portal_failed") {
           setBillingNeedsReconnect(true);
@@ -99,6 +100,10 @@ export default function AccountPage() {
   }, [status]);
 
   async function startCheckout(billing: "monthly" | "annual" = "monthly") {
+    if (user?.isPro) {
+      setError("Choosie Pro is already active for this account.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -367,7 +372,7 @@ export default function AccountPage() {
               {canManageBilling
                 ? "Manage your subscription and billing details through Stripe."
                 : needsBillingSetup
-                ? "Your Pro access is available, but billing is not ready to manage from this account. Start billing from this sign-in to connect Stripe."
+                ? "Your Pro access is available, but billing is not ready to manage from this account."
                 : "Save unlimited lists and look back at winners, dinners, places, and who narrowed last time."}
             </p>
 
@@ -418,6 +423,10 @@ export default function AccountPage() {
                 >
                   Manage subscription
                 </button>
+              ) : user.isPro ? (
+                <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm font-semibold text-slate-600">
+                  Pro access is active. No additional subscription is needed.
+                </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button

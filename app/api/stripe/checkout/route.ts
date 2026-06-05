@@ -4,6 +4,7 @@ import { preflight, getOrigin, withCORS } from "../../../../lib/cors";
 import { rateLimit } from "../../../../lib/rateLimit";
 import { getStripe } from "../../../../lib/stripe";
 import { BillingInterval, createCheckoutSessionUrl, getBillingInterval, getCheckoutBaseUrl } from "../../../../lib/stripeCheckout";
+import prisma from "../../../../lib/prisma";
 
 async function createCheckoutSession({
   billing,
@@ -41,6 +42,17 @@ function missingPriceResponse(origin: string, billing: BillingInterval, wantsJso
   );
 }
 
+function alreadyProResponse(origin: string, wantsJson = false) {
+  const baseUrl = getCheckoutBaseUrl(origin).replace(/\/$/, "");
+  if (wantsJson) {
+    return NextResponse.json(
+      { ok: false, error: "Pro is already active for this account.", reason: "already_pro" },
+      { status: 409 }
+    );
+  }
+  return NextResponse.redirect(`${baseUrl}/account?error=already_pro`, 302);
+}
+
 export async function OPTIONS(req: NextRequest) {
   return preflight(getOrigin(req));
 }
@@ -52,6 +64,14 @@ export async function GET(req: NextRequest) {
   if (!session?.user?.id) {
     const callbackUrl = `/api/stripe/checkout?billing=${billing}`;
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL || origin}/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`, 302);
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id as string },
+    select: { isPro: true },
+  });
+  if (dbUser?.isPro) {
+    return alreadyProResponse(origin);
   }
 
   const email = (session.user as any).email as string | undefined;
@@ -74,6 +94,14 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) {
     const res = NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     return withCORS(res, origin);
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id as string },
+    select: { isPro: true },
+  });
+  if (dbUser?.isPro) {
+    return withCORS(alreadyProResponse(origin, true), origin);
   }
 
   const body = await req.json().catch(() => ({}));

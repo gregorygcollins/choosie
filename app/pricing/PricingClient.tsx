@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 
 type BillingInterval = "monthly" | "annual";
@@ -15,17 +15,47 @@ function CloseIcon() {
 }
 
 export default function PricingClient() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const [serverUser, setServerUser] = useState<any | null>(null);
   const [selectedBilling, setSelectedBilling] = useState<BillingInterval | null>(null);
   const [emailOpen, setEmailOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const isPro = Boolean(serverUser?.isPro || (session?.user as any)?.isPro);
 
   const checkoutPath = selectedBilling ? `/api/stripe/checkout?billing=${selectedBilling}` : "/pricing";
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMe() {
+      if (status !== "authenticated") {
+        setServerUser(null);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/me", { credentials: "include", cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (!cancelled) setServerUser(data?.user || null);
+      } catch {
+        if (!cancelled) setServerUser(null);
+      }
+    }
+
+    loadMe();
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
+
   function choosePlan(billing: BillingInterval) {
+    if (isPro) {
+      window.location.href = "/account";
+      return;
+    }
     if (status === "authenticated") {
       window.location.href = `/api/stripe/checkout?billing=${billing}`;
       return;
@@ -62,13 +92,22 @@ export default function PricingClient() {
           <img src="/choosie-logo-badge.png" alt="" aria-hidden="true" className="h-full w-full object-contain" />
         </div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pro</p>
-        <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">Upgrade to Choosie Pro</h1>
+        <h1 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
+          {isPro ? "Choosie Pro is active" : "Upgrade to Choosie Pro"}
+        </h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Free is perfect for making and using a movie list. Pro lets you make and save different lists for different activities and occasions.
+          {isPro
+            ? "Manage your plan and billing from your account."
+            : "Free is perfect for making and using a movie list. Pro lets you make and save different lists for different activities and occasions."}
         </p>
       </section>
 
       <section className="mx-auto mt-8 max-w-3xl rounded-2xl border border-brand/10 bg-white p-6 text-center shadow-soft">
+        {isPro && (
+          <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-700">
+            Your Pro plan is active. Manage billing in your account.
+          </div>
+        )}
         <h2 className="text-lg font-bold text-brand">Pro features</h2>
         <ul className="mt-4 grid gap-3 text-sm leading-6 text-slate-700 sm:grid-cols-2">
           <li>Make and save unlimited lists</li>
@@ -95,7 +134,7 @@ export default function PricingClient() {
               onClick={() => choosePlan("monthly")}
               className="inline-flex w-full justify-center rounded-full bg-consensus px-4 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-consensus-dark"
             >
-              Monthly
+              {isPro ? "Go to account" : "Monthly"}
             </button>
           </div>
         </article>
@@ -116,7 +155,7 @@ export default function PricingClient() {
               onClick={() => choosePlan("annual")}
               className="inline-flex w-full justify-center rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
             >
-              Annual
+              {isPro ? "Go to account" : "Annual"}
             </button>
           </div>
         </article>

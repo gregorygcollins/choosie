@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     const lists = await getListsForUser(session.user.id);
     const res = NextResponse.json({
       ok: true,
+      userId: session.user.id,
       lists: lists.map((l) => ({
         id: l.id,
         title: l.title,

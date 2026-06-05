@@ -87,6 +87,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user?.id) token.sub = token.sub || (user.id as any);
+      if (token?.sub) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub as string },
+            select: { isPro: true },
+          });
+          token.isPro = Boolean(dbUser?.isPro);
+        } catch {
+          token.isPro = false;
+        }
+      }
       return token;
     },
     async redirect({ url, baseUrl }: any) {
@@ -98,6 +109,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token?.sub) (session.user as any).id = token.sub;
+      (session.user as any).isPro = Boolean(token?.isPro);
       return session;
     },
   },

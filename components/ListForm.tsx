@@ -628,7 +628,7 @@ export default function ListForm({
             createButtonClassName || "bg-consensus text-brand-dark shadow-lg shadow-consensus/25 hover:bg-consensus-dark",
           ].join(" ")}
         >
-          {existingList ? "Update Watchlist" : "Create"}
+          {existingList ? "Update" : "Create"}
         </button>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ListForm from "../../components/ListForm";
 import BookForm from "../../components/BookForm";
-import { upsertList, getList, removeList } from "../../lib/storage";
+import { upsertList, getList, removeList, setListStorageUserId } from "../../lib/storage";
 import type { ChoosieList, ChoosieItem } from "../../components/ListForm";
 import type { BookSearchResult } from "../../lib/googleBooks";
 import type { SpotifyTrack } from "../../lib/spotify";
@@ -192,9 +192,15 @@ export default function NewPageClient() {
       try {
         const res = await fetch("/api/me", { credentials: "include" });
         const data = await res.json();
-        if (!cancelled) setMe(data?.user || null);
+        if (!cancelled) {
+          setMe(data?.user || null);
+          setListStorageUserId(data?.user?.id || null);
+        }
       } catch {
-        if (!cancelled) setMe(null);
+        if (!cancelled) {
+          setMe(null);
+          setListStorageUserId(null);
+        }
       }
     }
     loadMe();
@@ -1138,7 +1144,7 @@ export default function NewPageClient() {
               onClick={handleSaveBookList}
               className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
             >
-              {existingList ? "Update Book List" : "Create"}
+              {existingList ? "Update" : "Create"}
             </button>
           </div>
         </div>
@@ -1371,7 +1377,7 @@ export default function NewPageClient() {
             onClick={handleSaveMusicList}
             className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
-            {existingList ? "Update Music List" : "Create"}
+            {existingList ? "Update" : "Create"}
           </button>
         </div>
       </div>
@@ -1492,7 +1498,7 @@ export default function NewPageClient() {
             onClick={handleSaveFoodList}
             className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
-            {existingList ? "Update Food List" : "Create"}
+            {existingList ? "Update" : "Create"}
           </button>
         </div>
       </div>
@@ -1609,7 +1615,7 @@ export default function NewPageClient() {
             onClick={handleSaveAnythingList}
             className={["w-full rounded-full px-8 py-3 text-[1.05rem] font-semibold transition sm:w-auto", moduleTheme.createBtn].join(" ")}
           >
-            {existingList ? "Update List" : "Create"}
+            {existingList ? "Update" : "Create"}
           </button>
         </div>
       </div>
