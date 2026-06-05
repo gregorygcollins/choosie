@@ -384,7 +384,7 @@ export default function AccountPage() {
 
             {showSuccessBanner && user.isPro && (
               <div className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-800">
-                <p>You’re Pro. Enjoy premium features.</p>
+                <p>You just got choosier!</p>
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                   <Link
                     href="/lists"
