@@ -7,7 +7,7 @@ function truncate(value: string, max: number) {
 export async function GET(req: Request) {
   const { searchParams, origin } = new URL(req.url);
   const title = truncate(searchParams.get("title") || "Choosie list", 42);
-  const description = "Turn reluctant agreement into passionate overlap!";
+  const description = "Turn reluctant agreement into enthusiastic overlap!";
   const posters = searchParams.getAll("poster").slice(0, 5);
   const logoUrl = `${origin}/choosie-logo-badge.png`;
   const roles = ["Curator", "Editor", "Programmer", "Selector", "Decider"];

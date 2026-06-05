@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const base = siteUrl();
   const list = await getInviteList(id).catch(() => null);
   const title = list?.title || "Choosie list";
-  const description = "Turn reluctant agreement into passionate overlap!";
+  const description = "Turn reluctant agreement into enthusiastic overlap!";
   const imageParams = new URLSearchParams({ title });
   for (const item of list?.items || []) {
     if (item.imageUrl) imageParams.append("poster", item.imageUrl);

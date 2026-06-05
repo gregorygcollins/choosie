@@ -1,7 +1,7 @@
 {
   "name": "Choosie",
   "short_name": "Choosie",
-  "description": "Turn reluctant consensus into passionate overlap.",
+  "description": "Turn reluctant consensus into enthusiastic overlap.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

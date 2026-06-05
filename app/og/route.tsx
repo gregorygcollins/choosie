@@ -37,7 +37,7 @@ export async function GET(req: Request) {
             Do Only What You Love, Together.
           </div>
           <div style={{ marginTop: 28, fontSize: 28, color: '#00AFA3', fontWeight: 700 }}>
-            Turn reluctant consensus into passionate overlap.
+            Turn reluctant consensus into enthusiastic overlap.
           </div>
         </div>
       </div>

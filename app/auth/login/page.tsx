@@ -110,7 +110,7 @@ function LoginForm() {
             <div className="mb-3 inline-flex rounded-full bg-consensus/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand">
               Pro
             </div>
-            <h2 className="text-xl font-bold text-brand">Choosie passionate overlap</h2>
+            <h2 className="text-xl font-bold text-brand">Choosie enthusiastic overlap</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               Free gets you started with a movie list. Pro unlocks unlimited saved lists across movies, books, music, food, and anything.
             </p>

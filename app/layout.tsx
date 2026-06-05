@@ -23,7 +23,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.choosietogether
 export const metadata: Metadata = {
   title: "Choosie – Do Only What You Love, Together",
   applicationName: "Choosie",
-  description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
+  description: "Turn reluctant consensus into enthusiastic overlap. No scrolling, no bickering, no compromise.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Choosie – Do Only What You Love, Together",
-    description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
+    description: "Turn reluctant consensus into enthusiastic overlap. No scrolling, no bickering, no compromise.",
     url: siteUrl,
     siteName: "Choosie",
     images: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Choosie – Do Only What You Love, Together",
-    description: "Turn reluctant consensus into passionate overlap. No scrolling, no bickering, no compromise.",
+    description: "Turn reluctant consensus into enthusiastic overlap. No scrolling, no bickering, no compromise.",
     images: [`${siteUrl}/og-image.png`]
   },
   icons: {

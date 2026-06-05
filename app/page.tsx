@@ -63,7 +63,7 @@ export default function Home() {
         <div className="mb-10 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">How it works</p>
           <h2 className="mt-3 text-3xl font-bold text-brand sm:text-4xl">
-            Turn reluctant consensus into <span className="text-consensus-dark">passionate overlap.</span>
+            Turn reluctant consensus into <span className="text-consensus-dark">enthusiastic overlap.</span>
           </h2>
         </div>
 
@@ -96,7 +96,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-bold text-brand">Want to choosie more than movies?</h3>
           <p className="mx-auto mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-            <span className="block">Free lets you make a movie list. Pro lets you make and save unlimited movie, book, music, food, and anything lists. Perfect for book clubs, karaoke nights, and deciding what and where to eat. Choosie <strong>passionate overlap</strong> every time.</span>
+            <span className="block">Free lets you make a movie list. Pro lets you make and save unlimited movie, book, music, food, and anything lists. Perfect for book clubs, karaoke nights, and deciding what and where to eat. Choosie <strong>enthusiastic overlap</strong> every time.</span>
           </p>
           <Link
             href="/pricing"
