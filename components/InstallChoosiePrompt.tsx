@@ -272,7 +272,7 @@ export function InstallChoosieFloatingButton() {
     <button
       type="button"
       onClick={requestChoosieInstallPrompt}
-      className="fixed bottom-24 right-5 z-40 grid h-16 w-16 place-items-center rounded-full bg-black text-white shadow-2xl shadow-slate-900/25 ring-1 ring-white/15 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-consensus/35 active:scale-100 sm:bottom-8 sm:right-8 sm:h-[4.5rem] sm:w-[4.5rem]"
+      className="fixed bottom-24 right-5 z-40 grid h-16 w-16 place-items-center rounded-full bg-black text-white shadow-2xl shadow-slate-900/25 ring-1 ring-white/15 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-consensus/35 active:scale-100 sm:bottom-16 sm:right-8 sm:h-[4.5rem] sm:w-[4.5rem]"
       aria-label="Add Choosie to your home screen"
       title="Add Choosie to your home screen"
     >
