@@ -44,7 +44,7 @@ function InstallDeviceIcon() {
         <rect x="6.5" y="3.5" width="11" height="17" rx="2.5" />
         <path d="M10 18h4" strokeLinecap="round" />
       </svg>
-      <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-sky-500 text-white ring-2 ring-black">
+      <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-consensus text-brand-dark ring-2 ring-black">
         <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3">
           <path d="M12 4v12" strokeLinecap="round" />
           <path d="m7 11 5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
@@ -251,28 +251,11 @@ export function InstallChoosieButton() {
 }
 
 export function InstallChoosieFloatingButton() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(!isStandalone());
-
-    function onAppInstalled() {
-      setVisible(false);
-    }
-
-    window.addEventListener("appinstalled", onAppInstalled);
-    return () => {
-      window.removeEventListener("appinstalled", onAppInstalled);
-    };
-  }, []);
-
-  if (!visible) return null;
-
   return (
     <button
       type="button"
       onClick={requestChoosieInstallPrompt}
-      className="fixed bottom-24 right-5 z-40 grid h-16 w-16 place-items-center rounded-full bg-black text-white shadow-2xl shadow-slate-900/25 ring-1 ring-white/15 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-consensus/35 active:scale-100 sm:bottom-16 sm:right-8 sm:h-[4.5rem] sm:w-[4.5rem]"
+      className="fixed bottom-24 right-5 z-[1000] grid h-16 w-16 place-items-center rounded-full bg-black text-white shadow-2xl shadow-slate-900/25 ring-1 ring-white/15 transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-consensus/35 active:scale-100 sm:bottom-16 sm:right-8 sm:h-[4.5rem] sm:w-[4.5rem]"
       aria-label="Add Choosie to your home screen"
       title="Add Choosie to your home screen"
     >
